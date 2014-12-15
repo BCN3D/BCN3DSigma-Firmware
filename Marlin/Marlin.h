@@ -22,9 +22,11 @@
 #include "Configuration.h"
 #include "pins.h"
 
-#ifndef AT90USB
-#define  HardwareSerial_h // trick to disable the standard HWserial
-#endif
+#include "genieArduino.h"
+
+//#ifndef AT90USB
+//#define  HardwareSerial_h // trick to disable the standard HWserial
+//#endif
 
 #if (ARDUINO >= 100)
 # include "Arduino.h"
@@ -34,11 +36,11 @@
 # define analogInputToDigitalPin(p) ((p) + A0)
 #endif
 
-#ifdef AT90USB
+//#ifdef AT90USB
 #include "HardwareSerial.h"
-#endif
+//#endif
 
-#include "MarlinSerial.h"
+//#include "MarlinSerial.h"
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
@@ -48,16 +50,17 @@
 #endif
 
 #include "WString.h"
-
-#ifdef AT90USB
-   #ifdef BTENABLED
-         #define MYSERIAL bt
-   #else
+//
+//#ifdef AT90USB
+   //#ifdef BTENABLED
+         //#define MYSERIAL bt
+   //#else
          #define MYSERIAL Serial
-   #endif // BTENABLED
-#else
-  #define MYSERIAL MSerial
-#endif
+		 #define MYSERIAL_SCREEN Serial2
+   //#endif // BTENABLED
+//#else
+  //#define MYSERIAL MSerial
+//#endif
 
 #define SERIAL_PROTOCOL(x) (MYSERIAL.print(x))
 #define SERIAL_PROTOCOL_F(x,y) (MYSERIAL.print(x,y))
@@ -264,4 +267,9 @@ extern void digipot_i2c_set_current( int channel, float current );
 extern void digipot_i2c_init();
 #endif
 
+//Rapduch
+extern Genie genie;
+void touchscreen_update();
+extern uint16_t filepointer;
+extern String screen_status;
 #endif

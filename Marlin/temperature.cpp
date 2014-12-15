@@ -318,7 +318,8 @@ void PID_autotune(float temp, int extruder, int ncycles)
       SERIAL_PROTOCOLLNPGM("PID Autotune finished! Put the last Kp, Ki and Kd constants from above into Configuration.h");
       return;
     }
-    lcd_update();
+    //lcd_update();
+	touchscreen_update();
   }
 }
 
@@ -1036,7 +1037,8 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
           disable_e1();
           disable_e2();
           manage_heater();
-          lcd_update();
+          //lcd_update();
+		  touchscreen_update();
         }
       }
       break;
@@ -1407,14 +1409,14 @@ ISR(TIMER0_COMPB_vect)
 #else
     if(current_temperature_raw[0] >= maxttemp_raw[0]) {
 #endif
-        max_temp_error(0);
+        //max_temp_error(0);
     }
 #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
     if(current_temperature_raw[0] >= minttemp_raw[0]) {
 #else
     if(current_temperature_raw[0] <= minttemp_raw[0]) {
 #endif
-        min_temp_error(0);
+        //min_temp_error(0);
     }
 #if EXTRUDERS > 1
 #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
@@ -1422,14 +1424,14 @@ ISR(TIMER0_COMPB_vect)
 #else
     if(current_temperature_raw[1] >= maxttemp_raw[1]) {
 #endif
-        max_temp_error(1);
+        //max_temp_error(1);
     }
 #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
     if(current_temperature_raw[1] >= minttemp_raw[1]) {
 #else
     if(current_temperature_raw[1] <= minttemp_raw[1]) {
 #endif
-        min_temp_error(1);
+        //min_temp_error(1);
     }
 #endif
 #if EXTRUDERS > 2
@@ -1438,14 +1440,14 @@ ISR(TIMER0_COMPB_vect)
 #else
     if(current_temperature_raw[2] >= maxttemp_raw[2]) {
 #endif
-        max_temp_error(2);
+        //max_temp_error(2);
     }
 #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
     if(current_temperature_raw[2] >= minttemp_raw[2]) {
 #else
     if(current_temperature_raw[2] <= minttemp_raw[2]) {
 #endif
-        min_temp_error(2);
+        //min_temp_error(2);
     }
 #endif
   
@@ -1457,7 +1459,7 @@ ISR(TIMER0_COMPB_vect)
     if(current_temperature_bed_raw >= bed_maxttemp_raw) {
 #endif
        target_temperature_bed = 0;
-       bed_max_temp_error();
+       //bed_max_temp_error();
     }
 #endif
   }

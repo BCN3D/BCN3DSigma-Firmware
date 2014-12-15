@@ -48,6 +48,18 @@
 #include "pins_arduino.h"
 #include "math.h"
 
+
+//Rapduch
+#include "genieArduino.h"
+#include "Touch_Screen_Definitions.h"
+#include "LCD_Handler.h"
+
+//static Genie genie;
+Genie genie;
+#define RESETLINE 23
+//void myGenieEventHandler();
+//-------------------------
+
 #ifdef BLINKM
 #include "BlinkM.h"
 #include "Wire.h"
@@ -201,7 +213,10 @@
 //===========================================================================
 #ifdef SDSUPPORT
 CardReader card;
+
 #endif
+uint16_t filepointer = 0;
+String screen_status = "Printing...";
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
@@ -534,6 +549,23 @@ void setup()
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
+  
+  //LCD START routine
+  MYSERIAL_SCREEN.begin(200000);
+  genie.Begin(MYSERIAL_SCREEN);   // Use Serial2 for talking to the Genie Library, and to the 4D Systems display
+  genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
+  // Reset the Display (change D4 to D2 if you have original 4D Arduino Adaptor)
+  // THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
+  pinMode(RESETLINE, OUTPUT);  // Set D4 on Arduino to Output (4D Arduino Adaptor V2 - Display Reset)
+  digitalWrite(RESETLINE, 0);  // Reset the Display
+  delay(100);
+  digitalWrite(RESETLINE, 1);  // unReset the Display
+  delay (3500); //let the display start up after the reset (This is important)
+  delay (3500); //showing the splash screen
+  genie.WriteObject(GENIE_OBJ_FORM,5,0);
+  //Turn the Display on (Contrast) - (Not needed but illustrates how)
+  genie.WriteContrast(1);
+  
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
   byte mcu = MCUSR;
@@ -578,7 +610,7 @@ void setup()
   servo_init();
   
 
-  lcd_init();
+  //lcd_init();
   _delay_ms(1000);	// wait 1sec to display the splash screen
 
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
@@ -639,7 +671,42 @@ void loop()
   manage_heater();
   manage_inactivity();
   checkHitEndstops();
-  lcd_update();
+  //lcd_update();
+  touchscreen_update();
+  //genie.DoEvents();
+}
+
+void touchscreen_update()
+{
+	uint16_t time = millis()/60000 - starttime/60000;
+	int tHotend=int(degHotend(tmp_extruder));
+	int tBed=int(degBed() + 0.5);
+	//static keyword specifies that the variable retains its state between calls to the function
+	//static long waitPeriod = millis();
+	//if (millis() >= waitPeriod)
+	//{
+	if(card.sdprinting)
+	{
+		genie.WriteObject(GENIE_OBJ_LED_DIGITS,3, tHotend);
+		genie.WriteObject(GENIE_OBJ_LED_DIGITS,7, 0);
+		genie.WriteObject(GENIE_OBJ_LED_DIGITS,6, tBed);
+		genie.WriteObject(GENIE_OBJ_LED_DIGITS,5,(time%60));
+		genie.WriteObject(GENIE_OBJ_LED_DIGITS,4,(time/60));
+		//genie.WriteObject(GENIE_OBJ_STRINGS,6,0);
+		//genie.WriteObject(GENIE_OBJ_STRINGS,2,0);
+	}else
+	{
+		genie.WriteObject(GENIE_OBJ_LED_DIGITS,8, tHotend);
+		genie.WriteObject(GENIE_OBJ_LED_DIGITS,9, 0);
+		genie.WriteObject(GENIE_OBJ_LED_DIGITS,10, tBed);
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,12,0);
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,11,0);
+		//genie.WriteObject(GENIE_OBJ_STRINGS,7,0);
+		//genie.WriteObject(GENIE_OBJ_STRINGS,8,0);
+	}
+	//}
+	//waitPeriod=250+millis();
+	genie.DoEvents();
 }
 
 void get_command()
@@ -756,6 +823,16 @@ void get_command()
   }
   #ifdef SDSUPPORT
   if(!card.sdprinting || serial_count!=0){
+	  
+	  //Rapduch
+	  static long waitperiod=millis();
+	  if (millis()>=waitperiod)
+	  {
+		  screen_status="Paused...";
+		  genie.WriteStr(6,"Paused..."); //Print Paused on screen Status
+	  }
+	  waitperiod=millis()+500;
+	  
     return;
   }
 
@@ -1388,7 +1465,8 @@ void process_commands()
       while(millis() < codenum) {
         manage_heater();
         manage_inactivity();
-        lcd_update();
+        //lcd_update();
+		touchscreen_update();
       }
       break;
       #ifdef FWRETRACT
@@ -1893,6 +1971,7 @@ void process_commands()
           manage_heater();
           manage_inactivity();
           lcd_update();
+		  touchscreen_update();
         }
         lcd_ignore_click(false);
       }else{
@@ -1900,6 +1979,7 @@ void process_commands()
           manage_heater();
           manage_inactivity();
           lcd_update();
+		  touchscreen_update();
         }
       }
       if (IS_SD_PRINTING)
@@ -2500,7 +2580,14 @@ Sigma_Exit:
           }
           manage_heater();
           manage_inactivity();
-          lcd_update();
+          //lcd_update();
+		  touchscreen_update();
+		  
+		  if (card.sdprinting==false && !card.sdispaused) //Added ispaused from cardreader
+		  {
+			  break; //Break if we are trying to heat when the fileprinting has been stopped and is not paused
+		  }
+		  
         #ifdef TEMP_RESIDENCY_TIME
             /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
               or when current temp falls outside the hysteresis after target temp was reached */
@@ -2548,7 +2635,13 @@ Sigma_Exit:
           }
           manage_heater();
           manage_inactivity();
-          lcd_update();
+          //lcd_update();
+		  touchscreen_update();
+		  
+		  if (card.sdprinting==false && !card.sdispaused) //Added ispaused from cardreader
+		  {
+			  break; //Break if we are trying to heat when the fileprinting has been stopped and is not paused
+		  }
         }
         LCD_MESSAGEPGM(MSG_BED_DONE);
         previous_millis_cmd = millis();
@@ -3083,7 +3176,8 @@ Sigma_Exit:
             while(digitalRead(pin_number) != target){
               manage_heater();
               manage_inactivity();
-              lcd_update();
+              //lcd_update();
+			  touchscreen_update();
             }
           }
         }

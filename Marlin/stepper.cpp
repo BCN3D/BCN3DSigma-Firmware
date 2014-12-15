@@ -542,7 +542,7 @@ ISR(TIMER1_COMPA_vect)
 
     for(int8_t i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves)
       #ifndef AT90USB
-      MSerial.checkRx(); // Check for serial chars.
+      //MYSERIAL.checkRx(); // Check for serial chars.
       #endif
 
       #ifdef ADVANCE
@@ -1027,7 +1027,8 @@ void st_synchronize()
     while( blocks_queued()) {
     manage_heater();
     manage_inactivity();
-    lcd_update();
+    //lcd_update();
+	touchscreen_update();
   }
 }
 

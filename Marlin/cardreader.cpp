@@ -14,6 +14,7 @@ CardReader::CardReader()
    filesize = 0;
    sdpos = 0;
    sdprinting = false;
+   sdispaused = false;
    cardOK = false;
    saving = false;
    logging = false;
@@ -207,6 +208,7 @@ void CardReader::startFileprint()
   if(cardOK)
   {
     sdprinting = true;
+	sdispaused = false;
   }
 }
 
@@ -215,6 +217,7 @@ void CardReader::pauseSDPrint()
   if(sdprinting)
   {
     sdprinting = false;
+	sdispaused = true;
   }
 }
 

@@ -73,16 +73,17 @@
 // 9  = Gen3+
 // 70 = Megatronics
 // 701= Megatronics v2.0
+// 703= Megatronics v3.0
 // 702= Minitronics v1.0
 // 90 = Alpha OMCA board
-// 91 = Final OMCA board
+// 91 = Final OMCA board                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 // 301= Rambo
 // 21 = Elefu Ra Board (v3)
 // 88 = 5DPrint D8 Driver Board
 // 999 = Leapfrog
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 34
+#define MOTHERBOARD 703
 #endif
 
 // Define this to set a custom name for your generic Mendel,

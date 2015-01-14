@@ -56,7 +56,8 @@
          //#define MYSERIAL bt
    //#else
          #define MYSERIAL Serial
-		 #define MYSERIAL_SCREEN Serial2
+		 //#define MYSERIAL_SCREEN Serial2
+		 #define MYSERIAL_SCREEN Serial3
    //#endif // BTENABLED
 //#else
   //#define MYSERIAL MSerial

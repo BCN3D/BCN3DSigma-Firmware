@@ -56,7 +56,8 @@
 
 //static Genie genie;
 Genie genie;
-#define RESETLINE 23
+//#define RESETLINE 23
+#define RESETLINE 49
 //void myGenieEventHandler();
 //-------------------------
 
@@ -215,8 +216,13 @@ Genie genie;
 CardReader card;
 
 #endif
+
+//Rapduch
+bool surfing_utilities = false;
 uint16_t filepointer = 0;
 String screen_status = "Printing...";
+
+
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
@@ -557,9 +563,18 @@ void setup()
   // Reset the Display (change D4 to D2 if you have original 4D Arduino Adaptor)
   // THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
   pinMode(RESETLINE, OUTPUT);  // Set D4 on Arduino to Output (4D Arduino Adaptor V2 - Display Reset)
+  //pinMode(48,OUTPUT);
+  pinMode(47,OUTPUT);
+  pinMode(46,OUTPUT);
   digitalWrite(RESETLINE, 0);  // Reset the Display
+  //digitalWrite(48, 0);  // Reset the Display
+  digitalWrite(47, 0);  // Reset the Display
+  digitalWrite(46, 0);  // Reset the Display
   delay(100);
   digitalWrite(RESETLINE, 1);  // unReset the Display
+	//digitalWrite(48, 1);  // Reset the Display
+	digitalWrite(47, 1);  // Reset the Display
+	digitalWrite(46, 1);  // Reset the Display
   delay (3500); //let the display start up after the reset (This is important)
   delay (3500); //showing the splash screen
   genie.WriteObject(GENIE_OBJ_FORM,5,0);
@@ -602,12 +617,12 @@ void setup()
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
 
-  tp_init();    // Initialize temperature loop
-  plan_init();  // Initialize planner;
-  watchdog_init();
-  st_init();    // Initialize stepper, this enables interrupts!
-  setup_photpin();
-  servo_init();
+  //tp_init();    // Initialize temperature loop
+  //plan_init();  // Initialize planner;
+  //watchdog_init();
+  //st_init();    // Initialize stepper, this enables interrupts!
+  //setup_photpin();
+  //servo_init();
   
 
   //lcd_init();
@@ -676,6 +691,7 @@ void loop()
   //genie.DoEvents();
 }
 
+//Rapduch
 void touchscreen_update()
 {
 	uint16_t time = millis()/60000 - starttime/60000;

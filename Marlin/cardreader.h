@@ -27,6 +27,10 @@ public:
   void pauseSDPrint();
   void getStatus();
   void printingHasFinished();
+  
+	//Rapduch
+	uint32_t getFileSize();
+	uint32_t getSdPosition();
 
   void getfilename(const uint8_t nr);
   uint16_t getnrfilenames();

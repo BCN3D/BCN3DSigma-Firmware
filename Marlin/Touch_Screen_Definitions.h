@@ -15,6 +15,7 @@
 #define BUTTON_AUTOLEVEL		12
 #define BUTTON_RESUME			22
 #define BUTTON_STOP				20
+#define BUTTON_STOP_YES			1
 #define BUTTON_SD_SELECTED		15
 #define BUTTON_SD_LEFT			14
 #define BUTTON_SD_RIGHT			5
@@ -30,6 +31,11 @@
 #define BUTTON_BED_UP			48
 #define BUTTON_NOZZLE_DOWN		42
 #define BUTTON_NOZZLE_UP		41
+#define BUTTON_SETUP_BACK_NOZZLE1 43
+#define BUTTON_SETUP_BACK_BED	44
+#define BUTTON_CHANGE_EXTRUDER  63
+#define BUTTON_PROVA			64
+#define BUTTON_PROVA_PRESS		65
 
 
 //Winbuttons
@@ -57,7 +63,9 @@
 
 
 //Strings
-
+#define STRINGS_NOZZLE1			25
+#define STRINGS_NOZZLE2			26
+#define STRINGS_BED				27
 
 
 //Form
@@ -71,10 +79,10 @@
 #define FORM_NOZZLE				16
 #define FORM_BED				17
 #define FORM_FAN				18
-
-
-
-
+#define FORM_TEMPERATURE		22
+#define FORM_MAIN_SCREEN		5
+#define FORM_SETUP				13
+#define FORM_UTILITIES			4
 
 
 #endif /* INCFILE1_H_ */

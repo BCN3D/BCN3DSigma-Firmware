@@ -57,7 +57,7 @@
 //static Genie genie;
 Genie genie;
 //#define RESETLINE 23
-#define RESETLINE 49
+#define RESETLINE 47
 //void myGenieEventHandler();
 //-------------------------
 
@@ -556,6 +556,8 @@ void setup()
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
   
+  Serial.println("RepRapBCN Sigma");
+  
   //LCD START routine
   MYSERIAL_SCREEN.begin(200000);
   genie.Begin(MYSERIAL_SCREEN);   // Use Serial2 for talking to the Genie Library, and to the 4D Systems display
@@ -563,18 +565,9 @@ void setup()
   // Reset the Display (change D4 to D2 if you have original 4D Arduino Adaptor)
   // THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
   pinMode(RESETLINE, OUTPUT);  // Set D4 on Arduino to Output (4D Arduino Adaptor V2 - Display Reset)
-  //pinMode(48,OUTPUT);
-  pinMode(47,OUTPUT);
-  pinMode(46,OUTPUT);
   digitalWrite(RESETLINE, 0);  // Reset the Display
-  //digitalWrite(48, 0);  // Reset the Display
-  digitalWrite(47, 0);  // Reset the Display
-  digitalWrite(46, 0);  // Reset the Display
   delay(100);
   digitalWrite(RESETLINE, 1);  // unReset the Display
-	//digitalWrite(48, 1);  // Reset the Display
-	digitalWrite(47, 1);  // Reset the Display
-	digitalWrite(46, 1);  // Reset the Display
   delay (3500); //let the display start up after the reset (This is important)
   delay (3500); //showing the splash screen
   genie.WriteObject(GENIE_OBJ_FORM,5,0);
@@ -617,12 +610,12 @@ void setup()
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
 
-  //tp_init();    // Initialize temperature loop
-  //plan_init();  // Initialize planner;
-  //watchdog_init();
-  //st_init();    // Initialize stepper, this enables interrupts!
-  //setup_photpin();
-  //servo_init();
+  tp_init();    // Initialize temperature loop
+  plan_init();  // Initialize planner;
+  watchdog_init();
+  st_init();    // Initialize stepper, this enables interrupts!
+  setup_photpin();
+  servo_init();
   
 
   //lcd_init();
@@ -695,10 +688,11 @@ void loop()
 void touchscreen_update()
 {
 	uint16_t time = millis()/60000 - starttime/60000;
+	uint32_t time2 = millis()/60000-starttime/60000;
 	int tHotend=int(degHotend(tmp_extruder));
 	int tBed=int(degBed() + 0.5);
 	//static keyword specifies that the variable retains its state between calls to the function
-	//static long waitPeriod = millis();
+	static uint32_t waitPeriod = millis();
 	//if (millis() >= waitPeriod)
 	//{
 	if(card.sdprinting)
@@ -710,6 +704,187 @@ void touchscreen_update()
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS,4,(time/60));
 		//genie.WriteObject(GENIE_OBJ_STRINGS,6,0);
 		//genie.WriteObject(GENIE_OBJ_STRINGS,2,0);
+		
+		
+		if (millis() >= waitPeriod)
+			{
+				
+				static uint32_t lastSDPosition=0; 
+				Serial.println("");
+				Serial.print("Size");
+				Serial.println(card.getFileSize());
+				Serial.print("Position");
+				Serial.println(card.getSdPosition());
+				
+				Serial.print("Percent Done");
+				Serial.println(card.percentDone());
+				
+				
+				//Time Left
+				Serial.print("TIME LEFT:  ");
+				uint32_t timeleft=(time2/card.getSdPosition()*card.getFileSize());
+				Serial.println(timeleft);
+				Serial.print((int)timeleft%60);
+				Serial.print(":");
+				Serial.print((int)timeleft/60);
+				Serial.println("");
+				
+				
+				//New calculation:
+				/*actual_pos-saved_pos=pos_moved/waitPeriod
+				filesize/pos_moved = seconds_left
+				seconds_left */
+				
+				uint32_t positionsMovedSD = (card.getSdPosition()-lastSDPosition);
+				uint16_t timeWaited = 10; //Seconds waiting since last update; depends on waitPeriod
+				uint32_t timeLeft = (card.getFileSize()/(positionsMovedSD/timeWaited)); //In seconds
+				
+				//Update lastSDPosition
+				lastSDPosition=card.getSdPosition();
+				
+				Serial.println("Temps restant: ");
+				Serial.print((int)timeLeft%60);
+				Serial.print(":");
+				Serial.print((int)timeLeft/60);
+				Serial.println("");
+				
+				
+				waitPeriod=10000+millis();	//Every 10s
+				
+				Serial.print("Time2:  ");
+				Serial.println(time2);
+				Serial.println("");
+				
+				
+				
+			}
+					
+		}else if (surfing_utilities)
+		{
+			if (millis() >= waitPeriod)
+			{
+				//genie.WriteStr(STRINGS_NOZZLE1,"hola");//E1
+				//genie.WriteStr(STRINGS_NOZZLE1,"111/222");//E1
+				//genie.WriteStr(STRINGS_NOZZLE2,"150/220");//E2
+				//genie.WriteStr(STRINGS_BED,"46/50");//BED
+				
+				
+				//Declare a String
+				String str = String(tHotend);
+				
+				//----------------------------------
+				char cmd[4]="";
+				char cmd_t[4]="";
+				char temp_string1[10]="";
+				
+				int tHotend=int(degHotend(0) + 0.5);
+				int tTarget=int(degTargetHotend(0) + 0.5);
+				//Declare a String
+				String str_hot = String(tHotend);
+				String str_targethot = String(tTarget);
+				str_hot.toCharArray(cmd,4);
+				
+				
+				
+				str_targethot.toCharArray(cmd_t,4);
+				
+				Serial.print("Prova TempString : ");
+				Serial.println(cmd);
+				Serial.println(cmd_t);
+				
+				/*
+				if (tHotend>=100) {
+					
+				}
+				*/
+				strcat(temp_string1,cmd);
+				strcat(temp_string1,"/");
+				strcat(temp_string1,cmd_t);
+				
+				Serial.println(temp_string1);
+
+				char buffer[256]; 
+				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
+				Serial.println(buffer);
+				genie.WriteStr(STRINGS_NOZZLE1,buffer);
+				//genie.WriteStr(STRINGS_NOZZLE1,temp_string1);
+				
+				//EX 2 -----------------------
+				//Declare a String
+				tHotend=int(degHotend(1) + 0.5);
+				tTarget=int(degTargetHotend(1) + 0.5);
+				char temp_string2[8]="";
+				str_hot = String(tHotend);
+				str_targethot = String(tTarget);
+				str_hot.toCharArray(cmd,3);
+				str_targethot.toCharArray(cmd_t,3);
+				
+				strcat(temp_string2,cmd);
+				strcat(temp_string2,"/");
+				strcat(temp_string2,cmd_t);
+				
+				
+				
+				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
+				Serial.println(buffer);
+				genie.WriteStr(STRINGS_NOZZLE2,buffer);
+				//genie.WriteStr(STRINGS_NOZZLE2,temp_string2);
+				
+				//BED
+				char temp_string3[8]="";
+				int tBed=int(degBed() + 0.5);
+				int tTargetBed=int(degTargetBed() + 0.5);
+				String str_bed = String(tBed);
+				String str_targetbed = String(tTargetBed);
+				str_bed.toCharArray(cmd,3);
+				str_targetbed.toCharArray(cmd_t,3);
+				
+				strcat(temp_string3,cmd);
+				strcat(temp_string3,"/");
+				strcat(temp_string3,cmd_t);
+				
+			
+				sprintf(buffer, " % 3d/% 3d",tBed,tTargetBed);
+				Serial.println(buffer);
+				genie.WriteStr(STRINGS_BED,buffer);
+				
+				//genie.WriteStr(STRINGS_BED,temp_string3);
+				
+								
+				//char* cmd = prepare_temp_string(0);
+				Serial.print("Extruder 1 :  ");
+				//Serial.println(cmd);
+				Serial.println(tHotend);
+				
+				//cmd = strcat("Jor","/");
+				char cmdex[8];
+				//cmd=itostr3(tHotend);
+				//cmd = strcat(itostr3(tHotend),"/");
+				//itoa(tHotend,cmd,10);
+				Serial.print("Extruder 1 String :  ");
+				str.toCharArray(cmdex,8);
+				Serial.println(cmdex);
+				
+				//prepare_temp_string(0);
+				//Serial.println(prepare_temp_string(0));
+				
+				//Serial.println(prepare_temp_string(1));
+				//Serial.println(prepare_temp_string(2));
+				
+				//genie.WriteStr(STRINGS_NOZZLE2,prepare_temp_string(1));//E2
+				//genie.WriteStr(STRINGS_BED,prepare_temp_string(2));//BED			
+				//waitPeriod=1000+millis();	//Every 1s
+				
+				
+				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
+				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
+				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
+				
+				
+				waitPeriod=1000+millis();
+			}
+		
+		
 	}else
 	{
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS,8, tHotend);

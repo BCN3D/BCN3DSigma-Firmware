@@ -13,6 +13,11 @@
 #include "genieArduino.h"
 #include "Touch_Screen_Definitions.h"
 #include "Marlin.h"
+#include "Configuration.h"
+
+
+
+
 
 
 void myGenieEventHandler();
@@ -203,7 +208,7 @@ void myGenieEventHandler(void)
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 			}
 			
-			else if (Event.reportObject.index == BUTTON_STOP )
+			else if (Event.reportObject.index == BUTTON_STOP_YES )
 			{
 				card.sdprinting = false;
 				card.closefile();
@@ -222,7 +227,7 @@ void myGenieEventHandler(void)
 				//setTargetBed(0);
 				
 				//Rapduch
-				genie.WriteObject(GENIE_OBJ_FORM,5,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 			}
 			
 			else if (Event.reportObject.index == BUTTON_SPEED_UP )
@@ -268,7 +273,8 @@ void myGenieEventHandler(void)
 			else if (Event.reportObject.index == BUTTON_BED_UP )
 			{
 				int value=5;
-				if (target_temperature_bed<BED_MAXTEMP)
+				//if (target_temperature_bed<BED_MAXTEMP)
+				if (target_temperature_bed<120)//MaxTemp
 				{
 					target_temperature_bed+=value;
 					genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_BED,target_temperature_bed);
@@ -278,7 +284,8 @@ void myGenieEventHandler(void)
 			else if (Event.reportObject.index == BUTTON_BED_DOWN )
 			{
 				int value=5;
-				if (target_temperature_bed>BED_MINTEMP)
+				//if (target_temperature_bed>BED_MINTEMP)
+				if (target_temperature_bed>5)//Mintemp
 				{
 					target_temperature_bed-=value;
 					genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_BED,target_temperature_bed);
@@ -326,6 +333,19 @@ void myGenieEventHandler(void)
 				}
 			}
 			
+			
+			else if (Event.reportObject.index == BUTTON_SETUP_BACK_NOZZLE1 || Event.reportObject.index == BUTTON_SETUP_BACK_BED )
+			{
+				if (surfing_utilities) // Check if we are backing from utilities or print setup
+				{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_TEMPERATURE,0);
+				}else
+				{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_SETUP,0);
+				}
+			}
+			
+			
 			else if (Event.reportObject.index == BUTTON_PAUSE_RESUME )
 			{
 				int value = genie.GetEventData(&Event);
@@ -350,18 +370,30 @@ void myGenieEventHandler(void)
 			{
 				//Reset other buttons
 				//genie.WriteObject(GENIE_OBJ_USERIMAGES,BUTTON_PREHEAT_ABS,0);
-				int value = genie.GetEventData(&Event);
-				if (value == 1) // Need to preheat
-				{
+				//int value = genie.GetEventData(&Event);
+				//if (value == 1) // Need to preheat
+				//{
 					setTargetHotend(220,active_extruder);
 					setTargetBed(50);
 					Serial.println("Preheating PLA");
-				}
-				else
-				{
-					setTargetHotend(0,active_extruder);
-					setTargetBed(0);
-					Serial.println("Cooling down PLA");
+				//}
+				//else
+				//{
+					//setTargetHotend(0,active_extruder);
+					//setTargetBed(0);
+					//Serial.println("Cooling down PLA");
+				//}
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_TEMPERATURE,0);
+			}
+				
+			else if (Event.reportObject.index == BUTTON_CHANGE_EXTRUDER)
+			{
+				int value = genie.GetEventData(&Event);
+				if (value == 1)
+				{ //Second extruder
+					enquecommand_P(((PSTR("T 1"))));
+				}else{
+					enquecommand_P(((PSTR("T 0"))));
 				}
 			}
 		}
@@ -478,6 +510,21 @@ void myGenieEventHandler(void)
 			{
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_FAN,fanSpeed);
 			}
+			
+			
+			else if (Event.reportObject.index == FORM_MAIN_SCREEN)
+			{
+				surfing_utilities=false;
+				Serial.println("Surfing 0");
+			}
+			
+			else if (Event.reportObject.index == FORM_UTILITIES)
+			{
+				surfing_utilities=true;
+				Serial.println("Surfing 1");
+			}
+			
+			
 		}
 		
 

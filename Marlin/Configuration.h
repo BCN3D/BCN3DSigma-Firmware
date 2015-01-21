@@ -38,6 +38,7 @@
 
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
+// 1  = RepRapBCN Electronics v0
 // 10 = Gen7 custom (Alfons3 Version) "https://github.com/Alfons3/Generation_7_Electronics"
 // 11 = Gen7 v1.1, v1.2 = 11
 // 12 = Gen7 v1.3

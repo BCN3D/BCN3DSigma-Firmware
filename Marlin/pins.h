@@ -15,6 +15,140 @@
 #define DIGIPOTSS_PIN -1
 #endif
 
+
+//Rapduch
+/****************************************************************************************
+* BCN3D Electronics v1.0
+* Rev_A
+****************************************************************************************/
+#if MOTHERBOARD == 1 //RepRapBCN Electronics
+
+#define KNOWN_BOARD 1
+#ifndef __AVR_ATmega1280__
+#ifndef __AVR_ATmega2560__
+#error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+#endif
+#endif
+
+#define LARGE_FLASH true
+
+//Note: The endstops are at X_MIN
+#define X_STEP_PIN         96
+#define X_DIR_PIN          95
+#define X_ENABLE_PIN       94
+#define X1_ENABLE_PIN      93
+#define X2_ENABLE_PIN      92
+#define X3_ENABLE_PIN      91
+#define X_MIN_PIN          63  //X0-STOP We only have 1 endstop
+#define X1_MIN_PIN         64
+#define X2_MIN_PIN         67
+#define X3_MIN_PIN         68
+#define X_MAX_PIN          -1
+
+#define Y_STEP_PIN         90
+#define Y_DIR_PIN          5
+#define Y_ENABLE_PIN       6
+#define Y1_ENABLE_PIN      7
+#define Y_MIN_PIN          65//Y0-STOP
+#define Y1_MIN_PIN         66//Y1-STOP
+#define Y_MAX_PIN          -1
+
+#define Z_STEP_PIN         72
+#define Z_DIR_PIN          71
+#define Z_ENABLE_PIN       97
+#define Z_MIN_PIN          69//Z-STOP
+#define Z_MAX_PIN          -1
+
+//Dual Stepper Drivers
+//#define Z2_STEP_PIN        36
+//#define Z2_DIR_PIN         34
+//#define Z2_ENABLE_PIN      30
+
+//4 Extruder independent ( Same Step and Direction )
+#define E0_STEP_PIN        78
+#define E0_DIR_PIN         77
+#define E0_ENABLE_PIN      76
+
+#define E1_STEP_PIN        78
+#define E1_DIR_PIN         77
+#define E1_ENABLE_PIN      75
+
+#define E2_STEP_PIN        78
+#define E2_DIR_PIN         77
+#define E2_ENABLE_PIN      74
+
+#define E3_STEP_PIN        78
+#define E3_DIR_PIN         77
+#define E3_ENABLE_PIN      73
+
+#define SDPOWER            -1
+#define SDSS               19
+#define LED_PIN            13
+
+#define FAN_PIN            17 //LFAN0 (Sprinter config)
+#define FAN1_PIN			15
+#define FAN2_PIN			39
+#define FAN3_PIN			38
+#define PS_ON_PIN          12
+
+#define KILL_PIN           30//Reset
+#define AUTO_LEVEL			84
+
+#define HEATER_0_PIN       18// EXTRUDER 1
+#define HEATER_1_PIN       16
+#define HEATER_2_PIN       40
+#define HEATER_3_PIN       23
+#define HEATER_BED_PIN     1 //PWM HOTBED
+
+#define TEMP_0_PIN         88   // ANALOG NUMBERING
+#define TEMP_1_PIN         87   // ANALOG NUMBERING
+#define TEMP_2_PIN         86   // ANALOG NUMBERING
+#define TEMP_2_PIN         85
+#define TEMP_BED_PIN       89   // ANALOG NUMBERING
+
+//This is Serial2 for LCD touchscreen
+#define LCD_TX				45
+#define LCD_RX				46
+#define LCD_RESET			47
+
+//#define BEEPER 33     // Beeper on AUX-4
+
+//Serial
+#define LCD_TX				2
+#define LCD_RX				3
+
+//Color LEDs
+#define LED_GREEN			24
+#define LED_RED			25
+#define LED_BLUE			26
+
+//ISP
+//#define SCL			43
+//#define SDA			44
+
+// SPI for Max6675 Thermocouple
+
+#ifndef SDSUPPORT
+// these pins are defined in the SD library if building with SD support
+#define SDCARDDETECT	-1
+#define MAX_SCK_PIN     20
+#define MAX_MISO_PIN    22
+#define MAX_MOSI_PIN    21
+#define MAX6675_SS      19
+#else
+#define MAX6675_SS      -1
+#endif
+
+#endif //RepRapBCN Electronics
+
+//------------------------------
+
+
+
+
+
+
+
 /****************************************************************************************
 * 5DPrint D8 Driver board
 * https://bitbucket.org/makible/5dprint-d8-controller-board

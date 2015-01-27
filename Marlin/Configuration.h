@@ -85,6 +85,7 @@
 
 #ifndef MOTHERBOARD
 #define MOTHERBOARD 703
+//#define MOTHERBOARD 34
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -375,11 +376,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing
-#define X_MAX_POS 200 //For x00
-//#define X_MAX_POS 252 //For x01
+#define X_MAX_POS 200 
 #define X_MIN_POS 0
-#define Y_MAX_POS 280	//For x00
-//#define Y_MAX_POS 200 //For x01
+#define Y_MAX_POS 280
 #define Y_MIN_POS 0
 #define Z_MAX_POS 150
 #define Z_MIN_POS 0

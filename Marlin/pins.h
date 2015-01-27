@@ -684,6 +684,11 @@
 #if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 36 ||  MOTHERBOARD == 77 || MOTHERBOARD == 67 || MOTHERBOARD == 68
 
   #define LARGE_FLASH true
+  
+  
+  //Rapduch
+  #define MYSERIAL_SCREEN Serial2
+  #define RESETLINE 23
 
   #if MOTHERBOARD == 77
     #define X_STEP_PIN         54
@@ -2811,6 +2816,9 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 #define SDSS 53
 #define LED_PIN 13
 
+//Rapduch
+#define MYSERIAL_SCREEN Serial3
+#define RESETLINE 47
 
 #define PS_ON_PIN 12
 #define KILL_PIN -1

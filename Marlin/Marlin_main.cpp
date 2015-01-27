@@ -57,7 +57,7 @@
 //static Genie genie;
 Genie genie;
 //#define RESETLINE 23
-#define RESETLINE 47
+//#define RESETLINE 47
 //void myGenieEventHandler();
 //-------------------------
 
@@ -560,7 +560,7 @@ void setup()
   
   //LCD START routine
   MYSERIAL_SCREEN.begin(200000);
-  genie.Begin(MYSERIAL_SCREEN);   // Use Serial2 for talking to the Genie Library, and to the 4D Systems display
+  genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
   genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
   // Reset the Display (change D4 to D2 if you have original 4D Arduino Adaptor)
   // THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
@@ -687,6 +687,8 @@ void loop()
 //Rapduch
 void touchscreen_update()
 {
+	//Serial.print("H");
+	//Serial3.print("A");
 	uint16_t time = millis()/60000 - starttime/60000;
 	uint32_t time2 = millis()/60000-starttime/60000;
 	int tHotend=int(degHotend(tmp_extruder));

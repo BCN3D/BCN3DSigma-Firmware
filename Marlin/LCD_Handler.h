@@ -15,11 +15,7 @@
 #include "Marlin.h"
 #include "Configuration.h"
 
-
-
-
-
-
+extern bool cancel_heatup;
 void myGenieEventHandler();
 
 //Created by Jordi Calduch for RepRapBCN SIGMA 10/2014
@@ -225,9 +221,10 @@ void myGenieEventHandler(void)
 				//setTargetHotend1(0);
 				//setTargetHotend2(0);
 				//setTargetBed(0);
-				
+				card.sdispaused = false;	
+				cancel_heatup = true;				
 				//Rapduch
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);			
 			}
 			
 			else if (Event.reportObject.index == BUTTON_SPEED_UP )
@@ -522,9 +519,7 @@ void myGenieEventHandler(void)
 			{
 				surfing_utilities=true;
 				Serial.println("Surfing 1");
-			}
-			
-			
+			}		
 		}
 		
 
@@ -538,16 +533,6 @@ void myGenieEventHandler(void)
 		//bool UserLed0_val = genie.GetEventData(&Event);               // Receive the event data from the UserLed0
 		//UserLed0_val = !UserLed0_val;                                 // Toggle the state of the User LED Variable
 		//genie.WriteObject(GENIE_OBJ_USER_LED, 0x00, UserLed0_val);    // Write UserLed0_val value back to to UserLed0
-		//}
-		//}
-		//}
-
-		//This can be expanded as more objects are added that need to be captured
-
-		//Event.reportObject.cmd is used to determine the command of that event, such as an reported event
-		//Event.reportObject.object is used to determine the object type, such as a Slider
-		//Event.reportObject.index is used to determine the index of the object, such as Slider0
-		//genie.GetEventData(&Event) us used to save the data from the Event, into a variable.
 	}
 }
 

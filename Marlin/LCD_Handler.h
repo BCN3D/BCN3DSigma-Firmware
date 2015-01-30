@@ -129,6 +129,8 @@ void myGenieEventHandler(void)
 			{
 				if(card.cardOK)
 				{
+					enquecommand_P((PSTR("G28")));
+					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_START_PRINT,0);
 					screen_status="Ready...";//Write the selected SD file to all strings
 					genie.WriteStr(8,"Ready...");

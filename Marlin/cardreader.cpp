@@ -4,6 +4,7 @@
 #include "stepper.h"
 #include "temperature.h"
 #include "language.h"
+#include "Touch_Screen_Definitions.h"
 
 #ifdef SDSUPPORT
 
@@ -630,6 +631,11 @@ void CardReader::printingHasFinished()
       quickStop();
       file.close();
       sdprinting = false;
+	#ifdef SIGMA_TOUCH_SCREEN
+	//alse we need to put the plaform down and do an autohome to prevent bloking
+		
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,1);
+	#endif	  
       if(SD_FINISHED_STEPPERRELEASE)
       {
           //finishAndDisableSteppers();

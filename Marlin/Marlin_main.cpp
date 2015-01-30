@@ -587,15 +587,15 @@ void setup()
   SERIAL_ECHOPGM(MSG_MARLIN);
   SERIAL_ECHOLNPGM(VERSION_STRING);
   #ifdef STRING_VERSION_CONFIG_H
-    #ifdef STRING_CONFIG_H_AUTHOR
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
-      SERIAL_ECHOPGM(STRING_VERSION_CONFIG_H);
-      SERIAL_ECHOPGM(MSG_AUTHOR);
-      SERIAL_ECHOLNPGM(STRING_CONFIG_H_AUTHOR);
-      SERIAL_ECHOPGM("Compiled: ");
-      SERIAL_ECHOLNPGM(__DATE__);
-    #endif
+  #ifdef STRING_CONFIG_H_AUTHOR
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
+  SERIAL_ECHOPGM(STRING_VERSION_CONFIG_H);
+  SERIAL_ECHOPGM(MSG_AUTHOR);
+  SERIAL_ECHOLNPGM(STRING_CONFIG_H_AUTHOR);
+  SERIAL_ECHOPGM("Compiled: ");
+  SERIAL_ECHOLNPGM(__DATE__);
+  #endif
   #endif
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM(MSG_FREE_MEMORY);
@@ -616,7 +616,6 @@ void setup()
   st_init();    // Initialize stepper, this enables interrupts!
   setup_photpin();
   servo_init();
-  
 
   //lcd_init();
   _delay_ms(1000);	// wait 1sec to display the splash screen
@@ -679,6 +678,7 @@ void loop()
   manage_heater();
   manage_inactivity();
   checkHitEndstops();
+  
   //lcd_update();
   touchscreen_update();
   //genie.DoEvents();
@@ -687,8 +687,6 @@ void loop()
 //Rapduch
 void touchscreen_update()
 {
-	//Serial.print("H");
-	//Serial3.print("A");
 	uint16_t time = millis()/60000 - starttime/60000;
 	uint32_t time2 = millis()/60000-starttime/60000;
 	int tHotend=int(degHotend(tmp_extruder));
@@ -709,8 +707,7 @@ void touchscreen_update()
 		
 		
 		if (millis() >= waitPeriod)
-			{
-				
+			{				
 				static uint32_t lastSDPosition=0; 
 				Serial.println("");
 				Serial.print("Size");
@@ -755,10 +752,7 @@ void touchscreen_update()
 				
 				Serial.print("Time2:  ");
 				Serial.println(time2);
-				Serial.println("");
-				
-				
-				
+				Serial.println("");			
 			}
 					
 		}else if (surfing_utilities)

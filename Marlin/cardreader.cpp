@@ -632,7 +632,7 @@ void CardReader::printingHasFinished()
       file.close();
       sdprinting = false;
 	#ifdef SIGMA_TOUCH_SCREEN
-	//alse we need to put the plaform down and do an autohome to prevent bloking
+	//also we need to put the platform down and do an autohome to prevent blocking
 		
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,1);
 	#endif	  

@@ -14,6 +14,7 @@
 #include "Touch_Screen_Definitions.h"
 #include "Marlin.h"
 #include "Configuration.h"
+#include "stepper.h"
 
 extern bool cancel_heatup;
 void myGenieEventHandler();
@@ -129,8 +130,8 @@ void myGenieEventHandler(void)
 			{
 				if(card.cardOK)
 				{
-					enquecommand_P((PSTR("G28")));
-					
+					enquecommand_P((PSTR("G28"))); // Force home to clean the buffer and avoid problems with  Dual X
+					//st_synchronize();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_START_PRINT,0);
 					screen_status="Ready...";//Write the selected SD file to all strings
 					genie.WriteStr(8,"Ready...");

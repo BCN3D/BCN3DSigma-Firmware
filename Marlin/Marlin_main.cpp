@@ -1287,7 +1287,36 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
 
 }
 
+int sentit (float dz)
+{
+	int sent;
+	if (dz > 0)
+	{
+		sent = 1;//Horari
+	}
+	else
+	{
+		sent = -1;//Antihorari
+	}	
+	return sent;
+}
+
+float voltes (float dz)
+{
+	float volt = dz/PAS_M5;
+	return volt;
+}
+
+int aprox (float voltes)
+{
+	float res =0.125; //resolució d' 1/8 de volta
+	float aprox_raw = voltes/res;
+	int aprox = round(aprox_raw); // Arrodoniment de les voltes
+	return aprox;
+}
+
 #endif // AUTO_BED_LEVELING_GRID
+
 
 static void run_z_probe() {
     plan_bed_level_matrix.set_to_identity();
@@ -1904,6 +1933,189 @@ void process_commands()
       break;
 
 #ifdef ENABLE_AUTO_BED_LEVELING
+
+case 33: // G33 Calibration Wizard by Eric Pallarés for RepRapBCN
+{
+	//First do AUTOHOME
+	enquecommand_P((PSTR("G28")));
+	
+	/////////////////////////// 
+	//Autohome done - Now calibration calculus
+	///////////////////////////
+
+	st_synchronize();
+	// make sure the bed_level_rotation_matrix is identity or the planner will get it incorrectly
+	//vector_3 corrected_position = plan_get_position_mm();
+	//corrected_position.debug("position before G29");
+	plan_bed_level_matrix.set_to_identity();
+	vector_3 uncorrected_position = plan_get_position();
+	//uncorrected_position.debug("position durring G29");
+	current_position[X_AXIS] = uncorrected_position.x;
+	current_position[Y_AXIS] = uncorrected_position.y;
+	current_position[Z_AXIS] = uncorrected_position.z;
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	setup_for_endstop_move();
+	
+	feedrate = homing_feedrate[Z_AXIS];
+	
+	// Probe at 3 arbitrary points
+	// probe 1
+	float z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING);
+
+	// probe 2
+	float z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+
+	// probe 3
+	float z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+
+	clean_up_after_endstop_move();
+
+	
+	plan_bed_level_matrix.set_to_identity();
+
+	vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
+	vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
+	vector_3 pt3 = vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, z_at_pt_3);
+
+	vector_3 from_2_to_1 = (pt1 - pt2);
+	vector_3 from_2_to_3 = (pt3 - pt2);
+	vector_3 planeNormal = vector_3::cross(from_2_to_1, from_2_to_3);
+	planeNormal = vector_3(planeNormal.x, planeNormal.y, abs(planeNormal.z));
+	
+	//Es calcula el pla a partir del pt2 i per tant és l'origen (0,0,0)
+	
+	//Posicions relatives dels cargols de regulació respecte l'origen
+	float cargol_1_x = CARGOL_1_X;
+	float cargol_1_y = CARGOL_1_Y;
+	
+	float cargol_2_x = CARGOL_2_X;
+	float cargol_2_y = CARGOL_2_Y;
+	
+	float cargol_3_x = CARGOL_3_X;
+	float cargol_3_y = CARGOL_3_Y;
+	
+	//Càlcul dels vectors normalitzats de l'origen fins al cargol de regulació
+
+	vector_3 d1 = vector_3 (cargol_1_x, cargol_1_y, 0);
+	vector_3 d2 = vector_3(cargol_2_x, cargol_2_y, 0);
+	vector_3 d3 = vector_3(cargol_3_x, cargol_3_y, 0);
+	
+	//Càlcul de l'alçada Z dels cargols de regulació
+	float z1=(-planeNormal.x*d1.x-planeNormal.y*d1.y)/planeNormal.z;
+	float z2=(-planeNormal.x*d2.x-planeNormal.y*d2.y)/planeNormal.z;
+	float z3=(-planeNormal.x*d3.x-planeNormal.y*d3.y)/planeNormal.z;
+
+	//Posició relativa del centre de la plataforma respecte l'origen
+	float centre_x = (X_MAX_POS/2)-ABL_PROBE_PT_2_X;
+	float centre_y = (Y_MAX_POS/2)-ABL_PROBE_PT_2_Y;
+	vector_3 centre = vector_3 (centre_x, centre_y, 0);
+	
+	//Càlcul de l'alçada Z del centre de la plataforma
+	float zc=(-planeNormal.x*centre.x-planeNormal.y*centre.y)/planeNormal.z;
+	
+	//Càlcul alçades relatives cargols regulació respecte al centre (objectiu de regulació)
+	float dz1 = zc-z1;
+	float dz2 = zc-z2;
+	float dz3 = zc-z3;
+	
+	//Voltes cargols
+	
+	float pas_M5 = PAS_M5;
+	
+	int sentit1 = sentit (dz1);
+	int sentit2 = sentit (dz2);
+	int sentit3 = sentit (dz3);
+	
+	float voltes1= voltes (dz1);
+	float voltes2= voltes (dz2);
+	float voltes3= voltes (dz3);
+	
+	//Aproximació a 1/8 de volta
+	int aprox1 = aprox (voltes1);
+	int numvoltes1 = aprox1/8;   // Voltes completes
+	int vuitens1 = aprox1 % 8;  // Vuitens
+	
+	int aprox2 = aprox (voltes2);
+	int numvoltes2 = aprox2/8;   // Voltes completes
+	int vuitens2 = aprox2 % 8;  // Vuitens
+	
+	int aprox3 = aprox (voltes3);
+	int numvoltes3 = aprox3/8;   // Voltes completes
+	int vuitens3 = aprox3 % 8;  // Vuitens
+	
+	if (aprox1==0 && aprox2==0 && aprox3==0)
+	{
+		SERIAL_PROTOCOL(" Platform is Calibrated! ");
+	}else{
+	
+	SERIAL_PROTOCOLPGM(" zc: ");
+	SERIAL_PROTOCOL(zc);
+	SERIAL_PROTOCOLPGM("\n");
+	SERIAL_PROTOCOLPGM(" dz1: ");
+	SERIAL_PROTOCOL(dz1);
+	SERIAL_PROTOCOLPGM(" dz2: ");
+	SERIAL_PROTOCOL(dz2);
+	SERIAL_PROTOCOLPGM(" dz3: ");
+	SERIAL_PROTOCOL(dz3);
+	SERIAL_PROTOCOLPGM("\n");
+
+	SERIAL_PROTOCOLPGM(" Voltes cargol 1: ");
+	if (numvoltes1 > 0)
+	{
+		SERIAL_PROTOCOL(numvoltes1);
+		SERIAL_PROTOCOLPGM(" ");
+	}
+	SERIAL_PROTOCOL(vuitens1);
+	SERIAL_PROTOCOLPGM("/8");
+	if (sentit1 > 0)
+	{
+		SERIAL_PROTOCOLPGM(" horari\n ");
+	}
+	else
+	{
+		SERIAL_PROTOCOLPGM(" antihorari\n: ");
+	}
+
+	SERIAL_PROTOCOLPGM(" Voltes cargol 2: ");
+	if (numvoltes2 > 0)
+	{
+		SERIAL_PROTOCOL(numvoltes2);
+		SERIAL_PROTOCOLPGM(" ");
+	}
+	SERIAL_PROTOCOL(vuitens2);
+	SERIAL_PROTOCOLPGM("/8");
+	if (sentit2 > 0)
+	{
+		SERIAL_PROTOCOLPGM(" horari\n ");
+	}
+	else
+	{
+		SERIAL_PROTOCOLPGM(" antihorari\n: ");
+	}
+	
+	SERIAL_PROTOCOLPGM(" Voltes cargol 3: ");
+	if (numvoltes3 > 0)
+	{
+		SERIAL_PROTOCOL(numvoltes3);
+		SERIAL_PROTOCOLPGM(" ");
+	}
+	SERIAL_PROTOCOL(vuitens3);
+	SERIAL_PROTOCOLPGM("/8");
+	if (sentit3 > 0)
+	{
+		SERIAL_PROTOCOLPGM(" horari\n ");
+	}
+	else
+	{
+		SERIAL_PROTOCOLPGM(" antihorari\n: ");
+	}
+	SERIAL_PROTOCOLPGM("\n");
+	
+	}
+	break;
+}
+
+
     case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
         {
             #if Z_MIN_PIN == -1

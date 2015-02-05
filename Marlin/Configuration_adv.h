@@ -167,7 +167,7 @@
 
 
 
-
+//////////////////////////////////////////////////////////////////////////
 // Enable this for dual x-carriage printers.
 // A dual x-carriage design has the advantage that the inactive extruder can be parked which
 // prevents hot-end ooze contaminating the print. It also reduces the weight of each x-carriage
@@ -177,10 +177,10 @@
 // Configuration for second X-carriage
 // Note: the first x-carriage is defined as the x-carriage which homes to the minimum endstop;
 // the second x-carriage always homes to the maximum endstop.
-#define X2_MIN_POS 70     // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
-#define X2_MAX_POS 220    // set maximum to the distance between toolheads when both heads are homed
+#define X2_MIN_POS 40     // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
+#define X2_MAX_POS 282    // set maximum to the distance between toolheads when both heads are homed
 #define X2_HOME_DIR 1     // the second X-carriage always homes to the maximum endstop position
-#define X2_HOME_POS X2_MAX_POS // default home position is the maximum carriage position
+#define X2_HOME_POS 285 // default home position is the maximum carriage position
     // However: In this mode the EXTRUDER_OFFSET_X value for the second extruder provides a software
     // override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
     // without modifying the firmware (through the "M218 T1 X???" command).
@@ -213,7 +213,7 @@
 // Default x offset in duplication mode (typically set to half print bed width)
 #define DEFAULT_DUPLICATION_X_OFFSET 100
 
-#endif //DUAL_X_CARRIAGE
+#endif //DUAL_X_CARRIAGE/////////////////////////////////////////////////////
 
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_RETRACT_MM 5

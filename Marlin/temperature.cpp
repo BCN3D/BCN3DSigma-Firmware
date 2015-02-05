@@ -319,7 +319,9 @@ void PID_autotune(float temp, int extruder, int ncycles)
       return;
     }
     //lcd_update();
+	#ifdef SIGMA_TOUCH_SCREEN
 	touchscreen_update();
+	#endif
   }
 }
 
@@ -1038,7 +1040,9 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
           disable_e2();
           manage_heater();
           //lcd_update();
+		  #ifdef SIGMA_TOUCH_SCREEN
 		  touchscreen_update();
+		  #endif
         }
       }
       break;

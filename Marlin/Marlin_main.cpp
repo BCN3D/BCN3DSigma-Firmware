@@ -559,6 +559,7 @@ void setup()
   Serial.println("RepRapBCN Sigma");
   
   //LCD START routine
+  #ifdef SIGMA_TOUCH_SCREEN
   MYSERIAL_SCREEN.begin(200000);
   genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
   genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
@@ -573,6 +574,8 @@ void setup()
   genie.WriteObject(GENIE_OBJ_FORM,5,0);
   //Turn the Display on (Contrast) - (Not needed but illustrates how)
   genie.WriteContrast(1);
+#endif
+  
   
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
@@ -680,10 +683,14 @@ void loop()
   checkHitEndstops();
   
   //lcd_update();
+  #ifdef SIGMA_TOUCH_SCREEN
   touchscreen_update();
+  #endif
+  
   //genie.DoEvents();
 }
 
+#ifdef SIGMA_TOUCH_SCREEN
 //Rapduch
 void touchscreen_update()
 {
@@ -707,7 +714,9 @@ void touchscreen_update()
 		
 		
 		if (millis() >= waitPeriod)
-			{				
+			{	
+				
+					/*		
 				static uint32_t lastSDPosition=0; 
 				Serial.println("");
 				Serial.print("Size");
@@ -730,9 +739,9 @@ void touchscreen_update()
 				
 				
 				//New calculation:
-				/*actual_pos-saved_pos=pos_moved/waitPeriod
-				filesize/pos_moved = seconds_left
-				seconds_left */
+				//actual_pos-saved_pos=pos_moved/waitPeriod
+				//filesize/pos_moved = seconds_left
+				//seconds_left 
 				
 				uint32_t positionsMovedSD = (card.getSdPosition()-lastSDPosition);
 				uint16_t timeWaited = 10; //Seconds waiting since last update; depends on waitPeriod
@@ -748,11 +757,15 @@ void touchscreen_update()
 				Serial.println("");
 				
 				
-				waitPeriod=10000+millis();	//Every 10s
+				
 				
 				Serial.print("Time2:  ");
 				Serial.println(time2);
-				Serial.println("");			
+				Serial.println("");	
+				
+					*/
+					
+				waitPeriod=10000+millis();	//Every 10s
 			}
 					
 		}else if (surfing_utilities)
@@ -784,9 +797,9 @@ void touchscreen_update()
 				
 				str_targethot.toCharArray(cmd_t,4);
 				
-				Serial.print("Prova TempString : ");
-				Serial.println(cmd);
-				Serial.println(cmd_t);
+				//Serial.print("Prova TempString : ");
+				//Serial.println(cmd);
+				//Serial.println(cmd_t);
 				
 				/*
 				if (tHotend>=100) {
@@ -801,7 +814,7 @@ void touchscreen_update()
 
 				char buffer[256]; 
 				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
-				Serial.println(buffer);
+				//Serial.println(buffer);
 				genie.WriteStr(STRINGS_NOZZLE1,buffer);
 				//genie.WriteStr(STRINGS_NOZZLE1,temp_string1);
 				
@@ -822,7 +835,7 @@ void touchscreen_update()
 				
 				
 				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
-				Serial.println(buffer);
+				//Serial.println(buffer);
 				genie.WriteStr(STRINGS_NOZZLE2,buffer);
 				//genie.WriteStr(STRINGS_NOZZLE2,temp_string2);
 				
@@ -841,25 +854,25 @@ void touchscreen_update()
 				
 			
 				sprintf(buffer, " % 3d/% 3d",tBed,tTargetBed);
-				Serial.println(buffer);
+				//Serial.println(buffer);
 				genie.WriteStr(STRINGS_BED,buffer);
 				
 				//genie.WriteStr(STRINGS_BED,temp_string3);
 				
 								
 				//char* cmd = prepare_temp_string(0);
-				Serial.print("Extruder 1 :  ");
+				//Serial.print("Extruder 1 :  ");
 				//Serial.println(cmd);
-				Serial.println(tHotend);
+				//Serial.println(tHotend);
 				
 				//cmd = strcat("Jor","/");
 				char cmdex[8];
 				//cmd=itostr3(tHotend);
 				//cmd = strcat(itostr3(tHotend),"/");
 				//itoa(tHotend,cmd,10);
-				Serial.print("Extruder 1 String :  ");
+				//Serial.print("Extruder 1 String :  ");
 				str.toCharArray(cmdex,8);
-				Serial.println(cmdex);
+				//Serial.println(cmdex);
 				
 				//prepare_temp_string(0);
 				//Serial.println(prepare_temp_string(0));
@@ -876,6 +889,8 @@ void touchscreen_update()
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
 				
+				//Serial.print("X Axis :  ");
+				//Serial.println(current_position[X_AXIS]);
 				
 				waitPeriod=1000+millis();
 			}
@@ -895,6 +910,8 @@ void touchscreen_update()
 	//waitPeriod=250+millis();
 	genie.DoEvents();
 }
+
+#endif //SIGMA TOUCHSCREEN
 
 void get_command()
 {
@@ -1009,17 +1026,17 @@ void get_command()
     }
   }
   #ifdef SDSUPPORT
-  if(!card.sdprinting || serial_count!=0){
-	  
+  if(!card.sdprinting || serial_count!=0){ //Detects if printer is paused
+	  #ifdef SIGMA_TOUCH_SCREEN
 	  //Rapduch
 	  static long waitperiod=millis();
 	  if (millis()>=waitperiod)
-	  {
+	  {  
 		  screen_status="Paused...";
 		  genie.WriteStr(6,"Paused..."); //Print Paused on screen Status
 	  }
 	  waitperiod=millis()+500;
-	  
+	  #endif  
     return;
   }
 
@@ -1078,7 +1095,6 @@ void get_command()
       if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
     }
   }
-
   #endif //SDSUPPORT
 
 }
@@ -1682,7 +1698,10 @@ void process_commands()
         manage_heater();
         manage_inactivity();
         //lcd_update();
+		#ifdef SIGMA_TOUCH_SCREEN
 		touchscreen_update();
+		#endif
+		
       }
       break;
       #ifdef FWRETRACT
@@ -2370,7 +2389,10 @@ case 33: // G33 Calibration Wizard by Eric Pallarés for RepRapBCN
           manage_heater();
           manage_inactivity();
           lcd_update();
+		  #ifdef SIGMA_TOUCH_SCREEN
 		  touchscreen_update();
+		  #endif
+		  
         }
         lcd_ignore_click(false);
       }else{
@@ -2378,7 +2400,9 @@ case 33: // G33 Calibration Wizard by Eric Pallarés for RepRapBCN
           manage_heater();
           manage_inactivity();
           lcd_update();
+		  #ifdef SIGMA_TOUCH_SCREEN
 		  touchscreen_update();
+		  #endif
         }
       }
       if (IS_SD_PRINTING)
@@ -2980,7 +3004,9 @@ Sigma_Exit:
           manage_heater();
           manage_inactivity();
           //lcd_update();
+		  #ifdef SIGMA_TOUCH_SCREEN
 		  touchscreen_update();
+		  #endif
 		  
 		  if (card.sdprinting==false && !card.sdispaused) //Added ispaused from cardreader
 		  {
@@ -3035,7 +3061,9 @@ Sigma_Exit:
           manage_heater();
           manage_inactivity();
           //lcd_update();
+		  #ifdef SIGMA_TOUCH_SCREEN
 		  touchscreen_update();
+		  #endif
 		  
 		  if (card.sdprinting==false && !card.sdispaused) //Added ispaused from cardreader
 		  {
@@ -3576,7 +3604,9 @@ Sigma_Exit:
               manage_heater();
               manage_inactivity();
               //lcd_update();
+			  #ifdef SIGMA_TOUCH_SCREEN
 			  touchscreen_update();
+			  #endif
             }
           }
         }

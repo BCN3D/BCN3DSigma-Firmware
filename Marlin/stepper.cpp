@@ -1028,7 +1028,9 @@ void st_synchronize()
     manage_heater();
     manage_inactivity();
     //lcd_update();
+	#ifdef SIGMA_TOUCH_SCREEN
 	touchscreen_update();
+	#endif
   }
 }
 

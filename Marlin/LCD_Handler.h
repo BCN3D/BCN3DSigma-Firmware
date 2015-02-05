@@ -40,6 +40,7 @@ void myGenieEventHandler(void)
 				if (modified_position > X_MAX_POS)modified_position = X_MAX_POS;
 				plan_buffer_line(modified_position, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 600, active_extruder);
 				current_position[X_AXIS]=modified_position;
+				//enquecommand_P(PSTR("G1 F1200 X100"));
 			}
 			else if (Event.reportObject.index == BUTTON_MOVE_AXIS_minusX)                              // If Winbutton0
 			{
@@ -49,6 +50,7 @@ void myGenieEventHandler(void)
 				if (modified_position > X_MAX_POS)modified_position = X_MAX_POS;
 				plan_buffer_line(modified_position, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 600, active_extruder);
 				current_position[X_AXIS]=modified_position;
+				//enquecommand_P(PSTR("G1 F1200 X150"));
 			}
 			else if (Event.reportObject.index == BUTTON_MOVE_AXIS_Y)                              // If Winbutton2
 			{

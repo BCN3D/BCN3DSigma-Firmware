@@ -534,10 +534,10 @@ void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
 #endif  //ENABLE_AUTO_BED_LEVELING
 {
-	#ifdef HYSTERESIS_H
-	//Hysteresis correction if needed
-	hysteresis.InsertCorrection(x,y,z,e);
-	#endif
+	//#ifdef HYSTERESIS_H
+	////Hysteresis correction if needed
+	//hysteresis.InsertCorrection(x,y,z,e);
+	//#endif
 	
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
@@ -549,7 +549,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     manage_heater(); 
     manage_inactivity(); 
     //lcd_update();
+	#ifdef SIGMA_TOUCH_SCREEN
 	touchscreen_update();
+	#endif
   }
 
 #ifdef ENABLE_AUTO_BED_LEVELING

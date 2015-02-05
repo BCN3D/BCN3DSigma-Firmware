@@ -633,7 +633,6 @@ void CardReader::printingHasFinished()
       sdprinting = false;
 	#ifdef SIGMA_TOUCH_SCREEN
 	//also we need to put the platform down and do an autohome to prevent blocking
-		
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,1);
 	#endif	  
       if(SD_FINISHED_STEPPERRELEASE)

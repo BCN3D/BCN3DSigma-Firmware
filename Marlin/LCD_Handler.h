@@ -5,6 +5,7 @@
  *  Author: jcalduch
  */ 
 
+#ifdef SIGMA_TOUCH_SCREEN
 
 #ifndef LCD_HANDLER_H_
 #define LCD_HANDLER_H_
@@ -15,6 +16,7 @@
 #include "Marlin.h"
 #include "Configuration.h"
 #include "stepper.h"
+#include "temperature.h"
 
 extern bool cancel_heatup;
 void myGenieEventHandler();
@@ -123,6 +125,22 @@ void myGenieEventHandler(void)
 				//waitPeriod=millis()+50;
 				//}
 			}
+			
+			else if (Event.reportObject.index == BUTTON_MOVE_AXIS_E)                              
+			{				
+				//Serial.println("EUp");
+				//modified_position=current_position[E_AXIS]+move_mm;
+				//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, 600, active_extruder);
+				//current_position[E_AXIS]=modified_position;								
+			}
+			
+			else if (Event.reportObject.index == BUTTON_MOVE_AXIS_minusE)                              
+			{				
+				//Serial.println("EDown");
+				//modified_position=current_position[E_AXIS]-move_mm;
+				//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, 600, active_extruder);
+				//current_position[E_AXIS]=modified_position;								
+			}
 		}
 		
 		//USERBUTTONS------------------------------------------------------
@@ -134,13 +152,27 @@ void myGenieEventHandler(void)
 				{
 					enquecommand_P((PSTR("G28"))); // Force home to clean the buffer and avoid problems with  Dual X
 					//st_synchronize();
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_START_PRINT,0);
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_START_PRINT,0);
+					genie.WriteObject(GENIE_OBJ_FORM,9,0); //Printing FORM
 					screen_status="Ready...";//Write the selected SD file to all strings
 					genie.WriteStr(8,"Ready...");
 					genie.WriteStr(7,card.longFilename);
 					//Reset Time LEDs
 					genie.WriteObject(GENIE_OBJ_LED_DIGITS,12,0);
 					genie.WriteObject(GENIE_OBJ_LED_DIGITS,11,0);
+					
+									
+					genie.WriteStr(2,card.longFilename);//Printing form
+					char cmd[30];
+					char* c;
+					card.getfilename(filepointer);
+					sprintf_P(cmd, PSTR("M23 %s"), card.filename);
+					for(c = &cmd[4]; *c; c++)
+					{
+						*c = tolower(*c);
+					}
+					enquecommand(cmd);
+					enquecommand_P(PSTR("M24"));
 					
 					//StartPrint form
 					//genie.WriteStr(2,card.longFilename);//Printing form
@@ -252,25 +284,7 @@ void myGenieEventHandler(void)
 				}
 			}
 			
-			else if (Event.reportObject.index == BUTTON_NOZZLE_UP )
-			{
-				int value=5;
-				if (target_temperature[active_extruder]<HEATER_0_MAXTEMP)
-				{
-					target_temperature[active_extruder]+=value;
-					genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[active_extruder]);
-				}
-			}
 			
-			else if (Event.reportObject.index == BUTTON_NOZZLE_DOWN )
-			{
-				int value=5;
-				if (target_temperature[active_extruder]>HEATER_0_MINTEMP)
-				{
-					target_temperature[active_extruder]-=value;
-					genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[active_extruder]);
-				}
-			}
 			
 			else if (Event.reportObject.index == BUTTON_BED_UP )
 			{
@@ -336,7 +350,7 @@ void myGenieEventHandler(void)
 			}
 			
 			
-			else if (Event.reportObject.index == BUTTON_SETUP_BACK_NOZZLE1 || Event.reportObject.index == BUTTON_SETUP_BACK_BED )
+			else if (Event.reportObject.index == BUTTON_SETUP_BACK_NOZZLE || Event.reportObject.index == BUTTON_SETUP_BACK_BED )
 			{
 				if (surfing_utilities) // Check if we are backing from utilities or print setup
 				{
@@ -375,8 +389,9 @@ void myGenieEventHandler(void)
 				//int value = genie.GetEventData(&Event);
 				//if (value == 1) // Need to preheat
 				//{
-					setTargetHotend(220,active_extruder);
-					setTargetBed(50);
+					setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
+					setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP);
+					setTargetBed(PLA_PREHEAT_HPB_TEMP);
 					Serial.println("Preheating PLA");
 				//}
 				//else
@@ -394,10 +409,104 @@ void myGenieEventHandler(void)
 				if (value == 1)
 				{ //Second extruder
 					enquecommand_P(((PSTR("T 1"))));
+					which_extruder=1;
 				}else{
 					enquecommand_P(((PSTR("T 0"))));
+					which_extruder=0;
 				}
 			}
+			
+			else if (Event.reportObject.index == BUTTON_CAL_WIZARD)
+			{
+				//genie.WriteStr(STRING_GPURPOSE_WAIT,"Processing");
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_WAIT,0);
+				//enquecommand_P(PSTR("G33"));	//Start Calibration Wizard				
+			}
+			
+			
+			//NOZZLE BUTTONS reusability---------------------------------------------------
+			
+			else if (Event.reportObject.index == BUTTON_NOZZLE1_PRINT || Event.reportObject.index == BUTTON_NOZZLE2_PRINT || Event.reportObject.index == BUTTON_NOZZLE1_TEMP || Event.reportObject.index == BUTTON_NOZZLE2_TEMP)
+			{
+				if (Event.reportObject.index == BUTTON_NOZZLE1_PRINT || Event.reportObject.index == BUTTON_NOZZLE1_TEMP)
+				{
+					which_extruder=0;
+				}else{
+					which_extruder=1;
+				}				
+				genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_NOZZLE,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_NOZZLE_UP )
+			{
+				int value=5;
+				if (target_temperature[which_extruder]<HEATER_0_MAXTEMP)
+				{
+					target_temperature[which_extruder]+=value;
+					genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_NOZZLE_DOWN )
+			{
+				int value=5;
+				if (target_temperature[which_extruder]>HEATER_0_MINTEMP)
+				{
+					target_temperature[which_extruder]-=value;
+					genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_COOLDOWN )
+			{
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);		
+			}
+			
+			//NOZZLEBUTTONS-------
+			
+			
+			//INSERT/REMOVE FILAMENT
+			
+			else if (Event.reportObject.index == BUTTON_INSERT_FIL || Event.reportObject.index == BUTTON_REMOVE_FIL || Event.reportObject.index == BUTTON_PURGE_FIL  )
+			{
+				//setTargetHotend0(ABS_PREHEAT_HOTEND_TEMP);
+				//setTargetHotend1(ABS_PREHEAT_HOTEND_TEMP);							
+				if (Event.reportObject.index == BUTTON_INSERT_FIL) filament_mode = 'I'; //Insert Mode
+				else if (Event.reportObject.index == BUTTON_REMOVE_FIL) filament_mode = 'R'; //Remove Mode
+				else filament_mode = 'P'; //Purge Mode
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_FILAMENT_NOZZLE1 || Event.reportObject.index == BUTTON_FILAMENT_NOZZLE2)
+			{
+				if (Event.reportObject.index == BUTTON_FILAMENT_NOZZLE1) //Left Nozzle
+				{
+					which_extruder=0;
+					//Heat
+					setTargetHotend0(ABS_PREHEAT_HOTEND_TEMP);
+				} 
+				else //Right Nozzle
+				{
+					which_extruder=1;
+					//Heat
+					setTargetHotend1(ABS_PREHEAT_HOTEND_TEMP);
+				}						
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
+				is_changing_filament=true;
+			}		
+			
+			else if (Event.reportObject.index == BUTTON_INSERT )
+			{// We should have already checked if filament is inserted
+				current_position[E_AXIS] += (BOWDEN_LENGTH+10);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 6000/60, active_extruder);
+				current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  150/60, active_extruder);
+				is_changing_filament=false; //Reset changing filament control
+			}
+			
 		}
 		//USERBUTTONS------------------------------------------------------
 		
@@ -499,8 +608,8 @@ void myGenieEventHandler(void)
 			}
 			
 			else if (Event.reportObject.index == FORM_NOZZLE)
-			{
-				genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[active_extruder]);
+			{			
+				//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
 			}
 			
 			else if (Event.reportObject.index == FORM_BED)
@@ -524,7 +633,13 @@ void myGenieEventHandler(void)
 			{
 				surfing_utilities=true;
 				Serial.println("Surfing 1");
-			}		
+			}	
+			
+			else if (Event.reportObject.index == FORM_INSERT_FIL_PREHEAT)
+			{
+				//setTargetHotend0(ABS_PREHEAT_HOTEND_TEMP);
+				//setTargetHotend1(ABS_PREHEAT_HOTEND_TEMP);
+			}	
 		}
 		
 
@@ -547,3 +662,5 @@ void myGenieEventHandler(void)
 
 
 #endif /* INCLUDE */
+
+#endif

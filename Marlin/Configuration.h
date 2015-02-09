@@ -261,8 +261,13 @@
 //if PREVENT_DANGEROUS_EXTRUDE is on, you can still disable (uncomment) very long bits of extrusion separately.
 #define PREVENT_LENGTHY_EXTRUDE
 
-#define EXTRUDE_MINTEMP 0
+#define EXTRUDE_MINTEMP 150
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
+
+//Rapduch
+//Insert Filament
+#define BOWDEN_LENGTH 10
+#define EXTRUDER_LENGTH 10
 
 /*================== Thermal Runaway Protection ==============================
 This is a feature to protect your printer from burn up in flames if it has
@@ -377,7 +382,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // Travel limits after homing
 //32+222+28=282
-#define X_MAX_POS 254 
+#define X_MAX_POS 202 //Set 40mm space to avoid crashing with the other carriage 
 #define X_MIN_POS 0
 #define Y_MAX_POS 280
 #define Y_MIN_POS 0
@@ -428,11 +433,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     // with no grid, just probe 3 arbitrary points.  A simple cross-product
     // is used to esimate the plane of the print bed
 
-      #define ABL_PROBE_PT_1_X 15
-      #define ABL_PROBE_PT_1_Y 180
-      #define ABL_PROBE_PT_2_X 15
-      #define ABL_PROBE_PT_2_Y 20
-      #define ABL_PROBE_PT_3_X 170
+      #define ABL_PROBE_PT_1_X 20
+      #define ABL_PROBE_PT_1_Y 260
+      #define ABL_PROBE_PT_2_X 200
+      #define ABL_PROBE_PT_2_Y 260
+      #define ABL_PROBE_PT_3_X 120
       #define ABL_PROBE_PT_3_Y 20
 
   #endif // AUTO_BED_LEVELING_GRID
@@ -490,7 +495,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #define CARGOL_3_X  258;
 #define CARGOL_3_Y  80;
-// --------
+// -------- END calibration WIZARD
 
 
 
@@ -506,7 +511,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //Manual homing switch locations:
 // For deltabots this means top and center of the Cartesian print volume.
 //#define MANUAL_X_HOME_POS -32
-#define MANUAL_X_HOME_POS 0
+#define MANUAL_X_HOME_POS -32
 #define MANUAL_Y_HOME_POS Y_MAX_POS
 #define MANUAL_Z_HOME_POS Z_MIN_POS
 //#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.

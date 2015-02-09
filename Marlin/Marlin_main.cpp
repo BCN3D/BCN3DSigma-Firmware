@@ -218,9 +218,15 @@ CardReader card;
 #endif
 
 //Rapduch
-bool surfing_utilities = false;
-uint16_t filepointer = 0;
-String screen_status = "Printing...";
+#ifdef SIGMA_TOUCH_SCREEN
+	bool surfing_utilities = false;
+	uint16_t filepointer = 0;
+	String screen_status = "Printing...";
+	uint8_t which_extruder=0;
+	char filament_mode='O';
+	bool is_changing_filament=false;
+#endif
+
 
 
 float homing_feedrate[] = HOMING_FEEDRATE;
@@ -696,7 +702,8 @@ void touchscreen_update()
 {
 	uint16_t time = millis()/60000 - starttime/60000;
 	uint32_t time2 = millis()/60000-starttime/60000;
-	int tHotend=int(degHotend(tmp_extruder));
+	int tHotend=int(degHotend(0));
+	int tHotend1=int(degHotend(1));
 	int tBed=int(degBed() + 0.5);
 	//static keyword specifies that the variable retains its state between calls to the function
 	static uint32_t waitPeriod = millis();
@@ -705,17 +712,13 @@ void touchscreen_update()
 	if(card.sdprinting)
 	{
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS,3, tHotend);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,7, 0);
+		genie.WriteObject(GENIE_OBJ_LED_DIGITS,7, tHotend1);
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS,6, tBed);
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS,5,(time%60));
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS,4,(time/60));
-		//genie.WriteObject(GENIE_OBJ_STRINGS,6,0);
-		//genie.WriteObject(GENIE_OBJ_STRINGS,2,0);
-		
 		
 		if (millis() >= waitPeriod)
-			{	
-				
+			{		
 					/*		
 				static uint32_t lastSDPosition=0; 
 				Serial.println("");
@@ -755,10 +758,7 @@ void touchscreen_update()
 				Serial.print(":");
 				Serial.print((int)timeLeft/60);
 				Serial.println("");
-				
-				
-				
-				
+							
 				Serial.print("Time2:  ");
 				Serial.println(time2);
 				Serial.println("");	
@@ -771,13 +771,7 @@ void touchscreen_update()
 		}else if (surfing_utilities)
 		{
 			if (millis() >= waitPeriod)
-			{
-				//genie.WriteStr(STRINGS_NOZZLE1,"hola");//E1
-				//genie.WriteStr(STRINGS_NOZZLE1,"111/222");//E1
-				//genie.WriteStr(STRINGS_NOZZLE2,"150/220");//E2
-				//genie.WriteStr(STRINGS_BED,"46/50");//BED
-				
-				
+			{				
 				//Declare a String
 				String str = String(tHotend);
 				
@@ -792,9 +786,7 @@ void touchscreen_update()
 				String str_hot = String(tHotend);
 				String str_targethot = String(tTarget);
 				str_hot.toCharArray(cmd,4);
-				
-				
-				
+						
 				str_targethot.toCharArray(cmd_t,4);
 				
 				//Serial.print("Prova TempString : ");
@@ -810,12 +802,14 @@ void touchscreen_update()
 				strcat(temp_string1,"/");
 				strcat(temp_string1,cmd_t);
 				
-				Serial.println(temp_string1);
+				//Serial.println(temp_string1);
 
 				char buffer[256]; 
 				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
 				//Serial.println(buffer);
 				genie.WriteStr(STRINGS_NOZZLE1,buffer);
+				genie.WriteStr(STRING_PREHEATING,buffer);
+				
 				//genie.WriteStr(STRINGS_NOZZLE1,temp_string1);
 				
 				//EX 2 -----------------------
@@ -889,22 +883,31 @@ void touchscreen_update()
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
 				
-				//Serial.print("X Axis :  ");
-				//Serial.println(current_position[X_AXIS]);
 				
-				waitPeriod=1000+millis();
+				waitPeriod=1000+millis();			
 			}
-		
+			
+			
+			int tHotend=int(degHotend(0) + 0.5);
+			int tTarget=int(degTargetHotend(0) + 0.5);
+			
+			// Check if preheat for insert_FIL is done
+			//if ((degHotend(0) >= (degTargetHotend0())) && (degHotend(1) >= (degTargetHotend1())) && filament_mode != 'O')
+			if ((degHotend(0) >= (degTargetHotend0())) && (degHotend(1) >= (degTargetHotend1())) && is_changing_filament)
+			// if we want to add user setting temp, we should control if is heating
+			{
+				//We have preheated correctly			
+				if (filament_mode='I') genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
+				else if (filament_mode='R') genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
+				else genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
+				filament_mode='O';
+			}
 		
 	}else
 	{
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS,8, tHotend);
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS,9, 0);
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS,10, tBed);
-		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,12,0);
-		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,11,0);
-		//genie.WriteObject(GENIE_OBJ_STRINGS,7,0);
-		//genie.WriteObject(GENIE_OBJ_STRINGS,8,0);
 	}
 	//}
 	//waitPeriod=250+millis();
@@ -2064,72 +2067,91 @@ case 33: // G33 Calibration Wizard by Eric Pallarés for RepRapBCN
 	
 	if (aprox1==0 && aprox2==0 && aprox3==0)
 	{
+		#ifdef SIGMA_TOUCH_SCREEN
+			
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+		#endif
+		
 		SERIAL_PROTOCOL(" Platform is Calibrated! ");
 	}else{
 	
-	SERIAL_PROTOCOLPGM(" zc: ");
-	SERIAL_PROTOCOL(zc);
-	SERIAL_PROTOCOLPGM("\n");
-	SERIAL_PROTOCOLPGM(" dz1: ");
-	SERIAL_PROTOCOL(dz1);
-	SERIAL_PROTOCOLPGM(" dz2: ");
-	SERIAL_PROTOCOL(dz2);
-	SERIAL_PROTOCOLPGM(" dz3: ");
-	SERIAL_PROTOCOL(dz3);
-	SERIAL_PROTOCOLPGM("\n");
+		#ifdef SIGMA_TOUCH_SCREEN
+		
+		char buffer[256];
+		sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
+		genie.WriteStr(STRING_SCREW1,buffer);
+		
+		sprintf(buffer, " %d / 8",vuitens2);
+		genie.WriteStr(STRING_SCREW2,buffer);
+		
+		sprintf(buffer, " %d / 8",vuitens3);
+		genie.WriteStr(STRING_SCREW3,buffer);
+		
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_BAD,0);
+		#endif
+		
+		SERIAL_PROTOCOLPGM(" zc: ");
+		SERIAL_PROTOCOL(zc);
+		SERIAL_PROTOCOLPGM("\n");
+		SERIAL_PROTOCOLPGM(" dz1: ");
+		SERIAL_PROTOCOL(dz1);
+		SERIAL_PROTOCOLPGM(" dz2: ");
+		SERIAL_PROTOCOL(dz2);
+		SERIAL_PROTOCOLPGM(" dz3: ");
+		SERIAL_PROTOCOL(dz3);
+		SERIAL_PROTOCOLPGM("\n");
 
-	SERIAL_PROTOCOLPGM(" Voltes cargol 1: ");
-	if (numvoltes1 > 0)
-	{
-		SERIAL_PROTOCOL(numvoltes1);
-		SERIAL_PROTOCOLPGM(" ");
-	}
-	SERIAL_PROTOCOL(vuitens1);
-	SERIAL_PROTOCOLPGM("/8");
-	if (sentit1 > 0)
-	{
-		SERIAL_PROTOCOLPGM(" horari\n ");
-	}
-	else
-	{
-		SERIAL_PROTOCOLPGM(" antihorari\n: ");
-	}
+		SERIAL_PROTOCOLPGM(" Voltes cargol 1: ");
+		if (numvoltes1 > 0)
+		{
+			SERIAL_PROTOCOL(numvoltes1);
+			SERIAL_PROTOCOLPGM(" ");
+		}
+		SERIAL_PROTOCOL(vuitens1);
+		SERIAL_PROTOCOLPGM("/8");
+		if (sentit1 > 0)
+		{
+			SERIAL_PROTOCOLPGM(" horari\n ");
+		}
+		else
+		{
+			SERIAL_PROTOCOLPGM(" antihorari\n: ");
+		}
 
-	SERIAL_PROTOCOLPGM(" Voltes cargol 2: ");
-	if (numvoltes2 > 0)
-	{
-		SERIAL_PROTOCOL(numvoltes2);
-		SERIAL_PROTOCOLPGM(" ");
-	}
-	SERIAL_PROTOCOL(vuitens2);
-	SERIAL_PROTOCOLPGM("/8");
-	if (sentit2 > 0)
-	{
-		SERIAL_PROTOCOLPGM(" horari\n ");
-	}
-	else
-	{
-		SERIAL_PROTOCOLPGM(" antihorari\n: ");
-	}
+		SERIAL_PROTOCOLPGM(" Voltes cargol 2: ");
+		if (numvoltes2 > 0)
+		{
+			SERIAL_PROTOCOL(numvoltes2);
+			SERIAL_PROTOCOLPGM(" ");
+		}
+		SERIAL_PROTOCOL(vuitens2);
+		SERIAL_PROTOCOLPGM("/8");
+		if (sentit2 > 0)
+		{
+			SERIAL_PROTOCOLPGM(" horari\n ");
+		}
+		else
+		{
+			SERIAL_PROTOCOLPGM(" antihorari\n: ");
+		}
 	
-	SERIAL_PROTOCOLPGM(" Voltes cargol 3: ");
-	if (numvoltes3 > 0)
-	{
-		SERIAL_PROTOCOL(numvoltes3);
-		SERIAL_PROTOCOLPGM(" ");
-	}
-	SERIAL_PROTOCOL(vuitens3);
-	SERIAL_PROTOCOLPGM("/8");
-	if (sentit3 > 0)
-	{
-		SERIAL_PROTOCOLPGM(" horari\n ");
-	}
-	else
-	{
-		SERIAL_PROTOCOLPGM(" antihorari\n: ");
-	}
-	SERIAL_PROTOCOLPGM("\n");
-	
+		SERIAL_PROTOCOLPGM(" Voltes cargol 3: ");
+		if (numvoltes3 > 0)
+		{
+			SERIAL_PROTOCOL(numvoltes3);
+			SERIAL_PROTOCOLPGM(" ");
+		}
+		SERIAL_PROTOCOL(vuitens3);
+		SERIAL_PROTOCOLPGM("/8");
+		if (sentit3 > 0)
+		{
+			SERIAL_PROTOCOLPGM(" horari\n ");
+		}
+		else
+		{
+			SERIAL_PROTOCOLPGM(" antihorari\n: ");
+		}
+		SERIAL_PROTOCOLPGM("\n");
 	}
 	break;
 }

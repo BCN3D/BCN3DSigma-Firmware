@@ -807,8 +807,7 @@ void touchscreen_update()
 				char buffer[256]; 
 				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
 				//Serial.println(buffer);
-				genie.WriteStr(STRINGS_NOZZLE1,buffer);
-				genie.WriteStr(STRING_PREHEATING,buffer);
+				genie.WriteStr(STRINGS_NOZZLE1,buffer);			
 				
 				//genie.WriteStr(STRINGS_NOZZLE1,temp_string1);
 				
@@ -878,31 +877,41 @@ void touchscreen_update()
 				//genie.WriteStr(STRINGS_BED,prepare_temp_string(2));//BED			
 				//waitPeriod=1000+millis();	//Every 1s
 				
-				
+							
+				tHotend=int(degHotend(which_extruder) + 0.5);
+				tTarget=int(degTargetHotend(which_extruder) + 0.5);			
+				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
+				genie.WriteStr(STRING_PREHEATING,buffer);			
+							
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
 				
 				
+				// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
+				if ((degHotend(0) >= (degTargetHotend0())) && (degHotend(1) >= (degTargetHotend1())) && is_changing_filament)
+				// if we want to add user setting temp, we should control if is heating
+				{
+					//We have preheated correctly
+					if (filament_mode =='I') 
+					{
+						genie.WriteStr(STRING_FILAMENT,"Press to Insert Filament");
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
+					}
+					else if (filament_mode =='R')
+					{ 
+						genie.WriteStr(STRING_FILAMENT,"Press to Remove Filament");
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
+					}
+					else 
+					{
+						genie.WriteStr(STRING_FILAMENT,"Press to Purge Filament");
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
+					}
+					is_changing_filament=false; //Reset changing filament control
+				}			
 				waitPeriod=1000+millis();			
-			}
-			
-			
-			int tHotend=int(degHotend(0) + 0.5);
-			int tTarget=int(degTargetHotend(0) + 0.5);
-			
-			// Check if preheat for insert_FIL is done
-			//if ((degHotend(0) >= (degTargetHotend0())) && (degHotend(1) >= (degTargetHotend1())) && filament_mode != 'O')
-			if ((degHotend(0) >= (degTargetHotend0())) && (degHotend(1) >= (degTargetHotend1())) && is_changing_filament)
-			// if we want to add user setting temp, we should control if is heating
-			{
-				//We have preheated correctly			
-				if (filament_mode='I') genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
-				else if (filament_mode='R') genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
-				else genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
-				filament_mode='O';
-			}
-		
+			}				
 	}else
 	{
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS,8, tHotend);
@@ -4393,8 +4402,17 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
   plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],current_position[E_AXIS]);
             
 #else
+		//Rapduch purge
+		//Maybe we could purge here
+		
+		
+		
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-
+		
+		//Purge line
+		current_position[E_AXIS]+=10;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], (current_position[E_AXIS]),600/60,active_extruder);
+		
 #endif
         // Move to the old position if 'F' was in the parameters
         if(make_move && Stopped == false) {

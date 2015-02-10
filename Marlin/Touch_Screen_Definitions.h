@@ -52,7 +52,8 @@
 #define	BUTTON_FILAMENT_NOZZLE1	75
 #define	BUTTON_FILAMENT_NOZZLE2	76
 #define	BUTTON_INSERT			52
-
+#define	BUTTON_REMOVE			52
+#define	BUTTON_INSERT_BACK		20
 
 //Winbuttons
 #define BUTTON_MOVE_AXIS_X		1
@@ -62,7 +63,7 @@
 #define BUTTON_MOVE_AXIS_minusY 3
 #define BUTTON_MOVE_AXIS_minusZ 8
 #define BUTTON_MOVE_AXIS_HOME	4
-#define BUTTON_PREHEAT			5
+#define BUTTON_PREHEAT			15
 #define BUTTON_MOVE_AXIS_E		5
 #define BUTTON_MOVE_AXIS_minusE	6
 
@@ -89,6 +90,7 @@
 #define STRING_SCREW2			31
 #define STRING_SCREW3			32
 #define STRING_PREHEATING		33
+#define STRING_FILAMENT			11
 
 //Form
 #define FORM_SDFILES			2
@@ -96,7 +98,7 @@
 #define FORM_STOP				12
 #define FORM_PRINTING			9
 #define FORM_START_PRINT		10
-#define FORM_PAUSED_PRINT		11
+#define FORM_WAITING_ROOM		11
 #define FORM_FEEDRATE			14
 #define FORM_NOZZLE				16
 #define FORM_BED				17

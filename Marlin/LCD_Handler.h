@@ -83,22 +83,7 @@ void myGenieEventHandler(void)
 				//waitPeriod=millis()+50;
 				//}
 			}
-			else if (Event.reportObject.index == 5)
-			{
-				int value = genie.GetEventData(&Event);
-				if (value == 1) // Need to preheat
-				{
-					setTargetHotend0(200);
-					setTargetBed(50);
-					//Serial.println("Heating Baby!");
-				}
-				else
-				{
-					setTargetHotend0(0);
-					setTargetBed(0);
-					//Serial.println("Cooling !!!");
-				}
-			}
+			
 			
 			else if (Event.reportObject.index == BUTTON_MOVE_AXIS_Z)                              // If Winbutton7 Button Z
 			{
@@ -128,18 +113,18 @@ void myGenieEventHandler(void)
 			
 			else if (Event.reportObject.index == BUTTON_MOVE_AXIS_E)                              
 			{				
-				//Serial.println("EUp");
-				//modified_position=current_position[E_AXIS]+move_mm;
-				//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, 600, active_extruder);
-				//current_position[E_AXIS]=modified_position;								
+				Serial.println("EUp");
+				modified_position=current_position[E_AXIS]+move_mm;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, 500/60, active_extruder);
+				current_position[E_AXIS]=modified_position;								
 			}
 			
 			else if (Event.reportObject.index == BUTTON_MOVE_AXIS_minusE)                              
 			{				
-				//Serial.println("EDown");
-				//modified_position=current_position[E_AXIS]-move_mm;
-				//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, 600, active_extruder);
-				//current_position[E_AXIS]=modified_position;								
+				Serial.println("EDown");
+				modified_position=current_position[E_AXIS]-move_mm;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, 500/60, active_extruder);
+				current_position[E_AXIS]=modified_position;								
 			}
 		}
 		
@@ -486,27 +471,59 @@ void myGenieEventHandler(void)
 				{
 					which_extruder=0;
 					//Heat
-					setTargetHotend0(ABS_PREHEAT_HOTEND_TEMP);
+					//if (filament_is_inserted[which_extruder])
+					//setTargetHotend0(ABS_PREHEAT_HOTEND_TEMP);
 				} 
 				else //Right Nozzle
 				{
 					which_extruder=1;
 					//Heat
-					setTargetHotend1(ABS_PREHEAT_HOTEND_TEMP);
-				}						
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
-				is_changing_filament=true;
+					//setTargetHotend1(ABS_PREHEAT_HOTEND_TEMP);
+				}		
+				
+				//if (!filament_is_inserted[which_extruder])
+				//{	
+					//ATTENTION : Order here is important		
+					setTargetHotend(ABS_PREHEAT_HOTEND_TEMP,which_extruder); //First it is important to set the temp
+					is_changing_filament=true; //We are changing filament
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
+				//} 
+				//else
+				//{
+					//writeInfoString("Error: Remove filament first");
+				//}				
 			}		
 			
-			else if (Event.reportObject.index == BUTTON_INSERT )
-			{// We should have already checked if filament is inserted
-				current_position[E_AXIS] += (BOWDEN_LENGTH+10);
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 6000/60, active_extruder);
-				current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  150/60, active_extruder);
-				is_changing_filament=false; //Reset changing filament control
+			else if (Event.reportObject.index == BUTTON_INSERT_BACK)
+			{
+				is_changing_filament=false; //We are no longer waiting for heat
+				setTargetHotend(0,which_extruder); //ATTENTION : Order here is important
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0); 
 			}
 			
+			else if (Event.reportObject.index == BUTTON_INSERT )
+			{// We should have already checked if filament is inserted				
+				if (filament_mode =='I')
+				{
+					current_position[E_AXIS] += (BOWDEN_LENGTH+100);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60, which_extruder);
+					current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  150/60, which_extruder);
+					//filament_is_inserted[which_extruder]=true;
+				}else if (filament_mode =='R')
+				{
+					current_position[E_AXIS] -= (BOWDEN_LENGTH+100);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60, which_extruder);
+					current_position[E_AXIS] -= EXTRUDER_LENGTH;//Extra extrusion at low feedrate
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  150/60, which_extruder);
+					//filament_is_inserted[which_extruder]=false;
+				}	
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+				st_synchronize();		
+				setTargetHotend(0,which_extruder);
+				//put_info_text("Filament DONE");
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
+			}			
 		}
 		//USERBUTTONS------------------------------------------------------
 		
@@ -558,7 +575,7 @@ void myGenieEventHandler(void)
 				//{
 				//card.startFileprint();
 				//}
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_PAUSED_PRINT,1);
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_PAUSED_PRINT,1);
 				genie.WriteStr(10,card.longFilename);//PausedPrint form
 				//Many ways to achieve this, we could check ReadObject to know if resume is UP or NOT
 			}

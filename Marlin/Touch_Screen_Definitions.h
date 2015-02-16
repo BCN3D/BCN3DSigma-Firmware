@@ -1,6 +1,6 @@
 /*
  * Touch_Screen_Definitions.h
- *
+ * Here we have all the constants related to items in the LCD Screen
  * Created: 14/11/2014 13:16:59
  *  Author: jcalduch
  */ 

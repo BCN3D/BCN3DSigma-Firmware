@@ -135,8 +135,18 @@ void myGenieEventHandler(void)
 			{
 				if(card.cardOK)
 				{
+					//THESE FOLLOWING COMMANDS CAN BE DONE VIA GCODE - It seems safer to do it here because avoids user errors
+					
 					enquecommand_P((PSTR("G28"))); // Force home to clean the buffer and avoid problems with  Dual X
-					//st_synchronize();
+			
+					//if (enable_autobed_level)
+					//{
+						//enquecommand_P((PSTR("G29"))); // Command to enable Z autoleveling - probes 3 points		
+					//}
+										
+					st_synchronize(); //Wait before starting to print.
+					
+					
 					//genie.WriteObject(GENIE_OBJ_FORM,FORM_START_PRINT,0);
 					genie.WriteObject(GENIE_OBJ_FORM,9,0); //Printing FORM
 					screen_status="Ready...";//Write the selected SD file to all strings
@@ -167,6 +177,7 @@ void myGenieEventHandler(void)
 			
 			else if (Event.reportObject.index == BUTTON_START_PRINTING )
 			{
+				//DEPRECATED 1/02/2015
 				genie.WriteObject(GENIE_OBJ_FORM,9,0); //Printing FORM
 				genie.WriteStr(2,card.longFilename);//Printing form
 				char cmd[30];

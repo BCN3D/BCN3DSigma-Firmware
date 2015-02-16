@@ -805,7 +805,7 @@ void touchscreen_update()
 				//Serial.println(temp_string1);
 
 				char buffer[256]; 
-				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
+				sprintf(buffer, "% 3d  /% 3d",tHotend,tTarget);
 				//Serial.println(buffer);
 				genie.WriteStr(STRINGS_NOZZLE1,buffer);			
 				
@@ -2292,7 +2292,9 @@ case 33: // G33 Calibration Wizard by Eric Pallarés for RepRapBCN
 
             clean_up_after_endstop_move();
 
-            set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
+			//Rapduch: We negated the Z points passed on this functions because the actual correction was inverted
+            //set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
+			set_bed_level_equation_3pts(-z_at_pt_1, -z_at_pt_2, -z_at_pt_3);
 
 
 #endif // AUTO_BED_LEVELING_GRID

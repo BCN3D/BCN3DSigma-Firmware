@@ -64,7 +64,7 @@
 /* nothing here as of yet */
 
 // Common serial messages
-#define MSG_MARLIN "Marlin"
+#define MSG_MARLIN "Marlin_RepRapBCN_Sigma"
 
 
 // Serial Console Messages (do not translate those!)

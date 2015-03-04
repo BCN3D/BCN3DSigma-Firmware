@@ -31,7 +31,9 @@ void myGenieEventHandler(void)
 	//If the cmd received is from a Reported Event (Events triggered from the Events tab of Workshop4 objects)
 	if (Event.reportObject.cmd == GENIE_REPORT_EVENT)
 	{
-		if (Event.reportObject.object == GENIE_OBJ_WINBUTTON)                // If the Reported Message was from a winbutton
+		//Winbuttons
+		#pragma region Winbuttons
+	if (Event.reportObject.object == GENIE_OBJ_WINBUTTON)                // If the Reported Message was from a winbutton
 		{
 			float modified_position;
 			if (Event.reportObject.index == BUTTON_MOVE_AXIS_X)                              // If Winbutton1
@@ -127,6 +129,8 @@ void myGenieEventHandler(void)
 				current_position[E_AXIS]=modified_position;								
 			}
 		}
+#pragma endregion Winbuttons
+		
 		
 		//USERBUTTONS------------------------------------------------------
 		if (Event.reportObject.object == GENIE_OBJ_USERBUTTON) //Userbuttons to select GCODE from SD
@@ -534,8 +538,144 @@ void myGenieEventHandler(void)
 				setTargetHotend(0,which_extruder);
 				//put_info_text("Filament DONE");
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
-			}			
-		}
+			}
+			
+			
+			//Extruder Calibrations-------------------------------------------------
+			else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS)
+			{
+				//Rapduch first try 20/02/2015
+				homeFromMain();
+				//Preheat
+				setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
+				setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP);
+				
+				//while (degHotend(0)<degTargetHotend(0)){ //Waiting to heat the extruder
+					//manage_heater();
+				//}
+				//plan_buffer_line(0, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);
+				//st_synchronize();
+				//plan_buffer_line(50, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);
+				
+				//We will have to do it by plan buffers
+				
+				
+				
+				
+				//st_synchronize();
+				
+				
+				//homeaxis(X_AXIS);
+				
+				//enquecommand_P(PSTR("G28"));
+				//enquecommand("G28 X0");
+				//enquecommand("G28 Y0");
+				//enquecommand("G28 Z0");
+				
+				
+				
+				//st_synchronize();
+				//enquecommand_P(PSTR("G1 X100 Y100"));
+				//st_synchronize();
+				
+				//plan_buffer_line(1,current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 600, active_extruder);
+				
+				
+				//enquecommand_P(PSTR("G28"));
+				//enquecommand_P(((PSTR("T 1"))));
+				//enquecommand_P(((PSTR("T 0"))));
+				////enquecommand_P(PSTR("G90"));
+				////enquecommand_P(PSTR("M83"));
+				//st_synchronize();
+				////
+				//////Set starting position 
+				////enquecommand("G90");
+				//enquecommand_P(PSTR("G1 X20 Y100 F9000"));
+				//
+				//st_synchronize();
+				//enquecommand_P(PSTR("G91"));
+				////
+				//for (int i=0; i<4;i++)
+				//{
+					//enquecommand_P(PSTR("G1 Y100 E1 F9000"));				
+					//enquecommand_P(PSTR("G1 X40 F9000"));
+				//}
+				
+				
+				//enquecommand("G28");
+				//enquecommand("T 1");
+				//enquecommand("T 0");
+				//enquecommand_P(PSTR("G90"));
+				//enquecommand_P(PSTR("M83"));				
+				//
+				////Set starting position
+				//enquecommand("G90");
+				//enquecommand("G1 X20 Y100 F9000");
+				//st_synchronize();
+				
+				//while (getBuflen()>=4){
+					//Serial.print("Waiting");
+				//}
+				
+				float mm_second_extruder[4] = {40.5, 39.5, 40, 39};
+				
+				float mm_each_extrusion =40;
+				for (int i=1; i<5;i++) //4 times
+				{
+					plan_buffer_line(10+(mm_each_extrusion*i), 200, current_position[Z_AXIS], current_position[E_AXIS], 2000/60, active_extruder);			
+					plan_buffer_line(10+(mm_each_extrusion*i), 150, current_position[Z_AXIS], current_position[E_AXIS], 2500/60, active_extruder);		
+					st_synchronize();
+				}				
+				current_position[X_AXIS]=20+4*mm_each_extrusion;
+				current_position[Y_AXIS]=150;
+				
+				//plan_set_position(current_position[X_AXIS]+(4*mm_each_extrusion), 150, current_position[Z_AXIS], current_position[E_AXIS]);
+				
+				changeTool(1);
+				
+				//Second Extruder
+				for (int i=1; i<5;i++) //4 times
+				{
+					plan_buffer_line(10+(mm_each_extrusion*i), 200, current_position[Z_AXIS], current_position[E_AXIS], 2000/60, active_extruder);
+					plan_buffer_line(10+(mm_each_extrusion*i), 150, current_position[Z_AXIS], current_position[E_AXIS], 2500/60, active_extruder);
+					st_synchronize();
+				}
+				current_position[X_AXIS]=20+4*mm_each_extrusion;
+				current_position[Y_AXIS]=150;
+				
+				//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], 6000/60, active_extruder);	
+				//plan_buffer_line(MANUAL_X_HOME_POS, current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], 6000/60, active_extruder);				
+				//plan_buffer_line(MANUAL_X_HOME_POS, current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 6000/60, active_extruder);
+				//st_synchronize();
+				
+				// Save current position to return to after applying extruder offset
+				//memcpy(destination, current_position, sizeof(destination));
+				//#ifdef DUAL_X_CARRIAGE
+				//
+					//// Park old head: 1) raise 2) move to park position 3) lower
+					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
+					//current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+					//plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
+					//current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
+					//plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS],
+					//current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+					//st_synchronize();
+							//
+				//active_extruder = tmp_extruder;
+				//
+				//
+				
+				
+				
+				//Now comes the correcting 
+				
+				
+			}
+			
+			
+			
+						
+		}	
 		//USERBUTTONS------------------------------------------------------
 		
 		//ANIBUTONS--------------------------------------------------------

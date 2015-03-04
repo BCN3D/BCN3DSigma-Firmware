@@ -74,7 +74,7 @@ Genie genie;
 #include <SPI.h>
 #endif
 
-#define VERSION_STRING  "1.0.0"
+#define VERSION_STRING  " 0.1.0b"
 
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
@@ -559,14 +559,14 @@ void setup()
   setup_killpin();
   setup_powerhold();
   MYSERIAL.begin(BAUDRATE);
+  delay (100);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
-  
   Serial.println("RepRapBCN Sigma");
-  
   //LCD START routine
   #ifdef SIGMA_TOUCH_SCREEN
   MYSERIAL_SCREEN.begin(200000);
+  delay (100);
   genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
   genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
   // Reset the Display (change D4 to D2 if you have original 4D Arduino Adaptor)
@@ -577,9 +577,9 @@ void setup()
   digitalWrite(RESETLINE, 1);  // unReset the Display
   delay (3500); //let the display start up after the reset (This is important)
   delay (3500); //showing the splash screen
-  genie.WriteObject(GENIE_OBJ_FORM,5,0);
+  genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
   //Turn the Display on (Contrast) - (Not needed but illustrates how)
-  genie.WriteContrast(1);
+  //genie.WriteContrast(1);
 #endif
   
   
@@ -695,6 +695,16 @@ void loop()
   
   //genie.DoEvents();
 }
+
+
+int getBuflen ()
+{
+	return buflen;
+}
+
+
+
+
 
 #ifdef SIGMA_TOUCH_SCREEN
 //Rapduch
@@ -1553,6 +1563,16 @@ static void homeaxis(int axis) {
   }
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
+
+
+//Rapduch
+void homeFromMain()
+{
+	homeaxis(X_AXIS);
+	homeaxis(Y_AXIS);
+	homeaxis(Z_AXIS);
+}
+
 
 void refresh_cmd_timeout(void)
 {
@@ -4403,17 +4423,13 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
    //sent position to plan_set_position();
   plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],current_position[E_AXIS]);
             
-#else
+#else	
+        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 		//Rapduch purge
 		//Maybe we could purge here
-		
-		
-		
-        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-		
 		//Purge line
-		current_position[E_AXIS]+=10;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], (current_position[E_AXIS]),600/60,active_extruder);
+		//current_position[E_AXIS]+=10;
+		//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], (current_position[E_AXIS]),600/60,active_extruder);
 		
 #endif
         // Move to the old position if 'F' was in the parameters
@@ -4438,6 +4454,121 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
   ClearToSend();
 }
+
+
+//Rapduch
+//Hardcoded change tool
+void changeTool(int ntool) {
+	tmp_extruder = ntool;
+	if(tmp_extruder >= EXTRUDERS) {
+		SERIAL_ECHO_START;
+		SERIAL_ECHO("T");
+		SERIAL_ECHO(tmp_extruder);
+		SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
+	}
+	else {
+		boolean make_move = false;
+		//if(code_seen('F')) {
+			//make_move = true;
+			//next_feedrate = code_value();
+			//if(next_feedrate > 0.0) {
+				//feedrate = next_feedrate;
+			//}
+		//}
+		//#if EXTRUDERS > 1
+		if(tmp_extruder != active_extruder) {
+			// Save current position to return to after applying extruder offset
+			memcpy(destination, current_position, sizeof(destination));
+			//#ifdef DUAL_X_CARRIAGE
+			//if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && Stopped == false &&
+			//(delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder)))
+			//{
+				// Park old head: 1) raise 2) move to park position 3) lower
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
+				current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+				plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
+				current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
+				plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS],
+				current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+				st_synchronize();
+			//}
+
+			// apply Y & Z extruder offset (x offset is already used in determining home pos)
+			current_position[Y_AXIS] = current_position[Y_AXIS] -
+			extruder_offset[Y_AXIS][active_extruder] +
+			extruder_offset[Y_AXIS][tmp_extruder];
+			current_position[Z_AXIS] = current_position[Z_AXIS] -
+			extruder_offset[Z_AXIS][active_extruder] +
+			extruder_offset[Z_AXIS][tmp_extruder];
+
+			active_extruder = tmp_extruder;
+
+			// This function resets the max/min values - the current position may be overwritten below.
+			axis_is_at_home(X_AXIS);
+
+			//if (dual_x_carriage_mode == DXC_FULL_CONTROL_MODE)
+			//{
+				//current_position[X_AXIS] = inactive_extruder_x_pos;
+				//inactive_extruder_x_pos = destination[X_AXIS];
+			//}
+			//else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE)
+			//{
+				//active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
+				//if (active_extruder == 0 || active_extruder_parked)
+				//current_position[X_AXIS] = inactive_extruder_x_pos;
+				//else
+				//current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
+				//inactive_extruder_x_pos = destination[X_AXIS];
+				//extruder_duplication_enabled = false;
+			//}
+			//else
+			//{
+				// record raised toolhead position for use by unpark
+				memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+				raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
+				active_extruder_parked = true;
+				delayed_move_time = 0;
+			//}
+			//#else
+			//// Offset extruder (only by XY)
+			//int i;
+			//for(i = 0; i < 2; i++) {
+				//current_position[i] = current_position[i] -
+				//extruder_offset[i][active_extruder] +
+				//extruder_offset[i][tmp_extruder];
+			//}
+			//// Set the new active extruder and position
+			//active_extruder = tmp_extruder;
+			//#endif //else DUAL_X_CARRIAGE
+			//#ifdef DELTA
+//
+			//calculate_delta(current_position); // change cartesian kinematic  to  delta kinematic;
+			////sent position to plan_set_position();
+			//plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],current_position[E_AXIS]);
+			//
+			//#else
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			//Rapduch purge
+			//Maybe we could purge here
+			//Purge line
+			//current_position[E_AXIS]+=10;
+			//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], (current_position[E_AXIS]),600/60,active_extruder);
+			
+			//#endif
+        //// Move to the old position if 'F' was in the parameters
+			//if(make_move && Stopped == false) {
+				//prepare_move();
+			//}
+		}
+        //#endif
+        SERIAL_ECHO_START;
+        SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
+        SERIAL_PROTOCOLLN((int)active_extruder);
+    }
+}
+
+
+
 
 void FlushSerialRequestResend()
 {

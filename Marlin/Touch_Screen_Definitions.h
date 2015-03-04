@@ -55,6 +55,9 @@
 #define	BUTTON_REMOVE			52
 #define	BUTTON_INSERT_BACK		20
 
+//Calibration
+#define BUTTON_CAL_EXTRUDERS	67
+
 //Winbuttons
 #define BUTTON_MOVE_AXIS_X		1
 #define BUTTON_MOVE_AXIS_Y		2

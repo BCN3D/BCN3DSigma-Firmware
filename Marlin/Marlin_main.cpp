@@ -1983,12 +1983,82 @@ void process_commands()
       endstops_hit_on_purpose();
       break;
 
+
+//Rapduch for RepRapBCN Sigma
+#ifdef EXTRUDER_CALIBRATION_WIZARD
+	case 40://G40 --> X Extruder calibration
+	{ 
+		Serial.println("Starting X Calibration Wizard");
+		//1) Set temps and wait
+		setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
+		setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP);
+
+		while (degHotend(0)<degTargetHotend(0)){ //Waiting to heat the extruder
+			manage_heater();
+		}
+
+		//2)Extruder one prints
+		//Purge & up
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]+5, 1500/60 , active_extruder);
+		current_position[E_AXIS]+=5;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 1500/60 , active_extruder);
+		st_synchronize();
+		
+		float mm_second_extruder[4] = {40.5, 39.5, 40, 39};
+
+		float mm_each_extrusion = 40;
+		float mm_left_offset = 10;
+		for (int i=1; i<5;i++) //4 times
+		{
+			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 200, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move X and Z
+			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 150, current_position[Z_AXIS], current_position[E_AXIS]+1, 1500/60, active_extruder);//Move Y and extrude
+			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 150, current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Retrack
+			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 150, current_position[Z_AXIS]+5, current_position[E_AXIS], 1500/60, active_extruder);//Lift Z
+			current_position[E_AXIS]+=1; //Move the retracked space
+			st_synchronize();
+		}
+		current_position[X_AXIS]=mm_left_offset+4*mm_each_extrusion;
+		current_position[Y_AXIS]=150;
+		//plan_set_position(current_position[X_AXIS]+(4*mm_each_extrusion), 150, current_position[Z_AXIS], current_position[E_AXIS]);
+
+		//2)Extruder 2 prints with corrections
+		changeTool(1);
+
+		//Purge & up
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]+5, 1500/60 , active_extruder);
+		current_position[E_AXIS]+=5;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 1500/60 , active_extruder);
+		st_synchronize();
+		//Second Extruder (correcting)
+		for (int i=1; i<5;i++) //4 times
+		{
+			plan_buffer_line(mm_left_offset+(mm_second_extruder[i-1]*i), 150, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2, active_extruder);//Move X and Z
+			plan_buffer_line(mm_left_offset+(mm_second_extruder[i-1]*i), 100, current_position[Z_AXIS], current_position[E_AXIS]+1, 1500/60, active_extruder);//Move Y and extrude
+			plan_buffer_line(mm_left_offset+(mm_second_extruder[i-1]*i), 100, current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Retrack			
+			plan_buffer_line(mm_left_offset+(mm_second_extruder[i-1]*i), 100, current_position[Z_AXIS]+5, current_position[E_AXIS], 1500/60, active_extruder);//Lift Z
+			current_position[E_AXIS]+=1;//Move the retracked space
+			st_synchronize();
+		}
+		current_position[X_AXIS]=mm_left_offset+(4*mm_second_extruder[3]);
+		current_position[Y_AXIS]=100;
+
+		changeTool(0);
+			
+		//Go to Calibration select screen
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+		break;
+	}
+#endif //EXTRUDER_CALIBRATION_WIZARD
+
+
+
 #ifdef ENABLE_AUTO_BED_LEVELING
 
 case 33: // G33 Calibration Wizard by Eric Pallarés for RepRapBCN
 {
 	//First do AUTOHOME
-	enquecommand_P((PSTR("G28")));
+	enquecommand_P((PSTR("G28"))); //This is not working!!!!!!!!!!! cant enqueue and plan buffer!
 	
 	/////////////////////////// 
 	//Autohome done - Now calibration calculus
@@ -2369,6 +2439,8 @@ case 33: // G33 Calibration Wizard by Eric Pallarés for RepRapBCN
         break;
 #endif // Z_PROBE_SLED
 #endif // ENABLE_AUTO_BED_LEVELING
+
+	 
     case 90: // G90
       relative_mode = false;
       break;
@@ -4457,8 +4529,8 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
 
 //Rapduch
-//Hardcoded change tool
-void changeTool(int ntool) {
+//Hardcoded  function for tool change
+void changeTool(int ntool) { //ntool select the tool that will be active
 	tmp_extruder = ntool;
 	if(tmp_extruder >= EXTRUDERS) {
 		SERIAL_ECHO_START;
@@ -4484,9 +4556,9 @@ void changeTool(int ntool) {
 			//(delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder)))
 			//{
 				// Park old head: 1) raise 2) move to park position 3) lower
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT+5,
 				current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-				plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
+				plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT+5,
 				current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
 				plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS],
 				current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
@@ -4525,7 +4597,7 @@ void changeTool(int ntool) {
 			//{
 				// record raised toolhead position for use by unpark
 				memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
-				raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
+				raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT+5;
 				active_extruder_parked = true;
 				delayed_move_time = 0;
 			//}

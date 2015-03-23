@@ -544,11 +544,18 @@ void myGenieEventHandler(void)
 			//Extruder Calibrations-------------------------------------------------
 			else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS)
 			{
+				enquecommand_P(PSTR("G28"));
+				enquecommand_P(PSTR("G40"));
+				
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+				
 				//Rapduch first try 20/02/2015
-				homeFromMain();
+				//homeFromMain();
+				//enquecommand_P(PSTR("G28"));
+				//st_synchronize();
 				//Preheat
-				setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
-				setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP);
+				//setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
+				//setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP);
 				
 				//while (degHotend(0)<degTargetHotend(0)){ //Waiting to heat the extruder
 					//manage_heater();
@@ -617,31 +624,47 @@ void myGenieEventHandler(void)
 					//Serial.print("Waiting");
 				//}
 				
-				float mm_second_extruder[4] = {40.5, 39.5, 40, 39};
 				
-				float mm_each_extrusion =40;
-				for (int i=1; i<5;i++) //4 times
-				{
-					plan_buffer_line(10+(mm_each_extrusion*i), 200, current_position[Z_AXIS], current_position[E_AXIS], 2000/60, active_extruder);			
-					plan_buffer_line(10+(mm_each_extrusion*i), 150, current_position[Z_AXIS], current_position[E_AXIS], 2500/60, active_extruder);		
-					st_synchronize();
-				}				
-				current_position[X_AXIS]=20+4*mm_each_extrusion;
-				current_position[Y_AXIS]=150;
 				
-				//plan_set_position(current_position[X_AXIS]+(4*mm_each_extrusion), 150, current_position[Z_AXIS], current_position[E_AXIS]);
 				
-				changeTool(1);
 				
-				//Second Extruder
-				for (int i=1; i<5;i++) //4 times
-				{
-					plan_buffer_line(10+(mm_each_extrusion*i), 200, current_position[Z_AXIS], current_position[E_AXIS], 2000/60, active_extruder);
-					plan_buffer_line(10+(mm_each_extrusion*i), 150, current_position[Z_AXIS], current_position[E_AXIS], 2500/60, active_extruder);
-					st_synchronize();
-				}
-				current_position[X_AXIS]=20+4*mm_each_extrusion;
-				current_position[Y_AXIS]=150;
+				
+				
+				//float mm_second_extruder[4] = {40.5, 39.5, 40, 39};
+				//
+				//float mm_each_extrusion =40;
+				//float mm_left_offset = 10;
+				//for (int i=1; i<5;i++) //4 times
+				//{
+					//plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 200, current_position[Z_AXIS], current_position[E_AXIS], 2000/60, active_extruder);			
+					//plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 150, current_position[Z_AXIS], current_position[E_AXIS], 2500/60, active_extruder);		
+					//st_synchronize();
+				//}				
+				//current_position[X_AXIS]=mm_left_offset+4*mm_each_extrusion;
+				//current_position[Y_AXIS]=150;
+				//
+				////plan_set_position(current_position[X_AXIS]+(4*mm_each_extrusion), 150, current_position[Z_AXIS], current_position[E_AXIS]);
+				//
+				//changeTool(1);
+				//
+				////Second Extruder (correcting)
+				//for (int i=1; i<5;i++) //4 times
+				//{
+					//plan_buffer_line(mm_left_offset+(mm_second_extruder[i-1]*i), 200, current_position[Z_AXIS], current_position[E_AXIS], 2000/60, active_extruder);
+					//plan_buffer_line(mm_left_offset+(mm_second_extruder[i-1]*i), 150, current_position[Z_AXIS], current_position[E_AXIS], 2500/60, active_extruder);
+					//st_synchronize();
+				//}
+				//current_position[X_AXIS]=mm_left_offset+4*mm_second_extruder[3];
+				//current_position[Y_AXIS]=150;
+				//
+				//changeTool(0);
+				//
+				
+				
+				
+				
+				
+				
 				
 				//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], 6000/60, active_extruder);	
 				//plan_buffer_line(MANUAL_X_HOME_POS, current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], 6000/60, active_extruder);				

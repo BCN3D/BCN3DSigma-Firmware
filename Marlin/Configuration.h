@@ -264,10 +264,7 @@
 #define EXTRUDE_MINTEMP 0 //With DUAL X it only counts extruder0 temp
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
-//Rapduch
-//Insert Filament
-#define BOWDEN_LENGTH 10
-#define EXTRUDER_LENGTH 10
+
 
 /*================== Thermal Runaway Protection ==============================
 This is a feature to protect your printer from burn up in flames if it has
@@ -483,22 +480,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   #endif
 
-//Calibration WIZARD --------
-#define PAS_M5 0.8
-
-//Screw positions on BED for 
-#define CARGOL_1_X  -14;
-#define CARGOL_1_Y  160;
-
-#define CARGOL_2_X  -14;
-#define CARGOL_2_Y  0;
-
-#define CARGOL_3_X  258;
-#define CARGOL_3_Y  80;
-// -------- END calibration WIZARD
-
-
-
 #endif // ENABLE_AUTO_BED_LEVELING
 
 
@@ -586,9 +567,41 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000	// this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
 
-
+//----------------------------------SIGMA DEFINITIONS-------------------------------------------
 //4D LCD Touch Screen for RepRapSigma
 #define SIGMA_TOUCH_SCREEN
+
+//Extruder Cal Wizard
+#define EXTRUDER_CALIBRATION_WIZARD
+
+//Rapduch
+//Insert Filament
+#define BOWDEN_LENGTH 10
+#define EXTRUDER_LENGTH 10
+
+
+#ifdef  ENABLE_AUTO_BED_LEVELING
+	//Calibration WIZARD --------
+	#define PAS_M5 0.8
+	//Screw positions on BED for
+	#define CARGOL_1_X  -14;
+	#define CARGOL_1_Y  160;
+
+	#define CARGOL_2_X  -14;
+	#define CARGOL_2_Y  0;
+
+	#define CARGOL_3_X  258;
+	#define CARGOL_3_Y  80;
+	// -END BED calibration WIZARD
+#endif // ENABLE_AUTO_BED_LEVELING
+
+
+#ifdef EXTRUDER_CALIBRATION_WIZARD
+	#define SECOND_EXTRUDER_X {40.5, 39.5, 40, 39}
+	#define SECOND_EXTRUDER_Y {150.5, 149.5, 150, 149}
+#endif
+
+//----------------------------------------------------------------------------------------------
 
 
 // The MaKr3d Makr-Panel with graphic controller and SD support

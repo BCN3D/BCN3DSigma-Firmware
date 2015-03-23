@@ -82,9 +82,10 @@
 // 21 = Elefu Ra Board (v3)
 // 88 = 5DPrint D8 Driver Board
 // 999 = Leapfrog
+//15 = BCN3D Sigma Rev2
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 703
+#define MOTHERBOARD 15
 //#define MOTHERBOARD 34
 #endif
 

@@ -556,6 +556,14 @@ void servo_init()
 
 void setup()
 {
+	
+	#if MOTHERBOARD==15 //BCNElectronics v1 enable 24V
+	pinMode(RELAY, OUTPUT);
+	digitalWrite(RELAY, LOW);
+	delay(500);
+	digitalWrite(RELAY, HIGH);
+	#endif
+	
   setup_killpin();
   setup_powerhold();
   MYSERIAL.begin(BAUDRATE);
@@ -564,6 +572,7 @@ void setup()
   SERIAL_ECHO_START;
   Serial.println("RepRapBCN Sigma");
   //LCD START routine
+  
   #ifdef SIGMA_TOUCH_SCREEN
   MYSERIAL_SCREEN.begin(200000);
   delay (100);
@@ -579,9 +588,11 @@ void setup()
   delay (3500); //showing the splash screen
   genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
   //Turn the Display on (Contrast) - (Not needed but illustrates how)
-  //genie.WriteContrast(1);
+  //genie.WriteContrast(1);  
 #endif
   
+  
+ 
   
 
   // Check startup - does nothing if bootloader sets MCUSR to 0

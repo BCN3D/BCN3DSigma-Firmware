@@ -19,9 +19,9 @@
 //Rapduch
 /****************************************************************************************
 * BCN3D Electronics v1.0
-* Rev_A
+* Rev_B
 ****************************************************************************************/
-#if MOTHERBOARD == 1 //RepRapBCN Electronics
+#if MOTHERBOARD == 1 //BCN3DElectronics v0.9
 
 #define KNOWN_BOARD 1
 #ifndef __AVR_ATmega1280__
@@ -145,51 +145,49 @@
 
 
 //------------------------------
-#if MOTHERBOARD == 15 //RepRapBCN Electronics V1
+#if MOTHERBOARD == 15 //RepRapBCN Electronics V1.0
 
 #define KNOWN_BOARD 1
 #ifndef __AVR_ATmega1280__
-#ifndef __AVR_ATmega2560__
-#error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
-#endif
+	#ifndef __AVR_ATmega2560__
+	#error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+	#endif
 #endif
 
 #define LARGE_FLASH true
 
 //Rapduch
 #define MYSERIAL_SCREEN Serial2
-#define RESETLINE -1
+#define RESETLINE 84
 
-#define X_STEP_PIN		5
-#define X_DIR_PIN		3
-#define X_ENABLE_PIN	4
-#define X_MIN_PIN		6 //Minim endstop
-#define X_MAX_PIN		10 //Max endstop per 2n extrusor
+#define X_STEP_PIN		76 
+#define X_DIR_PIN		73
+#define X_ENABLE_PIN	75
 
-//#define X1_STEP			3
-//#define X1_DIR			5
-//#define X1_EN			2
-//#define X1_STOP			6
+#define X_MIN_PIN		77 //Minim endstop
+#define X_MAX_PIN		79 //Max endstop per 2n extrusor
 
 #define E0_STEP_PIN		27
 #define E0_DIR_PIN		29
 #define E0_ENABLE_PIN	28
-#define E0_STOP			26
+//#define E0_STOP			26
 
 #define E1_STEP_PIN		1
 #define E1_DIR_PIN		3
 #define E1_ENABLE_PIN	2
-#define E1_STOP			0
+//#define E1_STOP			0
 
 #define Z_STEP_PIN		35
 #define Z_DIR_PIN		37
 #define Z_ENABLE_PIN	36
+
 #define Z_MIN_PIN		34
 #define Z_MAX_PIN		-1
 
 #define Y_STEP_PIN		31
 #define Y_DIR_PIN		33
 #define Y_ENABLE_PIN	32
+
 #define Y_MAX_PIN		30
 #define Y_MIN_PIN		-1
 
@@ -197,30 +195,30 @@
 #define PS_ON_PIN       -1
 
 //Layer Fans
-#define FAN_PIN		6
-#define	FAN2_PIN	45
+#define FAN_PIN			6
+#define	FAN2_PIN		45
 //RGB LEDs
-#define GREEN		11
-#define	RED			12
-#define BLUE		13
+#define GREEN			11
+#define	RED				12
+#define BLUE			13
 //Power Supply Relay
-#define	RELAY		10
+#define	RELAY			10
 //HOTEND HEATERS
-#define	HEATER_0_PIN		44
-#define	HEATER_1_PIN		7
-#define HEATER_2_PIN		-1
+#define	HEATER_0_PIN	44
+#define	HEATER_1_PIN	7
+#define HEATER_2_PIN	-1
 //HEATED BED
 #define HEATER_BED_PIN	46
 //THERMISTORS
-#define TEMP_0_PIN	9
-#define TEMP_1_PIN	8
-#define TEMP_2_PIN -1
-#define TEMP_BED_PIN		15
+#define TEMP_0_PIN		9
+#define TEMP_1_PIN		8
+#define TEMP_2_PIN		-1
+#define TEMP_BED_PIN	15
 
-#define MLED		14
-#define SDSS		53
-#define SDPOWER     -1
-#define LED_PIN		-1
+#define MLED			14
+#define SDSS			53
+#define SDPOWER			-1
+#define LED_PIN			-1
 
 #ifndef SDSUPPORT
 // these pins are defined in the SD library if building with SD support

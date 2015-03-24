@@ -187,9 +187,20 @@
     // Remember: you should set the second extruder x-offset to 0 in your slicer.
 
 // Pins for second x-carriage stepper driver (defined here to avoid further complicating pins.h)
-#define X2_ENABLE_PIN 23
-#define X2_STEP_PIN 22
-#define X2_DIR_PIN 60
+#if MOTHERBOARD ==15
+	#define X2_ENABLE_PIN	4
+	#define X2_STEP_PIN		5
+	#define X2_DIR_PIN		3
+#else
+	 #define X2_ENABLE_PIN 23
+	 #define X2_STEP_PIN 22
+	 #define X2_DIR_PIN 60
+#endif
+
+
+
+
+
 
 // There are a few selectable movement modes for dual x-carriages using M605 S<mode>
 //    Mode 0: Full control. The slicer has full control over both x-carriages and can achieve optimal travel results

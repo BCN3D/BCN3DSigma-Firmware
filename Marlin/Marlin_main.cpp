@@ -364,6 +364,10 @@ static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 static float delta[3] = {0.0, 0.0, 0.0};
 #endif
 
+//Rapduch
+float z_restaurada;
+
+
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -557,11 +561,21 @@ void setup()
 	
 	#if MOTHERBOARD==15 //BCNElectronics v1
 	
+	//pinMode(RED,OUTPUT);
+	//pinMode(GREEN,OUTPUT);
+	//pinMode(BLUE,OUTPUT);
+	
 	//enable 24V
 	pinMode(RELAY, OUTPUT);
 	digitalWrite(RELAY, LOW);
 	delay(500);
 	digitalWrite(RELAY, HIGH);
+	
+	analogWrite(RED,127);
+	analogWrite(GREEN,127);
+	analogWrite(BLUE,127);//Turn printer White rgb
+	
+	
 	#endif
 	
   setup_killpin();
@@ -4439,6 +4453,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       #if EXTRUDERS > 1
       if(tmp_extruder != active_extruder) {
         // Save current position to return to after applying extruder offset
+		z_restaurada = current_position[Z_AXIS];
         memcpy(destination, current_position, sizeof(destination));
       #ifdef DUAL_X_CARRIAGE
         if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && Stopped == false &&
@@ -4453,6 +4468,18 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
                 current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
           st_synchronize();
         }
+		
+		
+		if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE && current_position[X_AXIS] != x_home_pos(active_extruder)) //DUAL FULL CONTROL and NOT HOMED
+		{	
+			// Park old head: 1) raise 2) move to park position 3) lower
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);
+			plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[X_AXIS]/2, active_extruder);
+			//plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] ,current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);
+			st_synchronize();
+			current_position[Z_AXIS]= current_position[Z_AXIS]+TOOLCHANGE_PARK_ZLIFT;
+		}
+		
 
         // apply Y & Z extruder offset (x offset is already used in determining home pos)
         current_position[Y_AXIS] = current_position[Y_AXIS] -
@@ -4467,6 +4494,13 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         // This function resets the max/min values - the current position may be overwritten below.
         axis_is_at_home(X_AXIS);
 
+		//Rapduch
+		if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE)
+		{
+			memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+			active_extruder_parked = true;
+		}
+		
         if (dual_x_carriage_mode == DXC_FULL_CONTROL_MODE)
         {
           current_position[X_AXIS] = inactive_extruder_x_pos;
@@ -4842,6 +4876,25 @@ for (int s = 1; s <= steps; s++) {
 #ifdef DUAL_X_CARRIAGE
   if (active_extruder_parked)
   {
+	  
+	    //Rapduch toolchange
+	    if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE)
+	    {
+		    plan_buffer_line(current_position[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
+		    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
+		    current_position[X_AXIS]=destination[X_AXIS];
+		    current_position[Y_AXIS]=destination[Y_AXIS];
+		    if (current_position[Z_AXIS]==destination[Z_AXIS]) //Correct the offset
+		    {
+			    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], z_restaurada, current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
+			    destination[Z_AXIS]=z_restaurada;
+		    }
+		    st_synchronize();
+		    active_extruder_parked = false;
+	    }
+	  
+	  
+	  
     if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0)
     {
       // move duplicate extruder into correct duplication position.

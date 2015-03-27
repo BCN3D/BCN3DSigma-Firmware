@@ -188,9 +188,9 @@
 
 // Pins for second x-carriage stepper driver (defined here to avoid further complicating pins.h)
 #if MOTHERBOARD ==15
-	#define X2_ENABLE_PIN	4
-	#define X2_STEP_PIN		5
-	#define X2_DIR_PIN		3
+	#define X2_ENABLE_PIN	75//4
+	#define X2_STEP_PIN		76//5
+	#define X2_DIR_PIN		73//3
 #else
 	 #define X2_ENABLE_PIN 23
 	 #define X2_STEP_PIN 22
@@ -199,7 +199,7 @@
 
 
 
-
+#define EXTRUDER_OFFSET_Z {0.0 , -0.3}
 
 
 // There are a few selectable movement modes for dual x-carriages using M605 S<mode>
@@ -212,7 +212,9 @@
 //                           once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
 
 // This is the default power-up mode which can be later using M605.
-#define DEFAULT_DUAL_X_CARRIAGE_MODE 0
+#define DEFAULT_DUAL_X_CARRIAGE_MODE 3
+
+#define DXC_FULL_SIGMA_MODE 3 //SIGMA MODE: Combination of dual park and dual full control
 
 // As the x-carriages are independent we can now account for any relative Z offset
 #define EXTRUDER1_Z_OFFSET 0.0           // z offset relative to extruder 0

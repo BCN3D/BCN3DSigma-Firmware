@@ -160,9 +160,9 @@
 #define MYSERIAL_SCREEN Serial2
 #define RESETLINE 84
 
-#define X_STEP_PIN		76 
-#define X_DIR_PIN		73
-#define X_ENABLE_PIN	75
+#define X_STEP_PIN		3//76 
+#define X_DIR_PIN		5//73
+#define X_ENABLE_PIN	2//75
 
 #define X_MIN_PIN		77 //Minim endstop
 #define X_MAX_PIN		79 //Max endstop per 2n extrusor
@@ -195,8 +195,8 @@
 #define PS_ON_PIN       -1
 
 //Layer Fans
-#define FAN_PIN			6
-#define	FAN2_PIN		45
+#define FAN_PIN			45
+#define	FAN2_PIN		6
 //RGB LEDs
 #define GREEN			11
 #define	RED				12

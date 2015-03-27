@@ -584,8 +584,9 @@ void setup()
   digitalWrite(RESETLINE, 0);  // Reset the Display
   delay(100);
   digitalWrite(RESETLINE, 1);  // unReset the Display
-  delay (3500); //let the display start up after the reset (This is important)
-  delay (3500); //showing the splash screen
+  delay (300); //let the display start up after the reset (This is important)
+  digitalWrite(RESETLINE, 0);  // unReset the Display
+  delay (300); //showing the splash screen
   genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
   //Turn the Display on (Contrast) - (Not needed but illustrates how)
   //genie.WriteContrast(1);  

@@ -212,7 +212,7 @@
 //                           once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
 
 // This is the default power-up mode which can be later using M605.
-#define DEFAULT_DUAL_X_CARRIAGE_MODE 1
+#define DEFAULT_DUAL_X_CARRIAGE_MODE 0
 
 // As the x-carriages are independent we can now account for any relative Z offset
 #define EXTRUDER1_Z_OFFSET 0.0           // z offset relative to extruder 0

@@ -170,12 +170,12 @@
 #define E0_STEP_PIN		27
 #define E0_DIR_PIN		29
 #define E0_ENABLE_PIN	28
-//#define E0_STOP			26
+//#define E0_STOP		//26
 
-#define E1_STEP_PIN		1
-#define E1_DIR_PIN		3
-#define E1_ENABLE_PIN	2
-//#define E1_STOP			0
+#define E1_STEP_PIN		55//55//A1
+#define E1_DIR_PIN		57//57//A3
+#define E1_ENABLE_PIN	56//56//A2
+//#define E1_STOP		 //A0
 
 #define Z_STEP_PIN		35
 #define Z_DIR_PIN		37
@@ -210,12 +210,12 @@
 //HEATED BED
 #define HEATER_BED_PIN	46
 //THERMISTORS
-#define TEMP_0_PIN		9
-#define TEMP_1_PIN		8
+#define TEMP_0_PIN		9//63//A9
+#define TEMP_1_PIN		8//62//A8
 #define TEMP_2_PIN		-1
-#define TEMP_BED_PIN	15
+#define TEMP_BED_PIN	15//69//A15
 
-#define MLED			14
+#define MLED			68//A14
 #define SDSS			53
 #define SDPOWER			-1
 #define LED_PIN			-1

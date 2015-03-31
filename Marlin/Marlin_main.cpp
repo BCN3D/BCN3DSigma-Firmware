@@ -589,18 +589,18 @@ void setup()
   
   #ifdef SIGMA_TOUCH_SCREEN
   MYSERIAL_SCREEN.begin(200000);
-  delay (100);
+  delay (300);
   genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
   genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
   // Reset the Display (change D4 to D2 if you have original 4D Arduino Adaptor)
   // THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
   pinMode(RESETLINE, OUTPUT);  // Set D4 on Arduino to Output (4D Arduino Adaptor V2 - Display Reset)
   digitalWrite(RESETLINE, 0);  // Reset the Display
-  delay(100);
+  delay(300);
   digitalWrite(RESETLINE, 1);  // unReset the Display
-  delay (300); //let the display start up after the reset (This is important)
+  delay(600); //let the display start up after the reset (This is important)
   digitalWrite(RESETLINE, 0);  // unReset the Display
-  delay (300); //showing the splash screen
+  delay(600); //showing the splash screen
   genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
   //Turn the Display on (Contrast) - (Not needed but illustrates how)
   //genie.WriteContrast(1);  
@@ -923,7 +923,7 @@ void touchscreen_update()
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
 				
-				
+				#if EXTRUDERS > 1
 				// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
 				if ((degHotend(0) >= (degTargetHotend0())) && (degHotend(1) >= (degTargetHotend1())) && is_changing_filament)
 				// if we want to add user setting temp, we should control if is heating
@@ -945,7 +945,8 @@ void touchscreen_update()
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
 					}
 					is_changing_filament=false; //Reset changing filament control
-				}			
+				}	
+				#endif		
 				waitPeriod=1000+millis();			
 			}				
 	}else
@@ -1588,6 +1589,8 @@ static void homeaxis(int axis) {
 
   }
 }
+
+
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
 
@@ -4576,6 +4579,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
 //Rapduch
 //Hardcoded  function for tool change
+#ifdef  DUAL_X_CARRIAGE
 void changeTool(int ntool) { //ntool select the tool that will be active
 	tmp_extruder = ntool;
 	if(tmp_extruder >= EXTRUDERS) {
@@ -4684,8 +4688,7 @@ void changeTool(int ntool) { //ntool select the tool that will be active
         SERIAL_PROTOCOLLN((int)active_extruder);
     }
 }
-
-
+#endif //DUAL X CARRIAGE
 
 
 void FlushSerialRequestResend()

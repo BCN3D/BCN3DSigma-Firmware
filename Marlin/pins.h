@@ -143,9 +143,9 @@
 
 //------------------------------
 
-
+//////////////////RepRapBCN Electronics V1.0/////////////////////
 //------------------------------
-#if MOTHERBOARD == 15 //RepRapBCN Electronics V1.0
+#if MOTHERBOARD == 15 
 
 #define KNOWN_BOARD 1
 #ifndef __AVR_ATmega1280__
@@ -181,8 +181,13 @@
 #define Z_DIR_PIN		37
 #define Z_ENABLE_PIN	36
 
-#define Z_MIN_PIN		34
-#define Z_MAX_PIN		-1
+//#define Z_MIN_PIN		34
+//#define Z_MAX_PIN		-1
+
+#define Z_MIN_PIN		23
+#define Z_MAX_PIN		22
+//#define Z_ENDSTOP_0 23
+//#define Z_ENDSTOP_1 22
 
 #define Y_STEP_PIN		31
 #define Y_DIR_PIN		33
@@ -228,7 +233,7 @@
 #endif
 
 #endif
-
+/////////////////////////////////////////////////
 
 
 /****************************************************************************************

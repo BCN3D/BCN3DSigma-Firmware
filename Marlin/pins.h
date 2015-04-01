@@ -221,15 +221,16 @@
 #define TEMP_BED_PIN	15//69//A15
 
 #define MLED			68//A14
+
 #define SDSS			53
 #define SDPOWER			-1
 #define LED_PIN			-1
 
 #ifndef SDSUPPORT
 // these pins are defined in the SD library if building with SD support
-#define SCK_PIN           9
-#define MISO_PIN         11
-#define MOSI_PIN         10
+#define SCK_PIN           52
+#define MISO_PIN         50
+#define MOSI_PIN         51
 #endif
 
 #endif
@@ -2868,6 +2869,9 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 
 #define LARGE_FLASH        true
 
+//Rapduch
+#define MYSERIAL_SCREEN Serial3
+#define RESETLINE 47
 
 #define X_STEP_PIN         58
 #define X_DIR_PIN          57
@@ -2903,9 +2907,7 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 #define SDSS 53
 #define LED_PIN 13
 
-//Rapduch
-#define MYSERIAL_SCREEN Serial3
-#define RESETLINE 47
+
 
 #define PS_ON_PIN 12
 #define KILL_PIN -1

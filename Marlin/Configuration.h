@@ -392,6 +392,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 //============================= Bed Auto Leveling ===========================
 
+
+  //Rapduch
+  #define Z_SIGMA_HOME
+  
+  #ifdef Z_SIGMA_HOME
+  #define Z_SIGMA_HOME_X_POINT 32
+  #define Z_SIGMA_HOME_Y_POINT 150
+  #endif
+
+
 //#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 #define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
@@ -442,9 +452,14 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -25
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35
+  #define X_PROBE_OFFSET_FROM_EXTRUDER  20
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER	24
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -10
+  
+  //Rapduch
+  //#define X_PROBE2_OFFSET_FROM_EXTRUDER -25
+  //#define Y_PROBE2_OFFSET_FROM_EXTRUDER -29
+  //#define Z_PROBE2_OFFSET_FROM_EXTRUDER -12.35
 
   #define Z_RAISE_BEFORE_HOMING 10       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
@@ -475,11 +490,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
                           // - Block Z homing only when the probe is outside bed area.
 
   #ifdef Z_SAFE_HOMING
-
     #define Z_SAFE_HOMING_X_POINT (X_MAX_LENGTH/2)    // X point for Z homing when homing all axis (G28)
     #define Z_SAFE_HOMING_Y_POINT (Y_MAX_LENGTH/2)    // Y point for Z homing when homing all axis (G28)
-
   #endif
+  
 
 #endif // ENABLE_AUTO_BED_LEVELING
 

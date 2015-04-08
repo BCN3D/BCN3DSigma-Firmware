@@ -225,6 +225,10 @@ CardReader card;
 	bool is_changing_filament=false;
 #endif
 
+#ifndef SIGMA_TOUCH_SCREEN
+	bool firstime = true;
+	void SD_firstPrint();
+#endif
 
 
 float homing_feedrate[] = HOMING_FEEDRATE;
@@ -581,7 +585,8 @@ void setup()
   setup_killpin();
   setup_powerhold();
   MYSERIAL.begin(BAUDRATE);
-  delay (100);
+  delay(100);
+  //delay(1000);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
   Serial.println("RepRapBCN Sigma");
@@ -589,26 +594,26 @@ void setup()
   //LCD START routine
   #ifdef SIGMA_TOUCH_SCREEN
   MYSERIAL_SCREEN.begin(200000);
-  delay (300);
+  delay(300);
+  //delay(1000);
   genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
   genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
   // Reset the Display
   // THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
   pinMode(RESETLINE, OUTPUT);  // Set Output (4D Arduino Adaptor V2 - Display Reset)
-  digitalWrite(RESETLINE, LOW);  // Reset the Display
+  digitalWrite(RESETLINE, HIGH);  // Reset the Display
   delay(300);
-  digitalWrite(RESETLINE, HIGH);  // unReset the Display
-  delay(600); //let the display start up after the reset (This is important)
+  //delay(1000);
   digitalWrite(RESETLINE, LOW);  // unReset the Display
+  delay(600); //let the display start up after the reset (This is important)
+  //delay(1000);
+  digitalWrite(RESETLINE, HIGH);  // unReset the Display
   delay(600); //showing the splash screen
+  //delay(1000);
   genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
   //Turn the Display on (Contrast) - (Not needed but illustrates how)
   //genie.WriteContrast(1);  
 #endif
-  
-  
- 
-  
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
   byte mcu = MCUSR;
@@ -653,7 +658,7 @@ void setup()
   servo_init();
 
   //lcd_init();
-  _delay_ms(1000);	// wait 1sec to display the splash screen
+  //_delay_ms(1000);	// wait 1sec to display the splash screen
 
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
@@ -666,11 +671,27 @@ void setup()
   pinMode(SERVO0_PIN, OUTPUT);
   digitalWrite(SERVO0_PIN, LOW); // turn it off
 #endif // Z_PROBE_SLED
+
+#ifndef SIGMA_TOUCH_SCREEN  //Print First Gcode
+	//char cmd[30];
+	//char* c;
+	//card.getfilename(0); //First gcode
+	//sprintf_P(cmd, PSTR("M23 %s"), card.filename);
+	//for(c = &cmd[4]; *c; c++)
+	//{
+		//*c = tolower(*c);
+	//}
+	//enquecommand(cmd);
+	//enquecommand_P(PSTR("M24"));
+#endif
+
+
 }
 
 
 void loop()
 {
+	
   if(buflen < (BUFSIZE-1))
     get_command();
   #ifdef SDSUPPORT
@@ -719,16 +740,37 @@ void loop()
   touchscreen_update();
   #endif
   
+  
+  
+	//#ifndef SIGMA_TOUCH_SCREEN //JUST PRINT FIRST GCODE ON SD
+	//if (firstime)
+	//{
+		//SD_firstPrint();
+		//firstime=false;
+	//}
+	//#endif
+  
+  
   //genie.DoEvents();
 }
 
+void SD_firstPrint (){	
+	char cmd[30];
+	char* c;
+	card.getfilename(0);
+	sprintf_P(cmd, PSTR("M23 %s"), card.filename);
+	for(c = &cmd[4]; *c; c++)
+	{
+		*c = tolower(*c);
+	}
+	enquecommand(cmd);
+	enquecommand_P(PSTR("M24"));
+}
 
 int getBuflen ()
 {
 	return buflen;
 }
-
-
 
 
 

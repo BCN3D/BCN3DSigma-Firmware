@@ -85,8 +85,8 @@
 //15 = BCN3D Sigma Rev2
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 15
-//#define MOTHERBOARD 34
+#define MOTHERBOARD 703 //Megatronics v3
+//#define MOTHERBOARD 15 //Marcotronics
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -193,6 +193,8 @@
 #ifdef PIDTEMP
   //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
+  
+  //Rapduch ATENCIÓ
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
@@ -382,7 +384,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 //32+222+28=282
 #define X_MAX_POS 320 //Set 40mm space to avoid crashing with the other carriage 
 #define X_MIN_POS 0
-#define Y_MAX_POS 300
+#define Y_MAX_POS 280
 #define Y_MIN_POS 0
 #define Z_MAX_POS 150
 #define Z_MIN_POS 0
@@ -517,8 +519,18 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
 
 // default settings
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,458.3}  // default steps per unit for Ultimaker
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,916.6}  // for 1/32 microstepping
+#ifndef SIGMA_TOUCH_SCREEN
+	#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,96.43}  // default steps per unit for Ultimaker
+#endif
+
+#ifdef SIGMA_TOUCH_SCREEN
+	#if MOTHERBOARD == 15
+		#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // for 1/32 microstepping
+	#else
+		#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,96.43}  // for 1/16
+	#endif 
+#endif
+
 #define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
@@ -582,6 +594,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000	// this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
 
+
+
 //----------------------------------SIGMA DEFINITIONS-------------------------------------------
 //4D LCD Touch Screen for RepRapSigma
 #define SIGMA_TOUCH_SCREEN
@@ -617,6 +631,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #endif
 
 //----------------------------------------------------------------------------------------------
+
+
 
 
 // The MaKr3d Makr-Panel with graphic controller and SD support

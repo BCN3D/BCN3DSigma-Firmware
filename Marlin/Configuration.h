@@ -339,10 +339,10 @@ your extruder heater takes 2 minutes to hit the target on heating.
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
 const bool X_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Y_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool Z_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool X_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Y_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 //#define DISABLE_MAX_ENDSTOPS
 //#define DISABLE_MIN_ENDSTOPS
 
@@ -393,15 +393,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 //============================= Bed Auto Leveling ===========================
-
-
-  //Rapduch
-  #define Z_SIGMA_HOME
-  
-  #ifdef Z_SIGMA_HOME
-  #define Z_SIGMA_HOME_X_POINT 32
-  #define Z_SIGMA_HOME_Y_POINT 150
-  #endif
 
 
 //#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
@@ -607,6 +598,26 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 //Insert Filament
 #define BOWDEN_LENGTH 10
 #define EXTRUDER_LENGTH 10
+
+
+
+
+//Rapduch For sigma Autolevel
+#define Z_SIGMA_HOME
+
+#ifdef Z_SIGMA_HOME
+	#define Z_SIGMA_HOME_X_POINT 32
+	#define Z_SIGMA_HOME_Y_POINT 150
+	
+	#define Z_SIGMA_RAISE_BEFORE_HOMING 10
+	
+	#define XY_SIGMA_TRAVEL_SPEED 8000
+	
+	#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
+	#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
+	#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER -10
+#endif
+
 
 
 #ifdef  ENABLE_AUTO_BED_LEVELING

@@ -1925,77 +1925,77 @@ void process_commands()
 
     #if Z_HOME_DIR < 0   // If homing towards BED do Z last
 	  
-	  //#ifdef Z_SIGMA_HOME
-	  	//if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-		  	//destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT);
-		  	//destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT);
-		  	//destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
-		  	//feedrate = XY_TRAVEL_SPEED;
-		  	//current_position[Z_AXIS] = 0;
-			  //SERIAL_ECHO("Estem al HOME Z");
-			  //
-		  	//plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-		  	//plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
-		  	//st_synchronize();
-		  	//current_position[X_AXIS] = destination[X_AXIS];
-		  	//current_position[Y_AXIS] = destination[Y_AXIS];
-		  	//HOMEAXIS(Z);
-	  	//}
-		//#endif
+	  #ifdef Z_SIGMA_HOME
+	  	if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+		  	destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT);
+		  	destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT);
+		  	destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+		  	feedrate = XY_SIGMA_TRAVEL_SPEED;
+		  	current_position[Z_AXIS] = 0;
+			  SERIAL_ECHO("Estem al HOME Z");
+			  
+		  	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		  	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+		  	st_synchronize();
+		  	current_position[X_AXIS] = destination[X_AXIS];
+		  	current_position[Y_AXIS] = destination[Y_AXIS];
+		  	HOMEAXIS(Z);
+	  	}
+		#endif
 	  
-        #ifndef Z_SAFE_HOMING
-          if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-            #if defined (Z_RAISE_BEFORE_HOMING) && (Z_RAISE_BEFORE_HOMING > 0)
-              destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
-              feedrate = max_feedrate[Z_AXIS];
-              plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
-              st_synchronize();
-            #endif
-            HOMEAXIS(Z);
-          }	
-		#else                   // Z Safe mode activated.
-          if(home_all_axis) {
-            destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - X_PROBE_OFFSET_FROM_EXTRUDER);
-            destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - Y_PROBE_OFFSET_FROM_EXTRUDER);
-            destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
-            feedrate = XY_TRAVEL_SPEED;
-            current_position[Z_AXIS] = 0;
-
-            plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-            plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
-            st_synchronize();
-            current_position[X_AXIS] = destination[X_AXIS];
-            current_position[Y_AXIS] = destination[Y_AXIS];
-
-            HOMEAXIS(Z);
-          }
+        //#ifndef Z_SAFE_HOMING
+          //if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+            //#if defined (Z_RAISE_BEFORE_HOMING) && (Z_RAISE_BEFORE_HOMING > 0)
+              //destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+              //feedrate = max_feedrate[Z_AXIS];
+              //plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+              //st_synchronize();
+            //#endif
+            //HOMEAXIS(Z);
+          //}	
+		//#else                   // Z Safe mode activated.
+          //if(home_all_axis) {
+            //destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - X_PROBE_OFFSET_FROM_EXTRUDER);
+            //destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - Y_PROBE_OFFSET_FROM_EXTRUDER);
+            //destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+            //feedrate = XY_TRAVEL_SPEED;
+            //current_position[Z_AXIS] = 0;
+//
+            //plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+            //plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+            //st_synchronize();
+            //current_position[X_AXIS] = destination[X_AXIS];
+            //current_position[Y_AXIS] = destination[Y_AXIS];
+//
+            //HOMEAXIS(Z);
+          //}
                                                 // Let's see if X and Y are homed and probe is inside bed area.
-          if(code_seen(axis_codes[Z_AXIS])) {
-            if ( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]) \
-              && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
-              && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER <= X_MAX_POS) \
-              && (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER >= Y_MIN_POS) \
-              && (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER <= Y_MAX_POS)){
-              
-              current_position[Z_AXIS] = 0;
-              plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-              destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
-              feedrate = max_feedrate[Z_AXIS];
-              plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
-              st_synchronize();
-
-              HOMEAXIS(Z);
-            } else if (!((axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]))) {
-                LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
-                SERIAL_ECHO_START;
-                SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
-            } else {
-                LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
-                SERIAL_ECHO_START;
-                SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
-            }
-          }
-        #endif	
+          //if(code_seen(axis_codes[Z_AXIS])) {
+            //if ( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]) \
+              //&& (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
+              //&& (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER <= X_MAX_POS) \
+              //&& (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER >= Y_MIN_POS) \
+              //&& (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER <= Y_MAX_POS)){
+              //
+              //current_position[Z_AXIS] = 0;
+              //plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+              //destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+              //feedrate = max_feedrate[Z_AXIS];
+              //plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+              //st_synchronize();
+//
+              //HOMEAXIS(Z);
+            //} else if (!((axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]))) {
+                //LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+                //SERIAL_ECHO_START;
+                //SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+            //} else {
+                //LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
+                //SERIAL_ECHO_START;
+                //SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
+            //}
+          //}
+        //#endif	
 		
    #endif
 

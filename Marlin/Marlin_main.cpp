@@ -1015,9 +1015,10 @@ void touchscreen_update()
 			}				
 	}else
 	{
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,8, tHotend);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,9, 0);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,10, tBed);
+		//Do always
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,8, tHotend);
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,9, 0);
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,10, tBed);
 	}
 	//}
 	//waitPeriod=250+millis();

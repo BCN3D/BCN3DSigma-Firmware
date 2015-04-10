@@ -85,8 +85,8 @@
 //15 = BCN3D Sigma Rev2
 
 #ifndef MOTHERBOARD
-//#define MOTHERBOARD 703 //Megatronics v3
-#define MOTHERBOARD 15 //Marcotronics
+#define MOTHERBOARD 703 //Megatronics v3
+//#define MOTHERBOARD 15 //Marcotronics
 #endif
 
 // Define this to set a custom name for your generic Mendel,

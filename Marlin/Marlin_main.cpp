@@ -585,29 +585,52 @@ void setup()
   setup_killpin();
   setup_powerhold();
   MYSERIAL.begin(BAUDRATE);
-  delay(100);
+  //delay(100);
   //delay(1000);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
   Serial.println("RepRapBCN Sigma");
   
  //LCD START routine
- #ifdef SIGMA_TOUCH_SCREEN
- MYSERIAL_SCREEN.begin(200000);
- delay (100);
- genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
- genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
- // Reset the Display (change D4 to D2 if you have original 4D Arduino Adaptor)
- // THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
- pinMode(RESETLINE, OUTPUT);  // Set D4 on Arduino to Output (4D Arduino Adaptor V2 - Display Reset)
- digitalWrite(RESETLINE, 0);  // Reset the Display
- delay(100);
- digitalWrite(RESETLINE, 1);  // unReset the Display
- delay (3500); //let the display start up after the reset (This is important)
- delay (3500); //showing the splash screen
- genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
- //Turn the Display on (Contrast) - (Not needed but illustrates how)
- //genie.WriteContrast(1);
+#ifdef SIGMA_TOUCH_SCREEN
+ 
+  #if MOTHERBOARD == 15
+    MYSERIAL_SCREEN.begin(200000);
+    //delay(100);
+    //delay(1000);
+    genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
+    genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
+    // Reset the Display
+    // THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
+    pinMode(RESETLINE, OUTPUT);  // Set Output (4D Arduino Adaptor V2 - Display Reset)
+    digitalWrite(RESETLINE, 0);  // Reset the Display
+    delay(100);
+    digitalWrite(RESETLINE, 1);  // unReset the Display
+    delay(3500); //showing the splash screen
+    //delay(1000);
+    genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+    //Turn the Display on (Contrast) - (Not needed but illustrates how)
+    //genie.WriteContrast(1);
+	#endif
+
+ #if MOTHERBOARD == 703
+  MYSERIAL_SCREEN.begin(200000);
+  delay (100);
+  genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
+  genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
+  // Reset the Display (change D4 to D2 if you have original 4D Arduino Adaptor)
+  // THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
+  pinMode(RESETLINE, OUTPUT);  // Set D4 on Arduino to Output (4D Arduino Adaptor V2 - Display Reset)
+  digitalWrite(RESETLINE, 0);  // Reset the Display
+  delay(100);
+  digitalWrite(RESETLINE, 1);  // unReset the Display
+  delay (3500); //let the display start up after the reset (This is important)
+  delay (3500); //showing the splash screen
+  genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+  //Turn the Display on (Contrast) - (Not needed but illustrates how)
+  //genie.WriteContrast(1);
+	#endif
+
 
 #endif
 
@@ -654,6 +677,9 @@ void setup()
   servo_init();
 
   //lcd_init();
+  #if MOTHERBOARD == 15
+  _delay_ms(1000);   // wait 1sec to display the splash screen
+  #endif
   //_delay_ms(1000);	// wait 1sec to display the splash screen
 
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1

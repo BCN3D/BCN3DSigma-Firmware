@@ -253,16 +253,16 @@
 #define LARGE_FLASH        true
 
 //Rapduch
-#define MYSERIAL_SCREEN Serial3
-#define RESETLINE 47
+#define MYSERIAL_SCREEN		Serial3
+#define RESETLINE			47
 
 #define X_STEP_PIN         58
 #define X_DIR_PIN          57
 #define X_ENABLE_PIN       59
 #define X_MIN_PIN          37
-//#define X_MAX_PIN          40   //2 //Max endstops default to disabled "-1", set to commented value to enable.
+#define X_MAX_PIN          40   //2 //Max endstops default to disabled "-1", set to commented value to enable.
 //Rapduch EDIT: There was a problem on the X+ endstop so there is a little change for this particular megatronics to switch with Y_MIN
-#define X_MAX_PIN          41
+//#define X_MAX_PIN          41
 //#define Y_MIN_PIN        40
 //--------------------------------------------------EDIT SPECIAL
 
@@ -295,15 +295,12 @@
 #define SDSS 53
 #define LED_PIN 13
 
-
-
 #define PS_ON_PIN 12
 #define KILL_PIN -1
 
-
 #define HEATER_0_PIN 2
-#define HEATER_1_PIN 8
-#define HEATER_2_PIN 9
+#define HEATER_1_PIN 9
+#define HEATER_2_PIN 8
 #define HEATER_BED_PIN 10
 #define FAN_PIN 6
 #define FAN2_PIN 7
@@ -313,7 +310,6 @@
 #else
 #define TEMP_0_PIN 15 // ANALOG NUMBERING
 #endif
-
 
 #if TEMP_SENSOR_1 == -1
 #define TEMP_1_PIN 10 // ANALOG NUMBERING
@@ -328,9 +324,6 @@
 #endif
 
 
-
-
-
 #if TEMP_SENSOR_BED == -1
 #define TEMP_BED_PIN 8 // ANALOG NUMBERING
 #else
@@ -338,7 +331,6 @@
 #endif
 
 #define BEEPER 61
-
 
 #define LCD_PINS_RS 32
 #define LCD_PINS_ENABLE 31
@@ -369,12 +361,6 @@
 #define encrot3 1
 
 #endif
-
-
-
-
-
-
 
 
 

@@ -603,7 +603,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 //Rapduch For sigma Autolevel
-#define Z_SIGMA_HOME
+//#define Z_SIGMA_HOME
 
 #ifdef Z_SIGMA_HOME
 	#define Z_SIGMA_HOME_X_POINT 32

@@ -141,14 +141,14 @@ void myGenieEventHandler(void)
 				{
 					//THESE FOLLOWING COMMANDS CAN BE DONE VIA GCODE - It seems safer to do it here because avoids user errors
 					
-					enquecommand_P((PSTR("G28"))); // Force home to clean the buffer and avoid problems with  Dual X
+					//enquecommand_P((PSTR("G28"))); // Force home to clean the buffer and avoid problems with  Dual X
 			
 					//if (enable_autobed_level)
 					//{
 						//enquecommand_P((PSTR("G29"))); // Command to enable Z autoleveling - probes 3 points		
 					//}
 										
-					st_synchronize(); //Wait before starting to print.
+					//st_synchronize(); //Wait before starting to print.
 					
 					
 					//genie.WriteObject(GENIE_OBJ_FORM,FORM_START_PRINT,0);

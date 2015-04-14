@@ -382,7 +382,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // Travel limits after homing
 //32+222+28=282
-#define X_MAX_POS 320 //Set 40mm space to avoid crashing with the other carriage 
+#define X_MAX_POS 318 //Set 40mm space to avoid crashing with the other carriage 
 #define X_MIN_POS 0
 #define Y_MAX_POS 280
 #define Y_MIN_POS 0
@@ -395,7 +395,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //============================= Bed Auto Leveling ===========================
 
 
-//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 #define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -447,7 +447,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
   #define X_PROBE_OFFSET_FROM_EXTRUDER  20
   #define Y_PROBE_OFFSET_FROM_EXTRUDER	24
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -10
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.4
   
   //Rapduch
   //#define X_PROBE2_OFFSET_FROM_EXTRUDER -25
@@ -518,7 +518,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#if MOTHERBOARD == 15
 		#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // for 1/32 microstepping
 	#else
-		#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,96.43}  // for 1/16
+		#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,115}  // for 1/16
 	#endif 
 #endif
 
@@ -558,7 +558,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
-#define EEPROM_SETTINGS
+//#define EEPROM_SETTINGS
 //to disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
 // please keep turned on if you can.
 //#define EEPROM_CHITCHAT
@@ -603,19 +603,27 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 //Rapduch For sigma Autolevel
-//#define Z_SIGMA_HOME
+#define Z_SIGMA_HOME
 
 #ifdef Z_SIGMA_HOME
-	#define Z_SIGMA_HOME_X_POINT 32
+	#define Z_SIGMA_HOME_X_POINT 36.5
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
+	#define Z_SIGMA_HOME_SECOND_X_POINT 290
+	#define Z_SIGMA_HOME_SECOND_Y_POINT 150
+
 	#define Z_SIGMA_RAISE_BEFORE_HOMING 10
 	
 	#define XY_SIGMA_TRAVEL_SPEED 8000
 	
 	#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
 	#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
-	#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER -10
+	#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  3.15 //It is negative, it is compensated
+	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER 3.15
+
+
+
+	
 #endif
 
 

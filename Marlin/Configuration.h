@@ -488,56 +488,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #endif
   
 
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // ENABLE_AUTO_BED_LEVELING------------------------------------------------------------------------------
 
 
 
-//MANUAL HOMING---------------------
-// The position of the homing switches
-//#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
-//#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
 
-//Manual homing switch locations:
-// For deltabots this means top and center of the Cartesian print volume.
-//#define MANUAL_X_HOME_POS -32
-#define MANUAL_X_HOME_POS -32
-#define MANUAL_Y_HOME_POS Y_MAX_POS
-#define MANUAL_Z_HOME_POS Z_MIN_POS
-//#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
-
-//// MOVEMENT SETTINGS
-#define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
-
-// default settings
-#ifndef SIGMA_TOUCH_SCREEN
-	#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,96.43}  // default steps per unit for Ultimaker
-#endif
-
-#ifdef SIGMA_TOUCH_SCREEN
-	#if MOTHERBOARD == 15
-		#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // for 1/32 microstepping
-	#else
-		#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,115}  // for 1/16
-	#endif 
-#endif
-
-#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
-
-#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
-
-// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
-// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
-// For the other hotends it is their distance from the extruder 0 hotend.
- #define EXTRUDER_OFFSET_X {0.0, X2_MAX_POS} // (in mm) for each extruder, offset of the hotend on the X axis
- #define EXTRUDER_OFFSET_Y {0.0, 0.0}  // (in mm) for each extruder, offset of the hotend on the Y axis
-
-// The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
-#define DEFAULT_XYJERK                5.0    // (mm/sec)
-#define DEFAULT_ZJERK                 0.4     // (mm/sec)
-#define DEFAULT_EJERK                 5.0    // (mm/sec)
 
 //===========================================================================
 //=============================Additional Features===========================
@@ -618,12 +573,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	
 	#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
 	#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
-	#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  3.15 //It is negative, it is compensated
+	#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5 //3.15 //It is negative, it is compensated
 	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER 3.15
 
-
-
-	
 #endif
 
 
@@ -651,6 +603,57 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //----------------------------------------------------------------------------------------------
 
+
+
+//MANUAL HOMING & FEEDRATES---------------------
+// The position of the homing switches
+//#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
+//#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
+
+//Manual homing switch locations:
+// For deltabots this means top and center of the Cartesian print volume.
+//#define MANUAL_X_HOME_POS -32
+#define MANUAL_X_HOME_POS -32
+#define MANUAL_Y_HOME_POS Y_MAX_POS
+#define MANUAL_Z_HOME_POS Z_MIN_POS
+//#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
+
+//// MOVEMENT SETTINGS
+#define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
+#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+
+// default settings
+#ifndef SIGMA_TOUCH_SCREEN
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,96.43}  // default steps per unit for Ultimaker
+#endif
+
+#ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
+#if MOTHERBOARD == 15
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/32 microstepping for BCN3D Board
+#else
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,102}  // 1/16 for Megatronics
+#endif
+#endif
+
+#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+
+#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+
+// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
+// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
+// For the other hotends it is their distance from the extruder 0 hotend.
+#define EXTRUDER_OFFSET_X {0.0, X2_MAX_POS} // (in mm) for each extruder, offset of the hotend on the X axis
+#define EXTRUDER_OFFSET_Y {0.0, 0.0}  // (in mm) for each extruder, offset of the hotend on the Y axis
+
+// The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
+#define DEFAULT_XYJERK                5.0    // (mm/sec)
+#define DEFAULT_ZJERK                 0.4     // (mm/sec)
+#define DEFAULT_EJERK                 5.0    // (mm/sec)
+
+
+//------------------------------------------------------------------------------------------------------
 
 
 

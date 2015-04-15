@@ -1551,7 +1551,15 @@ static void retract_z_probe() {
 static float probe_pt(float x, float y, float z_before) {
   // move to right place
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
-  do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+  if (active_extruder == LEFT_EXTRUDER) //DEFAULT ACTIVE EXTRUDER (left)
+  {
+	  do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+  } 
+  else 
+  {
+	  do_blocking_move_to(x - X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER, y - Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+  }
+  
 
 #ifndef Z_PROBE_SLED
   engage_z_probe();   // Engage Z Servo endstop if available
@@ -2152,7 +2160,7 @@ void process_commands()
       endstops_hit_on_purpose();
 
 
-	  #ifdef Z_SIGMA_HOME  //This is second extruder probing
+	  #ifdef Z_SIGMA_HOME  //This to return the left extruder at Xhome position
 		if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {	
 			current_position[X_AXIS] = x_home_pos(active_extruder);
 			feedrate = homing_feedrate[X_AXIS];
@@ -2160,7 +2168,9 @@ void process_commands()
 			current_position[Z_AXIS] = 0;
 			feedrate = homing_feedrate[Z_AXIS];
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-			st_synchronize();				
+			st_synchronize();	
+			
+			////Activate Probing sequence			
 			//setup_for_endstop_move();
 			//feedrate = homing_feedrate[Z_AXIS];
 			//active_extruder=1; //extruder1(right) instead of extruder0(left)
@@ -2244,12 +2254,73 @@ void process_commands()
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
-case 33: // G33 Calibration Wizard by Eric Pallarés for RepRapBCN
+case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBCN
 {
-	//First do AUTOHOME
-	enquecommand_P((PSTR("G28"))); //This is not working!!!!!!!!!!! cant enqueue and plan buffer!
+	//Rapduch
+	#ifdef Z_SIGMA_AUTOLEVEL
 	
-	/////////////////////////// 
+	#if Z_MIN_PIN == -1
+	#error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
+	#endif
+
+	// Prevent user from running a G29 without first homing in X and Y
+	if (! (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS]) )
+	{
+		LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+		SERIAL_ECHO_START;
+		SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+		break; // abort G29, since we don't know where we are
+	}
+	
+	current_position[X_AXIS]+=20;
+	feedrate=homing_feedrate[X_AXIS];
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+	st_synchronize();
+	//current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER);
+	
+	active_extruder=RIGHT_EXTRUDER;
+	axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the right extruder
+	Serial.println(current_position[X_AXIS]);
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+	current_position[X_AXIS]-=20;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+	
+	//Now we can proceed to probe the first 3 points with the left extruder
+	active_extruder=LEFT_EXTRUDER;
+	axis_is_at_home(X_AXIS);
+	current_position[X_AXIS]+=20;
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]); // We are now at position
+	st_synchronize();
+	
+	
+	//Starting Calibration WIZARD
+	plan_bed_level_matrix.set_to_identity();
+	vector_3 uncorrected_position = plan_get_position();
+	//uncorrected_position.debug("position durring G29");
+	current_position[X_AXIS] = uncorrected_position.x;
+	current_position[Y_AXIS] = uncorrected_position.y;
+	current_position[Z_AXIS] = uncorrected_position.z;
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	setup_for_endstop_move();
+	
+	feedrate = homing_feedrate[Z_AXIS];
+	
+	// Probe at 3 arbitrary points
+	// probe 1
+	float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_SIGMA_RAISE_BEFORE_HOMING);
+	float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+	float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+	
+	clean_up_after_endstop_move();
+	
+	
+	
+	#else
+	
+	//First do AUTOHOME
+	//enquecommand_P((PSTR("G28"))); //This is not working!!!!!!!!!!! cant enqueue and plan buffer!
+	
+	///////////////////////////
 	//Autohome done - Now calibration calculus
 	///////////////////////////
 
@@ -2356,13 +2427,13 @@ case 33: // G33 Calibration Wizard by Eric Pallarés for RepRapBCN
 	if (aprox1==0 && aprox2==0 && aprox3==0)
 	{
 		#ifdef SIGMA_TOUCH_SCREEN
-			
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+		
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 		#endif
 		
 		SERIAL_PROTOCOL(" Platform is Calibrated! ");
-	}else{
-	
+		}else{
+		
 		#ifdef SIGMA_TOUCH_SCREEN
 		
 		char buffer[256];
@@ -2422,7 +2493,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés for RepRapBCN
 		{
 			SERIAL_PROTOCOLPGM(" antihorari\n: ");
 		}
-	
+		
 		SERIAL_PROTOCOLPGM(" Voltes cargol 3: ");
 		if (numvoltes3 > 0)
 		{
@@ -2441,7 +2512,10 @@ case 33: // G33 Calibration Wizard by Eric Pallarés for RepRapBCN
 		}
 		SERIAL_PROTOCOLPGM("\n");
 	}
-	break;
+	
+#endif //Z_SIGMA_AUTOLEVEL
+	
+	break; //G33 ends
 }
 
 
@@ -2477,106 +2551,116 @@ case 33: // G33 Calibration Wizard by Eric Pallarés for RepRapBCN
             setup_for_endstop_move();
 
             feedrate = homing_feedrate[Z_AXIS];
-#ifdef AUTO_BED_LEVELING_GRID
-            // probe at the points of a lattice grid
+			
+			
+			#ifdef Z_SIGMA_AUTOLEVEL
+			
+			#else
+			
+				#ifdef AUTO_BED_LEVELING_GRID
+				// probe at the points of a lattice grid
 
-            int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
-            int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
-
-
-            // solve the plane equation ax + by + d = z
-            // A is the matrix with rows [x y 1] for all the probed points
-            // B is the vector of the Z positions
-            // the normal vector to the plane is formed by the coefficients of the plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
-            // so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
-
-            // "A" matrix of the linear system of equations
-            double eqnAMatrix[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS*3];
-            // "B" vector of Z points
-            double eqnBVector[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS];
+				int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
+				int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
 
 
-            int probePointCounter = 0;
-            bool zig = true;
+				// solve the plane equation ax + by + d = z
+				// A is the matrix with rows [x y 1] for all the probed points
+				// B is the vector of the Z positions
+				// the normal vector to the plane is formed by the coefficients of the plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
+				// so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
 
-            for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing)
-            {
-              int xProbe, xInc;
-              if (zig)
-              {
-                xProbe = LEFT_PROBE_BED_POSITION;
-                //xEnd = RIGHT_PROBE_BED_POSITION;
-                xInc = xGridSpacing;
-                zig = false;
-              } else // zag
-              {
-                xProbe = RIGHT_PROBE_BED_POSITION;
-                //xEnd = LEFT_PROBE_BED_POSITION;
-                xInc = -xGridSpacing;
-                zig = true;
-              }
-
-              for (int xCount=0; xCount < AUTO_BED_LEVELING_GRID_POINTS; xCount++)
-              {
-                float z_before;
-                if (probePointCounter == 0)
-                {
-                  // raise before probing
-                  z_before = Z_RAISE_BEFORE_PROBING;
-                } else
-                {
-                  // raise extruder
-                  z_before = current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS;
-                }
-
-                float measured_z = probe_pt(xProbe, yProbe, z_before);
-
-                eqnBVector[probePointCounter] = measured_z;
-
-                eqnAMatrix[probePointCounter + 0*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = xProbe;
-                eqnAMatrix[probePointCounter + 1*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = yProbe;
-                eqnAMatrix[probePointCounter + 2*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = 1;
-                probePointCounter++;
-                xProbe += xInc;
-              }
-            }
-            clean_up_after_endstop_move();
-
-            // solve lsq problem
-            double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
-
-            SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
-            SERIAL_PROTOCOL(plane_equation_coefficients[0]);
-            SERIAL_PROTOCOLPGM(" b: ");
-            SERIAL_PROTOCOL(plane_equation_coefficients[1]);
-            SERIAL_PROTOCOLPGM(" d: ");
-            SERIAL_PROTOCOLLN(plane_equation_coefficients[2]);
+				// "A" matrix of the linear system of equations
+				double eqnAMatrix[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS*3];
+				// "B" vector of Z points
+				double eqnBVector[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS];
 
 
-            set_bed_level_equation_lsq(plane_equation_coefficients);
+				int probePointCounter = 0;
+				bool zig = true;
 
-            free(plane_equation_coefficients);
+				for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing)
+				{
+					int xProbe, xInc;
+					if (zig)
+					{
+						xProbe = LEFT_PROBE_BED_POSITION;
+						//xEnd = RIGHT_PROBE_BED_POSITION;
+						xInc = xGridSpacing;
+						zig = false;
+					} else // zag
+					{
+						xProbe = RIGHT_PROBE_BED_POSITION;
+						//xEnd = LEFT_PROBE_BED_POSITION;
+						xInc = -xGridSpacing;
+						zig = true;
+					}
 
-#else // AUTO_BED_LEVELING_GRID not defined
+					for (int xCount=0; xCount < AUTO_BED_LEVELING_GRID_POINTS; xCount++)
+					{
+						float z_before;
+						if (probePointCounter == 0)
+						{
+							// raise before probing
+							z_before = Z_RAISE_BEFORE_PROBING;
+						} else
+						{
+							// raise extruder
+							z_before = current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS;
+						}
 
-            // Probe at 3 arbitrary points
-            // probe 1
-            float z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING);
+						float measured_z = probe_pt(xProbe, yProbe, z_before);
 
-            // probe 2
-            float z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+						eqnBVector[probePointCounter] = measured_z;
 
-            // probe 3
-            float z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+						eqnAMatrix[probePointCounter + 0*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = xProbe;
+						eqnAMatrix[probePointCounter + 1*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = yProbe;
+						eqnAMatrix[probePointCounter + 2*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = 1;
+						probePointCounter++;
+						xProbe += xInc;
+					}
+				}
+				clean_up_after_endstop_move();
 
-            clean_up_after_endstop_move();
+				// solve lsq problem
+				double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
 
-			//Rapduch: We negated the Z points passed on this functions because the actual correction was inverted
-            //set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
-			set_bed_level_equation_3pts(-z_at_pt_1, -z_at_pt_2, -z_at_pt_3);
+				SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
+				SERIAL_PROTOCOL(plane_equation_coefficients[0]);
+				SERIAL_PROTOCOLPGM(" b: ");
+				SERIAL_PROTOCOL(plane_equation_coefficients[1]);
+				SERIAL_PROTOCOLPGM(" d: ");
+				SERIAL_PROTOCOLLN(plane_equation_coefficients[2]);
 
 
-#endif // AUTO_BED_LEVELING_GRID
+				set_bed_level_equation_lsq(plane_equation_coefficients);
+
+				free(plane_equation_coefficients);
+
+				#else // AUTO_BED_LEVELING_GRID not defined
+
+				// Probe at 3 arbitrary points
+				// probe 1
+				float z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING);
+
+				// probe 2
+				float z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+
+				// probe 3
+				float z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+
+				clean_up_after_endstop_move();
+
+				//Rapduch: We negated the Z points passed on this functions because the actual correction was inverted
+				//set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
+				set_bed_level_equation_3pts(-z_at_pt_1, -z_at_pt_2, -z_at_pt_3);
+
+
+				#endif // AUTO_BED_LEVELING_GRID
+			
+			#endif
+			
+
             st_synchronize();
 
             // The following code correct the Z height difference from z-probe position and hotend tip position.

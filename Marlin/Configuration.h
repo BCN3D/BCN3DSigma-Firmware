@@ -84,9 +84,14 @@
 // 999 = Leapfrog
 //15 = BCN3D Sigma Rev2
 
+//Rapduch
+#define BCN3D_BOARD		15
+#define MEGATRONICS_V3	703
+
+
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 703 //Megatronics v3
-//#define MOTHERBOARD 15 //Marcotronics
+#define MOTHERBOARD MEGATRONICS_V3 //Megatronics v3
+//#define MOTHERBOARD BCN3D_BOARD //Marcotronics
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -554,31 +559,46 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define BOWDEN_LENGTH 10
 #define EXTRUDER_LENGTH 10
 
-
-
+//For better undestanding on wich extruder is selected
+#define LEFT_EXTRUDER 0 
+#define RIGHT_EXTRUDER 1
 
 //Rapduch For sigma Autolevel
 #define Z_SIGMA_HOME
+#define Z_SIGMA_AUTOLEVEL
+
 
 #ifdef Z_SIGMA_HOME
 	#define Z_SIGMA_HOME_X_POINT 36.5
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
-	#define Z_SIGMA_HOME_SECOND_X_POINT 290
-	#define Z_SIGMA_HOME_SECOND_Y_POINT 150
+	//#define Z_SIGMA_HOME_SECOND_X_POINT 290
+	//#define Z_SIGMA_HOME_SECOND_Y_POINT 150
+	#define Z_SIGMA_HOME_SECOND_X_POINT 200
+	#define Z_SIGMA_HOME_SECOND_Y_POINT 160
 
 	#define Z_SIGMA_RAISE_BEFORE_HOMING 10
 	
 	#define XY_SIGMA_TRAVEL_SPEED 8000
-	
+#endif
+
+#ifdef Z_SIGMA_AUTOLEVEL
 	#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
 	#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
 	#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5 //3.15 //It is negative, it is compensated
-	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER 3.15
-
+	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-20
+	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-24
+	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	5
+	
+	#define X_SIGMA_PROBE_1_LEFT_EXTR 36.5
+	#define Y_SIGMA_PROBE_1_LEFT_EXTR 260
+	
+	#define X_SIGMA_PROBE_2_LEFT_EXTR 36.5
+	#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
+	
+	#define X_SIGMA_PROBE_3_LEFT_EXTR 220
+	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
 #endif
-
-
 
 #ifdef  ENABLE_AUTO_BED_LEVELING
 	//Calibration WIZARD --------
@@ -594,7 +614,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define CARGOL_3_Y  80;
 	// -END BED calibration WIZARD
 #endif // ENABLE_AUTO_BED_LEVELING
-
 
 #ifdef EXTRUDER_CALIBRATION_WIZARD
 	#define SECOND_EXTRUDER_X {40.5, 39.5, 40, 39}

@@ -81,6 +81,8 @@ static bool old_x_max_endstop=false;
 static bool old_y_min_endstop=false;
 static bool old_y_max_endstop=false;
 static bool old_z_min_endstop=false;
+//Rapduch
+static bool old_z_min_endstop_2=false;
 static bool old_z_max_endstop=false;
 
 static bool check_endstops = true;
@@ -494,14 +496,17 @@ ISR(TIMER1_COMPA_vect)
       count_direction[Z_AXIS]=-1;
       CHECK_ENDSTOPS
       {
+		 //Rapduch: Change in behaviour of the endstops to fit the second extruder probe as ZMIN
         #if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
           bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-          if(z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
+		  bool z_min_endstop_2=(READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING); //Using the Z_Max pin as the second Z_Min!!!!!!!!!!!!
+          if((z_min_endstop && old_z_min_endstop) || (z_min_endstop_2 && old_z_min_endstop_2) && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
             endstop_z_hit=true;
             step_events_completed = current_block->step_event_count;
           }
           old_z_min_endstop = z_min_endstop;
+		  old_z_min_endstop_2 = z_min_endstop_2;
         #endif
       }
     }

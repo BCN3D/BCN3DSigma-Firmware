@@ -459,13 +459,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   //#define Y_PROBE2_OFFSET_FROM_EXTRUDER -29
   //#define Z_PROBE2_OFFSET_FROM_EXTRUDER -12.35
 
-  #define Z_RAISE_BEFORE_HOMING 10       // (in mm) Raise Z before homing (G28) for Probe Clearance.
+  #define Z_RAISE_BEFORE_HOMING 7       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
 
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
 
-  #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
-  #define Z_RAISE_BETWEEN_PROBINGS 10  //How much the extruder will be raised when traveling from between next probing points
+  #define Z_RAISE_BEFORE_PROBING 6    //How much the extruder will be raised before traveling to the first probing point.
+  #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
 
   //#define Z_PROBE_SLED // turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
   //#define SLED_DOCKING_OFFSET 5 // the extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
@@ -574,10 +574,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	
 	//#define Z_SIGMA_HOME_SECOND_X_POINT 290
 	//#define Z_SIGMA_HOME_SECOND_Y_POINT 150
-	#define Z_SIGMA_HOME_SECOND_X_POINT 200
-	#define Z_SIGMA_HOME_SECOND_Y_POINT 160
+	//#define Z_SIGMA_HOME_SECOND_X_POINT 200
+	//#define Z_SIGMA_HOME_SECOND_Y_POINT 160
 
-	#define Z_SIGMA_RAISE_BEFORE_HOMING 10
+	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
 	
 	#define XY_SIGMA_TRAVEL_SPEED 8000
 #endif
@@ -586,18 +586,31 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
 	#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
 	#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5 //3.15 //It is negative, it is compensated
+	
 	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-20
-	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-24
+	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
 	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	5
 	
-	#define X_SIGMA_PROBE_1_LEFT_EXTR 36.5
-	#define Y_SIGMA_PROBE_1_LEFT_EXTR 260
+	//Left extruder probe point
+	#define X_SIGMA_PROBE_1_LEFT_EXTR 56.5
+	#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_LEFT_EXTR 36.5
-	#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
+	#define X_SIGMA_PROBE_2_LEFT_EXTR 56.5
+	#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 	
-	#define X_SIGMA_PROBE_3_LEFT_EXTR 220
-	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
+	#define X_SIGMA_PROBE_3_LEFT_EXTR 255
+	#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
+	
+	//Right extruder probe point
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 255
+	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
+	
+	#define X_SIGMA_PROBE_2_RIGHT_EXTR 255
+	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
+	
+	#define X_SIGMA_PROBE_3_RIGHT_EXTR 56.5
+	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
+	
 #endif
 
 #ifdef  ENABLE_AUTO_BED_LEVELING
@@ -664,8 +677,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
 #define EXTRUDER_OFFSET_X {0.0, X2_MAX_POS} // (in mm) for each extruder, offset of the hotend on the X axis
-#define EXTRUDER_OFFSET_Y {0.0, 0.0}  // (in mm) for each extruder, offset of the hotend on the Y axis
-#define EXTRUDER_OFFSET_Z {0.0 , 0.0}
+#define EXTRUDER_OFFSET_Y {0.0,  0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
+#define EXTRUDER_OFFSET_Z {0.0 , 0.1}
 
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)

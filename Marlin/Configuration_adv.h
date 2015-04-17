@@ -198,7 +198,7 @@
 #endif
 
 
-#define EXTRUDER_OFFSET_Z {0.0 , -0.3}
+
 
 // There are a few selectable movement modes for dual x-carriages using M605 S<mode>
 //    Mode 0: Full control. The slicer has full control over both x-carriages and can achieve optimal travel results

@@ -5139,9 +5139,19 @@ void prepare_move()
   }
 #endif //DUAL_X_CARRIAGE
 
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    current_position[i] = destination[i];
-  }
+
+	//ACTUAL MOVE Prepared
+	// Do not use feedmultiply for E or Z only moves
+	if( (current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+	}
+	else {
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
+	}
+
+	for(int8_t i=0; i < NUM_AXIS; i++) {
+		current_position[i] = destination[i];
+	}
 }
 
 void prepare_arc_move(char isclockwise) {

@@ -452,7 +452,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
   #define X_PROBE_OFFSET_FROM_EXTRUDER  20
   #define Y_PROBE_OFFSET_FROM_EXTRUDER	24
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.4
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER  5
   
   //Rapduch
   //#define X_PROBE2_OFFSET_FROM_EXTRUDER -25
@@ -569,7 +569,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 #ifdef Z_SIGMA_HOME
-	#define Z_SIGMA_HOME_X_POINT 36.5
+	#define Z_SIGMA_HOME_X_POINT 56.5
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
 	//#define Z_SIGMA_HOME_SECOND_X_POINT 290

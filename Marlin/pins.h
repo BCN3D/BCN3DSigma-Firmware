@@ -263,7 +263,7 @@
 #define X_MAX_PIN          40   //2 //Max endstops default to disabled "-1", set to commented value to enable.
 //Rapduch EDIT: There was a problem on the X+ endstop so there is a little change for this particular megatronics to switch with Y_MIN
 //#define X_MAX_PIN          41
-//#define Y_MIN_PIN        40
+//#define Y_MIN_PIN        -1
 //--------------------------------------------------EDIT SPECIAL
 
 

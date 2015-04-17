@@ -271,9 +271,24 @@ float zprobe_zoffset;
   #define NUM_EXTRUDER_OFFSETS 3 // supports offsets in XYZ plane
 #endif
 float extruder_offset[NUM_EXTRUDER_OFFSETS][EXTRUDERS] = {
-#if defined(EXTRUDER_OFFSET_X) && defined(EXTRUDER_OFFSET_Y)
-  EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y
-#endif
+	#if defined(EXTRUDER_OFFSET_X)
+	EXTRUDER_OFFSET_X
+	#else
+	0
+	#endif
+	,
+	#if defined(EXTRUDER_OFFSET_Y)
+	EXTRUDER_OFFSET_Y
+	#else
+	0
+	#endif
+	,
+	//Rapduch
+	#if defined(EXTRUDER_OFFSET_Z)
+	EXTRUDER_OFFSET_Z
+	#else
+	0
+	#endif
 };
 #endif
 uint8_t active_extruder = 0;
@@ -562,7 +577,6 @@ void servo_init()
 
 void setup()
 {
-	
 	#if MOTHERBOARD==15 //BCNElectronics v1
 	
 	//pinMode(RED,OUTPUT);
@@ -581,9 +595,10 @@ void setup()
 	
 	
 	#endif
-	
+		
   setup_killpin();
   setup_powerhold();
+  
   MYSERIAL.begin(BAUDRATE);
   //delay(100);
   //delay(1000);
@@ -595,7 +610,7 @@ void setup()
  //LCD START routine
 #ifdef SIGMA_TOUCH_SCREEN
  
-  #if MOTHERBOARD == 15
+  #if MOTHERBOARD == BCN3D_BOARD
     MYSERIAL_SCREEN.begin(200000);
     //delay(100);
     //delay(1000);
@@ -614,7 +629,7 @@ void setup()
     //genie.WriteContrast(1);
 	#endif
 
- #if MOTHERBOARD == 703
+ #if MOTHERBOARD == MEGATRONICS_V3
   MYSERIAL_SCREEN.begin(200000);
   delay (100);
   genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
@@ -630,8 +645,8 @@ void setup()
   genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
   //Turn the Display on (Contrast) - (Not needed but illustrates how)
   //genie.WriteContrast(1);
-	#endif
 
+#endif
 
 #endif
 
@@ -707,6 +722,9 @@ void setup()
 	//enquecommand(cmd);
 	//enquecommand_P(PSTR("M24"));
 #endif
+
+
+
 
 
 }
@@ -1551,14 +1569,19 @@ static void retract_z_probe() {
 static float probe_pt(float x, float y, float z_before) {
   // move to right place
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
-  if (active_extruder == LEFT_EXTRUDER) //DEFAULT ACTIVE EXTRUDER (left)
-  {
-	  do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
-  } 
-  else 
-  {
-	  do_blocking_move_to(x - X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER, y - Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
-  }
+  #ifdef Z_SIGMA_AUTOLEVEL
+	if (active_extruder == LEFT_EXTRUDER) //DEFAULT ACTIVE EXTRUDER (left)
+	{
+		do_blocking_move_to(x - X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER, y - Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+	}
+	else
+	{
+		do_blocking_move_to(x - X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER, y - Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+	}
+  #else
+  do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+#endif
+  
   
 
 #ifndef Z_PROBE_SLED
@@ -2035,8 +2058,8 @@ void process_commands()
 	  //Rapduch
 	  #ifdef Z_SIGMA_HOME
 	  	if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-		  	destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT);
-		  	destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT);
+		  	destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
+		  	destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		  	destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
 		  	feedrate = XY_SIGMA_TRAVEL_SPEED;
 		  	current_position[Z_AXIS] = 0;
@@ -2306,14 +2329,28 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	feedrate = homing_feedrate[Z_AXIS];
 	
 	// Probe at 3 arbitrary points
-	// probe 1
+	// probe left extruder
 	float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_SIGMA_RAISE_BEFORE_HOMING);
 	float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 	float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 	
+	feedrate=homing_feedrate[X_AXIS]/2;
+	current_position[X_AXIS]=x_home_pos(active_extruder)+20;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+	
+	
 	clean_up_after_endstop_move();
 	
 	
+	
+	real_z = float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
+	x_tmp = current_position[X_AXIS] + X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER;
+	y_tmp = current_position[Y_AXIS] + Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER;
+	z_tmp = current_position[Z_AXIS];
+
+	apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
+	current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 	
 	#else
 	
@@ -4700,11 +4737,11 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       #if EXTRUDERS > 1
       if(tmp_extruder != active_extruder) {
         // Save current position to return to after applying extruder offset
-		z_restaurada = current_position[Z_AXIS];
+		//Rapduch
+		z_restaurada = current_position[Z_AXIS]; //Save the Z position that will be restored after changing tool
         memcpy(destination, current_position, sizeof(destination));
       #ifdef DUAL_X_CARRIAGE
-        if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && Stopped == false &&
-            (delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder)))
+        if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && Stopped == false && (delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder)))
         {
           // Park old head: 1) raise 2) move to park position 3) lower
           plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
@@ -4748,7 +4785,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 			active_extruder_parked = true;
 		}
 		
-        if (dual_x_carriage_mode == DXC_FULL_CONTROL_MODE)
+        else if (dual_x_carriage_mode == DXC_FULL_CONTROL_MODE)
         {
           current_position[X_AXIS] = inactive_extruder_x_pos;
           inactive_extruder_x_pos = destination[X_AXIS];
@@ -4782,13 +4819,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         // Set the new active extruder and position
         active_extruder = tmp_extruder;
       #endif //else DUAL_X_CARRIAGE
-#ifdef DELTA 
 
-  calculate_delta(current_position); // change cartesian kinematic  to  delta kinematic;
-   //sent position to plan_set_position();
-  plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],current_position[E_AXIS]);
-            
-#else	
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 		//Rapduch purge
 		//Maybe we could purge here
@@ -4796,7 +4827,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 		//current_position[E_AXIS]+=10;
 		//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], (current_position[E_AXIS]),600/60,active_extruder);
 		
-#endif
+		
         // Move to the old position if 'F' was in the parameters
         if(make_move && Stopped == false) {
            prepare_move();
@@ -5122,25 +5153,22 @@ for (int s = 1; s <= steps; s++) {
 
 #ifdef DUAL_X_CARRIAGE
   if (active_extruder_parked)
-  {
-	  
-	    //Rapduch toolchange
-	    if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE)
-	    {
-		    plan_buffer_line(current_position[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
-		    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
-		    current_position[X_AXIS]=destination[X_AXIS];
-		    current_position[Y_AXIS]=destination[Y_AXIS];
-		    if (current_position[Z_AXIS]==destination[Z_AXIS]) //Correct the offset
-		    {
-			    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], z_restaurada, current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
-			    destination[Z_AXIS]=z_restaurada;
-		    }
-		    st_synchronize();
-		    active_extruder_parked = false;
-	    }
-	  
-	  
+  {  
+	//Rapduch toolchange
+	if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE)
+	{
+		plan_buffer_line(current_position[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
+		current_position[X_AXIS]=destination[X_AXIS];
+		current_position[Y_AXIS]=destination[Y_AXIS];
+		if (current_position[Z_AXIS]==destination[Z_AXIS]) //Correct the offset
+		{
+			plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], z_restaurada, current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
+			destination[Z_AXIS]=z_restaurada;
+		}
+		st_synchronize();
+		active_extruder_parked = false;
+	}
 	  
     if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0)
     {
@@ -5155,40 +5183,30 @@ for (int s = 1; s <= steps; s++) {
     }
     else if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE) // handle unparking of head
     {
-      if (current_position[E_AXIS] == destination[E_AXIS])
-      {
-        // this is a travel move - skit it but keep track of current position (so that it can later
-        // be used as start of first non-travel move)
-        if (delayed_move_time != 0xFFFFFFFFUL)
-        {
-          memcpy(current_position, destination, sizeof(current_position));
-          if (destination[Z_AXIS] > raised_parked_position[Z_AXIS])
-            raised_parked_position[Z_AXIS] = destination[Z_AXIS];
-          delayed_move_time = millis();
-          return;
-        }
-      }
-      delayed_move_time = 0;
-      // unpark extruder: 1) raise, 2) move into starting XY position, 3) lower
-      plan_buffer_line(raised_parked_position[X_AXIS], raised_parked_position[Y_AXIS], raised_parked_position[Z_AXIS],    current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], raised_parked_position[Z_AXIS],
-          current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]), active_extruder);
-      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
-          current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-      active_extruder_parked = false;
+		if (current_position[E_AXIS] == destination[E_AXIS])
+		{
+			// this is a travel move - skit it but keep track of current position (so that it can later
+			// be used as start of first non-travel move)
+			if (delayed_move_time != 0xFFFFFFFFUL)
+			{
+				memcpy(current_position, destination, sizeof(current_position));
+				if (destination[Z_AXIS] > raised_parked_position[Z_AXIS])
+				raised_parked_position[Z_AXIS] = destination[Z_AXIS];
+				delayed_move_time = millis();
+				return;
+			}
+		}
+		delayed_move_time = 0;
+		// unpark extruder: 1) raise, 2) move into starting XY position, 3) lower
+		plan_buffer_line(raised_parked_position[X_AXIS], raised_parked_position[Y_AXIS], raised_parked_position[Z_AXIS],    current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], raised_parked_position[Z_AXIS],
+			current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]), active_extruder);
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
+			current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+		active_extruder_parked = false;
     }
   }
 #endif //DUAL_X_CARRIAGE
-
-#if ! (defined DELTA || defined SCARA)
-  // Do not use feedmultiply for E or Z only moves
-  if( (current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
-      plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
-  }
-  else {
-    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
-  }
-#endif // !(DELTA || SCARA)
 
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];

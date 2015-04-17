@@ -610,7 +610,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	
 	#define X_SIGMA_PROBE_3_RIGHT_EXTR 56.5
 	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
-	
 #endif
 
 #ifdef  ENABLE_AUTO_BED_LEVELING

@@ -2295,17 +2295,6 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		break; // abort G29, since we don't know where we are
 	}
 	
-	
-	//Starting Calibration WIZARD
-	plan_bed_level_matrix.set_to_identity();
-	vector_3 uncorrected_position = plan_get_position();
-	//uncorrected_position.debug("position durring G29");
-	current_position[X_AXIS] = uncorrected_position.x;
-	current_position[Y_AXIS] = uncorrected_position.y;
-	current_position[Z_AXIS] = uncorrected_position.z;
-	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-	
-	//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
 	current_position[X_AXIS]+=20;
 	feedrate=homing_feedrate[X_AXIS];
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
@@ -2326,54 +2315,39 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]); // We are now at position
 	st_synchronize();
 	
-	//STARTING THE ACTUAL PROBE
+	
+	//Starting Calibration WIZARD
+	plan_bed_level_matrix.set_to_identity();
+	vector_3 uncorrected_position = plan_get_position();
+	//uncorrected_position.debug("position durring G29");
+	current_position[X_AXIS] = uncorrected_position.x;
+	current_position[Y_AXIS] = uncorrected_position.y;
+	current_position[Z_AXIS] = uncorrected_position.z;
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 	setup_for_endstop_move();
 	
 	feedrate = homing_feedrate[Z_AXIS];
 	
 	// Probe at 3 arbitrary points
 	// probe left extruder
-	float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
+	float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_SIGMA_RAISE_BEFORE_HOMING);
 	float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 	float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 	
-	feedrate=homing_feedrate[Z_AXIS];
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
-	feedrate=homing_feedrate[X_AXIS];
+	feedrate=homing_feedrate[X_AXIS]/2;
 	current_position[X_AXIS]=x_home_pos(active_extruder)+20;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
-	feedrate=homing_feedrate[Z_AXIS];
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
-	st_synchronize();
-	
-	
-	//Now the right extruder enters the party!
-	active_extruder=RIGHT_EXTRUDER;
-	axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the right extruder
-	current_position[X_AXIS]-=20;
-	current_position[Z_AXIS]=(Z_MIN_POS+extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
-	Serial.println(current_position[Z_AXIS]);
-	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
-	
-
-	// Probe at 3 arbitrary points
-	// probe left extruder
-	//float z2_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR, Z_RAISE_BEFORE_PROBING);
-	//float z2_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_RIGHT_EXTR,Y_SIGMA_PROBE_2_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
-	//float z2_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_RIGHT_EXTR,Y_SIGMA_PROBE_3_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 	
 	clean_up_after_endstop_move();
 	
-	
-	
-	//real_z = float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
-	//x_tmp = current_position[X_AXIS] + X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER;
-	//y_tmp = current_position[Y_AXIS] + Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER;
-	//z_tmp = current_position[Z_AXIS];
-//
-	//apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
-	//current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
-	//plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	real_z = float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
+	x_tmp = current_position[X_AXIS] + X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER;
+	y_tmp = current_position[Y_AXIS] + Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER;
+	z_tmp = current_position[Z_AXIS];
+
+	apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
+	current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 	
 	#else
 	

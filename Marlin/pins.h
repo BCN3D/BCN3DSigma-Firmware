@@ -86,9 +86,9 @@
 #define LED_PIN            13
 
 #define FAN_PIN            17 //LFAN0 (Sprinter config)
-#define FAN1_PIN			15
-#define FAN2_PIN			39
-#define FAN3_PIN			38
+#define FAN1_PIN		   15
+#define FAN2_PIN		   39
+#define FAN3_PIN		   38
 #define PS_ON_PIN          12
 
 #define KILL_PIN           30//Reset
@@ -158,44 +158,44 @@
 
 //Rapduch
 #define MYSERIAL_SCREEN Serial2
-#define RESETLINE 84
+#define RESETLINE		9
+#define AUTOLEVELPIN	8
 
-#define X_STEP_PIN		3//76 
-#define X_DIR_PIN		5//73
-#define X_ENABLE_PIN	2//75
+#define X_STEP_PIN		73//76 
+#define X_DIR_PIN		76//73
+#define X_ENABLE_PIN	75//75
 
 #define X_MIN_PIN		77 //Minim endstop
 #define X_MAX_PIN		79 //Max endstop per 2n extrusor
 
-#define E0_STEP_PIN		27
-#define E0_DIR_PIN		29
+#define E0_STEP_PIN		29
+#define E0_DIR_PIN		27
 #define E0_ENABLE_PIN	28
 //#define E0_STOP		//26
 
-#define E1_STEP_PIN		55//55//A1
-#define E1_DIR_PIN		57//57//A3
-#define E1_ENABLE_PIN	56//56//A2
+#define E1_STEP_PIN		57//A3
+#define E1_DIR_PIN		55//A1
+#define E1_ENABLE_PIN	56//A2
 //#define E1_STOP		 //A0
 
-#define Z_STEP_PIN		35
-#define Z_DIR_PIN		37
-#define Z_ENABLE_PIN	36
+#define Z_STEP_PIN		25
+#define Z_DIR_PIN		23
+#define Z_ENABLE_PIN	24
 
 //#define Z_MIN_PIN		34
 //#define Z_MAX_PIN		-1
 
-#define Z_MIN_PIN		23
-#define Z_MAX_PIN		22
+#define Z_MIN_PIN		34
+#define Z_MAX_PIN		43
 //#define Z_ENDSTOP_0 23
 //#define Z_ENDSTOP_1 22
 
-#define Y_STEP_PIN		31
-#define Y_DIR_PIN		33
-#define Y_ENABLE_PIN	32
+#define Y_STEP_PIN		30
+#define Y_DIR_PIN		32
+#define Y_ENABLE_PIN	31
 
-#define Y_MAX_PIN		30
+#define Y_MAX_PIN		33
 #define Y_MIN_PIN		-1
-
 
 #define PS_ON_PIN       -1
 
@@ -215,10 +215,10 @@
 //HEATED BED
 #define HEATER_BED_PIN	46
 //THERMISTORS
-#define TEMP_0_PIN		9//63//A9
-#define TEMP_1_PIN		8//62//A8
+#define TEMP_0_PIN		9//A9
+#define TEMP_1_PIN		8//A8
 #define TEMP_2_PIN		-1
-#define TEMP_BED_PIN	15//69//A15
+#define TEMP_BED_PIN	15//A15
 
 #define MLED			68//A14
 
@@ -228,7 +228,7 @@
 
 #ifndef SDSUPPORT
 // these pins are defined in the SD library if building with SD support
-#define SCK_PIN           52
+#define SCK_PIN          52
 #define MISO_PIN         50
 #define MOSI_PIN         51
 #endif
@@ -236,7 +236,81 @@
 #endif
 /////////////////////////////////////////////////
 
-
+////#define MYSERIAL_SCREEN Serial2
+////#define RESETLINE 84
+////
+////#define X_STEP_PIN		3//76
+////#define X_DIR_PIN		5//73
+////#define X_ENABLE_PIN	2//75
+////
+////#define X_MIN_PIN		77 //Minim endstop
+////#define X_MAX_PIN		79 //Max endstop per 2n extrusor
+////
+////#define E0_STEP_PIN		27
+////#define E0_DIR_PIN		29
+////#define E0_ENABLE_PIN	28
+//////#define E0_STOP		//26
+////
+////#define E1_STEP_PIN		55//55//A1
+////#define E1_DIR_PIN		57//57//A3
+////#define E1_ENABLE_PIN	56//56//A2
+//////#define E1_STOP		 //A0
+////
+////#define Z_STEP_PIN		35
+////#define Z_DIR_PIN		37
+////#define Z_ENABLE_PIN	36
+////
+//////#define Z_MIN_PIN		34
+//////#define Z_MAX_PIN		-1
+////
+////#define Z_MIN_PIN		23
+////#define Z_MAX_PIN		22
+//////#define Z_ENDSTOP_0 23
+//////#define Z_ENDSTOP_1 22
+////
+////#define Y_STEP_PIN		31
+////#define Y_DIR_PIN		33
+////#define Y_ENABLE_PIN	32
+////
+////#define Y_MAX_PIN		30
+////#define Y_MIN_PIN		-1
+////
+////
+////#define PS_ON_PIN       -1
+////
+//////Layer Fans
+////#define FAN_PIN			45
+////#define	FAN2_PIN		6
+//////RGB LEDs
+////#define GREEN			11
+////#define	RED				12
+////#define BLUE			13
+//////Power Supply Relay
+////#define	RELAY			10
+//////HOTEND HEATERS
+////#define	HEATER_0_PIN	44
+////#define	HEATER_1_PIN	7
+////#define HEATER_2_PIN	-1
+//////HEATED BED
+////#define HEATER_BED_PIN	46
+//////THERMISTORS
+////#define TEMP_0_PIN		9//63//A9
+////#define TEMP_1_PIN		8//62//A8
+////#define TEMP_2_PIN		-1
+////#define TEMP_BED_PIN	15//69//A15
+////
+////#define MLED			68//A14
+////
+////#define SDSS			53
+////#define SDPOWER			-1
+////#define LED_PIN			-1
+////
+////#ifndef SDSUPPORT
+////// these pins are defined in the SD library if building with SD support
+////#define SCK_PIN           52
+////#define MISO_PIN         50
+////#define MOSI_PIN         51
+////#endif
 
 /****************************************************************************************
 * MegaTronics v3.0
@@ -277,7 +351,8 @@
 #define Z_DIR_PIN          11 // A6
 #define Z_ENABLE_PIN       3 // A1
 #define Z_MIN_PIN          18
-#define Z_MAX_PIN          19
+#define Z2_MIN_PIN         19//Mounted on the Z_MAX
+#define Z_MAX_PIN          -1//Not used as Z_MAX
 
 #define E0_STEP_PIN         28
 #define E0_DIR_PIN          27

@@ -577,24 +577,29 @@ void servo_init()
 
 void setup()
 {
-	#if MOTHERBOARD==15 //BCNElectronics v1
+	#if MOTHERBOARD==BCN3D_BOARD //BCNElectronics v1
+		//pinMode(RED,OUTPUT);
+		//pinMode(GREEN,OUTPUT);
+		//pinMode(BLUE,OUTPUT);
 	
-	//pinMode(RED,OUTPUT);
-	//pinMode(GREEN,OUTPUT);
-	//pinMode(BLUE,OUTPUT);
+		//enable 24V
+		pinMode(RELAY, OUTPUT);
+		digitalWrite(RELAY, LOW);
+		delay(500);
+		digitalWrite(RELAY, HIGH);
 	
-	//enable 24V
-	pinMode(RELAY, OUTPUT);
-	digitalWrite(RELAY, LOW);
-	delay(500);
-	digitalWrite(RELAY, HIGH);
-	
-	analogWrite(RED,127);
-	analogWrite(GREEN,127);
-	analogWrite(BLUE,127);//Turn printer White rgb
-	
-	
+		analogWrite(RED,127);
+		analogWrite(GREEN,127);
+		analogWrite(BLUE,127);//Turn printer White rgb
 	#endif
+		
+		
+	#if MOTHERBOARD==MEGATRONICS_V3
+		//pinMode(Z2_MIN_PIN,INPUT);
+		
+		//ITS SET on st_init();
+	#endif
+		
 		
   setup_killpin();
   setup_powerhold();
@@ -2356,11 +2361,11 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
 	
 
-	// Probe at 3 arbitrary points
-	// probe left extruder
-	//float z2_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR, Z_RAISE_BEFORE_PROBING);
-	//float z2_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_RIGHT_EXTR,Y_SIGMA_PROBE_2_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
-	//float z2_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_RIGHT_EXTR,Y_SIGMA_PROBE_3_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+	 //Probe at 3 arbitrary points
+	 //probe left extruder
+	float z2_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR, Z_RAISE_BEFORE_PROBING);
+	float z2_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_RIGHT_EXTR,Y_SIGMA_PROBE_2_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+	float z2_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_RIGHT_EXTR,Y_SIGMA_PROBE_3_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 	
 	clean_up_after_endstop_move();
 	

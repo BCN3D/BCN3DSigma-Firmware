@@ -94,6 +94,8 @@
 //#define MOTHERBOARD BCN3D_BOARD //Marcotronics
 #endif
 
+
+
 // Define this to set a custom name for your generic Mendel,
 // #define CUSTOM_MENDEL_NAME "This Mendel"
 
@@ -632,8 +634,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define SECOND_EXTRUDER_Y {150.5, 149.5, 150, 149}
 #endif
 
-//----------------------------------------------------------------------------------------------
 
+// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
+// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
+// For the other hotends it is their distance from the extruder 0 hotend.
+#define EXTRUDER_OFFSET_X {0.0, X2_MAX_POS} // (in mm) for each extruder, offset of the hotend on the X axis
+#define EXTRUDER_OFFSET_Y {0.0,  0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
+#define EXTRUDER_OFFSET_Z {0.0 , 0.1}
+
+
+//----------------------------------------------------------------------------------------------
 
 
 //MANUAL HOMING & FEEDRATES---------------------
@@ -662,7 +672,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #if MOTHERBOARD == 15
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/32 microstepping for BCN3D Board
 #else
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,102}  // 1/16 for Megatronics
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,102}  // 1/16 for Megatronics MK7
 #endif
 #endif
 
@@ -672,12 +682,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 
-// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
-// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
-// For the other hotends it is their distance from the extruder 0 hotend.
-#define EXTRUDER_OFFSET_X {0.0, X2_MAX_POS} // (in mm) for each extruder, offset of the hotend on the X axis
-#define EXTRUDER_OFFSET_Y {0.0,  0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
-#define EXTRUDER_OFFSET_Z {0.0 , 0.1}
+
 
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)

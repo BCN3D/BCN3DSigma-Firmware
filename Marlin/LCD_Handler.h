@@ -222,10 +222,10 @@ void myGenieEventHandler(void)
 				if (card.filenameIsDir)
 				{
 					//Is a folder
-					genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
 					}else{
 					//Is a file
-					genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 				}
 				genie.WriteStr(1,card.longFilename);
 				//genie.WriteStr(2,card.longFilename);
@@ -365,18 +365,18 @@ void myGenieEventHandler(void)
 			else if (Event.reportObject.index == BUTTON_PAUSE_RESUME )
 			{
 				int value = genie.GetEventData(&Event);
-				if (value == 1) // Need to preheat
+				if (value == 1) // Need to pause
 				{
 					card.pauseSDPrint();
 					genie.WriteStr(6,"Pausing...");
 					Serial.println("PAUSE!");
-					}else{
+				}else{
 					if(card.sdispaused)
 					{
 						card.startFileprint();
 						genie.WriteStr(6,"Printing...");
 						Serial.println("RESUME!");
-						}else{
+					}else{
 						Serial.println("We have stopped");
 					}
 				}
@@ -693,11 +693,7 @@ void myGenieEventHandler(void)
 				//Now comes the correcting 
 				
 				
-			}
-			
-			
-			
-						
+			}				
 		}	
 		//USERBUTTONS------------------------------------------------------
 		
@@ -721,11 +717,11 @@ void myGenieEventHandler(void)
 				{
 					//Is a folder
 					genie.WriteStr(1,card.longFilename);
-					genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
 					}else{
 					//Is a file
 					genie.WriteStr(1,card.longFilename);
-					genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 				}
 			}
 			
@@ -832,18 +828,6 @@ void myGenieEventHandler(void)
 				//setTargetHotend1(ABS_PREHEAT_HOTEND_TEMP);
 			}	
 		}
-		
-
-		//If the cmd received is from a Reported Object, which occurs if a Read Object (genie.ReadOject) is requested in the main code, reply processed here.
-		//if (Event.reportObject.cmd == GENIE_REPORT_OBJ)
-		//{
-		//if (Event.reportObject.object == GENIE_OBJ_USER_LED)              // If the Reported Message was from a User LED
-		//{
-		//if (Event.reportObject.index == 0)                              // If UserLed0
-		//{
-		//bool UserLed0_val = genie.GetEventData(&Event);               // Receive the event data from the UserLed0
-		//UserLed0_val = !UserLed0_val;                                 // Toggle the state of the User LED Variable
-		//genie.WriteObject(GENIE_OBJ_USER_LED, 0x00, UserLed0_val);    // Write UserLed0_val value back to to UserLed0
 	}
 }
 

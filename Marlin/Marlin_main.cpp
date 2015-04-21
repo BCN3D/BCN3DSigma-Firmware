@@ -2338,13 +2338,18 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	
 	// Probe at 3 arbitrary points
 	// probe left extruder
+	
+	Serial.print("Zvalue after home:");
+	Serial.println(current_position[Z_AXIS]);
+	
 	float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
 	float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 	float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 	
 	feedrate=homing_feedrate[Z_AXIS];
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
-	feedrate=homing_feedrate[X_AXIS];
+	//feedrate=homing_feedrate[X_AXIS];
+	feedrate = XY_TRAVEL_SPEED;
 	current_position[X_AXIS]=x_home_pos(active_extruder)+20;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 	feedrate=homing_feedrate[Z_AXIS];
@@ -2354,9 +2359,14 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	
 	//Now the right extruder enters the party!
 	active_extruder=RIGHT_EXTRUDER;
+	Serial.print("Zvalue at start:");
+	Serial.println(current_position[Z_AXIS]);
 	axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the right extruder
 	current_position[X_AXIS]-=20;
-	current_position[Z_AXIS]=(Z_MIN_POS+extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
+	Serial.print("Zvalue before:");
+	Serial.println(current_position[Z_AXIS]);
+	//current_position[Z_AXIS]=(Z_MIN_POS+extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
+	Serial.print("Zvalue after:");
 	Serial.println(current_position[Z_AXIS]);
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
 	
@@ -2366,6 +2376,19 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	float z2_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR, Z_RAISE_BEFORE_PROBING);
 	float z2_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_RIGHT_EXTR,Y_SIGMA_PROBE_2_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 	float z2_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_RIGHT_EXTR,Y_SIGMA_PROBE_3_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+	
+	
+	feedrate=homing_feedrate[Z_AXIS];
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+	//feedrate=homing_feedrate[X_AXIS];
+	feedrate = XY_TRAVEL_SPEED;
+	current_position[X_AXIS]=x_home_pos(active_extruder)-20;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+	feedrate=homing_feedrate[Z_AXIS];
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+	st_synchronize();
+	
+	
 	
 	clean_up_after_endstop_move();
 	
@@ -5117,7 +5140,7 @@ void prepare_move()
   if (active_extruder_parked)
   {  
 	//Rapduch toolchange
-	if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE)
+	if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE && current_position[E_AXIS]==destination[E_AXIS]) //Sigma mode and we are in a travel move after toolchange
 	{
 		plan_buffer_line(current_position[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
 		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
@@ -5129,7 +5152,8 @@ void prepare_move()
 			destination[Z_AXIS]=z_restaurada;
 		}
 		st_synchronize();
-		active_extruder_parked = false;
+	
+		active_extruder_parked = false;	
 	}
 	  
     if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0)

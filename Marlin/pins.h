@@ -145,7 +145,7 @@
 
 //////////////////RepRapBCN Electronics V1.0/////////////////////
 //------------------------------
-#if MOTHERBOARD == 15 
+#if MOTHERBOARD == BCN3D_BOARD 
 
 #define KNOWN_BOARD 1
 #ifndef __AVR_ATmega1280__
@@ -235,7 +235,7 @@
 
 #endif
 /////////////////////////////////////////////////
-
+//LAST UPDATE
 ////#define MYSERIAL_SCREEN Serial2
 ////#define RESETLINE 84
 ////
@@ -316,7 +316,7 @@
 * MegaTronics v3.0
 *
 ****************************************************************************************/
-#if MOTHERBOARD == 703
+#if MOTHERBOARD == MEGATRONICS_V3
 #define KNOWN_BOARD 1
 
 
@@ -334,17 +334,23 @@
 #define X_DIR_PIN          57
 #define X_ENABLE_PIN       59
 #define X_MIN_PIN          37
-#define X_MAX_PIN          40   //2 //Max endstops default to disabled "-1", set to commented value to enable.
+//#define X_MAX_PIN          40   //2 //Max endstops default to disabled "-1", set to commented value to enable.
 //Rapduch EDIT: There was a problem on the X+ endstop so there is a little change for this particular megatronics to switch with Y_MIN
-//#define X_MAX_PIN          41
-//#define Y_MIN_PIN        -1
+
+#ifdef PROTO1
+#define X_MAX_PIN          41
+#endif
+
+#ifdef PROTO2
+#define X_MAX_PIN          40 
+#endif
+
 //--------------------------------------------------EDIT SPECIAL
-
-
 #define Y_STEP_PIN         5 // A6
 #define Y_DIR_PIN          17 // A0
 #define Y_ENABLE_PIN       4
-#define Y_MIN_PIN          41
+#define Y_MIN_PIN          -1
+//#define Y_MIN_PIN        41
 #define Y_MAX_PIN          38   //15
 
 #define Z_STEP_PIN         16 // A2
@@ -436,6 +442,31 @@
 #define encrot3 1
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+////------------------------------EXTRA BOARDS------------------------------------////
+//////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
 
 
 

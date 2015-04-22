@@ -323,7 +323,7 @@ void Config_ResetDefault()
     zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
 #endif
 #ifdef Z_SIGMA_HOME
-	zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER;
+	zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
 #endif
 #ifdef DOGLCD
     lcd_contrast = DEFAULT_LCD_CONTRAST;

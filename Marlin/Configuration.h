@@ -94,6 +94,10 @@
 //#define MOTHERBOARD BCN3D_BOARD //Marcotronics
 #endif
 
+#if MOTHERBOARD == MEGATRONICS_V3
+	//#define PROTO1
+	#define PROTO2
+#endif
 
 
 // Define this to set a custom name for your generic Mendel,
@@ -212,9 +216,21 @@
 
 // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
-    #define  DEFAULT_Kp 5
-    #define  DEFAULT_Ki 1.08
-    #define  DEFAULT_Kd 114
+
+#if MOTHERBOARD == MEGATRONICS_V3
+#ifdef PROTO1
+	 #define  DEFAULT_Kp 21.68
+	 #define  DEFAULT_Ki 2.2
+	 #define  DEFAULT_Kd 52.84
+#endif
+
+#ifdef PROTO2
+	 #define  DEFAULT_Kp 23.12
+	 #define  DEFAULT_Ki 2.12
+	 #define  DEFAULT_Kd 62.98
+#endif
+#endif
+   
 
 // MakerGear
 //    #define  DEFAULT_Kp 7.0
@@ -250,9 +266,21 @@
 #ifdef PIDTEMPBED
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-    #define  DEFAULT_bedKp 10.00
-    #define  DEFAULT_bedKi .023
-    #define  DEFAULT_bedKd 305.4
+
+#if MOTHERBOARD == MEGATRONICS_V3
+#ifdef PROTO1
+	#define  DEFAULT_bedKp 302.2
+	#define  DEFAULT_bedKi 56.76
+	#define  DEFAULT_bedKd 402.27
+#endif
+
+#ifdef PROTO2
+	#define  DEFAULT_bedKp 270.22
+	#define  DEFAULT_bedKi 44.23
+	#define  DEFAULT_bedKd 370.78
+#endif
+#endif
+   
 
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from pidautotune
@@ -389,12 +417,26 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // Travel limits after homing
 //32+222+28=282
-#define X_MAX_POS 318 //Set 40mm space to avoid crashing with the other carriage 
-#define X_MIN_POS 0
-#define Y_MAX_POS 280
-#define Y_MIN_POS 0
-#define Z_MAX_POS 150
-#define Z_MIN_POS 0
+#if MOTHERBOARD == MEGATRONICS_V3
+#ifdef PROTO1
+	#define X_MAX_POS 317.9 //Distance between extruders
+	#define X_MIN_POS 0
+	#define Y_MAX_POS 280
+	#define Y_MIN_POS 0
+	#define Z_MAX_POS 150
+	#define Z_MIN_POS 0
+#endif
+
+#ifdef PROTO2
+	#define X_MAX_POS 318 //Distance between extruders
+	#define X_MIN_POS 0
+	#define Y_MAX_POS 280
+	#define Y_MIN_POS 0
+	#define Z_MAX_POS 150
+	#define Z_MIN_POS 0
+#endif
+#endif
+
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
@@ -585,9 +627,19 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #ifdef Z_SIGMA_AUTOLEVEL
-	#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
-	#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
-	#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5 //3.15 //It is negative, it is compensated
+
+	#if MOTHERBOARD == MEGATRONICS_V3
+		#ifdef PROTO1
+			#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  19
+			#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
+			#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5.3 //It is negative, it is compensated
+		#endif
+		#ifdef PROTO2
+			#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
+			#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
+			#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5 //It is negative, it is compensated
+		#endif
+	#endif
 	
 	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-20
 	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
@@ -634,13 +686,24 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define SECOND_EXTRUDER_Y {150.5, 149.5, 150, 149}
 #endif
 
-
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
 #define EXTRUDER_OFFSET_X {0.0, X2_MAX_POS} // (in mm) for each extruder, offset of the hotend on the X axis
-#define EXTRUDER_OFFSET_Y {0.0,  0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
-#define EXTRUDER_OFFSET_Z {0.0 , 0.1}
+	
+	
+#if MOTHERBOARD == MEGATRONICS_V3	
+	#ifdef PROTO1
+		#define EXTRUDER_OFFSET_Y {0.0,  0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
+		#define EXTRUDER_OFFSET_Z {0.0 , 0.0}
+	#endif
+
+	#ifdef PROTO2
+		#define EXTRUDER_OFFSET_Y {0.0,  0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
+		#define EXTRUDER_OFFSET_Z {0.0 , 0.1}
+	#endif
+#endif
+
 
 
 //----------------------------------------------------------------------------------------------
@@ -663,16 +726,25 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
 
-// default settings
+// default settings if screen not defined
 #ifndef SIGMA_TOUCH_SCREEN
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,96.43}  // default steps per unit for Ultimaker
 #endif
 
 #ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
-#if MOTHERBOARD == 15
+#if MOTHERBOARD == BCN3D_BOARD
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/32 microstepping for BCN3D Board
 #else
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,102}  // 1/16 for Megatronics MK7
+	#if MOTHERBOARD == MEGATRONICS_V3
+	#ifdef PROTO1
+		#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,152}  // 1/16 for Megatronicsv3 MK8
+	#endif
+
+	#ifdef PROTO2
+		#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,102}  // 1/16 for Megatronicsv3 MK7
+	#endif
+	#endif
+	
 #endif
 #endif
 
@@ -681,8 +753,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
-
-
 
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)

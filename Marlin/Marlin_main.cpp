@@ -595,8 +595,7 @@ void setup()
 		
 		
 	#if MOTHERBOARD==MEGATRONICS_V3
-		//pinMode(Z2_MIN_PIN,INPUT);
-		
+		//pinMode(Z2_MIN_PIN,INPUT);	
 		//ITS SET on st_init();
 	#endif
 		
@@ -698,7 +697,7 @@ void setup()
   servo_init();
 
   //lcd_init();
-  #if MOTHERBOARD == 15
+  #if MOTHERBOARD == BCN3D_BOARD
   _delay_ms(1000);   // wait 1sec to display the splash screen
   #endif
   //_delay_ms(1000);	// wait 1sec to display the splash screen
@@ -824,17 +823,17 @@ int getBuflen ()
 //Rapduch
 void touchscreen_update()
 {
-	uint16_t time = millis()/60000 - starttime/60000;
-	uint32_t time2 = millis()/60000-starttime/60000;
-	int tHotend=int(degHotend(0));
-	int tHotend1=int(degHotend(1));
-	int tBed=int(degBed() + 0.5);
 	//static keyword specifies that the variable retains its state between calls to the function
 	static uint32_t waitPeriod = millis();
-	//if (millis() >= waitPeriod)
-	//{
+
 	if(card.sdprinting)
 	{
+		uint16_t time = millis()/60000 - starttime/60000;
+		uint32_t time2 = millis()/60000-starttime/60000;
+		int tHotend=int(degHotend(0));
+		int tHotend1=int(degHotend(1));
+		int tBed=int(degBed() + 0.5);
+		
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS,3, tHotend);
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS,7, tHotend1);
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS,6, tBed);
@@ -893,7 +892,11 @@ void touchscreen_update()
 			}
 					
 		}else if (surfing_utilities)
-		{
+		{		
+			int tHotend=int(degHotend(0));
+			int tHotend1=int(degHotend(1));
+			int tBed=int(degBed() + 0.5);
+			
 			if (millis() >= waitPeriod)
 			{				
 				//Declare a String
@@ -2932,6 +2935,10 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
     case 24: //M24 - Start SD print
       card.startFileprint();
       starttime=millis();
+	  //Rapduch
+	  #ifdef SIGMA_TOUCH_SCREEN
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);		  
+	#endif
       break;
     case 25: //M25 - Pause SD print
       card.pauseSDPrint();
@@ -3002,7 +3009,14 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
         card.startFileprint();
         if(!call_procedure)
           starttime=millis(); //procedure calls count as normal print time.
+		  
+		//Rapduch
+		#ifdef SIGMA_TOUCH_SCREEN
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+		#endif
       }
+	  
+	  
     } break;
     case 928: //M928 - Start SD write
       starpos = (strchr(strchr_pointer + 5,'*'));

@@ -225,6 +225,7 @@
 #define SDSS			53
 #define SDPOWER			-1
 #define LED_PIN			-1
+//#define SDCARDDETECT	-1
 
 #ifndef SDSUPPORT
 // these pins are defined in the SD library if building with SD support

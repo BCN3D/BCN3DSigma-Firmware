@@ -85,13 +85,14 @@
 //15 = BCN3D Sigma Rev2
 
 //Rapduch
+//Defining Boards supported
 #define BCN3D_BOARD		15
 #define MEGATRONICS_V3	703
 
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD MEGATRONICS_V3 //Megatronics v3
-//#define MOTHERBOARD BCN3D_BOARD //Marcotronics
+//#define MOTHERBOARD MEGATRONICS_V3 //Megatronics v3
+#define MOTHERBOARD BCN3D_BOARD //Marcotronics
 #endif
 
 #if MOTHERBOARD == MEGATRONICS_V3
@@ -230,6 +231,12 @@
 	 #define  DEFAULT_Kd 62.98
 #endif
 #endif
+
+#if MOTHERBOARD == BCN3D_BOARD
+	#define  DEFAULT_Kp 23.12
+	#define  DEFAULT_Ki 2.12
+	#define  DEFAULT_Kd 62.98
+#endif
    
 
 // MakerGear
@@ -280,7 +287,12 @@
 	#define  DEFAULT_bedKd 370.78
 #endif
 #endif
-   
+
+#if MOTHERBOARD == BCN3D_BOARD
+   #define  DEFAULT_bedKp 270.22
+   #define  DEFAULT_bedKi 44.23
+   #define  DEFAULT_bedKd 370.78
+#endif
 
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from pidautotune
@@ -435,6 +447,15 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Z_MAX_POS 150
 	#define Z_MIN_POS 0
 #endif
+#endif
+
+#if MOTHERBOARD == BCN3D_BOARD
+	#define X_MAX_POS 318 //Distance between extruders
+	#define X_MIN_POS 0
+	#define Y_MAX_POS 280
+	#define Y_MIN_POS 0
+	#define Z_MAX_POS 150
+	#define Z_MIN_POS 0
 #endif
 
 
@@ -641,6 +662,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#endif
 	#endif
 	
+	#if MOTHERBOARD == BCN3D_BOARD
+		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  19
+		#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
+		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5.3 //It is negative, it is compensated
+	#endif
+	
 	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-20
 	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
 	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	5
@@ -704,6 +731,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#endif
 #endif
 
+#if MOTHERBOARD == BCN3D_BOARD
+		#define EXTRUDER_OFFSET_Y {0.0,  0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
+		#define EXTRUDER_OFFSET_Z {0.0 , 0.1}
+#endif
 
 
 //----------------------------------------------------------------------------------------------

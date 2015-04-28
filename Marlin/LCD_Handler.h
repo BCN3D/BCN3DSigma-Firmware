@@ -152,13 +152,8 @@ void myGenieEventHandler(void)
 					
 					
 					//genie.WriteObject(GENIE_OBJ_FORM,FORM_START_PRINT,0);
-					genie.WriteObject(GENIE_OBJ_FORM,9,0); //Printing FORM
-					screen_status="Ready...";//Write the selected SD file to all strings
-					genie.WriteStr(8,"Ready...");
-					genie.WriteStr(7,card.longFilename);
-					//Reset Time LEDs
-					genie.WriteObject(GENIE_OBJ_LED_DIGITS,12,0);
-					genie.WriteObject(GENIE_OBJ_LED_DIGITS,11,0);
+					//genie.WriteObject(GENIE_OBJ_FORM,9,0); //Printing FORM
+					
 					
 									
 					genie.WriteStr(2,card.longFilename);//Printing form
@@ -171,7 +166,14 @@ void myGenieEventHandler(void)
 						*c = tolower(*c);
 					}
 					enquecommand(cmd);
-					enquecommand_P(PSTR("M24"));
+					enquecommand_P(PSTR("M24")); // It also sends you to PRINTING screen
+					
+					screen_status="Ready...";//Write the selected SD file to all strings
+					genie.WriteStr(8,"Ready...");
+					genie.WriteStr(7,card.longFilename);
+					//Reset Time LEDs
+					genie.WriteObject(GENIE_OBJ_LED_DIGITS,12,0);
+					genie.WriteObject(GENIE_OBJ_LED_DIGITS,11,0);
 					
 					//StartPrint form
 					//genie.WriteStr(2,card.longFilename);//Printing form

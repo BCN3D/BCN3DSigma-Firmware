@@ -229,7 +229,7 @@ void myGenieEventHandler(void)
 					//Is a file
 					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 				}
-				genie.WriteStr(1,card.longFilename);
+				genie.WriteStr(1,card.longFilename); //Keep in mind to control the length of the string displayed!
 				//genie.WriteStr(2,card.longFilename);
 				Serial.print("Image n: ");
 				Serial.println(filepointer);

@@ -89,7 +89,6 @@
 #define BCN3D_BOARD		15
 #define MEGATRONICS_V3	703
 
-
 #ifndef MOTHERBOARD
 //#define MOTHERBOARD MEGATRONICS_V3 //Megatronics v3
 #define MOTHERBOARD BCN3D_BOARD //Marcotronics

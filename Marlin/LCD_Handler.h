@@ -1,8 +1,8 @@
 /*
  * LCD_Handler.h
- *A place to hold all interactions between LCD and printer. It is called from Marlin_main.cpp
+ * A place to hold all interactions between LCD and printer. It is called from Marlin_main.cpp
  * Created: 12/12/2014 12:48:04
- *  Author: jcalduch
+ * Author: Jordi Calduch (Dryrain)
  */ 
 
 #ifdef SIGMA_TOUCH_SCREEN
@@ -154,9 +154,21 @@ void myGenieEventHandler(void)
 					//genie.WriteObject(GENIE_OBJ_FORM,FORM_START_PRINT,0);
 					//genie.WriteObject(GENIE_OBJ_FORM,9,0); //Printing FORM
 					
+					//genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
 					
+					char buffer[25];
+					
+					if (String(card.longFilename).length()>21){
+						for (int i = 0; i<21 ; i++)
+						{
+							buffer[i]=card.longFilename[i];
+						}	
+						
+						char* buffer2 = strcat(buffer,"...\0");	
+						Serial.print("buffer out: ");
+						Serial.println(buffer2);
+					}
 									
-					genie.WriteStr(2,card.longFilename);//Printing form
 					char cmd[30];
 					char* c;
 					card.getfilename(filepointer);
@@ -169,11 +181,15 @@ void myGenieEventHandler(void)
 					enquecommand_P(PSTR("M24")); // It also sends you to PRINTING screen
 					
 					screen_status="Ready...";//Write the selected SD file to all strings
-					genie.WriteStr(8,"Ready...");
-					genie.WriteStr(7,card.longFilename);
+					//genie.WriteStr(8,"Ready...");
+					//genie.WriteStr(7,card.longFilename);
 					//Reset Time LEDs
-					genie.WriteObject(GENIE_OBJ_LED_DIGITS,12,0);
-					genie.WriteObject(GENIE_OBJ_LED_DIGITS,11,0);
+					
+					//genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+					//genie.WriteStr(6,"Ready");
+					
+					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,12,0);
+					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,11,0);
 					
 					//StartPrint form
 					//genie.WriteStr(2,card.longFilename);//Printing form
@@ -229,7 +245,20 @@ void myGenieEventHandler(void)
 					//Is a file
 					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 				}
-				genie.WriteStr(1,card.longFilename); //Keep in mind to control the length of the string displayed!
+				int count = 20;
+				char buffer[count];
+				if (String(card.longFilename).length()>count){
+					for (int i = 0; i<count ; i++)
+					{
+						buffer[i]=card.longFilename[i];
+					}
+					buffer[count]='\0';
+					char* buffer2 = strcat(buffer,"...\0");
+					genie.WriteStr(1,buffer2);//Printing form
+				}else{
+					genie.WriteStr(1,card.longFilename);//Printing form
+				}
+				//Keep in mind to control the length of the string displayed!
 				//genie.WriteStr(2,card.longFilename);
 				Serial.print("Image n: ");
 				Serial.println(filepointer);
@@ -341,7 +370,7 @@ void myGenieEventHandler(void)
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 					//Restore Strings after form update
 					genie.WriteStr(2,card.longFilename);
-					genie.WriteStr(6,buffer);
+					//genie.WriteStr(6,buffer);
 				}else
 				{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_START_PRINT,0);
@@ -720,9 +749,21 @@ void myGenieEventHandler(void)
 					//Is a folder
 					genie.WriteStr(1,card.longFilename);
 					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+				}else{
+					int count = 20;
+					char buffer[count];
+					if (String(card.longFilename).length()>count){
+						for (int i = 0; i<count ; i++)
+						{
+							buffer[i]=card.longFilename[i];
+						}
+						buffer[count]='\0';
+						char* buffer2 = strcat(buffer,"...\0");
+						genie.WriteStr(1,buffer2);//Printing form
 					}else{
+						genie.WriteStr(1,card.longFilename);//Printing form
+					}
 					//Is a file
-					genie.WriteStr(1,card.longFilename);
 					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 				}
 			}
@@ -787,6 +828,21 @@ void myGenieEventHandler(void)
 			{
 				//Restart the preheat buttons
 				genie.WriteObject(GENIE_OBJ_USERIMAGES,BUTTON_PREHEAT_PLA,0);
+				
+				int count = 12;
+				char buffer[count];
+				if (String(card.longFilename).length()>count){
+					for (int i = 0; i<count ; i++)
+					{
+						buffer[i]=card.longFilename[i];
+					}
+					buffer[count]='\0';
+					char* buffer2 = strcat(buffer,"...\0");
+					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+					}else{
+					genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+				}
+				
 				//genie.WriteStr(2,card.longFilename);
 				//genie.WriteStr(6,"Printing...");
 			}
@@ -835,6 +891,32 @@ void myGenieEventHandler(void)
 
 
 
+char* prepareString(char* text, int len){
+	Serial.print("Text: ");
+	Serial.println(text);
+	if (String(text).length()>12){
+		char buffer[len+1];
+		for (int i = 0; i<len ; i++)
+		{
+			buffer[i]=card.longFilename[i];
+		}
+		buffer[len]='\0';
+		Serial.print("Buffer temp: ");
+		Serial.println(buffer);
+		char* buffer2 = strcat(buffer,"...\0");
+		Serial.print("Buffer returned: ");
+		Serial.println(buffer2);
+		return buffer2;
+		//buffer2 = strcat(buffer,"...\0");
+	}else{
+		char* buffer2 = text;
+		Serial.print("Buffer returned: ");
+		Serial.println(buffer2);
+		return buffer2;
+	}
+		
+	
+}
 
 
 

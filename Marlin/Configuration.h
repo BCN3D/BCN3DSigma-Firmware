@@ -84,10 +84,21 @@
 // 999 = Leapfrog
 //15 = BCN3D Sigma Rev2
 
+//Rapduch
+//Defining Boards supported
+#define BCN3D_BOARD		15
+#define MEGATRONICS_V3	703
+
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 15
-//#define MOTHERBOARD 34
+//#define MOTHERBOARD MEGATRONICS_V3 //Megatronics v3
+#define MOTHERBOARD BCN3D_BOARD //Marcotronics
 #endif
+
+#if MOTHERBOARD == MEGATRONICS_V3
+	//#define PROTO1
+	#define PROTO2
+#endif
+
 
 // Define this to set a custom name for your generic Mendel,
 // #define CUSTOM_MENDEL_NAME "This Mendel"
@@ -193,6 +204,8 @@
 #ifdef PIDTEMP
   //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
+  
+  //Rapduch ATENCIÓ
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
@@ -203,9 +216,27 @@
 
 // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
-    #define  DEFAULT_Kp 5
-    #define  DEFAULT_Ki 1.08
-    #define  DEFAULT_Kd 114
+
+#if MOTHERBOARD == MEGATRONICS_V3
+#ifdef PROTO1
+	 #define  DEFAULT_Kp 21.68
+	 #define  DEFAULT_Ki 2.2
+	 #define  DEFAULT_Kd 52.84
+#endif
+
+#ifdef PROTO2
+	 #define  DEFAULT_Kp 23.12
+	 #define  DEFAULT_Ki 2.12
+	 #define  DEFAULT_Kd 62.98
+#endif
+#endif
+
+#if MOTHERBOARD == BCN3D_BOARD
+	#define  DEFAULT_Kp 23.12
+	#define  DEFAULT_Ki 2.12
+	#define  DEFAULT_Kd 62.98
+#endif
+   
 
 // MakerGear
 //    #define  DEFAULT_Kp 7.0
@@ -228,7 +259,7 @@
 // If your configuration is significantly different than this and you don't understand the issues involved, you probably
 // shouldn't use bed PID until someone else verifies your hardware works.
 // If this is enabled, find your own PID constants below.
-//#define PIDTEMPBED
+#define PIDTEMPBED
 //
 //#define BED_LIMIT_SWITCHING
 
@@ -241,9 +272,26 @@
 #ifdef PIDTEMPBED
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-    #define  DEFAULT_bedKp 10.00
-    #define  DEFAULT_bedKi .023
-    #define  DEFAULT_bedKd 305.4
+
+#if MOTHERBOARD == MEGATRONICS_V3
+#ifdef PROTO1
+	#define  DEFAULT_bedKp 302.2
+	#define  DEFAULT_bedKi 56.76
+	#define  DEFAULT_bedKd 402.27
+#endif
+
+#ifdef PROTO2
+	#define  DEFAULT_bedKp 270.22
+	#define  DEFAULT_bedKi 44.23
+	#define  DEFAULT_bedKd 370.78
+#endif
+#endif
+
+#if MOTHERBOARD == BCN3D_BOARD
+   #define  DEFAULT_bedKp 270.22
+   #define  DEFAULT_bedKi 44.23
+   #define  DEFAULT_bedKd 370.78
+#endif
 
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from pidautotune
@@ -364,7 +412,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
+#define INVERT_Z_DIR false     // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
@@ -380,19 +428,43 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // Travel limits after homing
 //32+222+28=282
-#define X_MAX_POS 202 //Set 40mm space to avoid crashing with the other carriage 
-#define X_MIN_POS 0
-#define Y_MAX_POS 280
-#define Y_MIN_POS 0
-#define Z_MAX_POS 150
-#define Z_MIN_POS 0
+#if MOTHERBOARD == MEGATRONICS_V3
+#ifdef PROTO1
+	#define X_MAX_POS 317.9 //Distance between extruders
+	#define X_MIN_POS 0
+	#define Y_MAX_POS 280
+	#define Y_MIN_POS 0
+	#define Z_MAX_POS 150
+	#define Z_MIN_POS 0
+#endif
+
+#ifdef PROTO2
+	#define X_MAX_POS 318 //Distance between extruders
+	#define X_MIN_POS 0
+	#define Y_MAX_POS 280
+	#define Y_MIN_POS 0
+	#define Z_MAX_POS 150
+	#define Z_MIN_POS 0
+#endif
+#endif
+
+#if MOTHERBOARD == BCN3D_BOARD
+	#define X_MAX_POS 318 //Distance between extruders
+	#define X_MIN_POS 0
+	#define Y_MAX_POS 280
+	#define Y_MIN_POS 0
+	#define Z_MAX_POS 150
+	#define Z_MIN_POS 0
+#endif
+
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 //============================= Bed Auto Leveling ===========================
 
-//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+
+#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 #define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -442,17 +514,22 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -25
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35
+  #define X_PROBE_OFFSET_FROM_EXTRUDER  20
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER	24
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER  5
+  
+  //Rapduch
+  //#define X_PROBE2_OFFSET_FROM_EXTRUDER -25
+  //#define Y_PROBE2_OFFSET_FROM_EXTRUDER -29
+  //#define Z_PROBE2_OFFSET_FROM_EXTRUDER -12.35
 
-  #define Z_RAISE_BEFORE_HOMING 10       // (in mm) Raise Z before homing (G28) for Probe Clearance.
+  #define Z_RAISE_BEFORE_HOMING 7       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
 
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
 
-  #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
-  #define Z_RAISE_BETWEEN_PROBINGS 10  //How much the extruder will be raised when traveling from between next probing points
+  #define Z_RAISE_BEFORE_PROBING 6    //How much the extruder will be raised before traveling to the first probing point.
+  #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
 
   //#define Z_PROBE_SLED // turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
   //#define SLED_DOCKING_OFFSET 5 // the extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
@@ -475,52 +552,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
                           // - Block Z homing only when the probe is outside bed area.
 
   #ifdef Z_SAFE_HOMING
-
     #define Z_SAFE_HOMING_X_POINT (X_MAX_LENGTH/2)    // X point for Z homing when homing all axis (G28)
     #define Z_SAFE_HOMING_Y_POINT (Y_MAX_LENGTH/2)    // Y point for Z homing when homing all axis (G28)
-
   #endif
+  
 
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // ENABLE_AUTO_BED_LEVELING------------------------------------------------------------------------------
 
 
 
-//MANUAL HOMING---------------------
-// The position of the homing switches
-//#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
-//#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
 
-//Manual homing switch locations:
-// For deltabots this means top and center of the Cartesian print volume.
-//#define MANUAL_X_HOME_POS -32
-#define MANUAL_X_HOME_POS -32
-#define MANUAL_Y_HOME_POS Y_MAX_POS
-#define MANUAL_Z_HOME_POS Z_MIN_POS
-//#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
-
-//// MOVEMENT SETTINGS
-#define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
-
-// default settings
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,458.3}  // default steps per unit for Ultimaker
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,916.6}  // for 1/32 microstepping
-#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
-
-#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
-
-// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
-// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
-// For the other hotends it is their distance from the extruder 0 hotend.
- //#define EXTRUDER_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
-// #define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
-
-// The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
-#define DEFAULT_XYJERK                5.0    // (mm/sec)
-#define DEFAULT_ZJERK                 0.4     // (mm/sec)
-#define DEFAULT_EJERK                 5.0    // (mm/sec)
 
 //===========================================================================
 //=============================Additional Features===========================
@@ -541,7 +582,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
-#define EEPROM_SETTINGS
+//#define EEPROM_SETTINGS
 //to disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
 // please keep turned on if you can.
 //#define EEPROM_CHITCHAT
@@ -568,6 +609,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000	// this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
 
+
+
 //----------------------------------SIGMA DEFINITIONS-------------------------------------------
 //4D LCD Touch Screen for RepRapSigma
 #define SIGMA_TOUCH_SCREEN
@@ -580,6 +623,74 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define BOWDEN_LENGTH 10
 #define EXTRUDER_LENGTH 10
 
+//For better undestanding on wich extruder is selected
+#define LEFT_EXTRUDER 0 
+#define RIGHT_EXTRUDER 1
+
+//Rapduch For sigma Autolevel
+#define Z_SIGMA_HOME
+#define Z_SIGMA_AUTOLEVEL
+
+
+#ifdef Z_SIGMA_HOME
+	#define Z_SIGMA_HOME_X_POINT 56.5
+	#define Z_SIGMA_HOME_Y_POINT 150
+	
+	//#define Z_SIGMA_HOME_SECOND_X_POINT 290
+	//#define Z_SIGMA_HOME_SECOND_Y_POINT 150
+	//#define Z_SIGMA_HOME_SECOND_X_POINT 200
+	//#define Z_SIGMA_HOME_SECOND_Y_POINT 160
+
+	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
+	
+	#define XY_SIGMA_TRAVEL_SPEED 8000
+#endif
+
+#ifdef Z_SIGMA_AUTOLEVEL
+
+	#if MOTHERBOARD == MEGATRONICS_V3
+		#ifdef PROTO1
+			#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  19
+			#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
+			#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5.3 //It is negative, it is compensated
+		#endif
+		#ifdef PROTO2
+			#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
+			#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
+			#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5 //It is negative, it is compensated
+		#endif
+	#endif
+	
+	#if MOTHERBOARD == BCN3D_BOARD
+		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  19
+		#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
+		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5.3 //It is negative, it is compensated
+	#endif
+	
+	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-20
+	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
+	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	5
+	
+	//Left extruder probe point
+	#define X_SIGMA_PROBE_1_LEFT_EXTR 56.5
+	#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
+	
+	#define X_SIGMA_PROBE_2_LEFT_EXTR 56.5
+	#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
+	
+	#define X_SIGMA_PROBE_3_LEFT_EXTR 255
+	#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
+	
+	//Right extruder probe point
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 255
+	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
+	
+	#define X_SIGMA_PROBE_2_RIGHT_EXTR 255
+	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
+	
+	#define X_SIGMA_PROBE_3_RIGHT_EXTR 56.5
+	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
+#endif
 
 #ifdef  ENABLE_AUTO_BED_LEVELING
 	//Calibration WIZARD --------
@@ -596,13 +707,92 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	// -END BED calibration WIZARD
 #endif // ENABLE_AUTO_BED_LEVELING
 
-
 #ifdef EXTRUDER_CALIBRATION_WIZARD
 	#define SECOND_EXTRUDER_X {40.5, 39.5, 40, 39}
 	#define SECOND_EXTRUDER_Y {150.5, 149.5, 150, 149}
 #endif
 
+// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
+// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
+// For the other hotends it is their distance from the extruder 0 hotend.
+#define EXTRUDER_OFFSET_X {0.0, X2_MAX_POS} // (in mm) for each extruder, offset of the hotend on the X axis
+	
+	
+#if MOTHERBOARD == MEGATRONICS_V3	
+	#ifdef PROTO1
+		#define EXTRUDER_OFFSET_Y {0.0,  0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
+		#define EXTRUDER_OFFSET_Z {0.0 , 0.0}
+	#endif
+
+	#ifdef PROTO2
+		#define EXTRUDER_OFFSET_Y {0.0,  0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
+		#define EXTRUDER_OFFSET_Z {0.0 , 0.1}
+	#endif
+#endif
+
+#if MOTHERBOARD == BCN3D_BOARD
+		#define EXTRUDER_OFFSET_Y {0.0,  0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
+		#define EXTRUDER_OFFSET_Z {0.0 , 0.1}
+#endif
+
+
 //----------------------------------------------------------------------------------------------
+
+
+//MANUAL HOMING & FEEDRATES---------------------
+// The position of the homing switches
+//#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
+//#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
+
+//Manual homing switch locations:
+// For deltabots this means top and center of the Cartesian print volume.
+//#define MANUAL_X_HOME_POS -32
+#define MANUAL_X_HOME_POS -32
+#define MANUAL_Y_HOME_POS Y_MAX_POS
+#define MANUAL_Z_HOME_POS Z_MIN_POS
+//#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
+
+//// MOVEMENT SETTINGS
+#define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
+#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+
+// default settings if screen not defined
+#ifndef SIGMA_TOUCH_SCREEN
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,96.43}  // default steps per unit for Ultimaker
+#endif
+
+#ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
+#if MOTHERBOARD == BCN3D_BOARD
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/32 microstepping for BCN3D Board
+#else
+	#if MOTHERBOARD == MEGATRONICS_V3
+	#ifdef PROTO1
+		#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,152}  // 1/16 for Megatronicsv3 MK8
+	#endif
+
+	#ifdef PROTO2
+		#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,102}  // 1/16 for Megatronicsv3 MK7
+	#endif
+	#endif
+	
+#endif
+#endif
+
+#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+
+#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+
+
+// The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
+#define DEFAULT_XYJERK                5.0    // (mm/sec)
+#define DEFAULT_ZJERK                 0.4     // (mm/sec)
+#define DEFAULT_EJERK                 5.0    // (mm/sec)
+
+
+//------------------------------------------------------------------------------------------------------
+
 
 
 // The MaKr3d Makr-Panel with graphic controller and SD support

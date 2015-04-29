@@ -81,6 +81,8 @@ static bool old_x_max_endstop=false;
 static bool old_y_min_endstop=false;
 static bool old_y_max_endstop=false;
 static bool old_z_min_endstop=false;
+//Rapduch
+static bool old_z_min_endstop_2=false;
 static bool old_z_max_endstop=false;
 
 static bool check_endstops = true;
@@ -494,15 +496,35 @@ ISR(TIMER1_COMPA_vect)
       count_direction[Z_AXIS]=-1;
       CHECK_ENDSTOPS
       {
-        #if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
-          bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-          if(z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
-            endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_z_hit=true;
-            step_events_completed = current_block->step_event_count;
-          }
-          old_z_min_endstop = z_min_endstop;
-        #endif
+		 //Rapduch: Change in behaviour of the endstops to fit the second extruder probe as ZMIN
+		 #ifdef MEGATRONICS_V3
+			#if defined(Z_MIN_PIN) && Z_MIN_PIN > -1			
+				#if defined(Z2_MIN_PIN) && Z2_MIN_PIN > -1
+					bool z_min_endstop=((READ(Z_MIN_PIN) && READ(Z2_MIN_PIN)) != Z_MIN_ENDSTOP_INVERTING);  //Using the Z_Max pin as the second Z_Min!!!!!!!!!!!!
+				#else
+					bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
+				#endif
+			  if((z_min_endstop && old_z_min_endstop) && (current_block->steps_z > 0)) {
+				endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+				endstop_z_hit=true;
+				step_events_completed = current_block->step_event_count;
+			  }
+			  old_z_min_endstop = z_min_endstop;
+			#endif
+		#else
+		
+			#if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
+				bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
+				if((z_min_endstop && old_z_min_endstop) && (current_block->steps_z > 0)) {
+					endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+					endstop_z_hit=true;
+					step_events_completed = current_block->step_event_count;
+				}
+				old_z_min_endstop = z_min_endstop;
+			#endif
+		
+		
+		#endif
       }
     }
     else { // +direction
@@ -915,6 +937,14 @@ void st_init()
     #ifdef ENDSTOPPULLUP_ZMIN
       WRITE(Z_MIN_PIN,HIGH);
     #endif
+  #endif
+  
+  //Rapduch for Z_Min_2
+  #if defined(Z2_MIN_PIN) && Z2_MIN_PIN > -1
+  SET_INPUT(Z2_MIN_PIN);
+  #ifdef ENDSTOPPULLUP_ZMIN
+  WRITE(Z2_MIN_PIN,HIGH);
+  #endif
   #endif
 
   #if defined(X_MAX_PIN) && X_MAX_PIN > -1

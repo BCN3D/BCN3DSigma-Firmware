@@ -223,6 +223,7 @@ CardReader card;
 	uint8_t which_extruder=0;
 	char filament_mode='O';
 	bool is_changing_filament=false;
+	String currentSDFileName;
 #endif
 
 #ifndef SIGMA_TOUCH_SCREEN
@@ -828,21 +829,48 @@ void touchscreen_update()
 
 	if(card.sdprinting)
 	{
-		uint16_t time = millis()/60000 - starttime/60000;
-		uint32_t time2 = millis()/60000-starttime/60000;
-		int tHotend=int(degHotend(0));
-		int tHotend1=int(degHotend(1));
-		int tBed=int(degBed() + 0.5);
-		
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,3, tHotend);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,7, tHotend1);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,6, tBed);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,5,(time%60));
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,4,(time/60));
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,3, tHotend);
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,7, tHotend1);
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,6, tBed);
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,5,(time%60));
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,4,(time/60));
 		
 		if (millis() >= waitPeriod)
 			{		
-					/*		
+				
+				//uint16_t time = millis()/60000 - starttime/60000;
+				//uint32_t time2 = millis()/60000-starttime/60000;
+				int tHotend=int(degHotend(0));
+				int tHotend1=int(degHotend(1));
+				int tBed=int(degBed() + 0.5);
+				
+				//Rapduch
+				//Edit for final TouchScreen
+				char buffer[256];
+				sprintf(buffer, "% 3d",tHotend);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_NOZZ1,buffer);
+				
+				sprintf(buffer, "% 3d",tHotend1);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_NOZZ2,buffer);
+				
+				sprintf(buffer, "% 2d",tBed);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_BED,buffer);
+				
+				sprintf(buffer, "% 3d %%",card.percentDone());
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_PERCENT,buffer);
+				
+				sprintf(buffer, "% 3d %%",feedmultiply);
+				//Serial.println(buffer);
+				genie.WriteStr(STRINGS_PRINTING_FEED,buffer);
+				
+				//genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+				//genie.WriteStr(6,"Ready");
+				
+					/*	TRYING TO GET THE TIME LEFT	
 				static uint32_t lastSDPosition=0; 
 				Serial.println("");
 				Serial.print("Size");
@@ -888,7 +916,7 @@ void touchscreen_update()
 				
 					*/
 					
-				waitPeriod=10000+millis();	//Every 10s
+				waitPeriod=1000+millis();	//Every 1s
 			}
 					
 		}else if (surfing_utilities)
@@ -2937,7 +2965,28 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
       starttime=millis();
 	  //Rapduch
 	  #ifdef SIGMA_TOUCH_SCREEN
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);		  
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+		char buffer[13];
+		if (String(card.longFilename).length()>12){
+			for (int i = 0; i<12 ; i++)
+			{
+				buffer[i]=card.longFilename[i];
+			}
+			buffer[12]='\0';		
+			char* buffer2 = strcat(buffer,"...\0");
+			Serial.print("Card Name: ");
+			Serial.println(card.longFilename);
+			Serial.print("Buffer1: ");
+			Serial.println(buffer);
+			Serial.print("buffer out: ");
+			Serial.println(buffer2);
+			genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+		}else{
+			genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+		}
+		
+		//Serial.println((char*)prepareString(card.longFilename,12));		
+		//genie.WriteStr(6,"Ready");		  
 	#endif
       break;
     case 25: //M25 - Pause SD print

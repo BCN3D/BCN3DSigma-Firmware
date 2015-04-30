@@ -885,6 +885,16 @@ void myGenieEventHandler(void)
 				//setTargetHotend0(ABS_PREHEAT_HOTEND_TEMP);
 				//setTargetHotend1(ABS_PREHEAT_HOTEND_TEMP);
 			}	
+			
+			else if (Event.reportObject.index == FORM_PRINTING_SETTINGS)
+			{
+				////Rapduch
+				////Edit for final TouchScreen
+				//char buffer[256];
+				//sprintf(buffer, "% 3d",tHotend);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRING_PRINTING_NOZZ1,buffer);
+			}
 		}
 	}
 }

@@ -387,7 +387,6 @@ static float delta[3] = {0.0, 0.0, 0.0};
 //Rapduch
 float z_restaurada;
 
-
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -578,6 +577,24 @@ void servo_init()
 
 void setup()
 {
+	
+	//Enabling RELE ( Stepper Drivers Power )
+	#if MOTHERBOARD==BCN3D_BOARD //BCNElectronics v1
+	//pinMode(RED,OUTPUT);
+	//pinMode(GREEN,OUTPUT);
+	//pinMode(BLUE,OUTPUT);
+
+	//enable 24V
+	pinMode(RELAY, OUTPUT);
+	digitalWrite(RELAY, LOW);
+	delay(500);
+	digitalWrite(RELAY, HIGH);
+
+	analogWrite(RED,177);
+	analogWrite(GREEN,177);
+	analogWrite(BLUE,127);//Turn printer Blue rgb
+	#endif
+	
 	#if MOTHERBOARD==MEGATRONICS_V3
 		//pinMode(Z2_MIN_PIN,INPUT);	
 		//ITS SET on st_init();
@@ -673,22 +690,7 @@ void setup()
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
 
-//Enabling RELE ( Stepper Drivers Power )
-	#if MOTHERBOARD==BCN3D_BOARD //BCNElectronics v1
-	//pinMode(RED,OUTPUT);
-	//pinMode(GREEN,OUTPUT);
-	//pinMode(BLUE,OUTPUT);
 
-	//enable 24V
-	pinMode(RELAY, OUTPUT);
-	digitalWrite(RELAY, LOW);
-	delay(500);
-	digitalWrite(RELAY, HIGH);
-
-	analogWrite(RED,127);
-	analogWrite(GREEN,127);
-	analogWrite(BLUE,127);//Turn printer White rgb
-	#endif
 
   tp_init();    // Initialize temperature loop
   plan_init();  // Initialize planner;

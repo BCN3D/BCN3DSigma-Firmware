@@ -578,9 +578,6 @@ void servo_init()
 
 void setup()
 {
-	
-		
-		
 	#if MOTHERBOARD==MEGATRONICS_V3
 		//pinMode(Z2_MIN_PIN,INPUT);	
 		//ITS SET on st_init();
@@ -702,9 +699,8 @@ void setup()
 
   //lcd_init();
   #if MOTHERBOARD == BCN3D_BOARD
-  _delay_ms(1000);   // wait 1sec to display the splash screen
+  //_delay_ms(1000);   // wait 1sec to display the splash screen
   #endif
-  //_delay_ms(1000);	// wait 1sec to display the splash screen
 
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
@@ -730,17 +726,11 @@ void setup()
 	//enquecommand(cmd);
 	//enquecommand_P(PSTR("M24"));
 #endif
-
-
-
-
-
 }
 
 
 void loop()
 {
-	
   if(buflen < (BUFSIZE-1))
     get_command();
   #ifdef SDSUPPORT
@@ -786,21 +776,17 @@ void loop()
   
   //lcd_update();
   #ifdef SIGMA_TOUCH_SCREEN
-  touchscreen_update();
+	touchscreen_update();
   #endif
   
+//#ifndef SIGMA_TOUCH_SCREEN //JUST PRINT FIRST GCODE ON SD
+//if (firstime)
+//{
+	//SD_firstPrint();
+	//firstime=false;
+//}
+//#endif
   
-  
-	//#ifndef SIGMA_TOUCH_SCREEN //JUST PRINT FIRST GCODE ON SD
-	//if (firstime)
-	//{
-		//SD_firstPrint();
-		//firstime=false;
-	//}
-	//#endif
-  
-  
-  //genie.DoEvents();
 }
 
 void SD_firstPrint (){	
@@ -825,7 +811,7 @@ int getBuflen ()
 
 #ifdef SIGMA_TOUCH_SCREEN
 //Rapduch
-void touchscreen_update()
+void touchscreen_update() //Updates the Serial Communications with the screen
 {
 	//static keyword specifies that the variable retains its state between calls to the function
 	static uint32_t waitPeriod = millis();
@@ -1073,16 +1059,12 @@ void touchscreen_update()
 			}				
 	}else
 	{
-		//Do always
-		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,8, tHotend);
-		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,9, 0);
-		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,10, tBed);
+		//Do always...
+		
 	}
-	//}
 	//waitPeriod=250+millis();
-	genie.DoEvents();
+	genie.DoEvents(); //Processes the TouchScreen Queued Events
 }
-
 #endif //SIGMA TOUCHSCREEN
 
 void get_command()

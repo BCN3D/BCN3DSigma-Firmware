@@ -161,9 +161,14 @@
 #define RESETLINE		9
 #define AUTOLEVELPIN	8
 
-#define X_STEP_PIN		73//76 
-#define X_DIR_PIN		76//73
-#define X_ENABLE_PIN	75//75
+//We have inverted the X X2 in BCN3D rev...
+#define X_ENABLE_PIN	2
+#define X_STEP_PIN		5
+#define X_DIR_PIN		3
+
+#define X2_STEP_PIN		73//76 
+#define X2_DIR_PIN		76//73
+#define X2_ENABLE_PIN	75//75
 
 #define X_MIN_PIN		77 //Minim endstop
 #define X_MAX_PIN		79 //Max endstop per 2n extrusor

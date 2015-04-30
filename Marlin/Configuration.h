@@ -410,16 +410,28 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DISABLE_E false // For all extruders
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
+
+#if MOTHERBOARD == MEGATRONICS_V3
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR false     // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+#endif
+
+#if MOTHERBOARD == BCN3D_BOARD
+#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
+#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
+#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
+#define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+#endif
 
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
-#define X_HOME_DIR -1 //Homing fow dual x
+#define X_HOME_DIR -1 //Homing for dual x
 #define Y_HOME_DIR  1
 #define Z_HOME_DIR -1
 
@@ -763,7 +775,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
 #if MOTHERBOARD == BCN3D_BOARD
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/32 microstepping for BCN3D Board
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/8 microstepping for BCN3D Board
+ #define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,51}
 #else
 	#if MOTHERBOARD == MEGATRONICS_V3
 	#ifdef PROTO1
@@ -778,11 +791,15 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 #endif
 
-#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_MAX_FEEDRATE          {150, 150, 3.5, 50}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {500,500,25,25}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+//#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
+//#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum star
 
-#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+#define DEFAULT_ACCELERATION          200    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  1000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+//#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+//#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)

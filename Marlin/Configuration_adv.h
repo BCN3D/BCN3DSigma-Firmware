@@ -188,9 +188,9 @@
 
 // Pins for second x-carriage stepper driver (defined here to avoid further complicating pins.h)
 #if MOTHERBOARD == BCN3D_BOARD
-	#define X2_ENABLE_PIN	2
-	#define X2_STEP_PIN		5
-	#define X2_DIR_PIN		3
+	//#define X2_ENABLE_PIN	2
+	//#define X2_STEP_PIN		5
+	//#define X2_DIR_PIN		3
 	//#define X2_ENABLE_PIN	75//4
 	//#define X2_STEP_PIN		76//5
 	//#define X2_DIR_PIN		73//3

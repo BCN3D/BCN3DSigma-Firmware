@@ -578,21 +578,7 @@ void servo_init()
 
 void setup()
 {
-	#if MOTHERBOARD==BCN3D_BOARD //BCNElectronics v1
-		//pinMode(RED,OUTPUT);
-		//pinMode(GREEN,OUTPUT);
-		//pinMode(BLUE,OUTPUT);
 	
-		//enable 24V
-		pinMode(RELAY, OUTPUT);
-		digitalWrite(RELAY, LOW);
-		delay(500);
-		digitalWrite(RELAY, HIGH);
-	
-		analogWrite(RED,127);
-		analogWrite(GREEN,127);
-		analogWrite(BLUE,127);//Turn printer White rgb
-	#endif
 		
 		
 	#if MOTHERBOARD==MEGATRONICS_V3
@@ -689,6 +675,23 @@ void setup()
 
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
+
+//Enabling RELE ( Stepper Drivers Power )
+	#if MOTHERBOARD==BCN3D_BOARD //BCNElectronics v1
+	//pinMode(RED,OUTPUT);
+	//pinMode(GREEN,OUTPUT);
+	//pinMode(BLUE,OUTPUT);
+
+	//enable 24V
+	pinMode(RELAY, OUTPUT);
+	digitalWrite(RELAY, LOW);
+	delay(500);
+	digitalWrite(RELAY, HIGH);
+
+	analogWrite(RED,127);
+	analogWrite(GREEN,127);
+	analogWrite(BLUE,127);//Turn printer White rgb
+	#endif
 
   tp_init();    // Initialize temperature loop
   plan_init();  // Initialize planner;

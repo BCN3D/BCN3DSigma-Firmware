@@ -812,7 +812,7 @@ void tp_init()
     setPwmFrequency(FAN_PIN, 1);
 	//Rapduch
 	#if MOTHERBOARD == 15
-	setPwmFrequency(FAN2_PIN,1); // No prescaling. Pwm frequency = F_CPU/256/8
+	//setPwmFrequency(FAN2_PIN,1); // No prescaling. Pwm frequency = F_CPU/256/8
 #endif
 	
     #endif
@@ -1274,7 +1274,9 @@ ISR(TIMER0_COMPB_vect)
   if(soft_pwm_fan < pwm_count){
 	  //Rapduch
 	  WRITE(FAN_PIN,0);
-	  WRITE(FAN2_PIN,0);
+	  #if MOTHERBOARD == BCN3D_BOARD
+		//WRITE(FAN2_PIN,0);
+	  #endif
 	  } 
   #endif
   

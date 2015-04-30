@@ -159,7 +159,7 @@
 
 #define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 1
-#define TEMP_SENSOR_2 1
+#define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_BED 1
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
@@ -236,17 +236,6 @@
 	#define  DEFAULT_Ki 2.12
 	#define  DEFAULT_Kd 62.98
 #endif
-   
-
-// MakerGear
-//    #define  DEFAULT_Kp 7.0
-//    #define  DEFAULT_Ki 0.1
-//    #define  DEFAULT_Kd 12
-
-// Mendel Parts V9 on 12V
-//    #define  DEFAULT_Kp 63.0
-//    #define  DEFAULT_Ki 2.25
-//    #define  DEFAULT_Kd 440
 #endif // PIDTEMP
 
 // Bed Temperature Control
@@ -292,13 +281,6 @@
    #define  DEFAULT_bedKi 44.23
    #define  DEFAULT_bedKd 370.78
 #endif
-
-//120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-//from pidautotune
-//    #define  DEFAULT_bedKp 97.1
-//    #define  DEFAULT_bedKi 1.41
-//    #define  DEFAULT_bedKd 1675.16
-
 // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
 
@@ -655,7 +637,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
 	
-	#define XY_SIGMA_TRAVEL_SPEED 8000
+	#if MOTHERBOARD == BCN3D_BOARD
+		#define XY_SIGMA_TRAVEL_SPEED 6000
+	#else
+		#define XY_SIGMA_TRAVEL_SPEED 8000	
+	#endif
 #endif
 
 #ifdef Z_SIGMA_AUTOLEVEL
@@ -762,7 +748,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define MANUAL_X_HOME_POS -32
 #define MANUAL_Y_HOME_POS Y_MAX_POS
 #define MANUAL_Z_HOME_POS Z_MIN_POS
-//#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
@@ -1046,11 +1031,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //defines used in the code
 #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
-
-
-
-
-
 
 
 #include "Configuration_adv.h"

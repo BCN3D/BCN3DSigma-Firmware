@@ -220,10 +220,10 @@
 //HEATED BED
 #define HEATER_BED_PIN	46
 //THERMISTORS
-#define TEMP_0_PIN		9//A9
-#define TEMP_1_PIN		8//A8
+#define TEMP_0_PIN		9//62//A9
+#define TEMP_1_PIN		8//63//A8
 #define TEMP_2_PIN		-1
-#define TEMP_BED_PIN	15//A15
+#define TEMP_BED_PIN	15//69//A15
 
 #define MLED			68//A14
 

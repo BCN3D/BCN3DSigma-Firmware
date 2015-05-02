@@ -386,9 +386,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define E_ENABLE_ON 0 // For all extruders
 
 // Disables axis when it's not being used.
-#define DISABLE_X false
-#define DISABLE_Y false
-#define DISABLE_Z false
+#define DISABLE_X true
+#define DISABLE_Y true
+#define DISABLE_Z true
 #define DISABLE_E false // For all extruders
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
@@ -407,7 +407,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
-#define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E1_DIR true    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 #endif
 
@@ -445,9 +445,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #if MOTHERBOARD == BCN3D_BOARD
 	#define X_MAX_POS 318 //Distance between extruders
 	#define X_MIN_POS 0
-	#define Y_MAX_POS 280
+	#define Y_MAX_POS 300
 	#define Y_MIN_POS 0
-	#define Z_MAX_POS 150
+	#define Z_MAX_POS 210
 	#define Z_MIN_POS 0
 #endif
 
@@ -638,7 +638,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
 	
 	#if MOTHERBOARD == BCN3D_BOARD
-		#define XY_SIGMA_TRAVEL_SPEED 6000
+		#define XY_SIGMA_TRAVEL_SPEED 8000
 	#else
 		#define XY_SIGMA_TRAVEL_SPEED 8000	
 	#endif
@@ -776,8 +776,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 #endif
 
-#define DEFAULT_MAX_FEEDRATE          {150, 150, 3.5, 50}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {500,500,25,25}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_MAX_FEEDRATE          {1500, 1500, 20, 100}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {1000,500,25,25}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 //#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
 //#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum star
 

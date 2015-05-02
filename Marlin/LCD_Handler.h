@@ -178,6 +178,8 @@ void myGenieEventHandler(void)
 						*c = tolower(*c);
 					}
 					enquecommand(cmd);
+					
+					is_on_printing_screen=true;//We are entering printing screen
 					enquecommand_P(PSTR("M24")); // It also sends you to PRINTING screen
 					
 					screen_status="Ready...";//Write the selected SD file to all strings
@@ -274,6 +276,7 @@ void myGenieEventHandler(void)
 			
 			else if (Event.reportObject.index == BUTTON_STOP_YES )
 			{
+				is_on_printing_screen=false;
 				card.sdprinting = false;
 				card.closefile();
 				
@@ -572,6 +575,8 @@ void myGenieEventHandler(void)
 			}
 			
 			
+			
+			
 			//Extruder Calibrations-------------------------------------------------
 			else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS)
 			{
@@ -724,7 +729,159 @@ void myGenieEventHandler(void)
 				//Now comes the correcting 
 				
 				
-			}				
+			}		
+			
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_UP )
+			{
+				char buffer[256];
+				int value=5;
+				if (feedmultiply<200)
+				{			
+					feedmultiply+=value;
+					sprintf(buffer, "%3d %%",feedmultiply);
+					genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_DOWN )
+			{
+				char buffer[256];
+				int value=5;
+				if (feedmultiply>50)
+				{
+					feedmultiply-=value;
+					sprintf(buffer, "%3d %%",feedmultiply);
+					genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ1_UP )
+			{
+				char buffer[256];
+				int value=5;
+				if (target_temperature[0]<HEATER_0_MAXTEMP)
+				{
+					target_temperature[0]+=value;
+					sprintf(buffer, "%3d",target_temperature[0]);
+					genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ1_DOWN )
+			{
+				char buffer[256];
+				int value=5;
+				if (target_temperature[0]>HEATER_0_MINTEMP)
+				{
+					target_temperature[0]-=value;
+					sprintf(buffer, "%3d",target_temperature[0]);
+					genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ2_UP )
+			{
+				char buffer[256];
+				int value=5;
+				if (target_temperature[1]<HEATER_1_MAXTEMP)
+				{
+					target_temperature[1]+=value;
+					sprintf(buffer, "%3d",target_temperature[1]);
+					genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ2_DOWN )
+			{
+				char buffer[256];
+				int value=5;
+				if (target_temperature[1]>HEATER_1_MINTEMP)
+				{
+					target_temperature[1]-=value;
+					sprintf(buffer, "%3d",target_temperature[1]);
+					genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_BED_UP )
+			{
+				char buffer[256];
+				int value=5;
+				//if (target_temperature_bed<BED_MAXTEMP)
+				if (target_temperature_bed<120)//MaxTemp
+				{
+					target_temperature_bed+=value;
+					sprintf(buffer, "%3d",target_temperature_bed);
+					genie.WriteStr(STRING_PRINT_SET_BED,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_BED_DOWN )
+			{
+				char buffer[256];
+				int value=5;
+				//if (target_temperature_bed>BED_MINTEMP)
+				if (target_temperature_bed>5)//Mintemp
+				{
+					target_temperature_bed-=value;
+					sprintf(buffer, "%3d",target_temperature_bed);
+					genie.WriteStr(STRING_PRINT_SET_BED,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SETTINGS )
+			{
+				//Rapduch
+				//Edit for final TouchScreen
+				char buffer[256];
+				int tHotend=target_temperature[0];
+				int tHotend1=target_temperature[1];
+				int tBed=target_temperature_bed;
+				
+				is_on_printing_screen=false;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_SETTINGS,0);
+				
+				sprintf(buffer, "%3d",tHotend);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
+				
+				sprintf(buffer, "%3d",tHotend1);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
+				
+				sprintf(buffer, "%3d",tBed);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_BED,buffer);
+				
+				sprintf(buffer, "%3d %%",feedmultiply);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
+				
+				
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK )
+			{
+				is_on_printing_screen=true;
+				int count = 12;
+				char buffer[count];
+				if (String(card.longFilename).length()>count){
+					for (int i = 0; i<count ; i++)
+					{
+						buffer[i]=card.longFilename[i];
+					}
+					buffer[count]='\0';
+					char* buffer2 = strcat(buffer,"...\0");
+					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+					}else{
+					genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+				}
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,1);
+			}
+			
+			
+					
 		}	
 		//USERBUTTONS------------------------------------------------------
 		
@@ -888,12 +1045,28 @@ void myGenieEventHandler(void)
 			
 			else if (Event.reportObject.index == FORM_PRINTING_SETTINGS)
 			{
-				////Rapduch
-				////Edit for final TouchScreen
-				//char buffer[256];
-				//sprintf(buffer, "% 3d",tHotend);
-				////Serial.println(buffer);
-				//genie.WriteStr(STRING_PRINTING_NOZZ1,buffer);
+				//Rapduch
+				//Edit for final TouchScreen
+				char buffer[256];
+				int tHotend=target_temperature[0];
+				int tHotend1=target_temperature[1];
+				int tBed=target_temperature_bed;
+				
+				sprintf(buffer, "%3d",tHotend);			
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
+				
+				sprintf(buffer, "%3d",tHotend1);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
+				
+				sprintf(buffer, "%3d",tBed);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_BED,buffer);
+				
+				sprintf(buffer, "%3d %%",feedmultiply);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
 			}
 		}
 	}

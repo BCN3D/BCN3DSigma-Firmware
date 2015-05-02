@@ -155,19 +155,6 @@ void myGenieEventHandler(void)
 					//genie.WriteObject(GENIE_OBJ_FORM,9,0); //Printing FORM
 					
 					//genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
-					
-					char buffer[25];
-					
-					if (String(card.longFilename).length()>21){
-						for (int i = 0; i<21 ; i++)
-						{
-							buffer[i]=card.longFilename[i];
-						}	
-						
-						char* buffer2 = strcat(buffer,"...\0");	
-						Serial.print("buffer out: ");
-						Serial.println(buffer2);
-					}
 									
 					char cmd[30];
 					char* c;
@@ -247,7 +234,7 @@ void myGenieEventHandler(void)
 					//Is a file
 					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 				}
-				int count = 20;
+				int count = 12;
 				char buffer[count];
 				if (String(card.longFilename).length()>count){
 					for (int i = 0; i<count ; i++)
@@ -402,13 +389,13 @@ void myGenieEventHandler(void)
 				if (value == 1) // Need to pause
 				{
 					card.pauseSDPrint();
-					genie.WriteStr(6,"Pausing...");
+					//genie.WriteStr(6,"Pausing...");
 					Serial.println("PAUSE!");
 				}else{
 					if(card.sdispaused)
 					{
 						card.startFileprint();
-						genie.WriteStr(6,"Printing...");
+						//genie.WriteStr(6,"Printing...");
 						Serial.println("RESUME!");
 					}else{
 						Serial.println("We have stopped");
@@ -907,7 +894,7 @@ void myGenieEventHandler(void)
 					genie.WriteStr(1,card.longFilename);
 					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
 				}else{
-					int count = 20;
+					int count = 12;
 					char buffer[count];
 					if (String(card.longFilename).length()>count){
 						for (int i = 0; i<count ; i++)

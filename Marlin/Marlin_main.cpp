@@ -681,9 +681,13 @@ void setup()
 	//pinMode(GREEN,OUTPUT);
 	//pinMode(BLUE,OUTPUT);
 
-	analogWrite(RED,177);
-	analogWrite(GREEN,177);
-	analogWrite(BLUE,127);//Turn printer Blue rgb
+	//analogWrite(RED,177);
+	//analogWrite(GREEN,177);
+	//analogWrite(BLUE,127);//Turn printer Blue rgb
+	
+	analogWrite(RED,255);
+	analogWrite(GREEN,255);
+	analogWrite(BLUE,255);
 	#endif
 	
 	#if MOTHERBOARD==MEGATRONICS_V3
@@ -908,7 +912,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				
 					*/
 					
-				waitPeriod=1000+millis();	//Every 1s
+				waitPeriod=10000+millis();	//Every 1s
 			}
 					
 		}else if (surfing_utilities)
@@ -2085,7 +2089,7 @@ void process_commands()
 		  	destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		  	destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		  	destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
-		  	feedrate = XY_SIGMA_TRAVEL_SPEED;
+		  	feedrate = SIGMA_Z_HOME_SPEED;
 		  	current_position[Z_AXIS] = 0;
 			SERIAL_ECHO("Z SIGMA Homed");
 			  
@@ -3561,6 +3565,7 @@ Sigma_Exit:
           }
         #endif //TEMP_RESIDENCY_TIME
         }
+		Serial.println("Extruder Heated");
         LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
         starttime=millis();
         previous_millis_cmd = millis();
@@ -3607,6 +3612,7 @@ Sigma_Exit:
 			  break; //Break if we are trying to heat when the fileprinting has been stopped and is not paused
 		  }
         }
+		Serial.println("Bed Heated");
         LCD_MESSAGEPGM(MSG_BED_DONE);
         previous_millis_cmd = millis();
     #endif

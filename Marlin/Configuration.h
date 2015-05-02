@@ -630,6 +630,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Z_SIGMA_HOME_X_POINT 56.5
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
+	#define SIGMA_Z_HOME_SPEED 6000
+	
 	//#define Z_SIGMA_HOME_SECOND_X_POINT 290
 	//#define Z_SIGMA_HOME_SECOND_Y_POINT 150
 	//#define Z_SIGMA_HOME_SECOND_X_POINT 200
@@ -638,7 +640,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
 	
 	#if MOTHERBOARD == BCN3D_BOARD
-		#define XY_SIGMA_TRAVEL_SPEED 8000
+		#define XY_SIGMA_TRAVEL_SPEED 7000
 	#else
 		#define XY_SIGMA_TRAVEL_SPEED 8000	
 	#endif
@@ -662,7 +664,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#if MOTHERBOARD == BCN3D_BOARD
 		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  19
 		#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
-		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5.3 //It is negative, it is compensated
+		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  0 //It is negative, it is compensated
 	#endif
 	
 	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-20
@@ -729,8 +731,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-		#define EXTRUDER_OFFSET_Y {0.0,  0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
-		#define EXTRUDER_OFFSET_Z {0.0 , 0.1}
+		#define EXTRUDER_OFFSET_Y {0.0,  0.0}  // (in mm) for each extruder, offset of the hotend on the Y axis
+		#define EXTRUDER_OFFSET_Z {0.0 , 0.0}
 #endif
 
 
@@ -751,7 +753,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+//#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {75*60, 75*60, 6*60, 0}
 
 // default settings if screen not defined
 #ifndef SIGMA_TOUCH_SCREEN

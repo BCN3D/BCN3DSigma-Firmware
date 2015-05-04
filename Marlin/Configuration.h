@@ -638,15 +638,17 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	//#define Z_SIGMA_HOME_SECOND_Y_POINT 160
 
 	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
+	#define Z_SIGMA_RAISE_AFTER_HOMING 2
 	
-	#if MOTHERBOARD == BCN3D_BOARD
-		#define XY_SIGMA_TRAVEL_SPEED 7000
-	#else
-		#define XY_SIGMA_TRAVEL_SPEED 8000	
-	#endif
 #endif
 
 #ifdef Z_SIGMA_AUTOLEVEL
+
+	#if MOTHERBOARD == BCN3D_BOARD
+	#define XY_SIGMA_TRAVEL_SPEED 7000
+	#else
+	#define XY_SIGMA_TRAVEL_SPEED 8000
+	#endif
 
 	#if MOTHERBOARD == MEGATRONICS_V3
 		#ifdef PROTO1

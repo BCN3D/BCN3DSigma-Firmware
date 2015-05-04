@@ -912,7 +912,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				
 					*/
 					
-				waitPeriod=10000+millis();	//Every 1s
+				waitPeriod=5000+millis();	//Every 5s
 			}
 					
 		}else if (surfing_utilities)
@@ -1355,59 +1355,10 @@ static void axis_is_at_home(int axis) {
     }
   }
 #endif
-#ifdef SCARA
-   float homeposition[3];
-   char i;
-   
-   if (axis < 2)
-   {
-   
-     for (i=0; i<3; i++)
-     {
-        homeposition[i] = base_home_pos(i); 
-     }  
-	// SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
-   //  SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
-   // Works out real Homeposition angles using inverse kinematics, 
-   // and calculates homing offset using forward kinematics
-     calculate_delta(homeposition);
-     
-    // SERIAL_ECHOPGM("base Theta= "); SERIAL_ECHO(delta[X_AXIS]);
-    // SERIAL_ECHOPGM(" base Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
-     
-     for (i=0; i<2; i++)
-     {
-        delta[i] -= add_homing[i];
-     } 
-     
-    // SERIAL_ECHOPGM("addhome X="); SERIAL_ECHO(add_homing[X_AXIS]);
-	// SERIAL_ECHOPGM(" addhome Y="); SERIAL_ECHO(add_homing[Y_AXIS]);
-    // SERIAL_ECHOPGM(" addhome Theta="); SERIAL_ECHO(delta[X_AXIS]);
-    // SERIAL_ECHOPGM(" addhome Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
-      
-     calculate_SCARA_forward_Transform(delta);
-     
-    // SERIAL_ECHOPGM("Delta X="); SERIAL_ECHO(delta[X_AXIS]);
-    // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
-     
-    current_position[axis] = delta[axis];
-    
-    // SCARA home positions are based on configuration since the actual limits are determined by the 
-    // inverse kinematic transform.
-    min_pos[axis] =          base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
-    max_pos[axis] =          base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
-   } 
-   else
-   {
-      current_position[axis] = base_home_pos(axis) + add_homing[axis];
-      min_pos[axis] =          base_min_pos(axis) + add_homing[axis];
-      max_pos[axis] =          base_max_pos(axis) + add_homing[axis];
-   }
-#else
   current_position[axis] = base_home_pos(axis) + add_homing[axis];
   min_pos[axis] =          base_min_pos(axis) + add_homing[axis];
   max_pos[axis] =          base_max_pos(axis) + add_homing[axis];
-#endif
+
 }
 
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -1973,11 +1924,17 @@ void process_commands()
       #endif //FWRETRACT
     
 	
-	case 28: //G28 Home all Axis one at a time
+	case 28: { //G28 Home all Axis one at a time
 #ifdef ENABLE_AUTO_BED_LEVELING
       plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 #endif //ENABLE_AUTO_BED_LEVELING
 
+		#ifdef Z_SIGMA_HOME
+		int saved_active_extruder = active_extruder;
+		Serial.print("Extruder active: ");
+		Serial.println(saved_active_extruder);
+		#endif
+		
       saved_feedrate = feedrate;
       saved_feedmultiply = feedmultiply;
       feedmultiply = 100;
@@ -2049,6 +2006,12 @@ void process_commands()
       if((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) // First do X
       {
       #ifdef DUAL_X_CARRIAGE
+		#ifdef Z_SIGMA_HOME
+			if(saved_active_extruder == RIGHT_EXTRUDER)
+			{
+				//active_extruder=LEFT_EXTRUDER; //Always use the same routine (left extruder probes)
+			}
+			#endif
         int tmp_extruder = active_extruder;
         extruder_duplication_enabled = false;
         active_extruder = !active_extruder;
@@ -2086,20 +2049,28 @@ void process_commands()
 	  //Rapduch
 	  #ifdef Z_SIGMA_HOME
 	  	if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+			  
+			  
+			  if (saved_active_extruder == RIGHT_EXTRUDER){
+				  active_extruder=LEFT_EXTRUDER;
+				  axis_is_at_home(X_AXIS);
+				  plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+			  }
+		  
 		  	destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		  	destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		  	destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
 		  	feedrate = SIGMA_Z_HOME_TRAVEL_SPEED;
-		  	current_position[Z_AXIS] = 0;
-			SERIAL_ECHO("Z SIGMA Homed");
+		  	current_position[Z_AXIS] = 0;	  
 			  
 		  	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-		  	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+		  	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);//Left Extruder
 		  	st_synchronize();
 		  	current_position[X_AXIS] = destination[X_AXIS];
 		  	current_position[Y_AXIS] = destination[Y_AXIS];
 		  	HOMEAXIS(Z);
-
+			  
+			Serial.println("Z SIGMA Homed");
 			//At this point our probe is homed, no offset is added.
 
 			//Now lets home with the second extruder: 
@@ -2187,16 +2158,17 @@ void process_commands()
           current_position[Z_AXIS]=code_value()+add_homing[2];
         }
       }
-      #ifdef ENABLE_AUTO_BED_LEVELING  //ADDING the Z offset
-        //if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-          //current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
-        //}
-      #endif
-
+      
 		#ifdef Z_SIGMA_HOME
 		if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
 			current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
 		}
+		#else
+			#ifdef ENABLE_AUTO_BED_LEVELING  //ADDING the Z offset
+			//if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+			//current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
+			//}
+			#endif
 		#endif
 
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -2212,14 +2184,30 @@ void process_commands()
 
 
 	  #ifdef Z_SIGMA_HOME  //This to return the left extruder at Xhome position
-		if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {	
+		if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+			
+			
+			
+			feedrate = homing_feedrate[Z_AXIS];
+			current_position[Z_AXIS]+=Z_SIGMA_RAISE_AFTER_HOMING;
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);	
 			current_position[X_AXIS] = x_home_pos(active_extruder);
 			feedrate = homing_feedrate[X_AXIS];
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 			current_position[Z_AXIS] = 0;
 			feedrate = homing_feedrate[Z_AXIS];
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-			st_synchronize();	
+			st_synchronize();
+			
+			if(saved_active_extruder==RIGHT_EXTRUDER)
+			{
+				active_extruder=saved_active_extruder;//Return to the correct extruder
+				Serial.print("Extruder released active: ");
+				Serial.println(saved_active_extruder);
+				axis_is_at_home(X_AXIS);
+				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+			}
+			
 			
 			////Activate Probing sequence			
 			//setup_for_endstop_move();
@@ -2231,7 +2219,7 @@ void process_commands()
 		}
 	  #endif
 
-      break;
+   }break;
 
 
 //Rapduch for RepRapBCN Sigma
@@ -4845,7 +4833,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       #if EXTRUDERS > 1
       if(tmp_extruder != active_extruder) {
         // Save current position to return to after applying extruder offset
-		//Rapduch
+		//Rapduch toolchange
 		z_restaurada = current_position[Z_AXIS]; //Save the Z position that will be restored after changing tool
         memcpy(destination, current_position, sizeof(destination));
       #ifdef DUAL_X_CARRIAGE

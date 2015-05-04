@@ -270,6 +270,8 @@ void myGenieEventHandler(void)
 				//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
 				quickStop();
 				
+				enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
+				
 				if(SD_FINISHED_STEPPERRELEASE)
 				{
 					enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
@@ -280,7 +282,10 @@ void myGenieEventHandler(void)
 				//setTargetHotend2(0);
 				//setTargetBed(0);
 				card.sdispaused = false;	
-				cancel_heatup = true;				
+				cancel_heatup = true;	
+				
+				
+							
 				//Rapduch
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);			
 			}

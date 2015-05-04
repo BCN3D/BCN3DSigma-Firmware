@@ -505,8 +505,22 @@ void check_axes_activity()
   #ifdef FAN_SOFT_PWM
   fanSpeedSoftPwm = tail_fan_speed;
   #else
-  analogWrite(FAN_PIN,tail_fan_speed);
-  analogWrite(FAN2_PIN,tail_fan_speed);
+  
+  //Rapduch
+  #if MOTHERBOARD == BCN3D_BOARD
+	if (active_extruder == LEFT_EXTRUDER){
+		analogWrite(FAN_PIN,tail_fan_speed);
+		analogWrite(FAN2_PIN,0);
+	}else if (active_extruder == RIGHT_EXTRUDER){ 
+		analogWrite(FAN_PIN,0);
+		analogWrite(FAN2_PIN,tail_fan_speed);
+	}
+	//analogWrite(FAN_PIN,tail_fan_speed);
+	//analogWrite(FAN2_PIN,tail_fan_speed);
+  #else
+	analogWrite(FAN_PIN,tail_fan_speed);
+  #endif
+  
   #endif//!FAN_SOFT_PWM
 #endif//FAN_PIN > -1
 #ifdef AUTOTEMP

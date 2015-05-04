@@ -159,7 +159,7 @@
 
 #define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 1
-#define TEMP_SENSOR_2 1
+#define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_BED 1
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
@@ -236,17 +236,6 @@
 	#define  DEFAULT_Ki 2.12
 	#define  DEFAULT_Kd 62.98
 #endif
-   
-
-// MakerGear
-//    #define  DEFAULT_Kp 7.0
-//    #define  DEFAULT_Ki 0.1
-//    #define  DEFAULT_Kd 12
-
-// Mendel Parts V9 on 12V
-//    #define  DEFAULT_Kp 63.0
-//    #define  DEFAULT_Ki 2.25
-//    #define  DEFAULT_Kd 440
 #endif // PIDTEMP
 
 // Bed Temperature Control
@@ -292,13 +281,6 @@
    #define  DEFAULT_bedKi 44.23
    #define  DEFAULT_bedKd 370.78
 #endif
-
-//120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-//from pidautotune
-//    #define  DEFAULT_bedKp 97.1
-//    #define  DEFAULT_bedKi 1.41
-//    #define  DEFAULT_bedKd 1675.16
-
 // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
 
@@ -404,22 +386,34 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define E_ENABLE_ON 0 // For all extruders
 
 // Disables axis when it's not being used.
-#define DISABLE_X false
-#define DISABLE_Y false
-#define DISABLE_Z false
+#define DISABLE_X true
+#define DISABLE_Y true
+#define DISABLE_Z true
 #define DISABLE_E false // For all extruders
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
+
+#if MOTHERBOARD == MEGATRONICS_V3
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR false     // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+#endif
+
+#if MOTHERBOARD == BCN3D_BOARD
+#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
+#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
+#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
+#define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E1_DIR true    // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+#endif
 
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
-#define X_HOME_DIR -1 //Homing fow dual x
+#define X_HOME_DIR -1 //Homing for dual x
 #define Y_HOME_DIR  1
 #define Z_HOME_DIR -1
 
@@ -451,9 +445,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #if MOTHERBOARD == BCN3D_BOARD
 	#define X_MAX_POS 318 //Distance between extruders
 	#define X_MIN_POS 0
-	#define Y_MAX_POS 280
+	#define Y_MAX_POS 300
 	#define Y_MIN_POS 0
-	#define Z_MAX_POS 150
+	#define Z_MAX_POS 210
 	#define Z_MIN_POS 0
 #endif
 
@@ -636,6 +630,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Z_SIGMA_HOME_X_POINT 56.5
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
+	#define SIGMA_Z_HOME_SPEED 6000
+	
 	//#define Z_SIGMA_HOME_SECOND_X_POINT 290
 	//#define Z_SIGMA_HOME_SECOND_Y_POINT 150
 	//#define Z_SIGMA_HOME_SECOND_X_POINT 200
@@ -643,7 +639,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
 	
-	#define XY_SIGMA_TRAVEL_SPEED 8000
+	#if MOTHERBOARD == BCN3D_BOARD
+		#define XY_SIGMA_TRAVEL_SPEED 7000
+	#else
+		#define XY_SIGMA_TRAVEL_SPEED 8000	
+	#endif
 #endif
 
 #ifdef Z_SIGMA_AUTOLEVEL
@@ -664,7 +664,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#if MOTHERBOARD == BCN3D_BOARD
 		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  19
 		#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
-		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5.3 //It is negative, it is compensated
+		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  0 //It is negative, it is compensated
 	#endif
 	
 	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-20
@@ -731,8 +731,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-		#define EXTRUDER_OFFSET_Y {0.0,  0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
-		#define EXTRUDER_OFFSET_Z {0.0 , 0.1}
+		#define EXTRUDER_OFFSET_Y {0.0,  0.0}  // (in mm) for each extruder, offset of the hotend on the Y axis
+		#define EXTRUDER_OFFSET_Z {0.0 , 0.0}
 #endif
 
 
@@ -750,11 +750,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define MANUAL_X_HOME_POS -32
 #define MANUAL_Y_HOME_POS Y_MAX_POS
 #define MANUAL_Z_HOME_POS Z_MIN_POS
-//#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+//#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {75*60, 75*60, 6*60, 0}
 
 // default settings if screen not defined
 #ifndef SIGMA_TOUCH_SCREEN
@@ -763,7 +763,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
 #if MOTHERBOARD == BCN3D_BOARD
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/32 microstepping for BCN3D Board
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/8 microstepping for BCN3D Board
+ #define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,51}
 #else
 	#if MOTHERBOARD == MEGATRONICS_V3
 	#ifdef PROTO1
@@ -778,11 +779,15 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 #endif
 
-#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_MAX_FEEDRATE          {1500, 1500, 20, 100}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {1000,500,25,25}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+//#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
+//#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum star
 
-#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+#define DEFAULT_ACCELERATION          200    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  1000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+//#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+//#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
@@ -1029,11 +1034,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //defines used in the code
 #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
-
-
-
-
-
 
 
 #include "Configuration_adv.h"

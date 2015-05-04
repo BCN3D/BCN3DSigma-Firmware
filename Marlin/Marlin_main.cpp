@@ -218,11 +218,13 @@ CardReader card;
 //Rapduch
 #ifdef SIGMA_TOUCH_SCREEN
 	bool surfing_utilities = false;
+	bool is_on_printing_screen = false;
 	uint16_t filepointer = 0;
 	String screen_status = "Printing...";
 	uint8_t which_extruder=0;
 	char filament_mode='O';
 	bool is_changing_filament=false;
+	String currentSDFileName;
 #endif
 
 #ifndef SIGMA_TOUCH_SCREEN
@@ -385,7 +387,6 @@ static float delta[3] = {0.0, 0.0, 0.0};
 
 //Rapduch
 float z_restaurada;
-
 
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
@@ -576,30 +577,7 @@ void servo_init()
 
 
 void setup()
-{
-	#if MOTHERBOARD==BCN3D_BOARD //BCNElectronics v1
-		//pinMode(RED,OUTPUT);
-		//pinMode(GREEN,OUTPUT);
-		//pinMode(BLUE,OUTPUT);
-	
-		//enable 24V
-		pinMode(RELAY, OUTPUT);
-		digitalWrite(RELAY, LOW);
-		delay(500);
-		digitalWrite(RELAY, HIGH);
-	
-		analogWrite(RED,127);
-		analogWrite(GREEN,127);
-		analogWrite(BLUE,127);//Turn printer White rgb
-	#endif
-		
-		
-	#if MOTHERBOARD==MEGATRONICS_V3
-		//pinMode(Z2_MIN_PIN,INPUT);	
-		//ITS SET on st_init();
-	#endif
-		
-		
+{	
   setup_killpin();
   setup_powerhold();
   
@@ -627,7 +605,7 @@ void setup()
     delay(100);
     digitalWrite(RESETLINE, 1);  // unReset the Display
     delay(3500); //showing the splash screen
-    //delay(1000);
+    delay(1000);
     genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
     //Turn the Display on (Contrast) - (Not needed but illustrates how)
     //genie.WriteContrast(1);
@@ -689,6 +667,35 @@ void setup()
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
 
+
+	//Enabling RELE ( Stepper Drivers Power )
+	#if MOTHERBOARD==BCN3D_BOARD //BCNElectronics v1
+	//enable 24V
+	pinMode(RELAY, OUTPUT);
+	digitalWrite(RELAY, LOW);
+	delay(500);
+	digitalWrite(RELAY, HIGH);
+	delay(50);
+	
+	//pinMode(RED,OUTPUT);
+	//pinMode(GREEN,OUTPUT);
+	//pinMode(BLUE,OUTPUT);
+
+	//analogWrite(RED,177);
+	//analogWrite(GREEN,177);
+	//analogWrite(BLUE,127);//Turn printer Blue rgb
+	
+	analogWrite(RED,255);
+	analogWrite(GREEN,255);
+	analogWrite(BLUE,255);
+	#endif
+	
+	#if MOTHERBOARD==MEGATRONICS_V3
+	//pinMode(Z2_MIN_PIN,INPUT);
+	//ITS SET on st_init();
+	#endif
+
+
   tp_init();    // Initialize temperature loop
   plan_init();  // Initialize planner;
   watchdog_init();
@@ -698,9 +705,8 @@ void setup()
 
   //lcd_init();
   #if MOTHERBOARD == BCN3D_BOARD
-  _delay_ms(1000);   // wait 1sec to display the splash screen
+  //_delay_ms(1000);   // wait 1sec to display the splash screen
   #endif
-  //_delay_ms(1000);	// wait 1sec to display the splash screen
 
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
@@ -726,17 +732,11 @@ void setup()
 	//enquecommand(cmd);
 	//enquecommand_P(PSTR("M24"));
 #endif
-
-
-
-
-
 }
 
 
 void loop()
 {
-	
   if(buflen < (BUFSIZE-1))
     get_command();
   #ifdef SDSUPPORT
@@ -782,21 +782,17 @@ void loop()
   
   //lcd_update();
   #ifdef SIGMA_TOUCH_SCREEN
-  touchscreen_update();
+	touchscreen_update();
   #endif
   
+//#ifndef SIGMA_TOUCH_SCREEN //JUST PRINT FIRST GCODE ON SD
+//if (firstime)
+//{
+	//SD_firstPrint();
+	//firstime=false;
+//}
+//#endif
   
-  
-	//#ifndef SIGMA_TOUCH_SCREEN //JUST PRINT FIRST GCODE ON SD
-	//if (firstime)
-	//{
-		//SD_firstPrint();
-		//firstime=false;
-	//}
-	//#endif
-  
-  
-  //genie.DoEvents();
 }
 
 void SD_firstPrint (){	
@@ -821,28 +817,56 @@ int getBuflen ()
 
 #ifdef SIGMA_TOUCH_SCREEN
 //Rapduch
-void touchscreen_update()
+void touchscreen_update() //Updates the Serial Communications with the screen
 {
 	//static keyword specifies that the variable retains its state between calls to the function
 	static uint32_t waitPeriod = millis();
 
+	//if(card.sdprinting && is_on_printing_screen)
 	if(card.sdprinting)
 	{
-		uint16_t time = millis()/60000 - starttime/60000;
-		uint32_t time2 = millis()/60000-starttime/60000;
-		int tHotend=int(degHotend(0));
-		int tHotend1=int(degHotend(1));
-		int tBed=int(degBed() + 0.5);
-		
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,3, tHotend);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,7, tHotend1);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,6, tBed);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,5,(time%60));
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS,4,(time/60));
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,3, tHotend);
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,7, tHotend1);
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,6, tBed);
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,5,(time%60));
+		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,4,(time/60));
 		
 		if (millis() >= waitPeriod)
 			{		
-					/*		
+				
+				//uint16_t time = millis()/60000 - starttime/60000;
+				//uint32_t time2 = millis()/60000-starttime/60000;
+				int tHotend=int(degHotend(0));
+				int tHotend1=int(degHotend(1));
+				int tBed=int(degBed() + 0.5);
+				
+				//Rapduch
+				//Edit for final TouchScreen
+				char buffer[256];
+				sprintf(buffer, "% 3d",tHotend);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_NOZZ1,buffer);
+				
+				sprintf(buffer, "% 3d",tHotend1);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_NOZZ2,buffer);
+				
+				sprintf(buffer, "% 2d",tBed);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_BED,buffer);
+				
+				sprintf(buffer, "% 3d %%",card.percentDone());
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_PERCENT,buffer);
+				
+				sprintf(buffer, "% 3d %%",feedmultiply);
+				//Serial.println(buffer);
+				genie.WriteStr(STRINGS_PRINTING_FEED,buffer);
+				
+				//genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+				//genie.WriteStr(6,"Ready");
+				
+					/*	TRYING TO GET THE TIME LEFT	
 				static uint32_t lastSDPosition=0; 
 				Serial.println("");
 				Serial.print("Size");
@@ -888,7 +912,7 @@ void touchscreen_update()
 				
 					*/
 					
-				waitPeriod=10000+millis();	//Every 10s
+				waitPeriod=10000+millis();	//Every 1s
 			}
 					
 		}else if (surfing_utilities)
@@ -1042,16 +1066,12 @@ void touchscreen_update()
 			}				
 	}else
 	{
-		//Do always
-		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,8, tHotend);
-		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,9, 0);
-		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,10, tBed);
+		//Do always...
+		
 	}
-	//}
 	//waitPeriod=250+millis();
-	genie.DoEvents();
+	genie.DoEvents(); //Processes the TouchScreen Queued Events
 }
-
 #endif //SIGMA TOUCHSCREEN
 
 void get_command()
@@ -2069,7 +2089,7 @@ void process_commands()
 		  	destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		  	destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		  	destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
-		  	feedrate = XY_SIGMA_TRAVEL_SPEED;
+		  	feedrate = SIGMA_Z_HOME_SPEED;
 		  	current_position[Z_AXIS] = 0;
 			SERIAL_ECHO("Z SIGMA Homed");
 			  
@@ -2937,7 +2957,28 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
       starttime=millis();
 	  //Rapduch
 	  #ifdef SIGMA_TOUCH_SCREEN
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);		  
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+		char buffer[13];
+		if (String(card.longFilename).length()>12){
+			for (int i = 0; i<12 ; i++)
+			{
+				buffer[i]=card.longFilename[i];
+			}
+			buffer[12]='\0';		
+			char* buffer2 = strcat(buffer,"...\0");
+			Serial.print("Card Name: ");
+			Serial.println(card.longFilename);
+			Serial.print("Buffer1: ");
+			Serial.println(buffer);
+			Serial.print("buffer out: ");
+			Serial.println(buffer2);
+			genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+		}else{
+			genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+		}
+		
+		//Serial.println((char*)prepareString(card.longFilename,12));		
+		//genie.WriteStr(6,"Ready");		  
 	#endif
       break;
     case 25: //M25 - Pause SD print
@@ -3524,6 +3565,7 @@ Sigma_Exit:
           }
         #endif //TEMP_RESIDENCY_TIME
         }
+		Serial.println("Extruder Heated");
         LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
         starttime=millis();
         previous_millis_cmd = millis();
@@ -3570,6 +3612,7 @@ Sigma_Exit:
 			  break; //Break if we are trying to heat when the fileprinting has been stopped and is not paused
 		  }
         }
+		Serial.println("Bed Heated");
         LCD_MESSAGEPGM(MSG_BED_DONE);
         previous_millis_cmd = millis();
     #endif

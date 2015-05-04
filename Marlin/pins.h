@@ -143,7 +143,7 @@
 
 //------------------------------
 
-//////////////////RepRapBCN Electronics V1.0/////////////////////
+//////////////////RepRapBCN Electronics Rev.C/////////////////////
 //------------------------------
 #if MOTHERBOARD == BCN3D_BOARD 
 
@@ -161,9 +161,14 @@
 #define RESETLINE		9
 #define AUTOLEVELPIN	8
 
-#define X_STEP_PIN		73//76 
-#define X_DIR_PIN		76//73
-#define X_ENABLE_PIN	75//75
+//We have inverted the X X2 in BCN3D rev...
+#define X_ENABLE_PIN	2
+#define X_STEP_PIN		5
+#define X_DIR_PIN		3
+
+#define X2_STEP_PIN		73//76 
+#define X2_DIR_PIN		76//73
+#define X2_ENABLE_PIN	75//75
 
 #define X_MIN_PIN		77 //Minim endstop
 #define X_MAX_PIN		79 //Max endstop per 2n extrusor
@@ -215,10 +220,10 @@
 //HEATED BED
 #define HEATER_BED_PIN	46
 //THERMISTORS
-#define TEMP_0_PIN		9//A9
-#define TEMP_1_PIN		8//A8
+#define TEMP_0_PIN		9//62//A9
+#define TEMP_1_PIN		8//63//A8
 #define TEMP_2_PIN		-1
-#define TEMP_BED_PIN	15//A15
+#define TEMP_BED_PIN	15//69//A15
 
 #define MLED			68//A14
 

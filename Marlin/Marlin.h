@@ -275,6 +275,7 @@ extern uint16_t filepointer;
 extern String screen_status;
 //Rapduch
 extern bool surfing_utilities;
+extern bool is_on_printing_screen;
 extern uint8_t which_extruder;
 extern char filament_mode;
 extern bool is_changing_filament;

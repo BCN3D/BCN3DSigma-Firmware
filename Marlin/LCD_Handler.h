@@ -1,8 +1,8 @@
 /*
  * LCD_Handler.h
- *A place to hold all interactions between LCD and printer. It is called from Marlin_main.cpp
+ * A place to hold all interactions between LCD and printer. It is called from Marlin_main.cpp
  * Created: 12/12/2014 12:48:04
- *  Author: jcalduch
+ * Author: Jordi Calduch (Dryrain)
  */ 
 
 #ifdef SIGMA_TOUCH_SCREEN
@@ -154,9 +154,8 @@ void myGenieEventHandler(void)
 					//genie.WriteObject(GENIE_OBJ_FORM,FORM_START_PRINT,0);
 					//genie.WriteObject(GENIE_OBJ_FORM,9,0); //Printing FORM
 					
-					
+					//genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
 									
-					genie.WriteStr(2,card.longFilename);//Printing form
 					char cmd[30];
 					char* c;
 					card.getfilename(filepointer);
@@ -166,14 +165,20 @@ void myGenieEventHandler(void)
 						*c = tolower(*c);
 					}
 					enquecommand(cmd);
+					
+					is_on_printing_screen=true;//We are entering printing screen
 					enquecommand_P(PSTR("M24")); // It also sends you to PRINTING screen
 					
 					screen_status="Ready...";//Write the selected SD file to all strings
-					genie.WriteStr(8,"Ready...");
-					genie.WriteStr(7,card.longFilename);
+					//genie.WriteStr(8,"Ready...");
+					//genie.WriteStr(7,card.longFilename);
 					//Reset Time LEDs
-					genie.WriteObject(GENIE_OBJ_LED_DIGITS,12,0);
-					genie.WriteObject(GENIE_OBJ_LED_DIGITS,11,0);
+					
+					//genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+					//genie.WriteStr(6,"Ready");
+					
+					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,12,0);
+					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,11,0);
 					
 					//StartPrint form
 					//genie.WriteStr(2,card.longFilename);//Printing form
@@ -229,7 +234,20 @@ void myGenieEventHandler(void)
 					//Is a file
 					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 				}
-				genie.WriteStr(1,card.longFilename); //Keep in mind to control the length of the string displayed!
+				int count = 12;
+				char buffer[count];
+				if (String(card.longFilename).length()>count){
+					for (int i = 0; i<count ; i++)
+					{
+						buffer[i]=card.longFilename[i];
+					}
+					buffer[count]='\0';
+					char* buffer2 = strcat(buffer,"...\0");
+					genie.WriteStr(1,buffer2);//Printing form
+				}else{
+					genie.WriteStr(1,card.longFilename);//Printing form
+				}
+				//Keep in mind to control the length of the string displayed!
 				//genie.WriteStr(2,card.longFilename);
 				Serial.print("Image n: ");
 				Serial.println(filepointer);
@@ -245,6 +263,7 @@ void myGenieEventHandler(void)
 			
 			else if (Event.reportObject.index == BUTTON_STOP_YES )
 			{
+				is_on_printing_screen=false;
 				card.sdprinting = false;
 				card.closefile();
 				
@@ -341,7 +360,7 @@ void myGenieEventHandler(void)
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 					//Restore Strings after form update
 					genie.WriteStr(2,card.longFilename);
-					genie.WriteStr(6,buffer);
+					//genie.WriteStr(6,buffer);
 				}else
 				{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_START_PRINT,0);
@@ -370,13 +389,13 @@ void myGenieEventHandler(void)
 				if (value == 1) // Need to pause
 				{
 					card.pauseSDPrint();
-					genie.WriteStr(6,"Pausing...");
+					//genie.WriteStr(6,"Pausing...");
 					Serial.println("PAUSE!");
 				}else{
 					if(card.sdispaused)
 					{
 						card.startFileprint();
-						genie.WriteStr(6,"Printing...");
+						//genie.WriteStr(6,"Printing...");
 						Serial.println("RESUME!");
 					}else{
 						Serial.println("We have stopped");
@@ -543,6 +562,8 @@ void myGenieEventHandler(void)
 			}
 			
 			
+			
+			
 			//Extruder Calibrations-------------------------------------------------
 			else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS)
 			{
@@ -695,7 +716,159 @@ void myGenieEventHandler(void)
 				//Now comes the correcting 
 				
 				
-			}				
+			}		
+			
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_UP )
+			{
+				char buffer[256];
+				int value=5;
+				if (feedmultiply<200)
+				{			
+					feedmultiply+=value;
+					sprintf(buffer, "%3d %%",feedmultiply);
+					genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_DOWN )
+			{
+				char buffer[256];
+				int value=5;
+				if (feedmultiply>50)
+				{
+					feedmultiply-=value;
+					sprintf(buffer, "%3d %%",feedmultiply);
+					genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ1_UP )
+			{
+				char buffer[256];
+				int value=5;
+				if (target_temperature[0]<HEATER_0_MAXTEMP)
+				{
+					target_temperature[0]+=value;
+					sprintf(buffer, "%3d",target_temperature[0]);
+					genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ1_DOWN )
+			{
+				char buffer[256];
+				int value=5;
+				if (target_temperature[0]>HEATER_0_MINTEMP)
+				{
+					target_temperature[0]-=value;
+					sprintf(buffer, "%3d",target_temperature[0]);
+					genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ2_UP )
+			{
+				char buffer[256];
+				int value=5;
+				if (target_temperature[1]<HEATER_1_MAXTEMP)
+				{
+					target_temperature[1]+=value;
+					sprintf(buffer, "%3d",target_temperature[1]);
+					genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ2_DOWN )
+			{
+				char buffer[256];
+				int value=5;
+				if (target_temperature[1]>HEATER_1_MINTEMP)
+				{
+					target_temperature[1]-=value;
+					sprintf(buffer, "%3d",target_temperature[1]);
+					genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_BED_UP )
+			{
+				char buffer[256];
+				int value=5;
+				//if (target_temperature_bed<BED_MAXTEMP)
+				if (target_temperature_bed<120)//MaxTemp
+				{
+					target_temperature_bed+=value;
+					sprintf(buffer, "%3d",target_temperature_bed);
+					genie.WriteStr(STRING_PRINT_SET_BED,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_BED_DOWN )
+			{
+				char buffer[256];
+				int value=5;
+				//if (target_temperature_bed>BED_MINTEMP)
+				if (target_temperature_bed>5)//Mintemp
+				{
+					target_temperature_bed-=value;
+					sprintf(buffer, "%3d",target_temperature_bed);
+					genie.WriteStr(STRING_PRINT_SET_BED,buffer);
+				}
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SETTINGS )
+			{
+				//Rapduch
+				//Edit for final TouchScreen
+				char buffer[256];
+				int tHotend=target_temperature[0];
+				int tHotend1=target_temperature[1];
+				int tBed=target_temperature_bed;
+				
+				is_on_printing_screen=false;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_SETTINGS,0);
+				
+				sprintf(buffer, "%3d",tHotend);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
+				
+				sprintf(buffer, "%3d",tHotend1);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
+				
+				sprintf(buffer, "%3d",tBed);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_BED,buffer);
+				
+				sprintf(buffer, "%3d %%",feedmultiply);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
+				
+				
+			}
+			
+			else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK )
+			{
+				is_on_printing_screen=true;
+				int count = 12;
+				char buffer[count];
+				if (String(card.longFilename).length()>count){
+					for (int i = 0; i<count ; i++)
+					{
+						buffer[i]=card.longFilename[i];
+					}
+					buffer[count]='\0';
+					char* buffer2 = strcat(buffer,"...\0");
+					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+					}else{
+					genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+				}
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,1);
+			}
+			
+			
+					
 		}	
 		//USERBUTTONS------------------------------------------------------
 		
@@ -720,9 +893,21 @@ void myGenieEventHandler(void)
 					//Is a folder
 					genie.WriteStr(1,card.longFilename);
 					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+				}else{
+					int count = 12;
+					char buffer[count];
+					if (String(card.longFilename).length()>count){
+						for (int i = 0; i<count ; i++)
+						{
+							buffer[i]=card.longFilename[i];
+						}
+						buffer[count]='\0';
+						char* buffer2 = strcat(buffer,"...\0");
+						genie.WriteStr(1,buffer2);//Printing form
 					}else{
+						genie.WriteStr(1,card.longFilename);//Printing form
+					}
 					//Is a file
-					genie.WriteStr(1,card.longFilename);
 					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 				}
 			}
@@ -787,6 +972,21 @@ void myGenieEventHandler(void)
 			{
 				//Restart the preheat buttons
 				genie.WriteObject(GENIE_OBJ_USERIMAGES,BUTTON_PREHEAT_PLA,0);
+				
+				int count = 12;
+				char buffer[count];
+				if (String(card.longFilename).length()>count){
+					for (int i = 0; i<count ; i++)
+					{
+						buffer[i]=card.longFilename[i];
+					}
+					buffer[count]='\0';
+					char* buffer2 = strcat(buffer,"...\0");
+					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+					}else{
+					genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+				}
+				
 				//genie.WriteStr(2,card.longFilename);
 				//genie.WriteStr(6,"Printing...");
 			}
@@ -829,12 +1029,64 @@ void myGenieEventHandler(void)
 				//setTargetHotend0(ABS_PREHEAT_HOTEND_TEMP);
 				//setTargetHotend1(ABS_PREHEAT_HOTEND_TEMP);
 			}	
+			
+			else if (Event.reportObject.index == FORM_PRINTING_SETTINGS)
+			{
+				//Rapduch
+				//Edit for final TouchScreen
+				char buffer[256];
+				int tHotend=target_temperature[0];
+				int tHotend1=target_temperature[1];
+				int tBed=target_temperature_bed;
+				
+				sprintf(buffer, "%3d",tHotend);			
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
+				
+				sprintf(buffer, "%3d",tHotend1);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
+				
+				sprintf(buffer, "%3d",tBed);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_BED,buffer);
+				
+				sprintf(buffer, "%3d %%",feedmultiply);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
+			}
 		}
 	}
 }
 
 
 
+char* prepareString(char* text, int len){
+	Serial.print("Text: ");
+	Serial.println(text);
+	if (String(text).length()>12){
+		char buffer[len+1];
+		for (int i = 0; i<len ; i++)
+		{
+			buffer[i]=card.longFilename[i];
+		}
+		buffer[len]='\0';
+		Serial.print("Buffer temp: ");
+		Serial.println(buffer);
+		char* buffer2 = strcat(buffer,"...\0");
+		Serial.print("Buffer returned: ");
+		Serial.println(buffer2);
+		return buffer2;
+		//buffer2 = strcat(buffer,"...\0");
+	}else{
+		char* buffer2 = text;
+		Serial.print("Buffer returned: ");
+		Serial.println(buffer2);
+		return buffer2;
+	}
+		
+	
+}
 
 
 

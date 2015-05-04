@@ -546,18 +546,25 @@ void myGenieEventHandler(void)
 			{// We should have already checked if filament is inserted				
 				if (filament_mode =='I')
 				{
-					current_position[E_AXIS] += (BOWDEN_LENGTH+100);
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60, which_extruder);
+					//current_position[E_AXIS] += (BOWDEN_LENGTH+100);
+					current_position[E_AXIS] += (BOWDEN_LENGTH);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
 					current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  150/60, which_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
 					//filament_is_inserted[which_extruder]=true;
 				}else if (filament_mode =='R')
 				{
-					current_position[E_AXIS] -= (BOWDEN_LENGTH+100);
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60, which_extruder);
-					current_position[E_AXIS] -= EXTRUDER_LENGTH;//Extra extrusion at low feedrate
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  150/60, which_extruder);
+					//current_position[E_AXIS] -= (BOWDEN_LENGTH+100);
+					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60, which_extruder);
+					//current_position[E_AXIS] -= EXTRUDER_LENGTH;//Extra extrusion at low feedrate
+					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  150/60, which_extruder);
 					//filament_is_inserted[which_extruder]=false;
+					
+					current_position[E_AXIS] -= EXTRUDER_LENGTH;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);
+					current_position[E_AXIS] -= BOWDEN_LENGTH;//Extra extrusion at low feedrate
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
+					
 				}	
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 				st_synchronize();		

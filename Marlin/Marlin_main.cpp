@@ -2184,9 +2184,7 @@ void process_commands()
 
 
 	  #ifdef Z_SIGMA_HOME  //This to return the left extruder at Xhome position
-		if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-			
-			
+		if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {		
 			
 			feedrate = homing_feedrate[Z_AXIS];
 			current_position[Z_AXIS]+=Z_SIGMA_RAISE_AFTER_HOMING;
@@ -2201,11 +2199,12 @@ void process_commands()
 			
 			if(saved_active_extruder==RIGHT_EXTRUDER)
 			{
-				active_extruder=saved_active_extruder;//Return to the correct extruder
+				enquecommand_P(PSTR("T1"));
+				//active_extruder=saved_active_extruder;//Return to the correct extruder
 				Serial.print("Extruder released active: ");
 				Serial.println(saved_active_extruder);
-				axis_is_at_home(X_AXIS);
-				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+				//axis_is_at_home(X_AXIS);
+				//plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
 			}
 			
 			

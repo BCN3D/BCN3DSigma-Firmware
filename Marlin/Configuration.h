@@ -290,7 +290,7 @@
 //can be software-disabled for whatever purposes by
 #define PREVENT_DANGEROUS_EXTRUDE
 //if PREVENT_DANGEROUS_EXTRUDE is on, you can still disable (uncomment) very long bits of extrusion separately.
-#define PREVENT_LENGTHY_EXTRUDE
+//#define PREVENT_LENGTHY_EXTRUDE
 
 #define EXTRUDE_MINTEMP 0 //With DUAL X it only counts extruder0 temp
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
@@ -614,8 +614,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //Rapduch
 //Insert Filament
-#define BOWDEN_LENGTH 10
-#define EXTRUDER_LENGTH 10
+#define BOWDEN_LENGTH 850
+#define EXTRUDER_LENGTH 50
+#define INSERT_FAST_SPEED 5000	
+#define INSERT_SLOW_SPEED 150
 
 //For better undestanding on wich extruder is selected
 #define LEFT_EXTRUDER 0 
@@ -766,7 +768,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
 #if MOTHERBOARD == BCN3D_BOARD
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/8 microstepping for BCN3D Board
- #define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,51}
+	//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,152}//MK8
+	#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}//MK7
 #else
 	#if MOTHERBOARD == MEGATRONICS_V3
 	#ifdef PROTO1

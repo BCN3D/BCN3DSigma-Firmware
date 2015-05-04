@@ -2089,7 +2089,7 @@ void process_commands()
 		  	destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		  	destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		  	destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
-		  	feedrate = SIGMA_Z_HOME_SPEED;
+		  	feedrate = SIGMA_Z_HOME_TRAVEL_SPEED;
 		  	current_position[Z_AXIS] = 0;
 			SERIAL_ECHO("Z SIGMA Homed");
 			  

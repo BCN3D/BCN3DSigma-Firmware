@@ -630,7 +630,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Z_SIGMA_HOME_X_POINT 56.5
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
-	#define SIGMA_Z_HOME_SPEED 6000
+	#define SIGMA_Z_HOME_TRAVEL_SPEED 6000
 	
 	//#define Z_SIGMA_HOME_SECOND_X_POINT 290
 	//#define Z_SIGMA_HOME_SECOND_Y_POINT 150

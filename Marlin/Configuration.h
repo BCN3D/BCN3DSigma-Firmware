@@ -619,7 +619,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define INSERT_FAST_SPEED 5000	
 #define INSERT_SLOW_SPEED 150
 
-//For better undestanding on wich extruder is selected
+//For better undestanding wich extruder is selected
 #define LEFT_EXTRUDER 0 
 #define RIGHT_EXTRUDER 1
 
@@ -634,22 +634,21 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	
 	#define SIGMA_Z_HOME_TRAVEL_SPEED 6000
 	
+	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
+	#define Z_SIGMA_RAISE_AFTER_HOMING 2
+	
 	//#define Z_SIGMA_HOME_SECOND_X_POINT 290
 	//#define Z_SIGMA_HOME_SECOND_Y_POINT 150
 	//#define Z_SIGMA_HOME_SECOND_X_POINT 200
 	//#define Z_SIGMA_HOME_SECOND_Y_POINT 160
-
-	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
-	#define Z_SIGMA_RAISE_AFTER_HOMING 2
-	
 #endif
 
-#ifdef Z_SIGMA_AUTOLEVEL
 
+#ifdef Z_SIGMA_AUTOLEVEL
 	#if MOTHERBOARD == BCN3D_BOARD
-	#define XY_SIGMA_TRAVEL_SPEED 7000
+		#define XY_SIGMA_TRAVEL_SPEED 7000
 	#else
-	#define XY_SIGMA_TRAVEL_SPEED 8000
+		#define XY_SIGMA_TRAVEL_SPEED 8000
 	#endif
 
 	#if MOTHERBOARD == MEGATRONICS_V3
@@ -766,22 +765,21 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
-#if MOTHERBOARD == BCN3D_BOARD
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/8 microstepping for BCN3D Board
-	//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,152}//MK8
-	#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}//MK7
-#else
-	#if MOTHERBOARD == MEGATRONICS_V3
-	#ifdef PROTO1
-		#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,152}  // 1/16 for Megatronicsv3 MK8
-	#endif
+	#if MOTHERBOARD == BCN3D_BOARD
+		//#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/8 microstepping for BCN3D Board
+		//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,152}//MK8
+		#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}//MK7
+	#else
+		#if MOTHERBOARD == MEGATRONICS_V3
+			#ifdef PROTO1
+				#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,152}  // 1/16 for Megatronicsv3 MK8
+			#endif
 
-	#ifdef PROTO2
-		#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,102}  // 1/16 for Megatronicsv3 MK7
+			#ifdef PROTO2
+				#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,102}  // 1/16 for Megatronicsv3 MK7
+			#endif
+		#endif	
 	#endif
-	#endif
-	
-#endif
 #endif
 
 #define DEFAULT_MAX_FEEDRATE          {1500, 1500, 20, 100}    // (mm/sec)

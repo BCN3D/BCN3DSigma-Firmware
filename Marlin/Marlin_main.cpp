@@ -2159,6 +2159,7 @@ void process_commands()
         }
       }
       
+		//Rapduch
 		#ifdef Z_SIGMA_HOME
 		if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
 			current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
@@ -2182,7 +2183,7 @@ void process_commands()
       previous_millis_cmd = millis();
       endstops_hit_on_purpose();
 
-
+		//Rapduch
 	  #ifdef Z_SIGMA_HOME  //This to return the left extruder at Xhome position
 		if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {		
 			
@@ -2199,15 +2200,10 @@ void process_commands()
 			
 			if(saved_active_extruder==RIGHT_EXTRUDER)
 			{
-				enquecommand_P(PSTR("T1"));
-				//active_extruder=saved_active_extruder;//Return to the correct extruder
+				changeToolSigma(RIGHT_EXTRUDER); //Get again the same tool
 				Serial.print("Extruder released active: ");
 				Serial.println(saved_active_extruder);
-				//axis_is_at_home(X_AXIS);
-				//plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
 			}
-			
-			
 			////Activate Probing sequence			
 			//setup_for_endstop_move();
 			//feedrate = homing_feedrate[Z_AXIS];
@@ -2367,7 +2363,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	st_synchronize();
 	
 	
-	//Now the right extruder enters the party!
+	//Now the right extruder joins the party!
 	active_extruder=RIGHT_EXTRUDER;
 	Serial.print("Zvalue at start:");
 	Serial.println(current_position[Z_AXIS]);
@@ -4945,6 +4941,55 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
   ClearToSend();
 }
+
+
+//Rapduch: Better hardcoded toolChange
+#ifdef DUAL_X_CARRIAGE
+void changeToolSigma(int tool){
+	tmp_extruder = tool;
+	z_restaurada = current_position[Z_AXIS]; //Save the Z position that will be restored after changing tool
+	memcpy(destination, current_position, sizeof(destination));
+	
+	if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE && current_position[X_AXIS] != x_home_pos(active_extruder)) //DUAL FULL CONTROL and NOT HOMED
+	{
+		// Park old head: 1) raise 2) move to park position
+		// No need to lower the Z axis, the new tool has to move to position before lowering Z
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);
+		plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[X_AXIS]/2, active_extruder);
+		st_synchronize();
+		current_position[Z_AXIS]= current_position[Z_AXIS]+TOOLCHANGE_PARK_ZLIFT;
+	}
+	
+	// apply Y & Z extruder offset (x offset is already used in determining home pos)
+	current_position[Y_AXIS] = current_position[Y_AXIS] -
+	extruder_offset[Y_AXIS][active_extruder] +
+	extruder_offset[Y_AXIS][tmp_extruder];
+	current_position[Z_AXIS] = current_position[Z_AXIS] -
+	extruder_offset[Z_AXIS][active_extruder] +
+	extruder_offset[Z_AXIS][tmp_extruder];
+
+	active_extruder = tmp_extruder;
+
+	// This function resets the max/min values - the current position may be overwritten below.
+	axis_is_at_home(X_AXIS);
+
+	//Rapduch
+	if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE)
+	{
+		memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+		active_extruder_parked = true;
+	}
+	
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	//Rapduch purge
+	//Maybe we could purge here
+	
+SERIAL_ECHO_START;
+SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
+SERIAL_PROTOCOLLN((int)active_extruder);	
+}
+#endif
+
 
 
 //Rapduch

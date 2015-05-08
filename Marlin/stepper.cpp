@@ -497,7 +497,7 @@ ISR(TIMER1_COMPA_vect)
       CHECK_ENDSTOPS
       {
 		 //Rapduch: Change in behaviour of the endstops to fit the second extruder probe as ZMIN
-		 #ifdef MEGATRONICS_V3
+		 #ifdef SIGMA_ENDSTOP
 			#if defined(Z_MIN_PIN) && Z_MIN_PIN > -1			
 				#if defined(Z2_MIN_PIN) && Z2_MIN_PIN > -1
 					bool z_min_endstop=((READ(Z_MIN_PIN) && READ(Z2_MIN_PIN)) != Z_MIN_ENDSTOP_INVERTING);  //Using the Z_Max pin as the second Z_Min!!!!!!!!!!!!

@@ -95,8 +95,8 @@
 #endif
 
 #if MOTHERBOARD == MEGATRONICS_V3
-	//#define PROTO1
-	#define PROTO2
+	#define PROTO1
+	//#define PROTO2
 #endif
 
 
@@ -443,7 +443,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#define X_MAX_POS 318 //Distance between extruders
+	#define X_MAX_POS 311.4 //Distance between extruders
 	#define X_MIN_POS 0
 	#define Y_MAX_POS 300
 	#define Y_MIN_POS 0
@@ -609,6 +609,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //4D LCD Touch Screen for RepRapSigma
 #define SIGMA_TOUCH_SCREEN
 
+//Second Extruder endstop enable
+#define SIGMA_ENDSTOP
+
 //Extruder Cal Wizard
 #define EXTRUDER_CALIBRATION_WIZARD
 
@@ -629,7 +632,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 #ifdef Z_SIGMA_HOME
-	#define Z_SIGMA_HOME_X_POINT 56.5
+	#define Z_SIGMA_HOME_X_POINT 55
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
 	#define SIGMA_Z_HOME_TRAVEL_SPEED 6000
@@ -665,34 +668,34 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#endif
 	
 	#if MOTHERBOARD == BCN3D_BOARD
-		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  19
+		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
 		#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
-		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  0 //It is negative, it is compensated
+		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  3.1 //It is negative, it is compensated
 	#endif
 	
 	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-20
 	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
-	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	5
+	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	3.1
 	
 	//Left extruder probe point
-	#define X_SIGMA_PROBE_1_LEFT_EXTR 56.5
+	#define X_SIGMA_PROBE_1_LEFT_EXTR 55.5
 	#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_LEFT_EXTR 56.5
-	#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
+	#define X_SIGMA_PROBE_2_LEFT_EXTR 55.5
+	#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
 	
 	#define X_SIGMA_PROBE_3_LEFT_EXTR 255
-	#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
+	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
 	
 	//Right extruder probe point
-	#define X_SIGMA_PROBE_1_RIGHT_EXTR 255
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 253
 	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_RIGHT_EXTR 255
-	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
+	#define X_SIGMA_PROBE_2_RIGHT_EXTR 253
+	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
 	
-	#define X_SIGMA_PROBE_3_RIGHT_EXTR 56.5
-	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
+	#define X_SIGMA_PROBE_3_RIGHT_EXTR 55.5
+	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
 #endif
 
 #ifdef  ENABLE_AUTO_BED_LEVELING
@@ -734,8 +737,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-		#define EXTRUDER_OFFSET_Y {0.0,  0.0}  // (in mm) for each extruder, offset of the hotend on the Y axis
-		#define EXTRUDER_OFFSET_Z {0.0 , 0.0}
+		#define EXTRUDER_OFFSET_Y {0.0,  -0.2}  // (in mm) for each extruder, offset of the hotend on the Y axis
+		#define EXTRUDER_OFFSET_Z {0.0 , -0.2}
 #endif
 
 
@@ -784,6 +787,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #define DEFAULT_MAX_FEEDRATE          {1500, 1500, 20, 100}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {1000,500,25,25}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+//#define DEFAULT_MAX_ACCELERATION      {2000,2000,50,1000}
 //#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
 //#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum star
 

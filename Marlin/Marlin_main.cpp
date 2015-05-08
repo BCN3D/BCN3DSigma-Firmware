@@ -1392,10 +1392,17 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
 
     plan_bed_level_matrix.set_to_identity();
 
-    vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
-    vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
-    vector_3 pt3 = vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, z_at_pt_3);
-
+	#ifdef Z_SIGMA_AUTOLEVEL
+		float probe_x1 = X_SIGMA_PROBE_1_RIGHT_EXTR-X_SIGMA_PROBE_1_LEFT_EXTR;
+		float probe_y1 = Y_SIGMA_PROBE_1_RIGHT_EXTR-Y_SIGMA_PROBE_1_LEFT_EXTR;
+		vector_3 pt1 = vector_3(probe_x1, probe_y1, z_at_pt_1);
+		vector_3 pt2 = vector_3(X_SIGMA_PROBE_2_LEFT_EXTR, Y_SIGMA_PROBE_2_LEFT_EXTR, z_at_pt_2);
+		vector_3 pt3 = vector_3(X_SIGMA_PROBE_3_LEFT_EXTR, Y_SIGMA_PROBE_3_LEFT_EXTR, z_at_pt_3);
+	#else
+		vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
+		vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
+		vector_3 pt3 = vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, z_at_pt_3);
+	#endif
     vector_3 from_2_to_1 = (pt1 - pt2).get_normal();
     vector_3 from_2_to_3 = (pt3 - pt2).get_normal();
     vector_3 planeNormal = vector_3::cross(from_2_to_1, from_2_to_3).get_normal();
@@ -1412,7 +1419,6 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
     current_position[Z_AXIS] = zprobe_zoffset;
 
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-
 }
 
 int sentit (float dz)
@@ -2290,6 +2296,9 @@ void process_commands()
 
 case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBCN
 {
+	
+	//WARNING: T0 (LEFT_EXTRUDER) MUST BE SELECTED!
+	
 	//Rapduch
 	#ifdef Z_SIGMA_AUTOLEVEL
 	
@@ -2303,7 +2312,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
 		SERIAL_ECHO_START;
 		SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
-		break; // abort G29, since we don't know where we are
+		//break; // abort G29, since we don't know where we are
 	}
 	
 	
@@ -2399,15 +2408,43 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	clean_up_after_endstop_move();
 	
 	
+	//Update zOffset. We have to take into account the 2 different probe offsets
+	//NOT NEEDED
+	//Calculate medians
 	
-	//real_z = float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
-	//x_tmp = current_position[X_AXIS] + X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER;
-	//y_tmp = current_position[Y_AXIS] + Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER;
-	//z_tmp = current_position[Z_AXIS];
-//
-	//apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
-	//current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
-	//plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	float z_final_probe_1 = (z_at_pt_1+z2_at_pt_1)/2; //Upper left, upper right
+	float z_final_probe_2 = (z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower right
+	float z_final_probe_3 = (z_at_pt_3+z2_at_pt_2)/2; //lower right, lower left
+	
+	Serial.print("Probe 1: ");
+	Serial.println(z_final_probe_1);
+	Serial.print("Probe 2: ");
+	Serial.println(z_final_probe_2);
+	Serial.print("Probe 3: ");
+	Serial.println(z_final_probe_3);
+	
+	//Rapduch: We negated the Z points passed on this functions because the actual correction was inverted
+	//set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
+	set_bed_level_equation_3pts(-z_final_probe_1, -z_final_probe_2, -z_final_probe_3);
+
+	
+	// The following code correct the Z height difference from z-probe position and hotend tip position.
+	// The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend.
+	// When the bed is uneven, this height must be corrected.
+	real_z = float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
+	Serial.print("Real_Z: ");
+	Serial.println(real_z);
+	
+	x_tmp = current_position[X_AXIS] + X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER;
+	y_tmp = current_position[Y_AXIS] + Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER;
+	z_tmp = current_position[Z_AXIS];
+
+	apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
+	current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
+	Serial.print("Current Z after setting: ");
+	Serial.println(current_position[Z_AXIS]);
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
 	
 	#else
 	

@@ -910,8 +910,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				Serial.println(time2);
 				Serial.println("");	
 				
-					*/
-					
+					*/	
 				waitPeriod=5000+millis();	//Every 5s
 			}
 					
@@ -922,121 +921,149 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			int tBed=int(degBed() + 0.5);
 			
 			if (millis() >= waitPeriod)
-			{				
-				//Declare a String
-				String str = String(tHotend);
-				
-				//----------------------------------
-				char cmd[4]="";
-				char cmd_t[4]="";
-				char temp_string1[10]="";
-				
-				int tHotend=int(degHotend(0) + 0.5);
-				int tTarget=int(degTargetHotend(0) + 0.5);
-				//Declare a String
-				String str_hot = String(tHotend);
-				String str_targethot = String(tTarget);
-				str_hot.toCharArray(cmd,4);
-						
-				str_targethot.toCharArray(cmd_t,4);
-				
-				//Serial.print("Prova TempString : ");
-				//Serial.println(cmd);
-				//Serial.println(cmd_t);
-				
-				/*
-				if (tHotend>=100) {
+			{		
 					
-				}
-				*/
-				strcat(temp_string1,cmd);
-				strcat(temp_string1,"/");
-				strcat(temp_string1,cmd_t);
-				
-				//Serial.println(temp_string1);
-
-				char buffer[256]; 
-				sprintf(buffer, "% 3d  /% 3d",tHotend,tTarget);
-				//Serial.println(buffer);
-				genie.WriteStr(STRINGS_NOZZLE1,buffer);			
-				
-				//genie.WriteStr(STRINGS_NOZZLE1,temp_string1);
-				
-				//EX 2 -----------------------
+				//REGION---		
+				#pragma region Old_Temperature_print
 				//Declare a String
-				tHotend=int(degHotend(1) + 0.5);
-				tTarget=int(degTargetHotend(1) + 0.5);
-				char temp_string2[8]="";
-				str_hot = String(tHotend);
-				str_targethot = String(tTarget);
-				str_hot.toCharArray(cmd,3);
-				str_targethot.toCharArray(cmd_t,3);
+				//String str = String(tHotend);
+				//
+				////----------------------------------
+				//char cmd[4]="";
+				//char cmd_t[4]="";
+				//char temp_string1[10]="";
+				//
+				//int tHotend=int(degHotend(0) + 0.5);
+				//int tTarget=int(degTargetHotend(0) + 0.5);
+				////Declare a String
+				//String str_hot = String(tHotend);
+				//String str_targethot = String(tTarget);
+				//str_hot.toCharArray(cmd,4);
+						//
+				//str_targethot.toCharArray(cmd_t,4);
+				//
+				////Serial.print("Prova TempString : ");
+				////Serial.println(cmd);
+				////Serial.println(cmd_t);
+				//
+				///*
+				//if (tHotend>=100) {
+					//
+				//}
+				//*/
+				//strcat(temp_string1,cmd);
+				//strcat(temp_string1,"/");
+				//strcat(temp_string1,cmd_t);
+				//
+				////Serial.println(temp_string1);
+//
+				//char buffer[256]; 
+				//sprintf(buffer, "% 3d  /% 3d",tHotend,tTarget);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRINGS_NOZZLE1,buffer);			
+				//
+				////genie.WriteStr(STRINGS_NOZZLE1,temp_string1);
+				//
+				////EX 2 -----------------------
+				////Declare a String
+				//tHotend=int(degHotend(1) + 0.5);
+				//tTarget=int(degTargetHotend(1) + 0.5);
+				//char temp_string2[8]="";
+				//str_hot = String(tHotend);
+				//str_targethot = String(tTarget);
+				//str_hot.toCharArray(cmd,3);
+				//str_targethot.toCharArray(cmd_t,3);
+				//
+				//strcat(temp_string2,cmd);
+				//strcat(temp_string2,"/");
+				//strcat(temp_string2,cmd_t);
+				//
+				//
+				//
+				//sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRINGS_NOZZLE2,buffer);
+				////genie.WriteStr(STRINGS_NOZZLE2,temp_string2);
+				//
+				////BED
+				//char temp_string3[8]="";
+				//int tBed=int(degBed() + 0.5);
+				//int tTargetBed=int(degTargetBed() + 0.5);
+				//String str_bed = String(tBed);
+				//String str_targetbed = String(tTargetBed);
+				//str_bed.toCharArray(cmd,3);
+				//str_targetbed.toCharArray(cmd_t,3);
+				//
+				//strcat(temp_string3,cmd);
+				//strcat(temp_string3,"/");
+				//strcat(temp_string3,cmd_t);
+				//
+			//
+				//sprintf(buffer, " % 3d/% 3d",tBed,tTargetBed);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRINGS_BED,buffer);
+				//
+				////genie.WriteStr(STRINGS_BED,temp_string3);
+				//
+								//
+				////char* cmd = prepare_temp_string(0);
+				////Serial.print("Extruder 1 :  ");
+				////Serial.println(cmd);
+				////Serial.println(tHotend);
+				//
+				////cmd = strcat("Jor","/");
+				//char cmdex[8];
+				////cmd=itostr3(tHotend);
+				////cmd = strcat(itostr3(tHotend),"/");
+				////itoa(tHotend,cmd,10);
+				////Serial.print("Extruder 1 String :  ");
+				//str.toCharArray(cmdex,8);
+				////Serial.println(cmdex);
+				//
+				////prepare_temp_string(0);
+				////Serial.println(prepare_temp_string(0));
+				//
+				////Serial.println(prepare_temp_string(1));
+				////Serial.println(prepare_temp_string(2));
+				//
+				////genie.WriteStr(STRINGS_NOZZLE2,prepare_temp_string(1));//E2
+				////genie.WriteStr(STRINGS_BED,prepare_temp_string(2));//BED			
+				////waitPeriod=1000+millis();	//Every 1s
+				//
+							//
+				//tHotend=int(degHotend(which_extruder) + 0.5);
+				//tTarget=int(degTargetHotend(which_extruder) + 0.5);			
+				//sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
+				//genie.WriteStr(STRING_PREHEATING,buffer);			
+							
 				
-				strcat(temp_string2,cmd);
-				strcat(temp_string2,"/");
-				strcat(temp_string2,cmd_t);
+#pragma endregion Old_Temperature_print
+				//END REGION
 				
-				
-				
-				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
-				//Serial.println(buffer);
-				genie.WriteStr(STRINGS_NOZZLE2,buffer);
-				//genie.WriteStr(STRINGS_NOZZLE2,temp_string2);
-				
-				//BED
-				char temp_string3[8]="";
+				int tHotend=int(degHotend(0));
+				int tHotend1=int(degHotend(1));
 				int tBed=int(degBed() + 0.5);
-				int tTargetBed=int(degTargetBed() + 0.5);
-				String str_bed = String(tBed);
-				String str_targetbed = String(tTargetBed);
-				str_bed.toCharArray(cmd,3);
-				str_targetbed.toCharArray(cmd_t,3);
 				
-				strcat(temp_string3,cmd);
-				strcat(temp_string3,"/");
-				strcat(temp_string3,cmd_t);
-				
-			
-				sprintf(buffer, " % 3d/% 3d",tBed,tTargetBed);
+				//Rapduch
+				//Edit for final TouchScreen
+				char buffer[256];
+				sprintf(buffer, "% 3d",tHotend);
 				//Serial.println(buffer);
-				genie.WriteStr(STRINGS_BED,buffer);
+				genie.WriteStr(STRING_TEMP_NOZZ1,buffer);
 				
-				//genie.WriteStr(STRINGS_BED,temp_string3);
+				sprintf(buffer, "% 3d",tHotend1);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_TEMP_NOZZ2,buffer);
 				
-								
-				//char* cmd = prepare_temp_string(0);
-				//Serial.print("Extruder 1 :  ");
-				//Serial.println(cmd);
-				//Serial.println(tHotend);
+				sprintf(buffer, "% 2d",tBed);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_TEMP_BED,buffer);
 				
-				//cmd = strcat("Jor","/");
-				char cmdex[8];
-				//cmd=itostr3(tHotend);
-				//cmd = strcat(itostr3(tHotend),"/");
-				//itoa(tHotend,cmd,10);
-				//Serial.print("Extruder 1 String :  ");
-				str.toCharArray(cmdex,8);
-				//Serial.println(cmdex);
 				
-				//prepare_temp_string(0);
-				//Serial.println(prepare_temp_string(0));
-				
-				//Serial.println(prepare_temp_string(1));
-				//Serial.println(prepare_temp_string(2));
-				
-				//genie.WriteStr(STRINGS_NOZZLE2,prepare_temp_string(1));//E2
-				//genie.WriteStr(STRINGS_BED,prepare_temp_string(2));//BED			
-				//waitPeriod=1000+millis();	//Every 1s
-				
-							
-				tHotend=int(degHotend(which_extruder) + 0.5);
-				tTarget=int(degTargetHotend(which_extruder) + 0.5);			
-				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
-				genie.WriteStr(STRING_PREHEATING,buffer);			
-							
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
+				
 				
 				#if EXTRUDERS > 1
 				// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
@@ -2315,6 +2342,10 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		//break; // abort G29, since we don't know where we are
 	}
 	
+	//We have to save the active extruder.
+	int saved_active_extruder = active_extruder;
+	
+	
 	
 	//Starting Calibration WIZARD
 	plan_bed_level_matrix.set_to_identity();
@@ -2401,8 +2432,10 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 	feedrate=homing_feedrate[Z_AXIS];
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+	current_position[Y_AXIS]=Y_MAX_POS/2;
+	feedrate = XY_TRAVEL_SPEED;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 	st_synchronize();
-	
 	
 	
 	clean_up_after_endstop_move();
@@ -2439,12 +2472,23 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	y_tmp = current_position[Y_AXIS] + Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER;
 	z_tmp = current_position[Z_AXIS];
 
-	apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
+	apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction, we sent the z_offset as current position
 	current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
 	Serial.print("Current Z after setting: ");
 	Serial.println(current_position[Z_AXIS]);
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
+	//Restore the previous active extruder:
+	
+	if(saved_active_extruder==LEFT_EXTRUDER)
+	{
+		changeToolSigma(LEFT_EXTRUDER); //Get again the same tool
+		Serial.print("Extruder active: ");
+		Serial.println(saved_active_extruder);
+	}else{
+		
+	}
+	
 	
 	#else
 	

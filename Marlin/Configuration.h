@@ -443,7 +443,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#define X_MAX_POS 311.4 //Distance between extruders
+	#define X_MAX_POS 309.5 //Distance between extruders
 	#define X_MIN_POS 0
 	#define Y_MAX_POS 300
 	#define Y_MIN_POS 0
@@ -670,12 +670,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#if MOTHERBOARD == BCN3D_BOARD
 		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
 		#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
-		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  3.1 //It is negative, it is compensated
+		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  3.7 //It is negative, it is compensated
 	#endif
 	
 	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-20
 	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
-	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	3.1
+	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	3.7
 	
 	//Left extruder probe point
 	#define X_SIGMA_PROBE_1_LEFT_EXTR 55.5
@@ -688,10 +688,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
 	
 	//Right extruder probe point
-	#define X_SIGMA_PROBE_1_RIGHT_EXTR 253
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 255
 	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_RIGHT_EXTR 253
+	#define X_SIGMA_PROBE_2_RIGHT_EXTR 255
 	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
 	
 	#define X_SIGMA_PROBE_3_RIGHT_EXTR 55.5
@@ -737,8 +737,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-		#define EXTRUDER_OFFSET_Y {0.0,  -0.2}  // (in mm) for each extruder, offset of the hotend on the Y axis
-		#define EXTRUDER_OFFSET_Z {0.0 , -0.2}
+		#define EXTRUDER_OFFSET_Y {0.0,  0.0}  // (in mm) for each extruder, offset of the hotend on the Y axis
+		#define EXTRUDER_OFFSET_Z {0.0 , 0.1}
 #endif
 
 
@@ -770,8 +770,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
 	#if MOTHERBOARD == BCN3D_BOARD
 		//#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/8 microstepping for BCN3D Board
-		//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,152}//MK8
-		#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}//MK7
+		#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,152}//MK8
+		//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}//MK7
 	#else
 		#if MOTHERBOARD == MEGATRONICS_V3
 			#ifdef PROTO1
@@ -785,17 +785,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#endif
 #endif
 
-#define DEFAULT_MAX_FEEDRATE          {1500, 1500, 20, 100}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000,500,25,25}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_MAX_FEEDRATE          {250, 250, 100, 100}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {2500,2500,200,2000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 //#define DEFAULT_MAX_ACCELERATION      {2000,2000,50,1000}
 //#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
 //#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum star
 
-#define DEFAULT_ACCELERATION          200    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  1000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+#define DEFAULT_ACCELERATION          1500    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 //#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 //#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
-
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                5.0    // (mm/sec)

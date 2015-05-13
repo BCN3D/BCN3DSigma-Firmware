@@ -1221,7 +1221,7 @@ void get_command()
 	  if (millis()>=waitperiod)
 	  {  
 		  screen_status="Paused...";
-		  genie.WriteStr(6,"Paused..."); //Print Paused on screen Status
+		  //genie.WriteStr(6,"Paused..."); //Print Paused on screen Status
 	  }
 	  waitperiod=millis()+500;
 	  #endif  

@@ -396,12 +396,18 @@ void myGenieEventHandler(void)
 				int value = genie.GetEventData(&Event);
 				if (value == 1) // Need to pause
 				{
-					card.pauseSDPrint();
+					//I believe it is a really unsafe way to do it
+					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
+					//st_synchronize();
+					card.pauseSDPrint();				
 					//genie.WriteStr(6,"Pausing...");
 					Serial.println("PAUSE!");
 				}else{
 					if(card.sdispaused)
 					{
+						//I believe it is a really unsafe way to do it
+						//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]-20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
+						//st_synchronize();
 						card.startFileprint();
 						//genie.WriteStr(6,"Printing...");
 						Serial.println("RESUME!");

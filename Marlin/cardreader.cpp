@@ -209,6 +209,7 @@ void CardReader::startFileprint()
   if(cardOK)
   {
     sdprinting = true;
+	//Rapduch
 	sdispaused = false;
   }
 }
@@ -218,6 +219,7 @@ void CardReader::pauseSDPrint()
   if(sdprinting)
   {
     sdprinting = false;
+	//Rapduch
 	sdispaused = true;
   }
 }

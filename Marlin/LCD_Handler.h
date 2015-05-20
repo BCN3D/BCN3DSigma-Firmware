@@ -274,6 +274,7 @@ void myGenieEventHandler(void)
 				quickStop();
 				
 				enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
+				enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
 				
 				if(SD_FINISHED_STEPPERRELEASE)
 				{

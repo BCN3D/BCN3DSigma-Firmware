@@ -661,7 +661,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 			#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5.3 //It is negative, it is compensated
 		#endif
 		#ifdef PROTO2
-			#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
+			#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  
 			#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
 			#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5 //It is negative, it is compensated
 		#endif
@@ -673,9 +673,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  2.80//3.4 //It is negative, it is compensated
 	#endif
 	
-	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-20
+	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-22
 	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
-	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	3.7
+	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//3.7
 	
 	//Left extruder probe point
 	#define X_SIGMA_PROBE_1_LEFT_EXTR 55.5

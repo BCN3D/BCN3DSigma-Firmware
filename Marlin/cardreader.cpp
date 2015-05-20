@@ -633,9 +633,11 @@ void CardReader::printingHasFinished()
       quickStop();
       file.close();
       sdprinting = false;
+	  //Rapduch
 	#ifdef SIGMA_TOUCH_SCREEN
 	//also we need to put the platform down and do an autohome to prevent blocking
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,1);
+		enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
 	#endif	  
       if(SD_FINISHED_STEPPERRELEASE)
       {

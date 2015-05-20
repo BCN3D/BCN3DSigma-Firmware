@@ -919,6 +919,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			int tHotend=int(degHotend(0));
 			int tHotend1=int(degHotend(1));
 			int tBed=int(degBed() + 0.5);
+			char buffer[256]; 
 			
 			if (millis() >= waitPeriod)
 			{		
@@ -1029,12 +1030,14 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				////genie.WriteStr(STRINGS_NOZZLE2,prepare_temp_string(1));//E2
 				////genie.WriteStr(STRINGS_BED,prepare_temp_string(2));//BED			
 				////waitPeriod=1000+millis();	//Every 1s
-				//
-							//
-				//tHotend=int(degHotend(which_extruder) + 0.5);
-				//tTarget=int(degTargetHotend(which_extruder) + 0.5);			
-				//sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
-				//genie.WriteStr(STRING_PREHEATING,buffer);			
+				
+							
+				//Change filament thermometer
+							
+				tHotend=int(degHotend(which_extruder) + 0.5);
+				int tTarget=int(degTargetHotend(which_extruder) + 0.5);			
+				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
+				genie.WriteStr(STRING_PREHEATING,buffer);			
 							
 				
 #pragma endregion Old_Temperature_print
@@ -1046,7 +1049,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				
 				//Rapduch
 				//Edit for final TouchScreen
-				char buffer[256];
+				
 				sprintf(buffer, "% 3d",tHotend);
 				//Serial.println(buffer);
 				genie.WriteStr(STRING_TEMP_NOZZ1,buffer);
@@ -1421,10 +1424,31 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
 
 	#ifdef Z_SIGMA_AUTOLEVEL
 		float probe_x1 = X_SIGMA_PROBE_1_RIGHT_EXTR-X_SIGMA_PROBE_1_LEFT_EXTR;
-		float probe_y1 = Y_SIGMA_PROBE_1_RIGHT_EXTR-Y_SIGMA_PROBE_1_LEFT_EXTR;
+		float probe_y1 = Y_SIGMA_PROBE_1_RIGHT_EXTR;
 		vector_3 pt1 = vector_3(probe_x1, probe_y1, z_at_pt_1);
+		//Rapduch
+		Serial.print("Setting Vector1 X:");
+		Serial.print(probe_x1);
+		Serial.print(", Y:");
+		Serial.print(probe_y1);
+		Serial.print(", Z:");
+		Serial.println(z_at_pt_1);
 		vector_3 pt2 = vector_3(X_SIGMA_PROBE_2_LEFT_EXTR, Y_SIGMA_PROBE_2_LEFT_EXTR, z_at_pt_2);
+		//Rapduch
+		Serial.print("Setting Vector2 X:");
+		Serial.print(X_SIGMA_PROBE_2_LEFT_EXTR);
+		Serial.print(", Y:");
+		Serial.print(Y_SIGMA_PROBE_2_LEFT_EXTR);
+		Serial.print(", Z:");
+		Serial.println(z_at_pt_2);
 		vector_3 pt3 = vector_3(X_SIGMA_PROBE_3_LEFT_EXTR, Y_SIGMA_PROBE_3_LEFT_EXTR, z_at_pt_3);
+		//Rapduch
+		Serial.print("Setting Vector3 X:");
+		Serial.print(X_SIGMA_PROBE_3_LEFT_EXTR);
+		Serial.print(", Y:");
+		Serial.print(Y_SIGMA_PROBE_3_LEFT_EXTR);
+		Serial.print(", Z:");
+		Serial.println(z_at_pt_3);
 	#else
 		vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
 		vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
@@ -2325,6 +2349,10 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 {
 	
 	//WARNING: T0 (LEFT_EXTRUDER) MUST BE SELECTED!
+	if (active_extruder==RIGHT_EXTRUDER){
+		Serial.println("Error: Left Extruder MUST BE ACTIVE");	
+		break; //An error message should show up on screen
+	}
 	
 	//Rapduch
 	#ifdef Z_SIGMA_AUTOLEVEL
@@ -2344,8 +2372,6 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	
 	//We have to save the active extruder.
 	int saved_active_extruder = active_extruder;
-	
-	
 	
 	//Starting Calibration WIZARD
 	plan_bed_level_matrix.set_to_identity();
@@ -2459,7 +2485,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	//Rapduch: We negated the Z points passed on this functions because the actual correction was inverted
 	//set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
 	set_bed_level_equation_3pts(-z_final_probe_1, -z_final_probe_2, -z_final_probe_3);
-
+	//This puts the current_posZ at z probe offset!!!
 	
 	// The following code correct the Z height difference from z-probe position and hotend tip position.
 	// The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend.

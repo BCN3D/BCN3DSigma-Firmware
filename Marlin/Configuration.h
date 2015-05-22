@@ -609,24 +609,28 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //4D LCD Touch Screen for RepRapSigma
 #define SIGMA_TOUCH_SCREEN
 
-//Second Extruder endstop enable
+//Second Extruder endstop enable (needed for BED AUTOCAL)
 #define SIGMA_ENDSTOP
 
 //Extruder Cal Wizard
 #define EXTRUDER_CALIBRATION_WIZARD
 
+//Auto Bed Calib
+#define SIGMA_BED_AUTOCALIB
+
 //Rapduch
-//Insert Filament
+//Insert Filament parameters
 #define BOWDEN_LENGTH 850
 #define EXTRUDER_LENGTH 50
 #define INSERT_FAST_SPEED 5000	
 #define INSERT_SLOW_SPEED 150
 
-//For better undestanding wich extruder is selected
+//For better understanding on which extruder is selected
 #define LEFT_EXTRUDER 0 
 #define RIGHT_EXTRUDER 1
 
-//Rapduch For sigma Autolevel
+//Rapduch 
+//For sigma Autolevel
 #define Z_SIGMA_HOME
 #define Z_SIGMA_AUTOLEVEL
 
@@ -673,7 +677,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  2.80//3.4 //It is negative, it is compensated
 	#endif
 	
-	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-22
+	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-18
 	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
 	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//3.7
 	
@@ -698,18 +702,18 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
 #endif
 
-#ifdef  ENABLE_AUTO_BED_LEVELING
+#ifdef  SIGMA_BED_AUTOCALIB
 	//Calibration WIZARD --------
 	#define PAS_M5 0.8
 	//Screw positions on BED for
-	#define CARGOL_1_X  -14;
-	#define CARGOL_1_Y  160;
+	#define CARGOL_1_X  156;
+	#define CARGOL_1_Y  276;
 
-	#define CARGOL_2_X  -14;
-	#define CARGOL_2_Y  0;
+	#define CARGOL_2_X  70;
+	#define CARGOL_2_Y  25;
 
-	#define CARGOL_3_X  258;
-	#define CARGOL_3_Y  80;
+	#define CARGOL_3_X  245;
+	#define CARGOL_3_Y  25;
 	// -END BED calibration WIZARD
 #endif // ENABLE_AUTO_BED_LEVELING
 

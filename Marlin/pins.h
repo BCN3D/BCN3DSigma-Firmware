@@ -191,7 +191,8 @@
 //#define Z_MAX_PIN		-1
 
 #define Z_MIN_PIN		34
-#define Z_MAX_PIN		43
+#define Z_MAX_PIN		-1
+#define Z2_MIN_PIN		43	
 //#define Z_ENDSTOP_0 23
 //#define Z_ENDSTOP_1 22
 

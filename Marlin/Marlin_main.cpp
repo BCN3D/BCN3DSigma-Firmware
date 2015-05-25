@@ -91,6 +91,12 @@ Genie genie;
 // G30 - Single Z Probe, probes bed at current XY location.
 // G31 - Dock sled (Z_PROBE_SLED only)
 // G32 - Undock sled (Z_PROBE_SLED only)
+
+//Rapduch
+// G33 - Autolevel Bed
+// G34 - Autocal Bed
+// G40 - Wizard X
+
 // G90 - Use Absolute Coordinates
 // G91 - Use Relative Coordinates
 // G92 - Set current position to coordinates given
@@ -910,9 +916,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				Serial.println(time2);
 				Serial.println("");	
 				
-					*/
-					
-				waitPeriod=10000+millis();	//Every 1s
+					*/	
+				waitPeriod=5000+millis();	//Every 5s
 			}
 					
 		}else if (surfing_utilities)
@@ -920,123 +925,154 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			int tHotend=int(degHotend(0));
 			int tHotend1=int(degHotend(1));
 			int tBed=int(degBed() + 0.5);
+			char buffer[256]; 
 			
 			if (millis() >= waitPeriod)
-			{				
-				//Declare a String
-				String str = String(tHotend);
-				
-				//----------------------------------
-				char cmd[4]="";
-				char cmd_t[4]="";
-				char temp_string1[10]="";
-				
-				int tHotend=int(degHotend(0) + 0.5);
-				int tTarget=int(degTargetHotend(0) + 0.5);
-				//Declare a String
-				String str_hot = String(tHotend);
-				String str_targethot = String(tTarget);
-				str_hot.toCharArray(cmd,4);
-						
-				str_targethot.toCharArray(cmd_t,4);
-				
-				//Serial.print("Prova TempString : ");
-				//Serial.println(cmd);
-				//Serial.println(cmd_t);
-				
-				/*
-				if (tHotend>=100) {
+			{		
 					
-				}
-				*/
-				strcat(temp_string1,cmd);
-				strcat(temp_string1,"/");
-				strcat(temp_string1,cmd_t);
-				
-				//Serial.println(temp_string1);
-
-				char buffer[256]; 
-				sprintf(buffer, "% 3d  /% 3d",tHotend,tTarget);
-				//Serial.println(buffer);
-				genie.WriteStr(STRINGS_NOZZLE1,buffer);			
-				
-				//genie.WriteStr(STRINGS_NOZZLE1,temp_string1);
-				
-				//EX 2 -----------------------
+				//REGION---		
+				#pragma region Old_Temperature_print
 				//Declare a String
-				tHotend=int(degHotend(1) + 0.5);
-				tTarget=int(degTargetHotend(1) + 0.5);
-				char temp_string2[8]="";
-				str_hot = String(tHotend);
-				str_targethot = String(tTarget);
-				str_hot.toCharArray(cmd,3);
-				str_targethot.toCharArray(cmd_t,3);
-				
-				strcat(temp_string2,cmd);
-				strcat(temp_string2,"/");
-				strcat(temp_string2,cmd_t);
-				
-				
-				
-				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
-				//Serial.println(buffer);
-				genie.WriteStr(STRINGS_NOZZLE2,buffer);
-				//genie.WriteStr(STRINGS_NOZZLE2,temp_string2);
-				
-				//BED
-				char temp_string3[8]="";
-				int tBed=int(degBed() + 0.5);
-				int tTargetBed=int(degTargetBed() + 0.5);
-				String str_bed = String(tBed);
-				String str_targetbed = String(tTargetBed);
-				str_bed.toCharArray(cmd,3);
-				str_targetbed.toCharArray(cmd_t,3);
-				
-				strcat(temp_string3,cmd);
-				strcat(temp_string3,"/");
-				strcat(temp_string3,cmd_t);
-				
-			
-				sprintf(buffer, " % 3d/% 3d",tBed,tTargetBed);
-				//Serial.println(buffer);
-				genie.WriteStr(STRINGS_BED,buffer);
-				
-				//genie.WriteStr(STRINGS_BED,temp_string3);
-				
-								
-				//char* cmd = prepare_temp_string(0);
-				//Serial.print("Extruder 1 :  ");
-				//Serial.println(cmd);
-				//Serial.println(tHotend);
-				
-				//cmd = strcat("Jor","/");
-				char cmdex[8];
-				//cmd=itostr3(tHotend);
-				//cmd = strcat(itostr3(tHotend),"/");
-				//itoa(tHotend,cmd,10);
-				//Serial.print("Extruder 1 String :  ");
-				str.toCharArray(cmdex,8);
-				//Serial.println(cmdex);
-				
-				//prepare_temp_string(0);
-				//Serial.println(prepare_temp_string(0));
-				
-				//Serial.println(prepare_temp_string(1));
-				//Serial.println(prepare_temp_string(2));
-				
-				//genie.WriteStr(STRINGS_NOZZLE2,prepare_temp_string(1));//E2
-				//genie.WriteStr(STRINGS_BED,prepare_temp_string(2));//BED			
-				//waitPeriod=1000+millis();	//Every 1s
+				//String str = String(tHotend);
+				//
+				////----------------------------------
+				//char cmd[4]="";
+				//char cmd_t[4]="";
+				//char temp_string1[10]="";
+				//
+				//int tHotend=int(degHotend(0) + 0.5);
+				//int tTarget=int(degTargetHotend(0) + 0.5);
+				////Declare a String
+				//String str_hot = String(tHotend);
+				//String str_targethot = String(tTarget);
+				//str_hot.toCharArray(cmd,4);
+						//
+				//str_targethot.toCharArray(cmd_t,4);
+				//
+				////Serial.print("Prova TempString : ");
+				////Serial.println(cmd);
+				////Serial.println(cmd_t);
+				//
+				///*
+				//if (tHotend>=100) {
+					//
+				//}
+				//*/
+				//strcat(temp_string1,cmd);
+				//strcat(temp_string1,"/");
+				//strcat(temp_string1,cmd_t);
+				//
+				////Serial.println(temp_string1);
+//
+				//char buffer[256]; 
+				//sprintf(buffer, "% 3d  /% 3d",tHotend,tTarget);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRINGS_NOZZLE1,buffer);			
+				//
+				////genie.WriteStr(STRINGS_NOZZLE1,temp_string1);
+				//
+				////EX 2 -----------------------
+				////Declare a String
+				//tHotend=int(degHotend(1) + 0.5);
+				//tTarget=int(degTargetHotend(1) + 0.5);
+				//char temp_string2[8]="";
+				//str_hot = String(tHotend);
+				//str_targethot = String(tTarget);
+				//str_hot.toCharArray(cmd,3);
+				//str_targethot.toCharArray(cmd_t,3);
+				//
+				//strcat(temp_string2,cmd);
+				//strcat(temp_string2,"/");
+				//strcat(temp_string2,cmd_t);
+				//
+				//
+				//
+				//sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRINGS_NOZZLE2,buffer);
+				////genie.WriteStr(STRINGS_NOZZLE2,temp_string2);
+				//
+				////BED
+				//char temp_string3[8]="";
+				//int tBed=int(degBed() + 0.5);
+				//int tTargetBed=int(degTargetBed() + 0.5);
+				//String str_bed = String(tBed);
+				//String str_targetbed = String(tTargetBed);
+				//str_bed.toCharArray(cmd,3);
+				//str_targetbed.toCharArray(cmd_t,3);
+				//
+				//strcat(temp_string3,cmd);
+				//strcat(temp_string3,"/");
+				//strcat(temp_string3,cmd_t);
+				//
+			//
+				//sprintf(buffer, " % 3d/% 3d",tBed,tTargetBed);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRINGS_BED,buffer);
+				//
+				////genie.WriteStr(STRINGS_BED,temp_string3);
+				//
+								//
+				////char* cmd = prepare_temp_string(0);
+				////Serial.print("Extruder 1 :  ");
+				////Serial.println(cmd);
+				////Serial.println(tHotend);
+				//
+				////cmd = strcat("Jor","/");
+				//char cmdex[8];
+				////cmd=itostr3(tHotend);
+				////cmd = strcat(itostr3(tHotend),"/");
+				////itoa(tHotend,cmd,10);
+				////Serial.print("Extruder 1 String :  ");
+				//str.toCharArray(cmdex,8);
+				////Serial.println(cmdex);
+				//
+				////prepare_temp_string(0);
+				////Serial.println(prepare_temp_string(0));
+				//
+				////Serial.println(prepare_temp_string(1));
+				////Serial.println(prepare_temp_string(2));
+				//
+				////genie.WriteStr(STRINGS_NOZZLE2,prepare_temp_string(1));//E2
+				////genie.WriteStr(STRINGS_BED,prepare_temp_string(2));//BED			
+				////waitPeriod=1000+millis();	//Every 1s
 				
 							
+				//Change filament thermometer
+							
 				tHotend=int(degHotend(which_extruder) + 0.5);
-				tTarget=int(degTargetHotend(which_extruder) + 0.5);			
+				int tTarget=int(degTargetHotend(which_extruder) + 0.5);			
 				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
 				genie.WriteStr(STRING_PREHEATING,buffer);			
 							
+				
+#pragma endregion Old_Temperature_print
+				//END REGION
+				
+				int tHotend=int(degHotend(0));
+				int tHotend1=int(degHotend(1));
+				int tBed=int(degBed() + 0.5);
+				
+				//Rapduch
+				//Edit for final TouchScreen
+				
+				sprintf(buffer, "% 3d",tHotend);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_TEMP_NOZZ1,buffer);
+				
+				sprintf(buffer, "% 3d",tHotend1);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_TEMP_NOZZ2,buffer);
+				
+				sprintf(buffer, "% 2d",tBed);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_TEMP_BED,buffer);
+				
+				
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
 				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
+				
 				
 				#if EXTRUDERS > 1
 				// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
@@ -1194,7 +1230,7 @@ void get_command()
 	  if (millis()>=waitperiod)
 	  {  
 		  screen_status="Paused...";
-		  genie.WriteStr(6,"Paused..."); //Print Paused on screen Status
+		  //genie.WriteStr(6,"Paused..."); //Print Paused on screen Status
 	  }
 	  waitperiod=millis()+500;
 	  #endif  
@@ -1355,59 +1391,10 @@ static void axis_is_at_home(int axis) {
     }
   }
 #endif
-#ifdef SCARA
-   float homeposition[3];
-   char i;
-   
-   if (axis < 2)
-   {
-   
-     for (i=0; i<3; i++)
-     {
-        homeposition[i] = base_home_pos(i); 
-     }  
-	// SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
-   //  SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
-   // Works out real Homeposition angles using inverse kinematics, 
-   // and calculates homing offset using forward kinematics
-     calculate_delta(homeposition);
-     
-    // SERIAL_ECHOPGM("base Theta= "); SERIAL_ECHO(delta[X_AXIS]);
-    // SERIAL_ECHOPGM(" base Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
-     
-     for (i=0; i<2; i++)
-     {
-        delta[i] -= add_homing[i];
-     } 
-     
-    // SERIAL_ECHOPGM("addhome X="); SERIAL_ECHO(add_homing[X_AXIS]);
-	// SERIAL_ECHOPGM(" addhome Y="); SERIAL_ECHO(add_homing[Y_AXIS]);
-    // SERIAL_ECHOPGM(" addhome Theta="); SERIAL_ECHO(delta[X_AXIS]);
-    // SERIAL_ECHOPGM(" addhome Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
-      
-     calculate_SCARA_forward_Transform(delta);
-     
-    // SERIAL_ECHOPGM("Delta X="); SERIAL_ECHO(delta[X_AXIS]);
-    // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
-     
-    current_position[axis] = delta[axis];
-    
-    // SCARA home positions are based on configuration since the actual limits are determined by the 
-    // inverse kinematic transform.
-    min_pos[axis] =          base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
-    max_pos[axis] =          base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
-   } 
-   else
-   {
-      current_position[axis] = base_home_pos(axis) + add_homing[axis];
-      min_pos[axis] =          base_min_pos(axis) + add_homing[axis];
-      max_pos[axis] =          base_max_pos(axis) + add_homing[axis];
-   }
-#else
   current_position[axis] = base_home_pos(axis) + add_homing[axis];
   min_pos[axis] =          base_min_pos(axis) + add_homing[axis];
   max_pos[axis] =          base_max_pos(axis) + add_homing[axis];
-#endif
+
 }
 
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -1441,10 +1428,38 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
 
     plan_bed_level_matrix.set_to_identity();
 
-    vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
-    vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
-    vector_3 pt3 = vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, z_at_pt_3);
-
+	#ifdef Z_SIGMA_AUTOLEVEL
+		float probe_x1 = (X_SIGMA_PROBE_1_LEFT_EXTR+((X_SIGMA_PROBE_1_RIGHT_EXTR-X_SIGMA_PROBE_1_LEFT_EXTR)/2));
+		float probe_y1 = Y_SIGMA_PROBE_1_RIGHT_EXTR;
+		vector_3 pt1 = vector_3(probe_x1, probe_y1, z_at_pt_1);
+		//Rapduch
+		Serial.print("Setting Vector1 X:");
+		Serial.print(probe_x1);
+		Serial.print(", Y:");
+		Serial.print(probe_y1);
+		Serial.print(", Z:");
+		Serial.println(z_at_pt_1);
+		vector_3 pt2 = vector_3(X_SIGMA_PROBE_2_LEFT_EXTR, Y_SIGMA_PROBE_2_LEFT_EXTR, z_at_pt_2);
+		//Rapduch
+		Serial.print("Setting Vector2 X:");
+		Serial.print(X_SIGMA_PROBE_2_LEFT_EXTR);
+		Serial.print(", Y:");
+		Serial.print(Y_SIGMA_PROBE_2_LEFT_EXTR);
+		Serial.print(", Z:");
+		Serial.println(z_at_pt_2);
+		vector_3 pt3 = vector_3(X_SIGMA_PROBE_3_LEFT_EXTR, Y_SIGMA_PROBE_3_LEFT_EXTR, z_at_pt_3);
+		//Rapduch
+		Serial.print("Setting Vector3 X:");
+		Serial.print(X_SIGMA_PROBE_3_LEFT_EXTR);
+		Serial.print(", Y:");
+		Serial.print(Y_SIGMA_PROBE_3_LEFT_EXTR);
+		Serial.print(", Z:");
+		Serial.println(z_at_pt_3);
+	#else
+		vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
+		vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
+		vector_3 pt3 = vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, z_at_pt_3);
+	#endif
     vector_3 from_2_to_1 = (pt1 - pt2).get_normal();
     vector_3 from_2_to_3 = (pt3 - pt2).get_normal();
     vector_3 planeNormal = vector_3::cross(from_2_to_1, from_2_to_3).get_normal();
@@ -1461,7 +1476,6 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
     current_position[Z_AXIS] = zprobe_zoffset;
 
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-
 }
 
 int sentit (float dz)
@@ -1973,11 +1987,17 @@ void process_commands()
       #endif //FWRETRACT
     
 	
-	case 28: //G28 Home all Axis one at a time
+	case 28: { //G28 Home all Axis one at a time
 #ifdef ENABLE_AUTO_BED_LEVELING
       plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 #endif //ENABLE_AUTO_BED_LEVELING
 
+		#ifdef Z_SIGMA_HOME
+		int saved_active_extruder = active_extruder;
+		Serial.print("Extruder active: ");
+		Serial.println(saved_active_extruder);
+		#endif
+		
       saved_feedrate = feedrate;
       saved_feedmultiply = feedmultiply;
       feedmultiply = 100;
@@ -2049,6 +2069,12 @@ void process_commands()
       if((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) // First do X
       {
       #ifdef DUAL_X_CARRIAGE
+		#ifdef Z_SIGMA_HOME
+			if(saved_active_extruder == RIGHT_EXTRUDER)
+			{
+				//active_extruder=LEFT_EXTRUDER; //Always use the same routine (left extruder probes)
+			}
+			#endif
         int tmp_extruder = active_extruder;
         extruder_duplication_enabled = false;
         active_extruder = !active_extruder;
@@ -2086,20 +2112,28 @@ void process_commands()
 	  //Rapduch
 	  #ifdef Z_SIGMA_HOME
 	  	if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+			  
+			  
+			  if (saved_active_extruder == RIGHT_EXTRUDER){
+				  active_extruder=LEFT_EXTRUDER;
+				  axis_is_at_home(X_AXIS);
+				  plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+			  }
+		  
 		  	destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		  	destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		  	destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
 		  	feedrate = SIGMA_Z_HOME_TRAVEL_SPEED;
-		  	current_position[Z_AXIS] = 0;
-			SERIAL_ECHO("Z SIGMA Homed");
+		  	current_position[Z_AXIS] = 0;	  
 			  
 		  	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-		  	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+		  	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);//Left Extruder
 		  	st_synchronize();
 		  	current_position[X_AXIS] = destination[X_AXIS];
 		  	current_position[Y_AXIS] = destination[Y_AXIS];
 		  	HOMEAXIS(Z);
-
+			  
+			Serial.println("Z SIGMA Homed");
 			//At this point our probe is homed, no offset is added.
 
 			//Now lets home with the second extruder: 
@@ -2187,16 +2221,18 @@ void process_commands()
           current_position[Z_AXIS]=code_value()+add_homing[2];
         }
       }
-      #ifdef ENABLE_AUTO_BED_LEVELING  //ADDING the Z offset
-        //if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-          //current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
-        //}
-      #endif
-
+      
+		//Rapduch
 		#ifdef Z_SIGMA_HOME
 		if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-			current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
+			current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)	
 		}
+		#else
+			#ifdef ENABLE_AUTO_BED_LEVELING  //ADDING the Z offset
+			//if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+			//current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
+			//}
+			#endif
 		#endif
 
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -2210,17 +2246,27 @@ void process_commands()
       previous_millis_cmd = millis();
       endstops_hit_on_purpose();
 
-
+		//Rapduch
 	  #ifdef Z_SIGMA_HOME  //This to return the left extruder at Xhome position
-		if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {	
+		if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {		
+			
+			feedrate = homing_feedrate[Z_AXIS];
+			current_position[Z_AXIS]+=Z_SIGMA_RAISE_AFTER_HOMING;
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);	
 			current_position[X_AXIS] = x_home_pos(active_extruder);
 			feedrate = homing_feedrate[X_AXIS];
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 			current_position[Z_AXIS] = 0;
 			feedrate = homing_feedrate[Z_AXIS];
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-			st_synchronize();	
+			st_synchronize();
 			
+			if(saved_active_extruder==RIGHT_EXTRUDER)
+			{
+				changeToolSigma(RIGHT_EXTRUDER); //Get again the same tool
+				Serial.print("Extruder released active: ");
+				Serial.println(saved_active_extruder);
+			}
 			////Activate Probing sequence			
 			//setup_for_endstop_move();
 			//feedrate = homing_feedrate[Z_AXIS];
@@ -2231,7 +2277,7 @@ void process_commands()
 		}
 	  #endif
 
-      break;
+   }break;
 
 
 //Rapduch for RepRapBCN Sigma
@@ -2307,6 +2353,12 @@ void process_commands()
 
 case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBCN
 {
+	//WARNING: T0 (LEFT_EXTRUDER) MUST BE SELECTED!
+	if (active_extruder==RIGHT_EXTRUDER){
+		Serial.println("Error: Left Extruder MUST BE ACTIVE");	
+		break; //An error message should show up on screen
+	}
+	
 	//Rapduch
 	#ifdef Z_SIGMA_AUTOLEVEL
 	
@@ -2320,9 +2372,11 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
 		SERIAL_ECHO_START;
 		SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
-		break; // abort G29, since we don't know where we are
+		//break; // abort G29, since we don't know where we are
 	}
 	
+	//We have to save the active extruder.
+	int saved_active_extruder = active_extruder;
 	
 	//Starting Calibration WIZARD
 	plan_bed_level_matrix.set_to_identity();
@@ -2380,7 +2434,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	st_synchronize();
 	
 	
-	//Now the right extruder enters the party!
+	//Now the right extruder joins the party!
 	active_extruder=RIGHT_EXTRUDER;
 	Serial.print("Zvalue at start:");
 	Serial.println(current_position[Z_AXIS]);
@@ -2409,22 +2463,95 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 	feedrate=homing_feedrate[Z_AXIS];
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+	current_position[Y_AXIS]=Y_MAX_POS/2;
+	feedrate = XY_TRAVEL_SPEED;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 	st_synchronize();
-	
 	
 	
 	clean_up_after_endstop_move();
 	
 	
+	//Update zOffset. We have to take into account the 2 different probe offsets
+	//NOT NEEDED
+	//Calculate medians
 	
-	//real_z = float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
-	//x_tmp = current_position[X_AXIS] + X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER;
-	//y_tmp = current_position[Y_AXIS] + Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER;
-	//z_tmp = current_position[Z_AXIS];
-//
-	//apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
-	//current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
-	//plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	float z_final_probe_1 = (z_at_pt_1+z2_at_pt_1)/2; //Upper left, upper right
+	float z_final_probe_2 = (z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower right
+	float z_final_probe_3 = (z_at_pt_3+z2_at_pt_2)/2; //lower right, lower left
+	
+	Serial.print("Probe 1: ");
+	Serial.println(z_final_probe_1);
+	Serial.print("Probe 2: ");
+	Serial.println(z_final_probe_2);
+	Serial.print("Probe 3: ");
+	Serial.println(z_final_probe_3);
+	
+	//Rapduch: We negated the Z points passed on this functions because the actual correction was inverted
+	//set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
+	set_bed_level_equation_3pts(-z_final_probe_1, -z_final_probe_2, -z_final_probe_3);
+	//This puts the current_posZ at z probe offset!!!
+	
+	// The following code correct the Z height difference from z-probe position and hotend tip position.
+	// The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend.
+	// When the bed is uneven, this height must be corrected.
+	real_z = float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
+	Serial.print("Real_Z: ");
+	Serial.println(real_z);
+	
+	x_tmp = current_position[X_AXIS] + X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER;
+	y_tmp = current_position[Y_AXIS] + Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER;
+	z_tmp = current_position[Z_AXIS];
+
+	apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction, we sent the z_offset as current position
+	current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
+	Serial.print("Current Z after setting: ");
+	Serial.println(current_position[Z_AXIS]);
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+
+	//enquecommand_P(PSTR("G35")); //Home again without wiping autolevel data!!!
+	
+    //Put both extruders at position
+	active_extruder=RIGHT_EXTRUDER;
+	current_position[X_AXIS]=x_home_pos(active_extruder)-20;
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+	feedrate = homing_feedrate[X_AXIS];
+	current_position[X_AXIS]=x_home_pos(RIGHT_EXTRUDER);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+	axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the extruder
+	
+	//changeToolSigma(LEFT_EXTRUDER);	
+	active_extruder=LEFT_EXTRUDER;
+	feedrate = homing_feedrate[X_AXIS];
+	current_position[X_AXIS]=x_home_pos(LEFT_EXTRUDER)+20;
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+	current_position[X_AXIS]=x_home_pos(LEFT_EXTRUDER);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+	
+	//Home Z
+	feedrate = homing_feedrate[Z_AXIS];
+	current_position[Z_AXIS]=0;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+	
+	//current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
+	
+	axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the extruder
+	
+	//Restore the previous active extruder:
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+	
+	
+	if(saved_active_extruder==LEFT_EXTRUDER)
+	{
+		//changeToolSigma(LEFT_EXTRUDER); //Get again the same tool
+		Serial.print("Extruder active: ");
+		Serial.println(saved_active_extruder);
+	}else{
+		
+	}
+	
 	
 	#else
 	
@@ -2628,6 +2755,307 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	
 	break; //G33 ends
 }
+
+	//Rapduch
+	#ifdef SIGMA_BED_AUTOCALIB
+	 case 34: // Performs a BED calibration Wizard
+	 {
+		 //WARNING: T0 (LEFT_EXTRUDER) MUST BE SELECTED!
+		 if (active_extruder==RIGHT_EXTRUDER){
+			 Serial.println("Error: Left Extruder MUST BE ACTIVE");
+			 break; //An error message should show up on screen
+		 }
+		 
+		 #if Z_MIN_PIN == -1
+		 #error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
+		 #endif
+
+		 // Prevent user from running a G29 without first homing in X and Y
+		 if (! (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS]) )
+		 {
+			 LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+			 SERIAL_ECHO_START;
+			 SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+			 //break; // abort G29, since we don't know where we are
+		 }
+		 
+		 //We have to save the active extruder.
+		 int saved_active_extruder = active_extruder;
+		 
+		 //Starting Calibration WIZARD
+		 plan_bed_level_matrix.set_to_identity();
+		 vector_3 uncorrected_position = plan_get_position();
+		 //uncorrected_position.debug("position durring G29");
+		 current_position[X_AXIS] = uncorrected_position.x;
+		 current_position[Y_AXIS] = uncorrected_position.y;
+		 current_position[Z_AXIS] = uncorrected_position.z;
+		 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		 
+		 //MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
+		 current_position[X_AXIS]+=20;
+		 feedrate=homing_feedrate[X_AXIS];
+		 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+		 st_synchronize();
+		 //current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER);
+		 
+		 active_extruder=RIGHT_EXTRUDER;
+		 axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the right extruder
+		 Serial.println(current_position[X_AXIS]);
+		 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+		 current_position[X_AXIS]-=20;
+		 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+		 
+		 //Now we can proceed to probe the first 3 points with the left extruder
+		 active_extruder=LEFT_EXTRUDER;
+		 axis_is_at_home(X_AXIS);
+		 current_position[X_AXIS]+=20;
+		 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]); // We are now at position
+		 st_synchronize();
+		 
+		 //STARTING THE ACTUAL PROBE
+		 setup_for_endstop_move();
+		 
+		 feedrate = homing_feedrate[Z_AXIS];
+		 
+		 // Probe at 3 arbitrary points
+		 // probe left extruder
+		 
+		 Serial.print("Zvalue after home:");
+		 Serial.println(current_position[Z_AXIS]);
+		 
+		 float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
+		 float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+		 float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+		 
+		 feedrate=homing_feedrate[Z_AXIS];
+		 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+		 //feedrate=homing_feedrate[X_AXIS];
+		 feedrate = XY_TRAVEL_SPEED;
+		 current_position[X_AXIS]=x_home_pos(active_extruder)+20;
+		 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+		 feedrate=homing_feedrate[Z_AXIS];
+		 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+		 st_synchronize();
+		 
+		 
+		 //Now the right extruder joins the party!
+		 active_extruder=RIGHT_EXTRUDER;
+		 Serial.print("Zvalue at start:");
+		 Serial.println(current_position[Z_AXIS]);
+		 axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the right extruder
+		 current_position[X_AXIS]-=20;
+		 Serial.print("Zvalue before:");
+		 Serial.println(current_position[Z_AXIS]);
+		 //current_position[Z_AXIS]=(Z_MIN_POS+extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
+		 Serial.print("Zvalue after:");
+		 Serial.println(current_position[Z_AXIS]);
+		 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+		 
+
+		 //Probe at 3 arbitrary points
+		 //probe left extruder
+		 float z2_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR, Z_RAISE_BEFORE_PROBING);
+		 float z2_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_RIGHT_EXTR,Y_SIGMA_PROBE_2_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+		 float z2_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_RIGHT_EXTR,Y_SIGMA_PROBE_3_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+		 
+		 
+		 feedrate=homing_feedrate[Z_AXIS];
+		 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+		 //feedrate=homing_feedrate[X_AXIS];
+		 feedrate = XY_TRAVEL_SPEED;
+		 current_position[X_AXIS]=x_home_pos(active_extruder)-20;
+		 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+		 feedrate=homing_feedrate[Z_AXIS];
+		 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+		 current_position[Y_AXIS]=Y_MAX_POS/2;
+		 feedrate = XY_TRAVEL_SPEED;
+		 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+		 st_synchronize();
+		 
+		 
+		 clean_up_after_endstop_move();
+		 
+		 
+		 //Update zOffset. We have to take into account the 2 different probe offsets
+		 //NOT NEEDED because we have to check the bed from the same position. Theorically the offsets between probes is inexistent
+		 //Calculate medians
+		 
+		 float z_final_probe_1 = (z_at_pt_1+z2_at_pt_1)/2; //Upper left, upper right
+		 float z_final_probe_2 = (z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
+		 float z_final_probe_3 = (z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right
+		 
+		 Serial.print("Probe 1: ");
+		 Serial.println(z_final_probe_1);
+		 Serial.print("Probe 2: ");
+		 Serial.println(z_final_probe_2);
+		 Serial.print("Probe 3: ");
+		 Serial.println(z_final_probe_3);
+		 
+		 //Eric's Part!!!
+		 //plan_bed_level_matrix.set_to_identity();
+		 float probe_x1 = (X_SIGMA_PROBE_1_LEFT_EXTR+((X_SIGMA_PROBE_1_RIGHT_EXTR-X_SIGMA_PROBE_1_LEFT_EXTR)/2));
+		 Serial.print("The p1 is on X:");
+		 Serial.println(probe_x1);
+		 float probe_y1 = Y_SIGMA_PROBE_1_RIGHT_EXTR;
+		 vector_3 pt1 = vector_3(probe_x1, probe_y1, z_final_probe_1);
+
+		 vector_3 pt2 = vector_3(X_SIGMA_PROBE_2_LEFT_EXTR, Y_SIGMA_PROBE_2_LEFT_EXTR, z_final_probe_2);
+		 vector_3 pt3 = vector_3(X_SIGMA_PROBE_3_LEFT_EXTR, Y_SIGMA_PROBE_3_LEFT_EXTR, z_final_probe_3);
+		 
+		 vector_3 from_2_to_1 = (pt1 - pt2);
+		 vector_3 from_2_to_3 = (pt3 - pt2);
+		 vector_3 planeNormal = vector_3::cross(from_2_to_1, from_2_to_3);
+		 planeNormal = vector_3(planeNormal.x, planeNormal.y, abs(planeNormal.z));
+		 
+		 //Es calcula el pla a partir del pt2 i per tant és l'origen (0,0,0)
+		 
+		 //Posicions relatives dels cargols de regulació respecte l'origen
+		 float cargol_1_x = CARGOL_1_X;
+		 float cargol_1_y = CARGOL_1_Y;
+		 
+		 float cargol_2_x = CARGOL_2_X;
+		 float cargol_2_y = CARGOL_2_Y;
+		 
+		 float cargol_3_x = CARGOL_3_X;
+		 float cargol_3_y = CARGOL_3_Y;
+		 
+		 //Càlcul dels vectors normalitzats de l'origen fins al cargol de regulació
+
+		 vector_3 d1 = vector_3 (cargol_1_x, cargol_1_y, 0);
+		 vector_3 d2 = vector_3(cargol_2_x, cargol_2_y, 0);
+		 vector_3 d3 = vector_3(cargol_3_x, cargol_3_y, 0);
+		 
+		 //Càlcul de l'alçada Z dels cargols de regulació
+		 float z1=(-planeNormal.x*d1.x-planeNormal.y*d1.y)/planeNormal.z;
+		 float z2=(-planeNormal.x*d2.x-planeNormal.y*d2.y)/planeNormal.z;
+		 float z3=(-planeNormal.x*d3.x-planeNormal.y*d3.y)/planeNormal.z;
+
+		 //Posició relativa del centre de la plataforma respecte l'origen
+		 float centre_x = (X_MAX_POS/2)-X_SIGMA_PROBE_2_LEFT_EXTR;
+		 float centre_y = (Y_MAX_POS/2)-Y_SIGMA_PROBE_2_LEFT_EXTR;
+		 vector_3 centre = vector_3 (centre_x, centre_y, 0);
+		 
+		 //Càlcul de l'alçada Z del centre de la plataforma
+		 float zc=(-planeNormal.x*centre.x-planeNormal.y*centre.y)/planeNormal.z;
+		 
+		 //Càlcul alçades relatives cargols regulació respecte al centre (objectiu de regulació)
+		 float dz1 = zc-z1;
+		 float dz2 = zc-z2;
+		 float dz3 = zc-z3;
+		 
+		 //Voltes cargols
+		 
+		 float pas_M5 = PAS_M5;
+		 
+		 int sentit1 = sentit (dz1);
+		 int sentit2 = sentit (dz2);
+		 int sentit3 = sentit (dz3);
+		 
+		 float voltes1= voltes (dz1);
+		 float voltes2= voltes (dz2);
+		 float voltes3= voltes (dz3);
+		 
+		 //Aproximació a 1/8 de volta
+		 int aprox1 = aprox (voltes1);
+		 int numvoltes1 = aprox1/8;   // Voltes completes
+		 int vuitens1 = aprox1 % 8;  // Vuitens
+		 
+		 int aprox2 = aprox (voltes2);
+		 int numvoltes2 = aprox2/8;   // Voltes completes
+		 int vuitens2 = aprox2 % 8;  // Vuitens
+		 
+		 int aprox3 = aprox (voltes3);
+		 int numvoltes3 = aprox3/8;   // Voltes completes
+		 int vuitens3 = aprox3 % 8;  // Vuitens
+		 
+		 if (aprox1==0 && aprox2==0 && aprox3==0)
+		 {
+			 #ifdef SIGMA_TOUCH_SCREEN
+			 genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			 #endif
+			 SERIAL_PROTOCOL(" Platform is Calibrated! ");
+		 }else{
+			 
+			 #ifdef SIGMA_TOUCH_SCREEN
+			 char buffer[256];
+			 sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
+			 genie.WriteStr(STRING_SCREW1,buffer);
+			 
+			 sprintf(buffer, " %d / 8",vuitens2);
+			 genie.WriteStr(STRING_SCREW2,buffer);
+			 
+			 sprintf(buffer, " %d / 8",vuitens3);
+			 genie.WriteStr(STRING_SCREW3,buffer);
+			 
+			 genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_BAD,0);
+			 #endif
+			 
+			 SERIAL_PROTOCOLPGM(" zc: ");
+			 SERIAL_PROTOCOL(zc);
+			 SERIAL_PROTOCOLPGM("\n");
+			 SERIAL_PROTOCOLPGM(" dz1: ");
+			 SERIAL_PROTOCOL(dz1);
+			 SERIAL_PROTOCOLPGM(" dz2: ");
+			 SERIAL_PROTOCOL(dz2);
+			 SERIAL_PROTOCOLPGM(" dz3: ");
+			 SERIAL_PROTOCOL(dz3);
+			 SERIAL_PROTOCOLPGM("\n");
+
+			 SERIAL_PROTOCOLPGM(" Voltes cargol 1: ");
+			 if (numvoltes1 > 0)
+			 {
+				 SERIAL_PROTOCOL(numvoltes1);
+				 SERIAL_PROTOCOLPGM(" ");
+			 }
+			 SERIAL_PROTOCOL(vuitens1);
+			 SERIAL_PROTOCOLPGM("/8");
+			 if (sentit1 > 0)
+			 {
+				 SERIAL_PROTOCOLPGM(" horari\n ");
+			 }
+			 else
+			 {
+				 SERIAL_PROTOCOLPGM(" antihorari\n: ");
+			 }
+
+			 SERIAL_PROTOCOLPGM(" Voltes cargol 2: ");
+			 if (numvoltes2 > 0)
+			 {
+				 SERIAL_PROTOCOL(numvoltes2);
+				 SERIAL_PROTOCOLPGM(" ");
+			 }
+			 SERIAL_PROTOCOL(vuitens2);
+			 SERIAL_PROTOCOLPGM("/8");
+			 if (sentit2 > 0)
+			 {
+				 SERIAL_PROTOCOLPGM(" horari\n ");
+			 }
+			 else
+			 {
+				 SERIAL_PROTOCOLPGM(" antihorari\n: ");
+			 }
+			 
+			 SERIAL_PROTOCOLPGM(" Voltes cargol 3: ");
+			 if (numvoltes3 > 0)
+			 {
+				 SERIAL_PROTOCOL(numvoltes3);
+				 SERIAL_PROTOCOLPGM(" ");
+			 }
+			 SERIAL_PROTOCOL(vuitens3);
+			 SERIAL_PROTOCOLPGM("/8");
+			 if (sentit3 > 0)
+			 {
+				 SERIAL_PROTOCOLPGM(" horari\n ");
+			 }
+			 else
+			 {
+				 SERIAL_PROTOCOLPGM(" antihorari\n: ");
+			 }
+			 SERIAL_PROTOCOLPGM("\n");
+		 }	 
+		 break;		 
+	 }
+	#endif //SIGMA_BED_AUTOCALIB
 
 
     case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
@@ -4845,7 +5273,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       #if EXTRUDERS > 1
       if(tmp_extruder != active_extruder) {
         // Save current position to return to after applying extruder offset
-		//Rapduch
+		//Rapduch toolchange
 		z_restaurada = current_position[Z_AXIS]; //Save the Z position that will be restored after changing tool
         memcpy(destination, current_position, sizeof(destination));
       #ifdef DUAL_X_CARRIAGE
@@ -4958,6 +5386,55 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
   ClearToSend();
 }
+
+
+//Rapduch: Better hardcoded toolChange
+#ifdef DUAL_X_CARRIAGE
+void changeToolSigma(int tool){
+	tmp_extruder = tool;
+	z_restaurada = current_position[Z_AXIS]; //Save the Z position that will be restored after changing tool
+	memcpy(destination, current_position, sizeof(destination));
+	
+	if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE && current_position[X_AXIS] != x_home_pos(active_extruder)) //DUAL FULL CONTROL and NOT HOMED
+	{
+		// Park old head: 1) raise 2) move to park position
+		// No need to lower the Z axis, the new tool has to move to position before lowering Z
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);
+		plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[X_AXIS]/2, active_extruder);
+		st_synchronize();
+		current_position[Z_AXIS]= current_position[Z_AXIS]+TOOLCHANGE_PARK_ZLIFT;
+	}
+	
+	// apply Y & Z extruder offset (x offset is already used in determining home pos)
+	current_position[Y_AXIS] = current_position[Y_AXIS] -
+	extruder_offset[Y_AXIS][active_extruder] +
+	extruder_offset[Y_AXIS][tmp_extruder];
+	current_position[Z_AXIS] = current_position[Z_AXIS] -
+	extruder_offset[Z_AXIS][active_extruder] +
+	extruder_offset[Z_AXIS][tmp_extruder];
+
+	active_extruder = tmp_extruder;
+
+	// This function resets the max/min values - the current position may be overwritten below.
+	axis_is_at_home(X_AXIS);
+
+	//Rapduch
+	if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE)
+	{
+		memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+		active_extruder_parked = true;
+	}
+	
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	//Rapduch purge
+	//Maybe we could purge here
+	
+SERIAL_ECHO_START;
+SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
+SERIAL_PROTOCOLLN((int)active_extruder);	
+}
+#endif
+
 
 
 //Rapduch

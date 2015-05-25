@@ -95,8 +95,8 @@
 #endif
 
 #if MOTHERBOARD == MEGATRONICS_V3
-	//#define PROTO1
-	#define PROTO2
+	#define PROTO1
+	//#define PROTO2
 #endif
 
 
@@ -290,7 +290,7 @@
 //can be software-disabled for whatever purposes by
 #define PREVENT_DANGEROUS_EXTRUDE
 //if PREVENT_DANGEROUS_EXTRUDE is on, you can still disable (uncomment) very long bits of extrusion separately.
-#define PREVENT_LENGTHY_EXTRUDE
+//#define PREVENT_LENGTHY_EXTRUDE
 
 #define EXTRUDE_MINTEMP 0 //With DUAL X it only counts extruder0 temp
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
@@ -443,7 +443,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#define X_MAX_POS 318 //Distance between extruders
+	#define X_MAX_POS 312 //Distance between extruders
 	#define X_MIN_POS 0
 	#define Y_MAX_POS 300
 	#define Y_MIN_POS 0
@@ -609,44 +609,54 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //4D LCD Touch Screen for RepRapSigma
 #define SIGMA_TOUCH_SCREEN
 
+//Second Extruder endstop enable (needed for BED AUTOCAL)
+#define SIGMA_ENDSTOP
+
 //Extruder Cal Wizard
 #define EXTRUDER_CALIBRATION_WIZARD
 
-//Rapduch
-//Insert Filament
-#define BOWDEN_LENGTH 10
-#define EXTRUDER_LENGTH 10
+//Auto Bed Calib
+#define SIGMA_BED_AUTOCALIB
 
-//For better undestanding on wich extruder is selected
+//Rapduch
+//Insert Filament parameters
+#define BOWDEN_LENGTH 850
+#define EXTRUDER_LENGTH 50
+#define INSERT_FAST_SPEED 5000	
+#define INSERT_SLOW_SPEED 150
+
+//For better understanding on which extruder is selected
 #define LEFT_EXTRUDER 0 
 #define RIGHT_EXTRUDER 1
 
-//Rapduch For sigma Autolevel
+//Rapduch 
+//For sigma Autolevel
 #define Z_SIGMA_HOME
 #define Z_SIGMA_AUTOLEVEL
 
 
 #ifdef Z_SIGMA_HOME
-	#define Z_SIGMA_HOME_X_POINT 56.5
+	#define Z_SIGMA_HOME_X_POINT 55.5
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
 	#define SIGMA_Z_HOME_TRAVEL_SPEED 6000
+	
+	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
+	#define Z_SIGMA_RAISE_AFTER_HOMING 2
 	
 	//#define Z_SIGMA_HOME_SECOND_X_POINT 290
 	//#define Z_SIGMA_HOME_SECOND_Y_POINT 150
 	//#define Z_SIGMA_HOME_SECOND_X_POINT 200
 	//#define Z_SIGMA_HOME_SECOND_Y_POINT 160
+#endif
 
-	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
-	
+
+#ifdef Z_SIGMA_AUTOLEVEL
 	#if MOTHERBOARD == BCN3D_BOARD
 		#define XY_SIGMA_TRAVEL_SPEED 7000
 	#else
-		#define XY_SIGMA_TRAVEL_SPEED 8000	
+		#define XY_SIGMA_TRAVEL_SPEED 8000
 	#endif
-#endif
-
-#ifdef Z_SIGMA_AUTOLEVEL
 
 	#if MOTHERBOARD == MEGATRONICS_V3
 		#ifdef PROTO1
@@ -655,55 +665,55 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 			#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5.3 //It is negative, it is compensated
 		#endif
 		#ifdef PROTO2
-			#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
+			#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  
 			#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
 			#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  5 //It is negative, it is compensated
 		#endif
 	#endif
 	
 	#if MOTHERBOARD == BCN3D_BOARD
-		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  19
+		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
 		#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
-		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  0 //It is negative, it is compensated
+		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  2.80//3.4 //It is negative, it is compensated
 	#endif
 	
-	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-20
+	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-17.5
 	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
-	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	5
+	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//3.7
 	
 	//Left extruder probe point
-	#define X_SIGMA_PROBE_1_LEFT_EXTR 56.5
+	#define X_SIGMA_PROBE_1_LEFT_EXTR 55.5
 	#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_LEFT_EXTR 56.5
-	#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
+	#define X_SIGMA_PROBE_2_LEFT_EXTR 55.5
+	#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
 	
 	#define X_SIGMA_PROBE_3_LEFT_EXTR 255
-	#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
+	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
 	
 	//Right extruder probe point
 	#define X_SIGMA_PROBE_1_RIGHT_EXTR 255
 	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
 	#define X_SIGMA_PROBE_2_RIGHT_EXTR 255
-	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
+	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
 	
-	#define X_SIGMA_PROBE_3_RIGHT_EXTR 56.5
-	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
+	#define X_SIGMA_PROBE_3_RIGHT_EXTR 55.5
+	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
 #endif
 
-#ifdef  ENABLE_AUTO_BED_LEVELING
+#ifdef  SIGMA_BED_AUTOCALIB
 	//Calibration WIZARD --------
 	#define PAS_M5 0.8
 	//Screw positions on BED for
-	#define CARGOL_1_X  -14;
-	#define CARGOL_1_Y  160;
+	#define CARGOL_1_X  156;
+	#define CARGOL_1_Y  276;
 
-	#define CARGOL_2_X  -14;
-	#define CARGOL_2_Y  0;
+	#define CARGOL_2_X  70;
+	#define CARGOL_2_Y  25;
 
-	#define CARGOL_3_X  258;
-	#define CARGOL_3_Y  80;
+	#define CARGOL_3_X  245;
+	#define CARGOL_3_Y  25;
 	// -END BED calibration WIZARD
 #endif // ENABLE_AUTO_BED_LEVELING
 
@@ -731,8 +741,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-		#define EXTRUDER_OFFSET_Y {0.0,  0.0}  // (in mm) for each extruder, offset of the hotend on the Y axis
-		#define EXTRUDER_OFFSET_Z {0.0 , 0.0}
+		#define EXTRUDER_OFFSET_Y {0.0,  -0.15}  // (in mm) for each extruder, offset of the hotend on the Y axis
+		#define EXTRUDER_OFFSET_Z {0.0 , -0.1}
 #endif
 
 
@@ -762,33 +772,33 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
-#if MOTHERBOARD == BCN3D_BOARD
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/8 microstepping for BCN3D Board
- #define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,51}
-#else
-	#if MOTHERBOARD == MEGATRONICS_V3
-	#ifdef PROTO1
-		#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,152}  // 1/16 for Megatronicsv3 MK8
-	#endif
+	#if MOTHERBOARD == BCN3D_BOARD
+		//#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/8 microstepping for BCN3D Board
+		#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,152}//MK8
+		//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}//MK7
+	#else
+		#if MOTHERBOARD == MEGATRONICS_V3
+			#ifdef PROTO1
+				#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,152}  // 1/16 for Megatronicsv3 MK8
+			#endif
 
-	#ifdef PROTO2
-		#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,102}  // 1/16 for Megatronicsv3 MK7
+			#ifdef PROTO2
+				#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,1600,102}  // 1/16 for Megatronicsv3 MK7
+			#endif
+		#endif	
 	#endif
-	#endif
-	
-#endif
 #endif
 
-#define DEFAULT_MAX_FEEDRATE          {1500, 1500, 20, 100}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000,500,25,25}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_MAX_FEEDRATE          {250, 250, 50, 100}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {2500,2500,100,2000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+//#define DEFAULT_MAX_ACCELERATION      {2000,2000,50,1000}
 //#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
 //#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum star
 
-#define DEFAULT_ACCELERATION          200    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  1000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+#define DEFAULT_ACCELERATION          1500    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 //#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 //#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
-
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                5.0    // (mm/sec)

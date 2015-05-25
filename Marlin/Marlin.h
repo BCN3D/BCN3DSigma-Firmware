@@ -282,4 +282,5 @@ extern bool is_changing_filament;
 extern int getBuflen();
 extern void homeFromMain();
 extern void changeTool(int ntool);
+extern void changeToolSigma(int tool);
 #endif

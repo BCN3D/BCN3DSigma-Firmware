@@ -2509,7 +2509,6 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	Serial.println(current_position[Z_AXIS]);
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
-
 	//enquecommand_P(PSTR("G35")); //Home again without wiping autolevel data!!!
 	
     //Put both extruders at position
@@ -2536,7 +2535,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 	
 	//current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
-	
+
 	axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the extruder
 	
 	//Restore the previous active extruder:
@@ -2580,10 +2579,8 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	// Probe at 3 arbitrary points
 	// probe 1
 	float z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING);
-
 	// probe 2
 	float z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
-
 	// probe 3
 	float z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 
@@ -2875,6 +2872,8 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		 
 		 clean_up_after_endstop_move();
 		 
+
+		 
 		 
 		 //Update zOffset. We have to take into account the 2 different probe offsets
 		 //NOT NEEDED because we have to check the bed from the same position. Theorically the offsets between probes is inexistent
@@ -2910,14 +2909,14 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		 //Es calcula el pla a partir del pt2 i per tant és l'origen (0,0,0)
 		 
 		 //Posicions relatives dels cargols de regulació respecte l'origen
-		 float cargol_1_x = CARGOL_1_X;
-		 float cargol_1_y = CARGOL_1_Y;
+		 float cargol_1_x = CARGOL_1_X-X_SIGMA_PROBE_2_LEFT_EXTR;
+		 float cargol_1_y = CARGOL_1_Y-Y_SIGMA_PROBE_2_LEFT_EXTR;
 		 
-		 float cargol_2_x = CARGOL_2_X;
-		 float cargol_2_y = CARGOL_2_Y;
+		 float cargol_2_x = CARGOL_2_X-X_SIGMA_PROBE_2_LEFT_EXTR;
+		 float cargol_2_y = CARGOL_2_Y-Y_SIGMA_PROBE_2_LEFT_EXTR;
 		 
-		 float cargol_3_x = CARGOL_3_X;
-		 float cargol_3_y = CARGOL_3_Y;
+		 float cargol_3_x = CARGOL_3_X-X_SIGMA_PROBE_2_LEFT_EXTR;
+		 float cargol_3_y = CARGOL_3_Y-Y_SIGMA_PROBE_2_LEFT_EXTR;
 		 
 		 //Càlcul dels vectors normalitzats de l'origen fins al cargol de regulació
 
@@ -3053,6 +3052,9 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 			 }
 			 SERIAL_PROTOCOLPGM("\n");
 		 }	 
+		 
+		enquecommand(PSTR("G28 X0 Y0"));
+		enquecommand(PSTR("T0"));
 		 break;		 
 	 }
 	#endif //SIGMA_BED_AUTOCALIB

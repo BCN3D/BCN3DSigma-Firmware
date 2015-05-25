@@ -677,7 +677,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  2.80//3.4 //It is negative, it is compensated
 	#endif
 	
-	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-18
+	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-17.5
 	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
 	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//3.7
 	

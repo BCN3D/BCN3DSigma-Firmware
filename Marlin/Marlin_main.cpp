@@ -2225,7 +2225,7 @@ void process_commands()
 		//Rapduch
 		#ifdef Z_SIGMA_HOME
 		if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-			current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
+			current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)	
 		}
 		#else
 			#ifdef ENABLE_AUTO_BED_LEVELING  //ADDING the Z offset
@@ -2353,7 +2353,6 @@ void process_commands()
 
 case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBCN
 {
-	
 	//WARNING: T0 (LEFT_EXTRUDER) MUST BE SELECTED!
 	if (active_extruder==RIGHT_EXTRUDER){
 		Serial.println("Error: Left Extruder MUST BE ACTIVE");	
@@ -2510,11 +2509,43 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	Serial.println(current_position[Z_AXIS]);
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
+
+	//enquecommand_P(PSTR("G35")); //Home again without wiping autolevel data!!!
+	
+    //Put both extruders at position
+	active_extruder=RIGHT_EXTRUDER;
+	current_position[X_AXIS]=x_home_pos(active_extruder)-20;
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+	feedrate = homing_feedrate[X_AXIS];
+	current_position[X_AXIS]=x_home_pos(RIGHT_EXTRUDER);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+	axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the extruder
+	
+	//changeToolSigma(LEFT_EXTRUDER);	
+	active_extruder=LEFT_EXTRUDER;
+	feedrate = homing_feedrate[X_AXIS];
+	current_position[X_AXIS]=x_home_pos(LEFT_EXTRUDER)+20;
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+	current_position[X_AXIS]=x_home_pos(LEFT_EXTRUDER);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+	
+	//Home Z
+	feedrate = homing_feedrate[Z_AXIS];
+	current_position[Z_AXIS]=0;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+	
+	//current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
+	
+	axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the extruder
+	
 	//Restore the previous active extruder:
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+	
 	
 	if(saved_active_extruder==LEFT_EXTRUDER)
 	{
-		changeToolSigma(LEFT_EXTRUDER); //Get again the same tool
+		//changeToolSigma(LEFT_EXTRUDER); //Get again the same tool
 		Serial.print("Extruder active: ");
 		Serial.println(saved_active_extruder);
 	}else{

@@ -283,4 +283,10 @@ extern int getBuflen();
 extern void homeFromMain();
 extern void changeTool(int ntool);
 extern void changeToolSigma(int tool);
+extern int vuitens1;
+extern int vuitens2;
+extern int vuitens3;
+extern int sentit1;
+extern int sentit2;
+extern int sentit3;
 #endif

@@ -231,6 +231,12 @@ CardReader card;
 	char filament_mode='O';
 	bool is_changing_filament=false;
 	String currentSDFileName;
+	int vuitens1=0;
+	int vuitens2=0;
+	int vuitens3=0;
+	int sentit1=0;
+	int sentit2=0;
+	int sentit3=0;
 #endif
 
 #ifndef SIGMA_TOUCH_SCREEN
@@ -393,6 +399,7 @@ static float delta[3] = {0.0, 0.0, 0.0};
 
 //Rapduch
 float z_restaurada;
+
 
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
@@ -928,8 +935,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			char buffer[256]; 
 			
 			if (millis() >= waitPeriod)
-			{		
-					
+			{					
 				//REGION---		
 				#pragma region Old_Temperature_print
 				//Declare a String
@@ -1036,10 +1042,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				////genie.WriteStr(STRINGS_NOZZLE2,prepare_temp_string(1));//E2
 				////genie.WriteStr(STRINGS_BED,prepare_temp_string(2));//BED			
 				////waitPeriod=1000+millis();	//Every 1s
-				
-							
-				//Change filament thermometer
-							
+					
+				//Change filament thermometer	
 				tHotend=int(degHotend(which_extruder) + 0.5);
 				int tTarget=int(degTargetHotend(which_extruder) + 0.5);			
 				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
@@ -1102,8 +1106,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			}				
 	}else
 	{
-		//Do always...
-		
+		//Do always...		
 	}
 	//waitPeriod=250+millis();
 	genie.DoEvents(); //Processes the TouchScreen Queued Events
@@ -2670,18 +2673,23 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		}else{
 		
 		#ifdef SIGMA_TOUCH_SCREEN
+			char buffer[256];
+			sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
+			genie.WriteStr(STRING_BED_SCREW1,buffer);
 		
-		char buffer[256];
-		sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
-		genie.WriteStr(STRING_SCREW1,buffer);
+			if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,3,1);} //The direction is inverted in Sigma's bed screws
+			else{genie.WriteObject(GENIE_OBJ_USERIMAGES,3,0);}
 		
-		sprintf(buffer, " %d / 8",vuitens2);
-		genie.WriteStr(STRING_SCREW2,buffer);
+			//sprintf(buffer, " %d / 8",vuitens2);
+			//genie.WriteStr(STRING_SCREW2,buffer);
 		
-		sprintf(buffer, " %d / 8",vuitens3);
-		genie.WriteStr(STRING_SCREW3,buffer);
-		
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_BAD,0);
+			//sprintf(buffer, " %d / 8",vuitens3);
+			//genie.WriteStr(STRING_SCREW3,buffer);
+			
+			//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_BAD,1);
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW1,0);
+			
+			
 		#endif
 		
 		SERIAL_PROTOCOLPGM(" zc: ");
@@ -2869,16 +2877,12 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 		 st_synchronize();
 		 
-		 
 		 clean_up_after_endstop_move();
-		 
-
-		 
+		  
 		 
 		 //Update zOffset. We have to take into account the 2 different probe offsets
 		 //NOT NEEDED because we have to check the bed from the same position. Theorically the offsets between probes is inexistent
 		 //Calculate medians
-		 
 		 float z_final_probe_1 = (z_at_pt_1+z2_at_pt_1)/2; //Upper left, upper right
 		 float z_final_probe_2 = (z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
 		 float z_final_probe_3 = (z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right
@@ -2946,9 +2950,9 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		 
 		 float pas_M5 = PAS_M5;
 		 
-		 int sentit1 = sentit (dz1);
-		 int sentit2 = sentit (dz2);
-		 int sentit3 = sentit (dz3);
+		 sentit1 = sentit (dz1);
+		 sentit2 = sentit (dz2);
+		 sentit3 = sentit (dz3);
 		 
 		 float voltes1= voltes (dz1);
 		 float voltes2= voltes (dz2);
@@ -2957,15 +2961,39 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		 //Aproximació a 1/8 de volta
 		 int aprox1 = aprox (voltes1);
 		 int numvoltes1 = aprox1/8;   // Voltes completes
-		 int vuitens1 = aprox1 % 8;  // Vuitens
+		 vuitens1 = aprox1 % 8;  // Vuitens
 		 
 		 int aprox2 = aprox (voltes2);
 		 int numvoltes2 = aprox2/8;   // Voltes completes
-		 int vuitens2 = aprox2 % 8;  // Vuitens
+		 vuitens2 = aprox2 % 8;  // Vuitens
 		 
 		 int aprox3 = aprox (voltes3);
 		 int numvoltes3 = aprox3/8;   // Voltes completes
-		 int vuitens3 = aprox3 % 8;  // Vuitens
+		 vuitens3 = aprox3 % 8;  // Vuitens
+		 
+		 Serial.print("Voltes1:  ");
+		 Serial.println(voltes1);
+		 Serial.print("Aprox1:  ");
+		 Serial.println(aprox1);
+		 Serial.print("Vuitens1:  ");
+		 Serial.println(vuitens1);
+		 Serial.println("");
+		 
+		 Serial.print("Voltes2:  ");
+		 Serial.println(voltes2);
+		 Serial.print("Aprox2:  ");
+		 Serial.println(aprox2);
+		 Serial.print("Vuitens2:  ");
+		 Serial.println(vuitens2);
+		 Serial.println("");
+		 
+		 Serial.print("Voltes3:  ");
+		 Serial.println(voltes3);
+		 Serial.print("Aprox3:  ");
+		 Serial.println(aprox3);
+		 Serial.print("Vuitens3:  ");
+		 Serial.println(vuitens3);
+		 Serial.println("");
 		 
 		 if (aprox1==0 && aprox2==0 && aprox3==0)
 		 {
@@ -2977,16 +3005,42 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 			 
 			 #ifdef SIGMA_TOUCH_SCREEN
 			 char buffer[256];
-			 sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
-			 genie.WriteStr(STRING_SCREW1,buffer);
+		 
+			if (vuitens1!= 0){
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW1,0);
+				 sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
+				 genie.WriteStr(STRING_BED_SCREW1,buffer);
+				if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,1);} //The direction is inverted in Sigma's bed screws
+				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,0);}		
+			}
+			
+			else if (vuitens2!= 0){
+				Serial.println("Jump over screw1");
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
+				sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
+				genie.WriteStr(STRING_BED_SCREW2,buffer);
+				if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,1);} //The direction is inverted in Sigma's bed screws
+				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,0);}
+			}
+			
+			else if (vuitens3!= 0){
+				Serial.println("Jump over screw1 and screw2");
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
+				sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
+				genie.WriteStr(STRING_BED_SCREW3,buffer);
+				if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,1);} //The direction is inverted in Sigma's bed screws
+				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,0);}
+			}
+			
+			 //sprintf(buffer, " %d / 8",vuitens2);
+			 //genie.WriteStr(STRING_SCREW2,buffer);
 			 
-			 sprintf(buffer, " %d / 8",vuitens2);
-			 genie.WriteStr(STRING_SCREW2,buffer);
+			 //sprintf(buffer, " %d / 8",vuitens3);
+			 //genie.WriteStr(STRING_SCREW3,buffer);
 			 
-			 sprintf(buffer, " %d / 8",vuitens3);
-			 genie.WriteStr(STRING_SCREW3,buffer);
+			 //genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_BAD,1);
 			 
-			 genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_BAD,0);
+			 
 			 #endif
 			 
 			 SERIAL_PROTOCOLPGM(" zc: ");
@@ -3004,7 +3058,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 			 if (numvoltes1 > 0)
 			 {
 				 SERIAL_PROTOCOL(numvoltes1);
-				 SERIAL_PROTOCOLPGM(" ");
+				 SERIAL_PROTOCOLPGM("voltes ");
 			 }
 			 SERIAL_PROTOCOL(vuitens1);
 			 SERIAL_PROTOCOLPGM("/8");
@@ -3021,7 +3075,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 			 if (numvoltes2 > 0)
 			 {
 				 SERIAL_PROTOCOL(numvoltes2);
-				 SERIAL_PROTOCOLPGM(" ");
+				 SERIAL_PROTOCOLPGM("voltes ");
 			 }
 			 SERIAL_PROTOCOL(vuitens2);
 			 SERIAL_PROTOCOLPGM("/8");
@@ -3038,7 +3092,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 			 if (numvoltes3 > 0)
 			 {
 				 SERIAL_PROTOCOL(numvoltes3);
-				 SERIAL_PROTOCOLPGM(" ");
+				 SERIAL_PROTOCOLPGM("voltes ");
 			 }
 			 SERIAL_PROTOCOL(vuitens3);
 			 SERIAL_PROTOCOLPGM("/8");
@@ -3053,8 +3107,6 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 			 SERIAL_PROTOCOLPGM("\n");
 		 }	 
 		 
-		enquecommand(PSTR("G28 X0 Y0"));
-		enquecommand(PSTR("T0"));
 		 break;		 
 	 }
 	#endif //SIGMA_BED_AUTOCALIB

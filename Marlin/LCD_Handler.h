@@ -21,7 +21,7 @@
 extern bool cancel_heatup;
 void myGenieEventHandler();
 
-//Created by Jordi Calduch for RepRapBCN SIGMA 10/2014
+//Created by Jordi Calduch for RepRapBCN SIGMA 12/2014
 void myGenieEventHandler(void)
 {
 	genieFrame Event;
@@ -988,25 +988,55 @@ void myGenieEventHandler(void)
 			else if (Event.reportObject.index == BUTTON_BED_CALIB_SW2)
 			{
 				char buffer[256];
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
-				sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
-				genie.WriteStr(STRING_BED_SCREW2,buffer);
-				if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,1);} //The direction is inverted in Sigma's bed screws
-				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,0);}
+				if (vuitens2!=0){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
+					sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
+					genie.WriteStr(STRING_BED_SCREW2,buffer);
+					if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,1);} //The direction is inverted in Sigma's bed screws
+					else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,0);}
+				
+				}else if (vuitens3!=0)
+				{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
+					sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
+					genie.WriteStr(STRING_BED_SCREW3,buffer);
+					if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,1);} //The direction is inverted in Sigma's bed screws
+					else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,0);}
+				}else{
+					enquecommand_P((PSTR("G28")));
+					enquecommand_P((PSTR("T0")));
+					enquecommand_P((PSTR("G34")));
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);	
+				}	
 			}
 			
 			else if (Event.reportObject.index == BUTTON_BED_CALIB_SW3)
 			{
 				char buffer[256];
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
-				sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
-				genie.WriteStr(STRING_BED_SCREW3,buffer);
-				if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,1);} //The direction is inverted in Sigma's bed screws
-				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,0);}
+				if (vuitens3!=0){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
+					sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
+					genie.WriteStr(STRING_BED_SCREW3,buffer);
+					if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,1);} //The direction is inverted in Sigma's bed screws
+					else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,0);}
+				}else{
+					enquecommand_P((PSTR("G28")));
+					enquecommand_P((PSTR("T0")));
+					enquecommand_P((PSTR("G34")));
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+				}
+			}	
+			
+			else if (Event.reportObject.index == BUTTON_BED_CALIB_SUCCESS)
+			{
+				enquecommand_P((PSTR("G28")));
+				enquecommand_P((PSTR("T0")));
+				Serial.println("Calibration Successful, going back to main menu");
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 			}
 			
 			
-					
+			
 		}	
 		//USERBUTTONS------------------------------------------------------
 		

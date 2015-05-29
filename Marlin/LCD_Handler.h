@@ -1035,6 +1035,12 @@ void myGenieEventHandler(void)
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 			}
 			
+			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT1)
+			{
+				enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+			}
+			
 			
 			
 		}	

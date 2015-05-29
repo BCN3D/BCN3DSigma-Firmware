@@ -83,6 +83,12 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,absPreheatHPBTemp);
   EEPROM_WRITE_VAR(i,absPreheatFanSpeed);
   EEPROM_WRITE_VAR(i,zprobe_zoffset);
+  
+  //Extruder Offset
+  EEPROM_WRITE_VAR(i,extruder_offset[X_AXIS][RIGHT_EXTRUDER]);
+  EEPROM_WRITE_VAR(i,extruder_offset[Y_AXIS][RIGHT_EXTRUDER]);
+  EEPROM_WRITE_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
+  
   #ifdef PIDTEMP
     EEPROM_WRITE_VAR(i,Kp);
     EEPROM_WRITE_VAR(i,Ki);
@@ -247,6 +253,13 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,absPreheatHPBTemp);
         EEPROM_READ_VAR(i,absPreheatFanSpeed);
         EEPROM_READ_VAR(i,zprobe_zoffset);
+		
+		//Extruder Offset
+		EEPROM_READ_VAR(i,extruder_offset[X_AXIS][RIGHT_EXTRUDER]);
+		EEPROM_READ_VAR(i,extruder_offset[Y_AXIS][RIGHT_EXTRUDER]);
+		EEPROM_READ_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
+		
+		
         #ifndef PIDTEMP
         float Kp,Ki,Kd;
         #endif
@@ -325,6 +338,11 @@ void Config_ResetDefault()
 #ifdef Z_SIGMA_HOME
 	zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
 #endif
+
+		//Extruder Offset
+	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
+
+
 #ifdef DOGLCD
     lcd_contrast = DEFAULT_LCD_CONTRAST;
 #endif

@@ -1037,8 +1037,83 @@ void myGenieEventHandler(void)
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT1)
 			{
+				char buffer[256];
+				float calculus = extruder_offset[X_AXIS][1] - 0.5;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				
+				sprintf_P(buffer, PSTR("M218 T1 X%f"), calculus);
+				
+				enquecommand(buffer);
+				
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT2)
+			{
+				enquecommand_P((PSTR("M218 T1 X-0.4")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT3)
+			{
+				enquecommand_P((PSTR("M218 T1 X-0.3")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT4)
+			{
+				enquecommand_P((PSTR("M218 T1 X-0.2")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT5)
+			{
+				enquecommand_P((PSTR("M218 T1 X-0.1")));
+				//enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT6)
+			{
+				
 				enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT7)
+			{
+				enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT8)
+			{
+				enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT9)
+			{
+				enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT10)
+			{
+				enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 			}
 			
 			

@@ -2375,7 +2375,7 @@ void process_commands()
 		st_synchronize();
 			
 		//Go to Calibration select screen
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_XY_CALIB_SELECT,0);		
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_X_CALIB_SELECT,0);		
 					
 			//for (int i=1; i<5;i++) //4 times
 			//{
@@ -2483,7 +2483,7 @@ case 41://G41 --> Y Extruder calibration
 	st_synchronize();
 	
 	//Go to Calibration select screen
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_XY_CALIB_SELECT,0);
+	genie.WriteObject(GENIE_OBJ_FORM,FORM_Y_CALIB_SELECT,0);
 	
 	break;
 }

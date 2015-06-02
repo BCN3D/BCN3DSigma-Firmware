@@ -339,9 +339,11 @@ void Config_ResetDefault()
 	zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
 #endif
 
-		//Extruder Offset
+	//Extruder Offset
 	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
-
+	extruder_offset[X_AXIS][RIGHT_EXTRUDER] = X2_MAX_POS;
+	extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = 0;
+	extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = 0;
 
 #ifdef DOGLCD
     lcd_contrast = DEFAULT_LCD_CONTRAST;

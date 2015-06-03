@@ -1037,7 +1037,7 @@ void myGenieEventHandler(void)
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT1)
 			{
-				char buffer[256];
+				char buffer[30];
 				float calculus = extruder_offset[X_AXIS][1] - 0.5;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -1116,7 +1116,57 @@ void myGenieEventHandler(void)
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 			}
 			
+			else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_Up)
+			{
+				float feedrate = homing_feedrate[Z_AXIS];
+				current_position[Z_AXIS] += 0.1;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+				Serial.print("Z position: ");
+				Serial.println(current_position[Z_AXIS]);
+			}
 			
+			else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_Down)
+			{
+				float feedrate = homing_feedrate[Z_AXIS];
+				current_position[Z_AXIS] -= 0.1;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+				Serial.print("Z position: ");
+				Serial.println(current_position[Z_AXIS]);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_OK)
+			{
+				Serial.println("OK first Extruder!");
+				enquecommand_P(PSTR("T1"));
+				enquecommand_P(PSTR("G43"));
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER2,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_Up)
+			{
+				float feedrate = homing_feedrate[Z_AXIS];
+				current_position[Z_AXIS] += 0.1;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+				Serial.print("Z position: ");
+				Serial.println(current_position[Z_AXIS]);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_Down)
+			{
+				float feedrate = homing_feedrate[Z_AXIS];
+				current_position[Z_AXIS] -= 0.1;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+				Serial.print("Z position: ");
+				Serial.println(current_position[Z_AXIS]);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_OK)
+			{
+				Serial.println("OK first Extruder!");
+				enquecommand_P(PSTR("T0"));
+				enquecommand_P(PSTR("G28 X0 Y0"));
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+			}
 			
 		}	
 		//USERBUTTONS------------------------------------------------------

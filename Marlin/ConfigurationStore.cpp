@@ -342,8 +342,8 @@ void Config_ResetDefault()
 	//Extruder Offset
 	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
 	extruder_offset[X_AXIS][RIGHT_EXTRUDER] = X2_MAX_POS;
-	extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = 0;
-	extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = 0;
+	extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = -0.15;
+	extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = -0.1;
 
 #ifdef DOGLCD
     lcd_contrast = DEFAULT_LCD_CONTRAST;

@@ -2490,6 +2490,53 @@ case 41://G41 --> Y Extruder calibration
 #endif //EXTRUDER_CALIBRATION_WIZARD
 
 
+//Rapduch for RepRapBCN Sigma
+#ifdef EXTRUDER_CALIBRATION_WIZARD
+case 43://G43 --> Z LEFT Extruder calibration
+{
+	//TODO: Check if a G28 has been done!
+	Serial.println("Starting Z Calibration Wizard");
+	
+	//Raise to correct
+	feedrate = homing_feedrate[Z_AXIS];
+	current_position[Z_AXIS]=0;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
+	//current_position[Z_AXIS]-=zprobe_zoffset; //Raising Z_probe_offset to correct previous values
+	//plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
+	st_synchronize();
+	
+	feedrate = homing_feedrate[Z_AXIS];
+	current_position[Z_AXIS]=1;
+	//if (active_extruder==RIGHT_EXTRUDER) {
+		////current_position[Z_AXIS]+=extruder_offset[Z_AXIS][RIGHT_EXTRUDER];
+	//}
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
+	feedrate = homing_feedrate[X_AXIS];
+	current_position[X_AXIS]=X_MAX_POS/2;
+	current_position[Y_AXIS]=Y_MAX_POS/2;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	
+	//Now we are in position to do the calibration MANUALLY with the TOUCHSCREEN
+	st_synchronize();
+	
+	//Go to Z Calibration select screen if first time!
+	if (active_extruder==LEFT_EXTRUDER) {
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER1,0);
+	}else{
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER2,0);
+	}
+	
+	
+	break;
+}
+#endif //EXTRUDER_CALIBRATION_WIZARD
+
+
+
+
+
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 

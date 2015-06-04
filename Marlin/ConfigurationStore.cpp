@@ -252,7 +252,8 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,absPreheatHotendTemp);
         EEPROM_READ_VAR(i,absPreheatHPBTemp);
         EEPROM_READ_VAR(i,absPreheatFanSpeed);
-        EEPROM_READ_VAR(i,zprobe_zoffset);
+        
+		EEPROM_READ_VAR(i,zprobe_zoffset);
 		
 		//Extruder Offset
 		EEPROM_READ_VAR(i,extruder_offset[X_AXIS][RIGHT_EXTRUDER]);

@@ -13,7 +13,7 @@
 #define BUTTON_STORE			12
 #define BUTTON_COOLDOWN			83//57
 #define BUTTON_AUTOLEVEL		12
-#define BUTTON_RESUME			22
+#define BUTTON_RESUME			200
 #define BUTTON_STOP				20
 #define BUTTON_STOP_YES			1
 #define BUTTON_SD_SELECTED		15

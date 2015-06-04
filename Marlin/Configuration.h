@@ -679,7 +679,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	
 	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-17.5
 	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
-	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//3.7
+	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//2.90
 	
 	//Left extruder probe point
 	#define X_SIGMA_PROBE_1_LEFT_EXTR 55.5

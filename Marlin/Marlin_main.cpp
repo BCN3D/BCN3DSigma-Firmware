@@ -1382,7 +1382,9 @@ static void axis_is_at_home(int axis) {
     if (active_extruder != 0) {
       current_position[X_AXIS] = x_home_pos(active_extruder);
       min_pos[X_AXIS] =          X2_MIN_POS;
-      max_pos[X_AXIS] =          max(extruder_offset[X_AXIS][1], X2_MAX_POS);
+      //Rapduch : Changing to only allow the Extruder offset set the max position for right extruder
+	  max_pos[X_AXIS] =          extruder_offset[X_AXIS][1];
+	  //max_pos[X_AXIS] =          max(extruder_offset[X_AXIS][1], X2_MAX_POS);
       return;
     }
     else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0) {
@@ -2305,7 +2307,7 @@ void process_commands()
 		//Purge & up
 		current_position[E_AXIS]+=20;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60 , active_extruder);
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
+		//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
 		current_position[E_AXIS]-=2;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 		st_synchronize();
@@ -2344,7 +2346,7 @@ void process_commands()
 		//Purge & up
 		current_position[E_AXIS]+=20;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60 , active_extruder);
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
+		//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
 		current_position[E_AXIS]-=2;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 		st_synchronize();
@@ -2413,7 +2415,7 @@ case 41://G41 --> Y Extruder calibration
 	//Purge & up
 	current_position[E_AXIS]+=20;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60 , active_extruder);
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
+	//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
 	current_position[E_AXIS]-=2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 	st_synchronize();
@@ -2452,7 +2454,7 @@ case 41://G41 --> Y Extruder calibration
 	//Purge & up
 	current_position[E_AXIS]+=20;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60 , active_extruder);
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
+	//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
 	current_position[E_AXIS]-=2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 	st_synchronize();

@@ -1150,6 +1150,121 @@ void myGenieEventHandler(void)
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 			}
 			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT1)
+			{
+				//char buffer[30];
+				float calculus = extruder_offset[Y_AXIS][1] + 0.4;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+				//enquecommand(buffer);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT2)
+			{
+				//enquecommand_P((PSTR("M218 T1 X-0.4")));
+				float calculus = extruder_offset[Y_AXIS][1] + 0.3;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT3)
+			{
+				float calculus = extruder_offset[Y_AXIS][1] + 0.2;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.3")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT4)
+			{
+				float calculus = extruder_offset[Y_AXIS][1] + 0.1;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.2")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT5)
+			{
+				float calculus = extruder_offset[Y_AXIS][1] ;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.1")));
+				//enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT6)
+			{
+				float calculus = extruder_offset[Y_AXIS][1] - 0.1;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT7)
+			{
+				float calculus = extruder_offset[X_AXIS][1] - 0.2;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT8)
+			{
+				float calculus = extruder_offset[Y_AXIS][1] - 0.3;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT9)
+			{
+				float calculus = extruder_offset[Y_AXIS][1] - 0.4;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT10)
+			{
+				float calculus = extruder_offset[Y_AXIS][1];
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			}
+			
+			
 			else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_Up)
 			{
 				float feedrate = homing_feedrate[Z_AXIS];

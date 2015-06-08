@@ -686,9 +686,9 @@ void setup()
 	//enable 24V
 	pinMode(RELAY, OUTPUT);
 	digitalWrite(RELAY, LOW);
-	delay(500);
-	digitalWrite(RELAY, HIGH);
-	delay(50);
+	//delay(500);
+	//digitalWrite(RELAY, HIGH);
+	//delay(50);
 	
 	//pinMode(RED,OUTPUT);
 	//pinMode(GREEN,OUTPUT);
@@ -825,6 +825,18 @@ int getBuflen ()
 {
 	return buflen;
 }
+
+#if MOTHERBOARD==BCN3D_BOARD //BCN Electronics
+	void sleep_RELAY()
+	{
+		digitalWrite(RELAY, LOW);
+	}
+
+	void wake_RELAY()
+	{
+		digitalWrite(RELAY, HIGH);
+	}
+#endif
 
 
 

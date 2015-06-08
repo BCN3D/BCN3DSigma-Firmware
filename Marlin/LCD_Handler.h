@@ -156,7 +156,8 @@ void myGenieEventHandler(void)
 					//genie.WriteObject(GENIE_OBJ_FORM,9,0); //Printing FORM
 					
 					//genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
-						
+					
+					wake_RELAY();	
 						
 					if (!card.filenameIsDir){ //If the filename is a gcode we start printing
 						char cmd[30];
@@ -289,7 +290,7 @@ void myGenieEventHandler(void)
 				card.sdispaused = false;	
 				cancel_heatup = true;	
 				
-				
+				sleep_RELAY();
 							
 				//Rapduch
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);			
@@ -1339,6 +1340,7 @@ void myGenieEventHandler(void)
 		{
 			if (Event.reportObject.index == FORM_SDFILES)
 			{
+				//wake_RELAY();
 				Serial.println("Form 2!");
 				////Check sdcardFiles
 				card.initsd();

@@ -290,4 +290,7 @@ extern int sentit1;
 extern int sentit2;
 extern int sentit3;
 extern float extruder_offset[3][EXTRUDERS];
+extern void sleep_RELAY();
+extern void wake_RELAY();
+
 #endif

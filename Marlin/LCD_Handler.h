@@ -157,7 +157,7 @@ void myGenieEventHandler(void)
 					
 					//genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
 					
-					wake_RELAY();	
+					//wake_RELAY();	
 						
 					if (!card.filenameIsDir){ //If the filename is a gcode we start printing
 						char cmd[30];
@@ -290,7 +290,7 @@ void myGenieEventHandler(void)
 				card.sdispaused = false;	
 				cancel_heatup = true;	
 				
-				sleep_RELAY();
+				//sleep_RELAY();
 							
 				//Rapduch
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);			
@@ -560,30 +560,31 @@ void myGenieEventHandler(void)
 			else if (Event.reportObject.index == BUTTON_INSERT )
 			{// We should have already checked if filament is inserted				
 				if (filament_mode =='I')
-				{
+				{ //Inserting...
 					//current_position[E_AXIS] += (BOWDEN_LENGTH+100);
-					current_position[E_AXIS] += (BOWDEN_LENGTH);
+					current_position[E_AXIS] += (BOWDEN_LENGTH-50);
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
 					current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
 					//filament_is_inserted[which_extruder]=true;
 				}else if (filament_mode =='R')
-				{
+				{ //Removing...
 					//current_position[E_AXIS] -= (BOWDEN_LENGTH+100);
 					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60, which_extruder);
 					//current_position[E_AXIS] -= EXTRUDER_LENGTH;//Extra extrusion at low feedrate
 					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  150/60, which_extruder);
 					//filament_is_inserted[which_extruder]=false;
 					
-					current_position[E_AXIS] -= EXTRUDER_LENGTH;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);
-					current_position[E_AXIS] -= BOWDEN_LENGTH;//Extra extrusion at low feedrate
+					//current_position[E_AXIS] -= EXTRUDER_LENGTH;
+					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);
+					current_position[E_AXIS] -= BOWDEN_LENGTH + EXTRUDER_LENGTH;//Extra extrusion at low feedrate
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
 					
 				}	
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 				st_synchronize();		
-				setTargetHotend(0,which_extruder);
+				//We prefer to maintain temp after changing filament
+				//setTargetHotend(0,which_extruder); 
 				//put_info_text("Filament DONE");
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
 			}
@@ -994,6 +995,7 @@ void myGenieEventHandler(void)
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
 					sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
 					genie.WriteStr(STRING_BED_SCREW2,buffer);
+					if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,2);
 					if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,1);} //The direction is inverted in Sigma's bed screws
 					else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,0);}
 				

@@ -686,8 +686,8 @@ void setup()
 	//enable 24V
 	pinMode(RELAY, OUTPUT);
 	digitalWrite(RELAY, LOW);
-	//delay(500);
-	//digitalWrite(RELAY, HIGH);
+	//delay(50);
+	digitalWrite(RELAY, HIGH);
 	//delay(50);
 	
 	//pinMode(RED,OUTPUT);
@@ -2320,8 +2320,10 @@ void process_commands()
 		current_position[E_AXIS]+=20;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60 , active_extruder);
 		//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
-		current_position[E_AXIS]-=4;
+		//current_position[E_AXIS]-=4;
+		current_position[E_AXIS]-=2;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
+		
 		st_synchronize();
 		
 		float mm_second_extruder[9] = {19.6, 19.7, 19.8, 19.9, 20 ,20.1 ,20.2, 20.3, 20.4};
@@ -2333,7 +2335,7 @@ void process_commands()
 		{
 			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 150, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move X and Z
 			st_synchronize();
-			if (i == 1) current_position[E_AXIS]+=2;
+			//if (i == 1) current_position[E_AXIS]+=2;
 			current_position[E_AXIS]+=2; //Move the retracked space
 			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 150, current_position[Z_AXIS], current_position[E_AXIS], 50 , active_extruder);
 			Serial.println("We are restoring retrack");
@@ -2351,7 +2353,7 @@ void process_commands()
 		current_position[E_AXIS]-=4;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//MORE Retrack
 		//plan_set_position(current_position[X_AXIS]+(4*mm_each_extrusion), 150, current_position[Z_AXIS], current_position[E_AXIS]);
-		plan_buffer_line(mm_left_offset, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2, active_extruder);//Retrack
+		//plan_buffer_line(mm_left_offset, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2, active_extruder);
 		
 		//2)Extruder 2 prints with corrections
 		changeTool(1);
@@ -2364,7 +2366,8 @@ void process_commands()
 		current_position[E_AXIS]+=20;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60 , active_extruder);
 		//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
-		current_position[E_AXIS]-=4;
+		//current_position[E_AXIS]-=4;
+		current_position[E_AXIS]-=2;
 		//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60 , active_extruder);
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 		plan_buffer_line(current_position[X_AXIS], 99, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS]/2, active_extruder);//Retrack
@@ -2376,7 +2379,7 @@ void process_commands()
 		{
 			plan_buffer_line(mm_left_offset+(mm_second_extruder[i-1]+(mm_each_extrusion*(i-1))), 149, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move X and Z
 			st_synchronize();
-			if (i == 1) current_position[E_AXIS]+=2;
+			//if (i == 1) current_position[E_AXIS]+=2;
 			current_position[E_AXIS]+=2; //Move the retracked space
 			plan_buffer_line(mm_left_offset+(mm_second_extruder[i-1]+(mm_each_extrusion*(i-1))), 149, current_position[Z_AXIS], current_position[E_AXIS], 50 , active_extruder);
 			st_synchronize();
@@ -3180,6 +3183,23 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		 int aprox3 = aprox (voltes3);
 		 int numvoltes3 = aprox3/8;   // Voltes completes
 		 vuitens3 = aprox3 % 8;  // Vuitens
+		
+		 
+		 if (numvoltes1!=0){
+			 vuitens1+=(numvoltes1*8);
+		 }
+		 
+		 if (numvoltes2!=0){
+			 vuitens2+=(numvoltes2*8);
+		 }
+		 
+		 if (numvoltes3!=0){
+			 vuitens3+=(numvoltes3*8);
+		 }
+		 
+		 if (vuitens1<0) vuitens1=vuitens1*(-1);
+		 if (vuitens2<0) vuitens2=vuitens2*(-1);
+		 if (vuitens3<0) vuitens3=vuitens3*(-1);
 		 
 		 Serial.print("Voltes1:  ");
 		 Serial.println(voltes1);
@@ -3215,11 +3235,13 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 			 
 			 #ifdef SIGMA_TOUCH_SCREEN
 			 char buffer[256];
+			 
 		 
 			if (vuitens1!= 0){
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW1,0);
-				 sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
-				 genie.WriteStr(STRING_BED_SCREW1,buffer);
+				sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
+				genie.WriteStr(STRING_BED_SCREW1,buffer);
+				if (vuitens2==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,2);
 				if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,1);} //The direction is inverted in Sigma's bed screws
 				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,0);}		
 			}
@@ -3229,6 +3251,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
 				sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
 				genie.WriteStr(STRING_BED_SCREW2,buffer);
+				if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,2);
 				if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,1);} //The direction is inverted in Sigma's bed screws
 				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,0);}
 			}

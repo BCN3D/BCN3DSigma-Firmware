@@ -232,9 +232,13 @@
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#define  DEFAULT_Kp 23.12
-	#define  DEFAULT_Ki 2.12
-	#define  DEFAULT_Kd 62.98
+	//DEPRECATED First PID
+	//#define  DEFAULT_Kp 23.12
+	//#define  DEFAULT_Ki 2.12
+	//#define  DEFAULT_Kd 62.98
+	#define  DEFAULT_Kp 16.51
+	#define  DEFAULT_Ki 1.17
+	#define  DEFAULT_Kd 58.05
 #endif
 #endif // PIDTEMP
 
@@ -277,9 +281,13 @@
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-   #define  DEFAULT_bedKp 270.22
-   #define  DEFAULT_bedKi 44.23
-   #define  DEFAULT_bedKd 370.78
+	//DEPRECATED first PID
+   //#define  DEFAULT_bedKp 270.22
+   //#define  DEFAULT_bedKi 44.23
+   //#define  DEFAULT_bedKd 370.78
+   #define  DEFAULT_bedKp 218.76
+   #define  DEFAULT_bedKi 38.70
+   #define  DEFAULT_bedKd 321.59
 #endif
 // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED

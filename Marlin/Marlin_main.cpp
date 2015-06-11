@@ -1059,7 +1059,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				tHotend=int(degHotend(which_extruder) + 0.5);
 				int tTarget=int(degTargetHotend(which_extruder) + 0.5);			
 				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
-				genie.WriteStr(STRING_PREHEATING,buffer);			
+				//genie.WriteStr(STRING_PREHEATING,buffer);			
 							
 				
 #pragma endregion Old_Temperature_print
@@ -2554,6 +2554,8 @@ case 43://G43 --> Z LEFT Extruder calibration
 	}else{
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER2,0);
 	}
+	
+	
 	
 	
 	break;

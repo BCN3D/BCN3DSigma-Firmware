@@ -35,7 +35,7 @@
 #define BUTTON_CHANGE_EXTRUDER  63
 #define BUTTON_PROVA			64
 #define BUTTON_PROVA_PRESS		65
-#define BUTTON_CAL_WIZARD		68
+
 
 //Nozzle temps
 #define BUTTON_NOZZLE1_PRINT	29		
@@ -57,7 +57,10 @@
 #define	BUTTON_INSERT_BACK		20
 
 //Calibration
-#define BUTTON_CAL_EXTRUDERS	67
+#define BUTTON_CAL_EXTRUDERS_X	67
+#define BUTTON_CAL_EXTRUDERS_Y	118
+#define BUTTON_CAL_EXTRUDERS_Z	119
+#define BUTTON_Z_CAL_WIZARD		68
 
 //Print Settings Buttons
 #define BUTTON_PRINT_SETTINGS			16

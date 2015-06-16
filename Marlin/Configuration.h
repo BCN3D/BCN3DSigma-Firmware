@@ -452,8 +452,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #if MOTHERBOARD == BCN3D_BOARD
 	#define X_MAX_POS 312 //Distance between extruders
+	//#define X_MAX_POS 210 //Bed X
 	#define X_MIN_POS 0
-	#define Y_MAX_POS 300
+	#define Y_MAX_POS 295
 	#define Y_MIN_POS 0
 	#define Z_MAX_POS 210
 	#define Z_MIN_POS 0
@@ -645,6 +646,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #ifdef Z_SIGMA_HOME
 	#define Z_SIGMA_HOME_X_POINT 55.5
+	//#define Z_SIGMA_HOME_X_POINT 3
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
 	#define SIGMA_Z_HOME_TRAVEL_SPEED 6000
@@ -691,12 +693,15 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	
 	//Left extruder probe point
 	#define X_SIGMA_PROBE_1_LEFT_EXTR 55.5
+	//#define X_SIGMA_PROBE_1_LEFT_EXTR 3
 	#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
 	#define X_SIGMA_PROBE_2_LEFT_EXTR 55.5
+	//#define X_SIGMA_PROBE_2_LEFT_EXTR 3
 	#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
 	
 	#define X_SIGMA_PROBE_3_LEFT_EXTR 255
+	//#define X_SIGMA_PROBE_3_LEFT_EXTR 204
 	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
 	
 	//Right extruder probe point
@@ -704,9 +709,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
 	#define X_SIGMA_PROBE_2_RIGHT_EXTR 255
+	//#define X_SIGMA_PROBE_2_RIGHT_EXTR 204
 	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
 	
 	#define X_SIGMA_PROBE_3_RIGHT_EXTR 55.5
+	//#define X_SIGMA_PROBE_3_RIGHT_EXTR 3
 	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
 #endif
 
@@ -715,12 +722,15 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define PAS_M5 0.8
 	//Screw positions on BED for
 	#define CARGOL_1_X  156;
+	//#define CARGOL_1_X  104;
 	#define CARGOL_1_Y  276;
 
 	#define CARGOL_2_X  70;
+	//#define CARGOL_2_X  17;
 	#define CARGOL_2_Y  25;
 
 	#define CARGOL_3_X  245;
+	//#define CARGOL_3_X  192;
 	#define CARGOL_3_Y  25;
 	// -END BED calibration WIZARD
 #endif // ENABLE_AUTO_BED_LEVELING
@@ -728,12 +738,17 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #ifdef EXTRUDER_CALIBRATION_WIZARD
 	#define SECOND_EXTRUDER_X {40.5, 39.5, 40, 39}
 	#define SECOND_EXTRUDER_Y {150.5, 149.5, 150, 149}
+		
+		
+	#define X_CALIB_STARTING_X 45
+	#define X_CALIB_STARTING_Y 150
 #endif
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
-#define EXTRUDER_OFFSET_X {0.0, X2_MAX_POS} // (in mm) for each extruder, offset of the hotend on the X axis
+//#define EXTRUDER_OFFSET_X {0.0, X2_MAX_POS} // (in mm) for each extruder, offset of the hotend on the X axis
+#define EXTRUDER_OFFSET_X {0.0, X2_HOME_POS} // (in mm) for each extruder, offset of the hotend on the X axis
 	
 	
 #if MOTHERBOARD == MEGATRONICS_V3	
@@ -765,7 +780,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //Manual homing switch locations:
 // For deltabots this means top and center of the Cartesian print volume.
 //#define MANUAL_X_HOME_POS -32
-#define MANUAL_X_HOME_POS -32
+#define MANUAL_X_HOME_POS -52.5
 #define MANUAL_Y_HOME_POS Y_MAX_POS
 #define MANUAL_Z_HOME_POS Z_MIN_POS
 

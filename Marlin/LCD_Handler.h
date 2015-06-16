@@ -1,6 +1,6 @@
 /*
  * LCD_Handler.h
- * A place to hold all interactions between LCD and printer. It is called from Marlin_main.cpp
+ * A place to hold all interactions between LCD and printer. It is called from Marlin_main.cpp when using genie.DoEvents()
  * Created: 12/12/2014 12:48:04
  * Author: Jordi Calduch (Dryrain)
  */ 
@@ -479,25 +479,25 @@ void myGenieEventHandler(void)
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_NOZZLE,0);
 			}
 			
-			else if (Event.reportObject.index == BUTTON_NOZZLE_UP )
-			{
-				int value=5;
-				if (target_temperature[which_extruder]<HEATER_0_MAXTEMP)
-				{
-					target_temperature[which_extruder]+=value;
-					genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_NOZZLE_DOWN )
-			{
-				int value=5;
-				if (target_temperature[which_extruder]>HEATER_0_MINTEMP)
-				{
-					target_temperature[which_extruder]-=value;
-					genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
-				}
-			}
+			//else if (Event.reportObject.index == BUTTON_NOZZLE_UP )
+			//{
+				//int value=5;
+				//if (target_temperature[which_extruder]<HEATER_0_MAXTEMP)
+				//{
+					//target_temperature[which_extruder]+=value;
+					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
+				//}
+			//}
+			//
+			//else if (Event.reportObject.index == BUTTON_NOZZLE_DOWN )
+			//{
+				//int value=5;
+				//if (target_temperature[which_extruder]>HEATER_0_MINTEMP)
+				//{
+					//target_temperature[which_extruder]-=value;
+					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
+				//}
+			//}
 			
 			else if (Event.reportObject.index == BUTTON_COOLDOWN )
 			{
@@ -567,6 +567,10 @@ void myGenieEventHandler(void)
 					current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
 					//filament_is_inserted[which_extruder]=true;
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					st_synchronize();
+					
 				}else if (filament_mode =='R')
 				{ //Removing...
 					//current_position[E_AXIS] -= (BOWDEN_LENGTH+100);
@@ -580,9 +584,10 @@ void myGenieEventHandler(void)
 					current_position[E_AXIS] -= BOWDEN_LENGTH + EXTRUDER_LENGTH;//Extra extrusion at low feedrate
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
 					
-				}	
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-				st_synchronize();		
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					st_synchronize();
+					
+				}			
 				//We prefer to maintain temp after changing filament
 				//setTargetHotend(0,which_extruder); 
 				//put_info_text("Filament DONE");
@@ -1347,6 +1352,111 @@ void myGenieEventHandler(void)
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 				#endif
 			}
+			
+			//BACKING FROM INFO SCREENS!------------------------------------------------------------------------
+			//Backing from INFO SCREENS
+			else if (Event.reportObject.index == BACKBUTTON_INFO_NEEDFIL)
+			{
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+			}
+			
+			//Backing from INFO SCREENS
+			else if (Event.reportObject.index == BACKBUTTON_INFO_INI_XYCALIB)
+			{
+				enquecommand_P(PSTR("G28 X0 Y0"));
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+			}
+			
+			//Backing from INFO SCREENS
+			else if (Event.reportObject.index == BACKBUTTON_INFO_FIL_INSERTED)
+			{
+				
+			}
+			
+			//Backing from INFO SCREENS
+			else if (Event.reportObject.index == BACKBUTTON_INFO_PLACE_FIL)
+			{
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
+			}
+			
+			//Backing from INFO SCREENS
+			else if (Event.reportObject.index == BACKBUTTON_INFO_TURN_SCREWS)
+			{
+				enquecommand_P(PSTR("G28 X0 Y0"));
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+			}
+			
+			//Backing from INFO SCREENS
+			else if (Event.reportObject.index == BACKBUTTON_INFO_BED_MUST_CAL)
+			{
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+			}
+			
+			
+			//BUTTON FROM INFO SCREENS!------------------------------------------------------------------------
+			//Go! Button from INFO SCREENS
+			else if (Event.reportObject.index == BUTTON_INFO_NEEDFIL)
+			{
+				//enquecommand_P(PSTR("G28"));
+				//enquecommand_P(PSTR("G43"));
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_BED_MUST_CAL,0);
+			}
+			
+			//Backing from INFO SCREENS
+			else if (Event.reportObject.index == BUTTON_INFO_INI_XYCALIB)
+			{
+				enquecommand_P(PSTR("G28"));
+				enquecommand_P(PSTR("G40"));
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+			}
+			
+			//Backing from INFO SCREENS
+			else if (Event.reportObject.index == BUTTON_INFO_FIL_INSERTED)
+			{
+				
+			}
+			
+			//Backing from INFO SCREENS
+			else if (Event.reportObject.index == BUTTON_INFO_TURN_SCREWS)
+			{
+				char buffer[256];
+				if (vuitens1!= 0){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW1,0);
+					sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
+					genie.WriteStr(STRING_BED_SCREW1,buffer);
+					if (vuitens2==0) {genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,2);}
+					if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,1);} //The direction is inverted in Sigma's bed screws
+					else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,0);}
+				}	
+				else if (vuitens2!= 0){
+					Serial.println("Jump over screw1");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
+					sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
+					genie.WriteStr(STRING_BED_SCREW2,buffer);
+					if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,2);
+					if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,1);} //The direction is inverted in Sigma's bed screws
+					else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,0);}
+				}
+				else if (vuitens3!= 0){
+					Serial.println("Jump over screw1 and screw2");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
+					sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
+					genie.WriteStr(STRING_BED_SCREW3,buffer);
+					if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,1);} //The direction is inverted in Sigma's bed screws
+					else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,0);}				
+				}
+			}
+			
+			//Backing from INFO SCREENS
+			else if (Event.reportObject.index == BUTTON_INFO_BED_MUST_CAL)
+			{
+				enquecommand_P(PSTR("G28"));
+				enquecommand_P(PSTR("G43"));
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+			}
+				
 		}	
 		//USERBUTTONS------------------------------------------------------
 		

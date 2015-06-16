@@ -2,7 +2,7 @@
  * Touch_Screen_Definitions.h
  * Here we have all the constants related to items in the LCD Screen
  * Created: 14/11/2014 13:16:59
- *  Author: jcalduch
+ *  Author: Jordi Calduch (Dryrain)
  */ 
 
 
@@ -42,8 +42,8 @@
 #define BUTTON_NOZZLE2_PRINT	28
 #define BUTTON_NOZZLE1_TEMP		58
 #define BUTTON_NOZZLE2_TEMP		59
-#define BUTTON_NOZZLE_DOWN		42
-#define BUTTON_NOZZLE_UP		41
+//#define BUTTON_NOZZLE_DOWN		42
+//define BUTTON_NOZZLE_UP		41
 #define BUTTON_SETUP_BACK_NOZZLE 43
 
 //Insert FILAMENT
@@ -52,8 +52,6 @@
 #define BUTTON_INSERT_FIL		2
 #define	BUTTON_FILAMENT_NOZZLE1	75
 #define	BUTTON_FILAMENT_NOZZLE2	76
-#define	BUTTON_INSERT			52
-#define	BUTTON_REMOVE			52
 #define	BUTTON_INSERT_BACK		20
 
 //Calibration
@@ -225,4 +223,38 @@
 #define FORM_CALIB_Z_EXTRUDER1	34
 #define FORM_CALIB_Z_EXTRUDER2	35
 #define FORM_CALIBRATION		23
+#define FORM_FILAMENT			6
+
+
+
+//INFO SCRENS-----------------------------------------------------------------------
+//Forms From INFO SCREENS
+#define FORM_INFO_NEEDFIL		18
+#define FORM_INFO_INI_XYCALIB	25
+#define FORM_INFO_FIL_INSERTED	7
+#define FORM_INFO_PLACE_FIL		19
+#define FORM_INFO_TURN_SCREWS	16
+#define FORM_INFO_BED_MUST_CAL	17
+
+#define FORM_SUCCESS			21
+
+
+//Back Buttons for INFO SCREENS
+#define BACKBUTTON_INFO_NEEDFIL			46
+#define BACKBUTTON_INFO_INI_XYCALIB		48
+#define BACKBUTTON_INFO_FIL_INSERTED	49
+#define BACKBUTTON_INFO_PLACE_FIL		54
+#define BACKBUTTON_INFO_TURN_SCREWS		42
+#define BACKBUTTON_INFO_BED_MUST_CAL	23
+	
+//GO! Buttons for INFO SCREEENS
+#define BUTTON_INFO_NEEDFIL				45
+#define BUTTON_INFO_INI_XYCALIB			47
+#define BUTTON_INFO_FIL_INSERTED		34
+//#define BUTTON_INFO_PLACE_FIL			52
+#define BUTTON_INFO_TURN_SCREWS			41
+#define BUTTON_INFO_BED_MUST_CAL		43
+#define	BUTTON_INSERT					52
+#define	BUTTON_REMOVE					52
+
 #endif 

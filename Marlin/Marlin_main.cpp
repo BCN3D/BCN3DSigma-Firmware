@@ -1113,7 +1113,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 					}
 					is_changing_filament=false; //Reset changing filament control
 				}	
-				#endif		
+				#endif //Extruders > 1
 				waitPeriod=1000+millis();			
 			}				
 	}else
@@ -2303,8 +2303,8 @@ void process_commands()
 	{ 
 		Serial.println("Starting X Calibration Wizard");
 		//1) Set temps and wait
-		setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
-		setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP);
+		setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP-5);
+		setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP-5);
 
 		while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-2) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-2)){ //Waiting to heat the extruder
 			manage_heater();
@@ -2329,7 +2329,8 @@ void process_commands()
 		float mm_second_extruder[9] = {19.6, 19.7, 19.8, 19.9, 20 ,20.1 ,20.2, 20.3, 20.4};
 
 		float mm_each_extrusion = 20;
-		float mm_left_offset = 45;
+		float mm_left_offset = X_CALIB_STARTING_X;
+		float mm_y_offset = X_CALIB_STARTING_Y;
 		int times = 9;
 		for (int i=1; i<(times+1);i++) //4 times
 		{
@@ -2447,6 +2448,10 @@ case 41://G41 --> Y Extruder calibration
 
 	float mm_each_extrusion = 20;
 	float mm_left_offset = 265;
+	
+	//float mm_left_offset = X_CALIB_STARTING_X;
+	float mm_y_offset = X_CALIB_STARTING_Y;
+	
 	int times = 9;
 	for (int i=1; i<(times+1);i++) //4 times
 	{
@@ -2978,7 +2983,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 
 	//Rapduch
 	#ifdef SIGMA_BED_AUTOCALIB
-	 case 34: // Performs a BED calibration Wizard
+	 case 34: // Performs a BED calibration Wizard with TouchScreen Integration
 	 {
 		 //WARNING: T0 (LEFT_EXTRUDER) MUST BE SELECTED!
 		 if (active_extruder==RIGHT_EXTRUDER){
@@ -3236,36 +3241,41 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		 }else{
 			 
 			 #ifdef SIGMA_TOUCH_SCREEN
-			 char buffer[256];
 			 
-		 
-			if (vuitens1!= 0){
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW1,0);
-				sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
-				genie.WriteStr(STRING_BED_SCREW1,buffer);
-				if (vuitens2==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,2);
-				if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,1);} //The direction is inverted in Sigma's bed screws
-				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,0);}		
-			}
-			
-			else if (vuitens2!= 0){
-				Serial.println("Jump over screw1");
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
-				sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
-				genie.WriteStr(STRING_BED_SCREW2,buffer);
-				if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,2);
-				if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,1);} //The direction is inverted in Sigma's bed screws
-				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,0);}
-			}
-			
-			else if (vuitens3!= 0){
-				Serial.println("Jump over screw1 and screw2");
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
-				sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
-				genie.WriteStr(STRING_BED_SCREW3,buffer);
-				if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,1);} //The direction is inverted in Sigma's bed screws
-				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,0);}
-			}
+			 genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_TURN_SCREWS,0);
+			 
+			 //char buffer[256];
+			 //
+		 //
+			//if (vuitens1!= 0){
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW1,0);
+				//sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
+				//genie.WriteStr(STRING_BED_SCREW1,buffer);
+				//if (vuitens2==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,2);
+				//if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,1);} //The direction is inverted in Sigma's bed screws
+				//else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,0);}		
+			//}
+			//
+			//else if (vuitens2!= 0){
+				//Serial.println("Jump over screw1");
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
+				//sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
+				//genie.WriteStr(STRING_BED_SCREW2,buffer);
+				//if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,2);
+				//if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,1);} //The direction is inverted in Sigma's bed screws
+				//else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,0);}
+			//}
+			//
+			//else if (vuitens3!= 0){
+				//Serial.println("Jump over screw1 and screw2");
+				//
+				//sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
+				//genie.WriteStr(STRING_BED_SCREW3,buffer);
+				//if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,1);} //The direction is inverted in Sigma's bed screws
+				//else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,0);}
+					//
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
+			//}
 			
 			 //sprintf(buffer, " %d / 8",vuitens2);
 			 //genie.WriteStr(STRING_SCREW2,buffer);

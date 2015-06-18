@@ -633,6 +633,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define EXTRUDER_LENGTH 50
 #define INSERT_FAST_SPEED 5000	
 #define INSERT_SLOW_SPEED 150
+#define REMOVE_FIL_TEMP		170
+#define INSERT_FIL_TEMP		230
 
 //For better understanding on which extruder is selected
 #define LEFT_EXTRUDER 0 

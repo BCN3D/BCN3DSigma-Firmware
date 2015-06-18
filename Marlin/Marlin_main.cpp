@@ -1056,9 +1056,9 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				////waitPeriod=1000+millis();	//Every 1s
 					
 				//Change filament thermometer	
-				tHotend=int(degHotend(which_extruder) + 0.5);
-				int tTarget=int(degTargetHotend(which_extruder) + 0.5);			
-				sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
+				//tHotend=int(degHotend(which_extruder) + 0.5);
+				//int tTarget=int(degTargetHotend(which_extruder) + 0.5);			
+				//sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
 				//genie.WriteStr(STRING_PREHEATING,buffer);			
 							
 				
@@ -1092,9 +1092,10 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				
 				#if EXTRUDERS > 1
 				// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
-				if ((degHotend(0) >= (degTargetHotend0())) && (degHotend(1) >= (degTargetHotend1())) && is_changing_filament)
+				if ((degHotend(0) >= (degTargetHotend0()-5)) && (degHotend(1) >= (degTargetHotend1()-5)) && is_changing_filament)
 				// if we want to add user setting temp, we should control if is heating
 				{
+					Serial.println("Ready to Insert/Remove");
 					//We have preheated correctly
 					if (filament_mode =='I') 
 					{

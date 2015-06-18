@@ -19,8 +19,8 @@
 #define BUTTON_SD_SELECTED		15
 #define BUTTON_SD_LEFT			14
 #define BUTTON_SD_RIGHT			5
-#define BUTTON_SPEED_UP			32
-#define BUTTON_SPEED_DOWN		33
+#define BUTTON_SPEED_UP			999
+#define BUTTON_SPEED_DOWN		999
 #define BUTTON_START_PRINTING	100
 #define BUTTON_SETUP_BACK		26
 #define BUTTON_PAUSE_RESUME		18
@@ -53,6 +53,9 @@
 #define	BUTTON_FILAMENT_NOZZLE1	75
 #define	BUTTON_FILAMENT_NOZZLE2	76
 #define	BUTTON_INSERT_BACK		20
+
+#define	BUTTON_INSERT					52
+#define	BUTTON_REMOVE					52
 
 //Calibration
 #define BUTTON_CAL_EXTRUDERS_X	67
@@ -121,6 +124,13 @@
 #define BUTTON_Z_CALIB_Z2_Up		116
 #define BUTTON_Z_CALIB_Z2_Down		117
 #define BUTTON_Z_CALIB_Z2_OK		115
+
+
+//ADJUST FILAMENT
+#define BUTTON_ACCEPT_ADJUST		17
+#define BUTTON_ADJUST_ZUp			32
+#define BUTTON_ADJUST_ZDown			33
+
 
 //Winbuttons
 #define BUTTON_MOVE_AXIS_X			1
@@ -197,7 +207,7 @@
 #define FORM_START_PRINT		10
 #define FORM_PRINTING_SETTINGS	10
 #define FORM_WAITING_ROOM		11
-#define FORM_FEEDRATE			14
+
 #define FORM_NOZZLE				16
 #define FORM_BED				17
 #define FORM_FAN				18
@@ -224,19 +234,23 @@
 #define FORM_CALIB_Z_EXTRUDER2	35
 #define FORM_CALIBRATION		23
 #define FORM_FILAMENT			6
+#define FORM_ADJUST_FILAMENT	14
 
 
 
 //INFO SCRENS-----------------------------------------------------------------------
 //Forms From INFO SCREENS
-#define FORM_INFO_NEEDFIL		18
-#define FORM_INFO_INI_XYCALIB	25
-#define FORM_INFO_FIL_INSERTED	7
-#define FORM_INFO_PLACE_FIL		19
-#define FORM_INFO_TURN_SCREWS	16
-#define FORM_INFO_BED_MUST_CAL	17
+#define FORM_INFO_NEEDFIL				18
+#define FORM_INFO_INI_XYCALIB			25
+#define FORM_INFO_FIL_INSERTED			7
+#define FORM_INFO_PLACE_FIL				19
+#define FORM_INFO_TURN_SCREWS			16
+#define FORM_INFO_BED_MUST_CAL			17
 
-#define FORM_SUCCESS			21
+
+//Success Screem
+#define FORM_SUCCESS_FILAMENT			21
+#define BUTTON_SUCCESS_FILAMENT_OK		53
 
 
 //Back Buttons for INFO SCREENS
@@ -254,7 +268,6 @@
 //#define BUTTON_INFO_PLACE_FIL			52
 #define BUTTON_INFO_TURN_SCREWS			41
 #define BUTTON_INFO_BED_MUST_CAL		43
-#define	BUTTON_INSERT					52
-#define	BUTTON_REMOVE					52
+
 
 #endif 

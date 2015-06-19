@@ -858,84 +858,34 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		
 		if (millis() >= waitPeriod)
 			{		
-				
-				//uint16_t time = millis()/60000 - starttime/60000;
-				//uint32_t time2 = millis()/60000-starttime/60000;
+
 				int tHotend=int(degHotend(0));
 				int tHotend1=int(degHotend(1));
 				int tBed=int(degBed() + 0.5);
 				
-				//Rapduch
-				//Edit for final TouchScreen
-				char buffer[256];
-				sprintf(buffer, "% 3d",tHotend);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINTING_NOZZ1,buffer);
-				
-				sprintf(buffer, "% 3d",tHotend1);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINTING_NOZZ2,buffer);
-				
-				sprintf(buffer, "% 2d",tBed);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINTING_BED,buffer);
-				
-				sprintf(buffer, "% 3d %%",card.percentDone());
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINTING_PERCENT,buffer);
-				
-				sprintf(buffer, "% 3d %%",feedmultiply);
-				//Serial.println(buffer);
-				genie.WriteStr(STRINGS_PRINTING_FEED,buffer);
-				
-				//genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
-				//genie.WriteStr(6,"Ready");
-				
-					/*	TRYING TO GET THE TIME LEFT	
-				static uint32_t lastSDPosition=0; 
-				Serial.println("");
-				Serial.print("Size");
-				Serial.println(card.getFileSize());
-				Serial.print("Position");
-				Serial.println(card.getSdPosition());
-				
-				Serial.print("Percent Done");
-				Serial.println(card.percentDone());
-				
-				
-				//Time Left
-				Serial.print("TIME LEFT:  ");
-				uint32_t timeleft=(time2/card.getSdPosition()*card.getFileSize());
-				Serial.println(timeleft);
-				Serial.print((int)timeleft%60);
-				Serial.print(":");
-				Serial.print((int)timeleft/60);
-				Serial.println("");
-				
-				
-				//New calculation:
-				//actual_pos-saved_pos=pos_moved/waitPeriod
-				//filesize/pos_moved = seconds_left
-				//seconds_left 
-				
-				uint32_t positionsMovedSD = (card.getSdPosition()-lastSDPosition);
-				uint16_t timeWaited = 10; //Seconds waiting since last update; depends on waitPeriod
-				uint32_t timeLeft = (card.getFileSize()/(positionsMovedSD/timeWaited)); //In seconds
-				
-				//Update lastSDPosition
-				lastSDPosition=card.getSdPosition();
-				
-				Serial.println("Temps restant: ");
-				Serial.print((int)timeLeft%60);
-				Serial.print(":");
-				Serial.print((int)timeLeft/60);
-				Serial.println("");
-							
-				Serial.print("Time2:  ");
-				Serial.println(time2);
-				Serial.println("");	
-				
-					*/	
+				////Rapduch
+				////Edit for final TouchScreen
+				//char buffer[256];
+				//sprintf(buffer, "% 3d",tHotend);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRING_PRINTING_NOZZ1,buffer);
+				//
+				//sprintf(buffer, "% 3d",tHotend1);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRING_PRINTING_NOZZ2,buffer);
+				//
+				//sprintf(buffer, "% 2d",tBed);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRING_PRINTING_BED,buffer);
+				//
+				//sprintf(buffer, "% 3d %%",card.percentDone());
+				////Serial.println(buffer);
+				//genie.WriteStr(STRING_PRINTING_PERCENT,buffer);
+				//
+				//sprintf(buffer, "% 3d %%",feedmultiply);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRINGS_PRINTING_FEED,buffer);	
+					
 				waitPeriod=5000+millis();	//Every 5s
 			}
 					

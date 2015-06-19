@@ -1602,26 +1602,26 @@ void myGenieEventHandler(void)
 				//genie.WriteStr(2,card.longFilename);
 				//genie.WriteStr(6,"Printing...");
 			}
-			//
+			
 			//else if (Event.reportObject.index == FORM_FEEDRATE)
 			//{
 				//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_FEEDRATE,feedmultiply);
 			//}
 			
-			else if (Event.reportObject.index == FORM_NOZZLE)
-			{			
-				//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
-			}
+			//else if (Event.reportObject.index == FORM_NOZZLE)
+			//{			
+				////genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
+			//}
 			
-			else if (Event.reportObject.index == FORM_BED)
-			{
-				genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_BED,target_temperature_bed);
-			}
+			//else if (Event.reportObject.index == FORM_BED)
+			//{
+				//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_BED,target_temperature_bed);
+			//}
 			
-			else if (Event.reportObject.index == FORM_FAN)
-			{
-				genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_FAN,fanSpeed);
-			}
+			//else if (Event.reportObject.index == FORM_FAN)
+			//{
+				//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_FAN,fanSpeed);
+			//}
 			
 			
 			else if (Event.reportObject.index == FORM_MAIN_SCREEN)
@@ -1636,36 +1636,36 @@ void myGenieEventHandler(void)
 				Serial.println("Surfing 1");
 			}	
 			
-			else if (Event.reportObject.index == FORM_INSERT_FIL_PREHEAT)
-			{
-				//setTargetHotend0(ABS_PREHEAT_HOTEND_TEMP);
-				//setTargetHotend1(ABS_PREHEAT_HOTEND_TEMP);
-			}	
+			//else if (Event.reportObject.index == FORM_INSERT_FIL_PREHEAT)
+			//{
+				////setTargetHotend0(ABS_PREHEAT_HOTEND_TEMP);
+				////setTargetHotend1(ABS_PREHEAT_HOTEND_TEMP);
+			//}	
 			
 			else if (Event.reportObject.index == FORM_PRINTING_SETTINGS)
 			{
-				//Rapduch
-				//Edit for final TouchScreen
-				char buffer[256];
-				int tHotend=target_temperature[0];
-				int tHotend1=target_temperature[1];
-				int tBed=target_temperature_bed;
-				
-				sprintf(buffer, "%3d",tHotend);			
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
-				
-				sprintf(buffer, "%3d",tHotend1);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
-				
-				sprintf(buffer, "%3d",tBed);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINT_SET_BED,buffer);
-				
-				sprintf(buffer, "%3d %%",feedmultiply);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
+				////Rapduch
+				////Edit for final TouchScreen
+				//char buffer[256];
+				//int tHotend=target_temperature[0];
+				//int tHotend1=target_temperature[1];
+				//int tBed=target_temperature_bed;
+				//
+				//sprintf(buffer, "%3d",tHotend);			
+				////Serial.println(buffer);
+				//genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
+				//
+				//sprintf(buffer, "%3d",tHotend1);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
+				//
+				//sprintf(buffer, "%3d",tBed);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRING_PRINT_SET_BED,buffer);
+				//
+				//sprintf(buffer, "%3d %%",feedmultiply);
+				////Serial.println(buffer);
+				//genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
 			}
 			
 			else if (Event.reportObject.index == FORM_PREHEAT_SETTINGS)

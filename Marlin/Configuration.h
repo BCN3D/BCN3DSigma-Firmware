@@ -655,11 +655,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	
 	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
 	#define Z_SIGMA_RAISE_AFTER_HOMING 2
-	
-	//#define Z_SIGMA_HOME_SECOND_X_POINT 290
-	//#define Z_SIGMA_HOME_SECOND_Y_POINT 150
-	//#define Z_SIGMA_HOME_SECOND_X_POINT 200
-	//#define Z_SIGMA_HOME_SECOND_Y_POINT 160
 #endif
 
 

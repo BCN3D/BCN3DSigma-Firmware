@@ -129,275 +129,7 @@ void myGenieEventHandler(void)
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, 500/60, active_extruder);
 				current_position[E_AXIS]=modified_position;								
 			}
-		}
-#pragma endregion Winbuttons
-		
-		
-		//USERBUTTONS------------------------------------------------------
-		if (Event.reportObject.object == GENIE_OBJ_USERBUTTON) //Userbuttons to select GCODE from SD
-		{
-			if (Event.reportObject.index == BUTTON_SD_SELECTED )
-			{
-				if(card.cardOK)
-				{
-											
-					if (!card.filenameIsDir){ //If the filename is a gcode we start printing
-						char cmd[30];
-						char* c;
-						card.getfilename(filepointer);
-						sprintf_P(cmd, PSTR("M23 %s"), card.filename);
-						for(c = &cmd[4]; *c; c++)
-						{
-							*c = tolower(*c);
-						}
-						enquecommand(cmd);
-						
-						is_on_printing_screen=true;//We are entering printing screen
-						enquecommand_P(PSTR("M24")); // It also sends you to PRINTING screen
-						
-						screen_status="Ready...";//Write the selected SD file to all strings						
-					}				
-				}
-			}
 			
-			
-			else if (Event.reportObject.index == BUTTON_SD_LEFT || Event.reportObject.index == BUTTON_SD_RIGHT) //TODO: control if SD is out
-			{
-				if (Event.reportObject.index == BUTTON_SD_LEFT) //LEFT button pressed
-				{
-					if (filepointer == 0)
-					{
-						filepointer=card.getnrfilenames()-1; //Last SD file
-						}else{
-						filepointer--;
-					}
-				}
-				else if (Event.reportObject.index == BUTTON_SD_RIGHT) //RIGHT button pressed
-				{
-					if (filepointer == card.getnrfilenames()-1)
-					{
-						filepointer=0; //First SD file
-						}else{
-						filepointer++;
-					}
-				}
-				
-				card.getfilename(filepointer);
-				if (card.filenameIsDir)
-				{
-					//Is a folder
-					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
-					}else{
-					//Is a file
-					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
-				}
-				int count = 12;
-				char buffer[count];
-				if (String(card.longFilename).length()>count){
-					for (int i = 0; i<count ; i++)
-					{
-						buffer[i]=card.longFilename[i];
-					}
-					buffer[count]='\0';
-					char* buffer2 = strcat(buffer,"...\0");
-					genie.WriteStr(1,buffer2);//Printing form
-				}else{
-					genie.WriteStr(1,card.longFilename);//Printing form
-				}
-				//Keep in mind to control the length of the string displayed!
-				//genie.WriteStr(2,card.longFilename);
-				Serial.print("Image n: ");
-				Serial.println(filepointer);
-			}
-			
-			
-			
-			else if (Event.reportObject.index == BUTTON_RESUME )
-			{
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_PAUSE,1);
-				Serial.println("RESUME!");
-				card.startFileprint();
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
-			}
-			
-			else if (Event.reportObject.index == BUTTON_STOP_YES )
-			{
-				is_on_printing_screen=false;
-				card.sdprinting = false;
-				card.closefile();
-				
-				//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
-				quickStop();
-				
-				enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
-				enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
-				
-				if(SD_FINISHED_STEPPERRELEASE)
-				{
-					enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-				}
-				autotempShutdown();
-				//setTargetHotend0(0);
-				//setTargetHotend1(0);
-				//setTargetHotend2(0);
-				//setTargetBed(0);
-				card.sdispaused = false;	
-				cancel_heatup = true;	
-				
-				//sleep_RELAY();
-							
-				//Rapduch
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);			
-			}
-			
-			
-			
-			
-			//else if (Event.reportObject.index == BUTTON_SPEED_UP )
-			//{
-				//int value=5;
-				//if (feedmultiply<200)
-				//{
-					//feedmultiply+=value;
-					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_FEEDRATE,feedmultiply);
-				//}
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_SPEED_DOWN )
-			//{
-				//int value=5;
-				//if (feedmultiply>50)
-				//{
-					//feedmultiply-=value;
-					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_FEEDRATE,feedmultiply);
-				//}
-			//}
-			//
-			//
-			//
-			//else if (Event.reportObject.index == BUTTON_BED_UP )
-			//{
-				//int value=5;
-				////if (target_temperature_bed<BED_MAXTEMP)
-				//if (target_temperature_bed<120)//MaxTemp
-				//{
-					//target_temperature_bed+=value;
-					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_BED,target_temperature_bed);
-				//}
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_BED_DOWN )
-			//{
-				//int value=5;
-				////if (target_temperature_bed>BED_MINTEMP)
-				//if (target_temperature_bed>5)//Mintemp
-				//{
-					//target_temperature_bed-=value;
-					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_BED,target_temperature_bed);
-				//}
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_FAN_UP )
-			//{
-				//int value=5;
-				//if (fanSpeed<255)
-				//{
-					//fanSpeed+=value;
-					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_FAN,fanSpeed);
-				//}
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_FAN_DOWN )
-			//{
-				//int value=5;
-				//if (fanSpeed>0)
-				//{
-					//fanSpeed-=value;
-					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_FAN,fanSpeed);
-				//}
-			//}
-			
-			//else if (Event.reportObject.index == BUTTON_SETUP_BACK )
-			//{
-				////Get status string
-				//char buffer[15];
-				//screen_status.toCharArray(buffer,15,0);
-				//
-				//if (card.sdprinting || card.sdispaused)
-				//{
-					//genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
-					////Restore Strings after form update
-					//genie.WriteStr(2,card.longFilename);
-					////genie.WriteStr(6,buffer);
-				//}else
-				//{
-					//genie.WriteObject(GENIE_OBJ_FORM,FORM_START_PRINT,0);
-					////Restore Strings
-					//genie.WriteStr(7,card.longFilename);
-					//genie.WriteStr(8,buffer);
-				//}
-			//}
-			
-			
-			//else if (Event.reportObject.index == BUTTON_SETUP_BACK_NOZZLE || Event.reportObject.index == BUTTON_SETUP_BACK_BED )
-			//{
-				//if (surfing_utilities) // Check if we are backing from utilities or print setup
-				//{
-					//genie.WriteObject(GENIE_OBJ_FORM,FORM_TEMPERATURE,0);
-				//}else
-				//{
-					//genie.WriteObject(GENIE_OBJ_FORM,FORM_SETUP,0);
-				//}
-			//}
-			
-			
-			else if (Event.reportObject.index == BUTTON_PAUSE_RESUME )
-			{
-				int value = genie.GetEventData(&Event);
-				if (value == 1) // Need to pause
-				{
-					//I believe it is a really unsafe way to do it
-					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
-					//st_synchronize();
-					card.pauseSDPrint();				
-					//genie.WriteStr(6,"Pausing...");
-					Serial.println("PAUSE!");
-				}else{
-					if(card.sdispaused)
-					{
-						//I believe it is a really unsafe way to do it
-						//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]-20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
-						//st_synchronize();
-						card.startFileprint();
-						//genie.WriteStr(6,"Printing...");
-						Serial.println("RESUME!");
-					}else{
-						Serial.println("We have stopped");
-					}
-				}
-			}
-			
-			//else if (Event.reportObject.index == BUTTON_PREHEAT_PLA)
-			//{
-				////Reset other buttons
-				////genie.WriteObject(GENIE_OBJ_USERIMAGES,BUTTON_PREHEAT_ABS,0);
-				////int value = genie.GetEventData(&Event);
-				////if (value == 1) // Need to preheat
-				////{
-					//setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
-					//setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP);
-					//setTargetBed(PLA_PREHEAT_HPB_TEMP);
-					//Serial.println("Preheating PLA");
-				////}
-				////else
-				////{
-					////setTargetHotend(0,active_extruder);
-					////setTargetBed(0);
-					////Serial.println("Cooling down PLA");
-				////}
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_TEMPERATURE,0);
-			//}
-				
 			else if (Event.reportObject.index == BUTTON_CHANGE_EXTRUDER)
 			{
 				int value = genie.GetEventData(&Event);
@@ -405,70 +137,408 @@ void myGenieEventHandler(void)
 				{ //Second extruder
 					enquecommand_P(((PSTR("T 1"))));
 					which_extruder=1;
-				}else{
+					}else{
 					enquecommand_P(((PSTR("T 0"))));
 					which_extruder=0;
 				}
 			}
-			
-			else if (Event.reportObject.index == BUTTON_Z_CAL_WIZARD)
-			{
-				//genie.WriteStr(STRING_GPURPOSE_WAIT,"Processing");
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_WAIT,0);
-				enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("T0"));
-				enquecommand_P(PSTR("G34"));	//Start Calibration Wizard	
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);			
-			}
-			
-			
-			//NOZZLE BUTTONS reusability---------------------------------------------------
-			
-			//else if (Event.reportObject.index == BUTTON_NOZZLE1_PRINT || Event.reportObject.index == BUTTON_NOZZLE2_PRINT || Event.reportObject.index == BUTTON_NOZZLE1_TEMP || Event.reportObject.index == BUTTON_NOZZLE2_TEMP)
-			//{
-				//if (Event.reportObject.index == BUTTON_NOZZLE1_PRINT || Event.reportObject.index == BUTTON_NOZZLE1_TEMP)
-				//{
-					//which_extruder=0;
-				//}else{
-					//which_extruder=1;
-				//}				
-				//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_NOZZLE,0);
-			//}
-			
-			//else if (Event.reportObject.index == BUTTON_NOZZLE_UP )
-			//{
-				//int value=5;
-				//if (target_temperature[which_extruder]<HEATER_0_MAXTEMP)
-				//{
-					//target_temperature[which_extruder]+=value;
-					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
-				//}
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_NOZZLE_DOWN )
-			//{
-				//int value=5;
-				//if (target_temperature[which_extruder]>HEATER_0_MINTEMP)
-				//{
-					//target_temperature[which_extruder]-=value;
-					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
-				//}
-			//}
-			
-			else if (Event.reportObject.index == BUTTON_COOLDOWN )
-			{
-				setTargetHotend0(0);
-				setTargetHotend1(0);
-				setTargetBed(0);		
-			}
-			
-			//NOZZLEBUTTONS-------
-			
-			
-			//*****INSERT/REMOVE FILAMENT*****
-			#pragma region Insert_Remove_Fil
+		}
+#pragma endregion Winbuttons
+		
+		//USERBUTTONS------------------------------------------------------
+		if (Event.reportObject.object == GENIE_OBJ_USERBUTTON) //Userbuttons to select GCODE from SD
+		{
+			if (card.sdprinting){
+				if (Event.reportObject.index == BUTTON_PRINT_SETTINGS )
+				{
+					//Rapduch
+					//Edit for final TouchScreen
+					Serial.println("PRINTING SETTINGS");
+					char buffer[256];
+					int tHotend=target_temperature[0];
+					int tHotend1=target_temperature[1];
+					int tBed=target_temperature_bed;
+					
+					is_on_printing_screen=false;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_SETTINGS,0);
+					
+					sprintf(buffer, "%3d",tHotend);
+					//Serial.println(buffer);
+					genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
+					
+					sprintf(buffer, "%3d",tHotend1);
+					//Serial.println(buffer);
+					genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
+					
+					sprintf(buffer, "%3d",tBed);
+					//Serial.println(buffer);
+					genie.WriteStr(STRING_PRINT_SET_BED,buffer);
+					
+					sprintf(buffer, "%3d %%",feedmultiply);
+					//Serial.println(buffer);
+					genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
+				}
 				
+				else if (Event.reportObject.index == BUTTON_STOP_YES )
+				{
+					is_on_printing_screen=false;
+					card.sdprinting = false;
+					card.closefile();
+					
+					//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
+					quickStop();
+					
+					enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
+					enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
+					
+					if(SD_FINISHED_STEPPERRELEASE)
+					{
+						enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+					}
+					autotempShutdown();
+					//setTargetHotend0(0);
+					//setTargetHotend1(0);
+					//setTargetHotend2(0);
+					//setTargetBed(0);
+					card.sdispaused = false;
+					cancel_heatup = true;
+					
+					//sleep_RELAY();
+					//Rapduch
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				}
+				
+				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME )
+				{
+					int value = genie.GetEventData(&Event);
+					if (value == 1) // Need to pause
+					{
+						//I believe it is a really unsafe way to do it
+						//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
+						//st_synchronize();
+						card.pauseSDPrint();
+						Serial.println("PAUSE!");
+					}
+				}
+				
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_DOWN )
+				{
+					char buffer[256];
+					int value=5;
+					if (feedmultiply>50)
+					{
+						feedmultiply-=value;
+						sprintf(buffer, "%3d %%",feedmultiply);
+						genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
+					}
+				}
+				
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ1_UP )
+				{
+					char buffer[256];
+					int value=5;
+					if (target_temperature[0]<HEATER_0_MAXTEMP)
+					{
+						target_temperature[0]+=value;
+						sprintf(buffer, "%3d",target_temperature[0]);
+						genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
+					}
+				}
+				
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ1_DOWN )
+				{
+					char buffer[256];
+					int value=5;
+					if (target_temperature[0]>HEATER_0_MINTEMP)
+					{
+						target_temperature[0]-=value;
+						sprintf(buffer, "%3d",target_temperature[0]);
+						genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
+					}
+				}
+				
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ2_UP )
+				{
+					char buffer[256];
+					int value=5;
+					if (target_temperature[1]<HEATER_1_MAXTEMP)
+					{
+						target_temperature[1]+=value;
+						sprintf(buffer, "%3d",target_temperature[1]);
+						genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
+					}
+				}
+				
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ2_DOWN )
+				{
+					char buffer[256];
+					int value=5;
+					if (target_temperature[1]>HEATER_1_MINTEMP)
+					{
+						target_temperature[1]-=value;
+						sprintf(buffer, "%3d",target_temperature[1]);
+						genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
+					}
+				}
+				
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_BED_UP )
+				{
+					char buffer[256];
+					int value=5;
+					//if (target_temperature_bed<BED_MAXTEMP)
+					if (target_temperature_bed<120)//MaxTemp
+					{
+						target_temperature_bed+=value;
+						sprintf(buffer, "%3d",target_temperature_bed);
+						genie.WriteStr(STRING_PRINT_SET_BED,buffer);
+					}
+				}
+				
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_BED_DOWN )
+				{
+					char buffer[256];
+					int value=5;
+					//if (target_temperature_bed>BED_MINTEMP)
+					if (target_temperature_bed>5)//Mintemp
+					{
+						target_temperature_bed-=value;
+						sprintf(buffer, "%3d",target_temperature_bed);
+						genie.WriteStr(STRING_PRINT_SET_BED,buffer);
+					}
+				}
+								
+			}else{
+				
+				if (Event.reportObject.index == BUTTON_PAUSE_RESUME )
+				{
+					//I believe it is a really unsafe way to do it
+					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]-20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
+					//st_synchronize();
+					card.startFileprint();
+					Serial.println("RESUME!");
+				}
+				
+				else if (Event.reportObject.index == BUTTON_SD_SELECTED )
+				{
+					if(card.cardOK)
+					{				
+						if (!card.filenameIsDir){ //If the filename is a gcode we start printing
+							char cmd[30];
+							char* c;
+							card.getfilename(filepointer);
+							sprintf_P(cmd, PSTR("M23 %s"), card.filename);
+							for(c = &cmd[4]; *c; c++)
+							{
+								*c = tolower(*c);
+							}
+							enquecommand(cmd);
+						
+							is_on_printing_screen=true;//We are entering printing screen
+							enquecommand_P(PSTR("M24")); // It also sends you to PRINTING screen
+						
+							screen_status="Ready...";//Write the selected SD file to all strings						
+						}				
+					}
+				}
+			
+			
+				else if (Event.reportObject.index == BUTTON_SD_LEFT || Event.reportObject.index == BUTTON_SD_RIGHT) //TODO: control if SD is out
+				{
+					if (Event.reportObject.index == BUTTON_SD_LEFT) //LEFT button pressed
+					{
+						if (filepointer == 0)
+						{
+							filepointer=card.getnrfilenames()-1; //Last SD file
+							}else{
+							filepointer--;
+						}
+					}
+					else if (Event.reportObject.index == BUTTON_SD_RIGHT) //RIGHT button pressed
+					{
+						if (filepointer == card.getnrfilenames()-1)
+						{
+							filepointer=0; //First SD file
+							}else{
+							filepointer++;
+						}
+					}
+				
+					card.getfilename(filepointer);
+					if (card.filenameIsDir)
+					{
+						//Is a folder
+						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+						}else{
+						//Is a file
+						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+					}
+					int count = 12;
+					char buffer[count];
+					if (String(card.longFilename).length()>count){
+						for (int i = 0; i<count ; i++)
+						{
+							buffer[i]=card.longFilename[i];
+						}
+						buffer[count]='\0';
+						char* buffer2 = strcat(buffer,"...\0");
+						genie.WriteStr(1,buffer2);//Printing form
+					}else{
+						genie.WriteStr(1,card.longFilename);//Printing form
+					}
+					//Keep in mind to control the length of the string displayed!
+					//genie.WriteStr(2,card.longFilename);
+					Serial.print("Image n: ");
+					Serial.println(filepointer);
+				}
+			
+				//else if (Event.reportObject.index == BUTTON_SPEED_UP )
+				//{
+					//int value=5;
+					//if (feedmultiply<200)
+					//{
+						//feedmultiply+=value;
+						//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_FEEDRATE,feedmultiply);
+					//}
+				//}
+				//
+				//else if (Event.reportObject.index == BUTTON_SPEED_DOWN )
+				//{
+					//int value=5;
+					//if (feedmultiply>50)
+					//{
+						//feedmultiply-=value;
+						//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_FEEDRATE,feedmultiply);
+					//}
+				//}
+				//
+				//
+				//
+				//else if (Event.reportObject.index == BUTTON_BED_UP )
+				//{
+					//int value=5;
+					////if (target_temperature_bed<BED_MAXTEMP)
+					//if (target_temperature_bed<120)//MaxTemp
+					//{
+						//target_temperature_bed+=value;
+						//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_BED,target_temperature_bed);
+					//}
+				//}
+				//
+				//else if (Event.reportObject.index == BUTTON_BED_DOWN )
+				//{
+					//int value=5;
+					////if (target_temperature_bed>BED_MINTEMP)
+					//if (target_temperature_bed>5)//Mintemp
+					//{
+						//target_temperature_bed-=value;
+						//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_BED,target_temperature_bed);
+					//}
+				//}
+				//
+				//else if (Event.reportObject.index == BUTTON_FAN_UP )
+				//{
+					//int value=5;
+					//if (fanSpeed<255)
+					//{
+						//fanSpeed+=value;
+						//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_FAN,fanSpeed);
+					//}
+				//}
+				//
+				//else if (Event.reportObject.index == BUTTON_FAN_DOWN )
+				//{
+					//int value=5;
+					//if (fanSpeed>0)
+					//{
+						//fanSpeed-=value;
+						//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_FAN,fanSpeed);
+					//}
+				//}
+			
+				//else if (Event.reportObject.index == BUTTON_SETUP_BACK )
+				//{
+					////Get status string
+					//char buffer[15];
+					//screen_status.toCharArray(buffer,15,0);
+					//
+					//if (card.sdprinting || card.sdispaused)
+					//{
+						//genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+						////Restore Strings after form update
+						//genie.WriteStr(2,card.longFilename);
+						////genie.WriteStr(6,buffer);
+					//}else
+					//{
+						//genie.WriteObject(GENIE_OBJ_FORM,FORM_START_PRINT,0);
+						////Restore Strings
+						//genie.WriteStr(7,card.longFilename);
+						//genie.WriteStr(8,buffer);
+					//}
+				//}
+			
+			
+				//else if (Event.reportObject.index == BUTTON_SETUP_BACK_NOZZLE || Event.reportObject.index == BUTTON_SETUP_BACK_BED )
+				//{
+					//if (surfing_utilities) // Check if we are backing from utilities or print setup
+					//{
+						//genie.WriteObject(GENIE_OBJ_FORM,FORM_TEMPERATURE,0);
+					//}else
+					//{
+						//genie.WriteObject(GENIE_OBJ_FORM,FORM_SETUP,0);
+					//}
+				//}
+			
+					
+				else if (Event.reportObject.index == BUTTON_Z_CAL_WIZARD)
+				{
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_WAIT,0);
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("T0"));
+					enquecommand_P(PSTR("G34"));	//Start Calibration Wizard	
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);			
+				}
+			
+			
+				//NOZZLE BUTTONS reusability---------------------------------------------------
+				//else if (Event.reportObject.index == BUTTON_NOZZLE1_PRINT || Event.reportObject.index == BUTTON_NOZZLE2_PRINT || Event.reportObject.index == BUTTON_NOZZLE1_TEMP || Event.reportObject.index == BUTTON_NOZZLE2_TEMP)
+				//{
+					//if (Event.reportObject.index == BUTTON_NOZZLE1_PRINT || Event.reportObject.index == BUTTON_NOZZLE1_TEMP)
+					//{
+						//which_extruder=0;
+					//}else{
+						//which_extruder=1;
+					//}				
+					//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_NOZZLE,0);
+				//}
+			
+				//else if (Event.reportObject.index == BUTTON_NOZZLE_UP )
+				//{
+					//int value=5;
+					//if (target_temperature[which_extruder]<HEATER_0_MAXTEMP)
+					//{
+						//target_temperature[which_extruder]+=value;
+						//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
+					//}
+				//}
+				//
+				//else if (Event.reportObject.index == BUTTON_NOZZLE_DOWN )
+				//{
+					//int value=5;
+					//if (target_temperature[which_extruder]>HEATER_0_MINTEMP)
+					//{
+						//target_temperature[which_extruder]-=value;
+						//genie.WriteObject(GENIE_OBJ_LED_DIGITS,LEDDIGITS_NOZZLE,target_temperature[which_extruder]);
+					//}
+				//}
+			
+				
+			
+				//NOZZLEBUTTONS-------
+			
+			
+				//*****INSERT/REMOVE FILAMENT*****
+			#pragma region Insert_Remove_Fil			
 			else if (Event.reportObject.index == BUTTON_INSERT_FIL || Event.reportObject.index == BUTTON_REMOVE_FIL || Event.reportObject.index == BUTTON_PURGE_FIL  )
 			{
 				if (Event.reportObject.index == BUTTON_INSERT_FIL) filament_mode = 'I'; //Insert Mode
@@ -508,9 +578,10 @@ void myGenieEventHandler(void)
 			{// We should have already checked if filament is inserted
 				if (filament_mode =='I')
 				{ //Inserting...
-					//current_position[E_AXIS] += (BOWDEN_LENGTH+100);
-					current_position[E_AXIS] += (BOWDEN_LENGTH-350);
 					Serial.print("Inserting :   ");
+					current_position[E_AXIS] += 20;//Extra extrusion at low feedrate
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
+					current_position[E_AXIS] += (BOWDEN_LENGTH-370);
 					Serial.println(current_position[E_AXIS]);
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
 					current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
@@ -537,7 +608,7 @@ void myGenieEventHandler(void)
 			#pragma endregion Insert_Remove_Fil
 			
 			
-			//*****AdjustFilament******
+				//*****AdjustFilament******
 			#pragma region AdjustFilament
 			else if (Event.reportObject.index == BUTTON_ACCEPT_ADJUST)
 			{
@@ -565,318 +636,211 @@ void myGenieEventHandler(void)
 			
 			
 			
-			//Extruder Calibrations-------------------------------------------------
-			else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_X)
-			{
-				enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G40"));
+				//Extruder Calibrations-------------------------------------------------
+				else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_X)
+				{
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G40"));
 				
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-
-			}		
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+				}		
 			
 			
-			else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_Y)
-			{
-				enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G41"));		
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-			}
+				else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_Y)
+				{
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));		
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+				}
 			
-			else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_Z)
-			{
-				enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G43"));	
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-			}
+				else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_Z)
+				{
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G43"));	
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+				}
 					
-			else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_UP )
-			{
-				char buffer[256];
-				int value=5;
-				if (feedmultiply<200)
-				{			
-					feedmultiply+=value;
-					sprintf(buffer, "%3d %%",feedmultiply);
-					genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_DOWN )
-			{
-				char buffer[256];
-				int value=5;
-				if (feedmultiply>50)
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_UP )
 				{
-					feedmultiply-=value;
-					sprintf(buffer, "%3d %%",feedmultiply);
-					genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ1_UP )
-			{
-				char buffer[256];
-				int value=5;
-				if (target_temperature[0]<HEATER_0_MAXTEMP)
-				{
-					target_temperature[0]+=value;
-					sprintf(buffer, "%3d",target_temperature[0]);
-					genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ1_DOWN )
-			{
-				char buffer[256];
-				int value=5;
-				if (target_temperature[0]>HEATER_0_MINTEMP)
-				{
-					target_temperature[0]-=value;
-					sprintf(buffer, "%3d",target_temperature[0]);
-					genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ2_UP )
-			{
-				char buffer[256];
-				int value=5;
-				if (target_temperature[1]<HEATER_1_MAXTEMP)
-				{
-					target_temperature[1]+=value;
-					sprintf(buffer, "%3d",target_temperature[1]);
-					genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ2_DOWN )
-			{
-				char buffer[256];
-				int value=5;
-				if (target_temperature[1]>HEATER_1_MINTEMP)
-				{
-					target_temperature[1]-=value;
-					sprintf(buffer, "%3d",target_temperature[1]);
-					genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PRINT_SET_BED_UP )
-			{
-				char buffer[256];
-				int value=5;
-				//if (target_temperature_bed<BED_MAXTEMP)
-				if (target_temperature_bed<120)//MaxTemp
-				{
-					target_temperature_bed+=value;
-					sprintf(buffer, "%3d",target_temperature_bed);
-					genie.WriteStr(STRING_PRINT_SET_BED,buffer);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PRINT_SET_BED_DOWN )
-			{
-				char buffer[256];
-				int value=5;
-				//if (target_temperature_bed>BED_MINTEMP)
-				if (target_temperature_bed>5)//Mintemp
-				{
-					target_temperature_bed-=value;
-					sprintf(buffer, "%3d",target_temperature_bed);
-					genie.WriteStr(STRING_PRINT_SET_BED,buffer);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PRINT_SETTINGS )
-			{
-				//Rapduch
-				//Edit for final TouchScreen
-				char buffer[256];
-				int tHotend=target_temperature[0];
-				int tHotend1=target_temperature[1];
-				int tBed=target_temperature_bed;
-				
-				is_on_printing_screen=false;
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_SETTINGS,0);
-				
-				sprintf(buffer, "%3d",tHotend);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
-				
-				sprintf(buffer, "%3d",tHotend1);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
-				
-				sprintf(buffer, "%3d",tBed);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINT_SET_BED,buffer);
-				
-				sprintf(buffer, "%3d %%",feedmultiply);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
-				
-				
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK )
-			{
-				is_on_printing_screen=true;
-				int count = 12;
-				char buffer[count];
-				if (String(card.longFilename).length()>count){
-					for (int i = 0; i<count ; i++)
-					{
-						buffer[i]=card.longFilename[i];
+					char buffer[256];
+					int value=5;
+					if (feedmultiply<200)
+					{			
+						feedmultiply+=value;
+						sprintf(buffer, "%3d %%",feedmultiply);
+						genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
 					}
-					buffer[count]='\0';
-					char* buffer2 = strcat(buffer,"...\0");
-					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
-					}else{
-					genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
 				}
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,1);
-			}
 			
-			
-			//Buttons for preheat settings
-			else if (Event.reportObject.index == BUTTON_PREHEAT_SET_NOZZ1_UP )
-			{
-				char buffer[256];
-				int value=5;
-				if (target_temperature[0]<HEATER_0_MAXTEMP)
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK )
 				{
-					target_temperature[0]+=value;
-					sprintf(buffer, "%3d",target_temperature[0]);
-					genie.WriteStr(STRING_PREHEAT_SET_NOZZ1,buffer);
+					is_on_printing_screen=true;
+					int count = 12;
+					char buffer[count];
+					if (String(card.longFilename).length()>count){
+						for (int i = 0; i<count ; i++)
+						{
+							buffer[i]=card.longFilename[i];
+						}
+						buffer[count]='\0';
+						char* buffer2 = strcat(buffer,"...\0");
+						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+						}else{
+						genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+					}
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,1);
 				}
-			}
 			
-			else if (Event.reportObject.index == BUTTON_PREHEAT_SET_NOZZ1_DOWN )
-			{
-				char buffer[256];
-				int value=5;
-				if (target_temperature[0]>HEATER_0_MINTEMP)
-				{
-					target_temperature[0]-=value;
-					sprintf(buffer, "%3d",target_temperature[0]);
-					genie.WriteStr(STRING_PREHEAT_SET_NOZZ1,buffer);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PREHEAT_SET_NOZZ2_UP )
-			{
-				char buffer[256];
-				int value=5;
-				if (target_temperature[1]<HEATER_1_MAXTEMP)
-				{
-					target_temperature[1]+=value;
-					sprintf(buffer, "%3d",target_temperature[1]);
-					genie.WriteStr(STRING_PREHEAT_SET_NOZZ2,buffer);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PREHEAT_SET_NOZZ2_DOWN )
-			{
-				char buffer[256];
-				int value=5;
-				if (target_temperature[1]>HEATER_1_MINTEMP)
-				{
-					target_temperature[1]-=value;
-					sprintf(buffer, "%3d",target_temperature[1]);
-					genie.WriteStr(STRING_PREHEAT_SET_NOZZ2,buffer);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PREHEAT_SET_BED_UP )
-			{
-				char buffer[256];
-				int value=5;
-				//if (target_temperature_bed<BED_MAXTEMP)
-				if (target_temperature_bed<120)//MaxTemp
-				{
-					target_temperature_bed+=value;
-					sprintf(buffer, "%3d",target_temperature_bed);
-					genie.WriteStr(STRING_PREHEAT_SET_BED,buffer);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PREHEAT_SET_BED_DOWN )
-			{
-				char buffer[256];
-				int value=5;
-				//if (target_temperature_bed>BED_MINTEMP)
-				if (target_temperature_bed>5)//Mintemp
-				{
-					target_temperature_bed-=value;
-					sprintf(buffer, "%3d",target_temperature_bed);
-					genie.WriteStr(STRING_PREHEAT_SET_BED,buffer);
-				}
-			}
-			
-			else if (Event.reportObject.index == BUTTON_PREHEAT_SET_BACK )
-			{
-				//Cooldown
-				setTargetHotend0(0);
-				setTargetHotend1(0);
-				setTargetBed(0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_TEMP_MENU,0);
-			}
-			
-			else if (Event.reportObject.index == BUTTON_REDO_BED_CALIB )
-			{
-				enquecommand_P((PSTR("G28")));
-				enquecommand_P((PSTR("T0")));
-				enquecommand_P((PSTR("G34")));
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-			}
-			
-			else if (Event.reportObject.index == BUTTON_BED_CALIB_SW2)
-			{
-				char buffer[256];
-				if (vuitens2!=0){
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
-					sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
-					genie.WriteStr(STRING_BED_SCREW2,buffer);
-					if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,2);
-					if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,1);} //The direction is inverted in Sigma's bed screws
-					else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,0);}
+					//*****Preheat Settings*****
+				#pragma region Preheat Settings
+				//Buttons for preheat settings
 				
-				}else if (vuitens3!=0)
+				else if (Event.reportObject.index == BUTTON_COOLDOWN )
 				{
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
-					sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
-					genie.WriteStr(STRING_BED_SCREW3,buffer);
-					if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,1);} //The direction is inverted in Sigma's bed screws
-					else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,0);}
-				}else{
-					enquecommand_P((PSTR("G28")));
-					enquecommand_P((PSTR("T0")));
-					enquecommand_P((PSTR("G34")));
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);	
-				}	
-			}
+					setTargetHotend0(0);
+					setTargetHotend1(0);
+					setTargetBed(0);
+				}
+					
+				else if (Event.reportObject.index == BUTTON_PREHEAT_SET_NOZZ1_UP )
+				{
+					char buffer[256];
+					int value=5;
+					if (target_temperature[0]<HEATER_0_MAXTEMP)
+					{
+						target_temperature[0]+=value;
+						sprintf(buffer, "%3d",target_temperature[0]);
+						genie.WriteStr(STRING_PREHEAT_SET_NOZZ1,buffer);
+					}
+				}
 			
-			else if (Event.reportObject.index == BUTTON_BED_CALIB_SW3)
-			{
-				char buffer[256];
-				if (vuitens3!=0){
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
-					sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
-					genie.WriteStr(STRING_BED_SCREW3,buffer);
-					if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,1);} //The direction is inverted in Sigma's bed screws
-					else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,0);}
-				}else{
+				else if (Event.reportObject.index == BUTTON_PREHEAT_SET_NOZZ1_DOWN )
+				{
+					char buffer[256];
+					int value=5;
+					if (target_temperature[0]>HEATER_0_MINTEMP)
+					{
+						target_temperature[0]-=value;
+						sprintf(buffer, "%3d",target_temperature[0]);
+						genie.WriteStr(STRING_PREHEAT_SET_NOZZ1,buffer);
+					}
+				}
+			
+				else if (Event.reportObject.index == BUTTON_PREHEAT_SET_NOZZ2_UP )
+				{
+					char buffer[256];
+					int value=5;
+					if (target_temperature[1]<HEATER_1_MAXTEMP)
+					{
+						target_temperature[1]+=value;
+						sprintf(buffer, "%3d",target_temperature[1]);
+						genie.WriteStr(STRING_PREHEAT_SET_NOZZ2,buffer);
+					}
+				}
+			
+				else if (Event.reportObject.index == BUTTON_PREHEAT_SET_NOZZ2_DOWN )
+				{
+					char buffer[256];
+					int value=5;
+					if (target_temperature[1]>HEATER_1_MINTEMP)
+					{
+						target_temperature[1]-=value;
+						sprintf(buffer, "%3d",target_temperature[1]);
+						genie.WriteStr(STRING_PREHEAT_SET_NOZZ2,buffer);
+					}
+				}
+			
+				else if (Event.reportObject.index == BUTTON_PREHEAT_SET_BED_UP )
+				{
+					char buffer[256];
+					int value=5;
+					//if (target_temperature_bed<BED_MAXTEMP)
+					if (target_temperature_bed<120)//MaxTemp
+					{
+						target_temperature_bed+=value;
+						sprintf(buffer, "%3d",target_temperature_bed);
+						genie.WriteStr(STRING_PREHEAT_SET_BED,buffer);
+					}
+				}
+			
+				else if (Event.reportObject.index == BUTTON_PREHEAT_SET_BED_DOWN )
+				{
+					char buffer[256];
+					int value=5;
+					//if (target_temperature_bed>BED_MINTEMP)
+					if (target_temperature_bed>5)//Mintemp
+					{
+						target_temperature_bed-=value;
+						sprintf(buffer, "%3d",target_temperature_bed);
+						genie.WriteStr(STRING_PREHEAT_SET_BED,buffer);
+					}
+				}
+			
+				else if (Event.reportObject.index == BUTTON_PREHEAT_SET_BACK )
+				{
+					//Cooldown
+					setTargetHotend0(0);
+					setTargetHotend1(0);
+					setTargetBed(0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_TEMP_MENU,0);
+				}
+				#pragma endregion Preheat Settings
+				
+				
+			
+				else if (Event.reportObject.index == BUTTON_REDO_BED_CALIB )
+				{
 					enquecommand_P((PSTR("G28")));
 					enquecommand_P((PSTR("T0")));
 					enquecommand_P((PSTR("G34")));
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 				}
-			}	
 			
-			//*****Success Screens*****
-			#pragma region SuccessScreens
+				else if (Event.reportObject.index == BUTTON_BED_CALIB_SW2)
+				{
+					char buffer[256];
+					if (vuitens2!=0){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
+						sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
+						genie.WriteStr(STRING_BED_SCREW2,buffer);
+						if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,2);
+						if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,1);} //The direction is inverted in Sigma's bed screws
+						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,0);}
+				
+					}else if (vuitens3!=0)
+					{
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
+						sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
+						genie.WriteStr(STRING_BED_SCREW3,buffer);
+						if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,1);} //The direction is inverted in Sigma's bed screws
+						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,0);}
+					}else{
+						enquecommand_P((PSTR("G28")));
+						enquecommand_P((PSTR("T0")));
+						enquecommand_P((PSTR("G34")));
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);	
+					}	
+				}
 			
+				else if (Event.reportObject.index == BUTTON_BED_CALIB_SW3)
+				{
+					char buffer[256];
+					if (vuitens3!=0){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
+						sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
+						genie.WriteStr(STRING_BED_SCREW3,buffer);
+						if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,1);} //The direction is inverted in Sigma's bed screws
+						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,0);}
+					}else{
+						enquecommand_P((PSTR("G28")));
+						enquecommand_P((PSTR("T0")));
+						enquecommand_P((PSTR("G34")));
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					}
+				}	
+			
+				//*****Success Screens*****
+			#pragma region SuccessScreens	
 			else if (Event.reportObject.index == BUTTON_BED_CALIB_SUCCESS )
 			{
 				enquecommand_P((PSTR("G28 X0 Y0")));
@@ -894,8 +858,8 @@ void myGenieEventHandler(void)
 			}
 			#pragma endregion SuccessScreens
 			
-			//***** Calibration XYZ *****
-			#pragma region CalibrationsXYZ
+				//***** Calibration XYZ *****
+			#pragma region CalibrationsXYZ																																																																																																																																																																																																																																																																																																																														
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT1)
 			{
 				//char buffer[30];
@@ -1010,7 +974,7 @@ void myGenieEventHandler(void)
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT10)
 			{
-				float calculus = extruder_offset[X_AXIS][1];
+				float calculus = extruder_offset[X_AXIS][1]-0.5;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1020,129 +984,129 @@ void myGenieEventHandler(void)
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
-			//else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT1)
-			//{
-				////char buffer[30];
-				//float calculus = extruder_offset[Y_AXIS][1] + 0.4;
-				//Serial.print("Calculus:  ");
-				//Serial.println(calculus);
-				////sprintf(buffer, "M218 T1 X%f",calculus); //
-				////sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
-				////enquecommand(buffer);
-				//extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
-				////enquecommand_P((PSTR("M218 T1 X-0.5")));
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT1)
+			{
+				//char buffer[30];
+				float calculus = extruder_offset[Y_AXIS][1] - 0.4;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+				//enquecommand(buffer);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT2)
+			{
+				//enquecommand_P((PSTR("M218 T1 X-0.4")));
+				float calculus = extruder_offset[Y_AXIS][1] - 0.3;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT3)
+			{
+				float calculus = extruder_offset[Y_AXIS][1] - 0.2;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.3")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT4)
+			{
+				float calculus = extruder_offset[Y_AXIS][1] - 0.1;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.2")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT5)
+			{
+				float calculus = extruder_offset[Y_AXIS][1] ;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.1")));
 				//enquecommand_P((PSTR("M500"))); //Store changes
-				////genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT2)
-			//{
-				////enquecommand_P((PSTR("M218 T1 X-0.4")));
-				//float calculus = extruder_offset[Y_AXIS][1] + 0.3;
-				//Serial.print("Calculus:  ");
-				//Serial.println(calculus);
-				//extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
-				//enquecommand_P((PSTR("M500"))); //Store changes
-				////genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT3)
-			//{
-				//float calculus = extruder_offset[Y_AXIS][1] + 0.2;
-				//Serial.print("Calculus:  ");
-				//Serial.println(calculus);
-				////enquecommand_P((PSTR("M218 T1 X-0.3")));
-				//extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
-				//enquecommand_P((PSTR("M500"))); //Store changes
-				////genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT4)
-			//{
-				//float calculus = extruder_offset[Y_AXIS][1] + 0.1;
-				//Serial.print("Calculus:  ");
-				//Serial.println(calculus);
-				////enquecommand_P((PSTR("M218 T1 X-0.2")));
-				//extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
-				//enquecommand_P((PSTR("M500"))); //Store changes
-				////genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT5)
-			//{
-				//float calculus = extruder_offset[Y_AXIS][1] ;
-				//Serial.print("Calculus:  ");
-				//Serial.println(calculus);
-				//extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
-				////enquecommand_P((PSTR("M218 T1 X-0.1")));
-				////enquecommand_P((PSTR("M500"))); //Store changes
-				////genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT6)
-			//{
-				//float calculus = extruder_offset[Y_AXIS][1] - 0.1;
-				//Serial.print("Calculus:  ");
-				//Serial.println(calculus);
-				//extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
-				////enquecommand_P((PSTR("M218 T1 X0.1")));
-				//enquecommand_P((PSTR("M500"))); //Store changes
-				////genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT7)
-			//{
-				//float calculus = extruder_offset[X_AXIS][1] - 0.2;
-				//Serial.print("Calculus:  ");
-				//Serial.println(calculus);
-				//extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
-				////enquecommand_P((PSTR("M218 T1 X0.1")));
-				//enquecommand_P((PSTR("M500"))); //Store changes
-				////genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT8)
-			//{
-				//float calculus = extruder_offset[Y_AXIS][1] - 0.3;
-				//Serial.print("Calculus:  ");
-				//Serial.println(calculus);
-				//extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
-				////enquecommand_P((PSTR("M218 T1 X0.1")));
-				//enquecommand_P((PSTR("M500"))); //Store changes
-				////genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT9)
-			//{
-				//float calculus = extruder_offset[Y_AXIS][1] - 0.4;
-				//Serial.print("Calculus:  ");
-				//Serial.println(calculus);
-				//extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
-				////enquecommand_P((PSTR("M218 T1 X0.1")));
-				//enquecommand_P((PSTR("M500"))); //Store changes
-				////genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-			//}
-			//
-			//else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT10)
-			//{
-				//float calculus = extruder_offset[Y_AXIS][1];
-				//Serial.print("Calculus:  ");
-				//Serial.println(calculus);
-				//extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
-				////enquecommand_P((PSTR("M218 T1 X0.1")));
-				//enquecommand_P((PSTR("M500"))); //Store changes
-				////genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-			//}
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT6)
+			{
+				float calculus = extruder_offset[Y_AXIS][1] + 0.1;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT7)
+			{
+				float calculus = extruder_offset[X_AXIS][1] + 0.2;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT8)
+			{
+				float calculus = extruder_offset[Y_AXIS][1] + 0.3;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT9)
+			{
+				float calculus = extruder_offset[Y_AXIS][1] + 0.4;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			
+			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT10)
+			{
+				float calculus = extruder_offset[Y_AXIS][1] + 0.5;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X0.1")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
 			
 			
 			else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_Up)
@@ -1211,8 +1175,11 @@ void myGenieEventHandler(void)
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 				#endif
 			}
+			
 #pragma endregion CalibrationsXYZ
 			
+				//***** Info Screens *****	
+			#pragma region Info Screens																																																																																																								
 			//BACKING FROM INFO SCREENS!------------------------------------------------------------------------
 			//Backing from INFO SCREENS
 			else if (Event.reportObject.index == BACKBUTTON_INFO_NEEDFIL)
@@ -1316,12 +1283,12 @@ void myGenieEventHandler(void)
 				enquecommand_P(PSTR("G43"));
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 			}
-				
-		}	
-		//USERBUTTONS------------------------------------------------------
+#pragma endregion Info Screens
 		
-		//ANIBUTONS--------------------------------------------------------
-		//ANIBUTONS--------------------------------------------------------
+			}
+		}
+		//USERBUTTONS------------------------------------------------------
+
 		
 		//FORMS--------------------------------------------------------
 		if (Event.reportObject.object == GENIE_OBJ_FORM)
@@ -1481,6 +1448,7 @@ void myGenieEventHandler(void)
 			
 			else if (Event.reportObject.index == FORM_PRINTING_SETTINGS)
 			{
+				Serial.println("Form Printing Settings");
 				////Rapduch
 				////Edit for final TouchScreen
 				//char buffer[256];

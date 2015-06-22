@@ -849,224 +849,94 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 
 	//if(card.sdprinting && is_on_printing_screen)
 	if(card.sdprinting)
-	{
-		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,3, tHotend);
-		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,7, tHotend1);
-		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,6, tBed);
-		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,5,(time%60));
-		//genie.WriteObject(GENIE_OBJ_LED_DIGITS,4,(time/60));
-		
+	{	
 		if (millis() >= waitPeriod)
-			{		
-
-				int tHotend=int(degHotend(0));
-				int tHotend1=int(degHotend(1));
-				int tBed=int(degBed() + 0.5);
-				
-				////Rapduch
-				////Edit for final TouchScreen
-				//char buffer[256];
-				//sprintf(buffer, "% 3d",tHotend);
-				////Serial.println(buffer);
-				//genie.WriteStr(STRING_PRINTING_NOZZ1,buffer);
-				//
-				//sprintf(buffer, "% 3d",tHotend1);
-				////Serial.println(buffer);
-				//genie.WriteStr(STRING_PRINTING_NOZZ2,buffer);
-				//
-				//sprintf(buffer, "% 2d",tBed);
-				////Serial.println(buffer);
-				//genie.WriteStr(STRING_PRINTING_BED,buffer);
-				//
-				//sprintf(buffer, "% 3d %%",card.percentDone());
-				////Serial.println(buffer);
-				//genie.WriteStr(STRING_PRINTING_PERCENT,buffer);
-				//
-				//sprintf(buffer, "% 3d %%",feedmultiply);
-				////Serial.println(buffer);
-				//genie.WriteStr(STRINGS_PRINTING_FEED,buffer);	
-					
-				waitPeriod=5000+millis();	//Every 5s
-			}
-					
-		}else if (surfing_utilities)
 		{		
 			int tHotend=int(degHotend(0));
 			int tHotend1=int(degHotend(1));
 			int tBed=int(degBed() + 0.5);
-			char buffer[256]; 
+				
+			//Rapduch
+			//Edit for final TouchScreen
+			char buffer[256];
+			sprintf(buffer, "% 3d",tHotend);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PRINTING_NOZZ1,buffer);
 			
-			if (millis() >= waitPeriod)
-			{					
-				//REGION---		
-				#pragma region Old_Temperature_print
-				//Declare a String
-				//String str = String(tHotend);
-				//
-				////----------------------------------
-				//char cmd[4]="";
-				//char cmd_t[4]="";
-				//char temp_string1[10]="";
-				//
-				//int tHotend=int(degHotend(0) + 0.5);
-				//int tTarget=int(degTargetHotend(0) + 0.5);
-				////Declare a String
-				//String str_hot = String(tHotend);
-				//String str_targethot = String(tTarget);
-				//str_hot.toCharArray(cmd,4);
-						//
-				//str_targethot.toCharArray(cmd_t,4);
-				//
-				////Serial.print("Prova TempString : ");
-				////Serial.println(cmd);
-				////Serial.println(cmd_t);
-				//
-				///*
-				//if (tHotend>=100) {
-					//
-				//}
-				//*/
-				//strcat(temp_string1,cmd);
-				//strcat(temp_string1,"/");
-				//strcat(temp_string1,cmd_t);
-				//
-				////Serial.println(temp_string1);
-//
-				//char buffer[256]; 
-				//sprintf(buffer, "% 3d  /% 3d",tHotend,tTarget);
-				////Serial.println(buffer);
-				//genie.WriteStr(STRINGS_NOZZLE1,buffer);			
-				//
-				////genie.WriteStr(STRINGS_NOZZLE1,temp_string1);
-				//
-				////EX 2 -----------------------
-				////Declare a String
-				//tHotend=int(degHotend(1) + 0.5);
-				//tTarget=int(degTargetHotend(1) + 0.5);
-				//char temp_string2[8]="";
-				//str_hot = String(tHotend);
-				//str_targethot = String(tTarget);
-				//str_hot.toCharArray(cmd,3);
-				//str_targethot.toCharArray(cmd_t,3);
-				//
-				//strcat(temp_string2,cmd);
-				//strcat(temp_string2,"/");
-				//strcat(temp_string2,cmd_t);
-				//
-				//
-				//
-				//sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
-				////Serial.println(buffer);
-				//genie.WriteStr(STRINGS_NOZZLE2,buffer);
-				////genie.WriteStr(STRINGS_NOZZLE2,temp_string2);
-				//
-				////BED
-				//char temp_string3[8]="";
-				//int tBed=int(degBed() + 0.5);
-				//int tTargetBed=int(degTargetBed() + 0.5);
-				//String str_bed = String(tBed);
-				//String str_targetbed = String(tTargetBed);
-				//str_bed.toCharArray(cmd,3);
-				//str_targetbed.toCharArray(cmd_t,3);
-				//
-				//strcat(temp_string3,cmd);
-				//strcat(temp_string3,"/");
-				//strcat(temp_string3,cmd_t);
-				//
-			//
-				//sprintf(buffer, " % 3d/% 3d",tBed,tTargetBed);
-				////Serial.println(buffer);
-				//genie.WriteStr(STRINGS_BED,buffer);
-				//
-				////genie.WriteStr(STRINGS_BED,temp_string3);
-				//
-								//
-				////char* cmd = prepare_temp_string(0);
-				////Serial.print("Extruder 1 :  ");
-				////Serial.println(cmd);
-				////Serial.println(tHotend);
-				//
-				////cmd = strcat("Jor","/");
-				//char cmdex[8];
-				////cmd=itostr3(tHotend);
-				////cmd = strcat(itostr3(tHotend),"/");
-				////itoa(tHotend,cmd,10);
-				////Serial.print("Extruder 1 String :  ");
-				//str.toCharArray(cmdex,8);
-				////Serial.println(cmdex);
-				//
-				////prepare_temp_string(0);
-				////Serial.println(prepare_temp_string(0));
-				//
-				////Serial.println(prepare_temp_string(1));
-				////Serial.println(prepare_temp_string(2));
-				//
-				////genie.WriteStr(STRINGS_NOZZLE2,prepare_temp_string(1));//E2
-				////genie.WriteStr(STRINGS_BED,prepare_temp_string(2));//BED			
-				////waitPeriod=1000+millis();	//Every 1s
+			sprintf(buffer, "% 3d",tHotend1);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PRINTING_NOZZ2,buffer);
+			
+			sprintf(buffer, "% 2d",tBed);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PRINTING_BED,buffer);
+			
+			sprintf(buffer, "% 3d %%",card.percentDone());
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PRINTING_PERCENT,buffer);
+			
+			sprintf(buffer, "% 3d %%",feedmultiply);
+			//Serial.println(buffer);
+			genie.WriteStr(STRINGS_PRINTING_FEED,buffer);	
 					
-				//Change filament thermometer	
-				//tHotend=int(degHotend(which_extruder) + 0.5);
-				//int tTarget=int(degTargetHotend(which_extruder) + 0.5);			
-				//sprintf(buffer, " % 3d/% 3d",tHotend,tTarget);
-				//genie.WriteStr(STRING_PREHEATING,buffer);			
-							
+			waitPeriod=5000+millis();	//Every 5s
+		}
+					
+	}else if (surfing_utilities)
+	{		
+		if (millis() >= waitPeriod)
+		{					
+			int tHotend=int(degHotend(0));
+			int tHotend1=int(degHotend(1));
+			int tBed=int(degBed() + 0.5);
+			char buffer[256];
 				
-#pragma endregion Old_Temperature_print
-				//END REGION
+			//Rapduch
+			//Edit for final TouchScreen
 				
-				int tHotend=int(degHotend(0));
-				int tHotend1=int(degHotend(1));
-				int tBed=int(degBed() + 0.5);
+			sprintf(buffer, "% 3d",tHotend);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_TEMP_NOZZ1,buffer);
 				
-				//Rapduch
-				//Edit for final TouchScreen
+			sprintf(buffer, "% 3d",tHotend1);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_TEMP_NOZZ2,buffer);
 				
-				sprintf(buffer, "% 3d",tHotend);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_TEMP_NOZZ1,buffer);
+			sprintf(buffer, "% 2d",tBed);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_TEMP_BED,buffer);
 				
-				sprintf(buffer, "% 3d",tHotend1);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_TEMP_NOZZ2,buffer);
+			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
+			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
+			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
 				
-				sprintf(buffer, "% 2d",tBed);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_TEMP_BED,buffer);
-				
-				
-				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
-				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
-				genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
-				
-				
-				#if EXTRUDERS > 1
-				// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
-				if ((degHotend(0) >= (degTargetHotend0()-5)) && (degHotend(1) >= (degTargetHotend1()-5)) && is_changing_filament)
-				// if we want to add user setting temp, we should control if is heating
+			#if EXTRUDERS > 1
+			// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
+			if ((degHotend(0) >= (degTargetHotend0()-5)) && (degHotend(1) >= (degTargetHotend1()-5)) && is_changing_filament)
+			// if we want to add user setting temp, we should control if is heating
+			{
+				Serial.println("Ready to Insert/Remove");
+				//We have preheated correctly
+				if (filament_mode =='I') 
 				{
-					Serial.println("Ready to Insert/Remove");
-					//We have preheated correctly
-					if (filament_mode =='I') 
-					{
-						genie.WriteStr(STRING_FILAMENT,"Press to Insert Filament");
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
-					}
-					else if (filament_mode =='R')
-					{ 
-						genie.WriteStr(STRING_FILAMENT,"Press to Remove Filament");
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
-					}
-					else 
-					{
-						genie.WriteStr(STRING_FILAMENT,"Press to Purge Filament");
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
-					}
-					is_changing_filament=false; //Reset changing filament control
-				}	
-				#endif //Extruders > 1
-				waitPeriod=1000+millis();			
-			}				
+					genie.WriteStr(STRING_FILAMENT,"Press to Insert Filament");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
+				}
+				else if (filament_mode =='R')
+				{ 
+					genie.WriteStr(STRING_FILAMENT,"Press to Remove Filament");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
+				}
+				else 
+				{
+					genie.WriteStr(STRING_FILAMENT,"Press to Purge Filament");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
+				}
+				is_changing_filament=false; //Reset changing filament control
+			}	
+			#endif //Extruders > 1
+			waitPeriod=1000+millis(); // Every Second			
+		}				
 	}else
 	{
 		//Do always...		
@@ -1075,6 +945,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	genie.DoEvents(); //Processes the TouchScreen Queued Events
 }
 #endif //SIGMA TOUCHSCREEN
+
 
 void get_command()
 {
@@ -2395,7 +2266,8 @@ case 41://G41 --> Y Extruder calibration
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 	st_synchronize();
 	
-	float mm_second_extruder[9] = {19.6, 19.7, 19.8, 19.9, 20 ,20.1 ,20.2, 20.3, 20.4};
+	int times = 9;
+	float mm_second_extruder[] = {19.6, 19.7, 19.8, 19.9, 20 ,20.1 ,20.2, 20.3, 20.4};
 
 	float mm_each_extrusion = 20;
 	float mm_left_offset = 265;
@@ -2403,7 +2275,7 @@ case 41://G41 --> Y Extruder calibration
 	//float mm_left_offset = X_CALIB_STARTING_X;
 	float mm_y_offset = X_CALIB_STARTING_Y;
 	
-	int times = 9;
+	
 	for (int i=1; i<(times+1);i++) //4 times
 	{
 		plan_buffer_line(180, mm_left_offset-(mm_each_extrusion*i), current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move X and Z

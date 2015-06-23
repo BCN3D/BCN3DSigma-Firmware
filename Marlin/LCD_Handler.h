@@ -23,7 +23,7 @@ extern bool cancel_heatup;
 void myGenieEventHandler();
 
 //Created by Jordi Calduch for RepRapBCN SIGMA 12/2014
-void myGenieEventHandler(void)
+void myGenieEventHandler(void) //Handler for the do.Events() function
 {
 	genieFrame Event;
 	genie.DequeueEvent(&Event);
@@ -1108,7 +1108,6 @@ void myGenieEventHandler(void)
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
-			
 			else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_Up)
 			{
 				float feedrate = homing_feedrate[Z_AXIS];
@@ -1449,28 +1448,6 @@ void myGenieEventHandler(void)
 			else if (Event.reportObject.index == FORM_PRINTING_SETTINGS)
 			{
 				Serial.println("Form Printing Settings");
-				////Rapduch
-				////Edit for final TouchScreen
-				//char buffer[256];
-				//int tHotend=target_temperature[0];
-				//int tHotend1=target_temperature[1];
-				//int tBed=target_temperature_bed;
-				//
-				//sprintf(buffer, "%3d",tHotend);			
-				////Serial.println(buffer);
-				//genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
-				//
-				//sprintf(buffer, "%3d",tHotend1);
-				////Serial.println(buffer);
-				//genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
-				//
-				//sprintf(buffer, "%3d",tBed);
-				////Serial.println(buffer);
-				//genie.WriteStr(STRING_PRINT_SET_BED,buffer);
-				//
-				//sprintf(buffer, "%3d %%",feedmultiply);
-				////Serial.println(buffer);
-				//genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
 			}
 			
 			else if (Event.reportObject.index == FORM_PREHEAT_SETTINGS)
@@ -1542,8 +1519,6 @@ char* prepareString(char* text, int len){
 		Serial.println(buffer2);
 		return buffer2;
 	}
-		
-	
 }
 
 

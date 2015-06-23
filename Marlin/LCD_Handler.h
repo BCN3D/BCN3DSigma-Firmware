@@ -221,6 +221,20 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				
+				//*****Printing Settings*****
+				#pragma region Printing Settings
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_UP )
+				{
+					char buffer[256];
+					int value=5;
+					if (feedmultiply<200)
+					{
+						feedmultiply+=value;
+						sprintf(buffer, "%3d %%",feedmultiply);
+						genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
+					}
+				}
+				
 				else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_DOWN )
 				{
 					char buffer[256];
@@ -306,6 +320,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRING_PRINT_SET_BED,buffer);
 					}
 				}
+			#pragma endregion Printing Settings
+					
 								
 			}else{
 				
@@ -318,6 +334,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.println("RESUME!");
 				}
 				
+				//*****SD Gcode Selection*****
+				#pragma region SD Gcode Selector
 				else if (Event.reportObject.index == BUTTON_SD_SELECTED )
 				{
 					if(card.cardOK)
@@ -390,6 +408,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.print("Image n: ");
 					Serial.println(filepointer);
 				}
+				#pragma endregion SD Gcode Selector
+
 			
 				//else if (Event.reportObject.index == BUTTON_SPEED_UP )
 				//{
@@ -489,14 +509,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//}
 			
 					
-				else if (Event.reportObject.index == BUTTON_Z_CAL_WIZARD)
-				{
-					//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_WAIT,0);
-					enquecommand_P(PSTR("G28"));
-					enquecommand_P(PSTR("T0"));
-					enquecommand_P(PSTR("G34"));	//Start Calibration Wizard	
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);			
-				}
+				
 			
 			
 				//NOZZLE BUTTONS reusability---------------------------------------------------
@@ -660,17 +673,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 				}
 					
-				else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_UP )
-				{
-					char buffer[256];
-					int value=5;
-					if (feedmultiply<200)
-					{			
-						feedmultiply+=value;
-						sprintf(buffer, "%3d %%",feedmultiply);
-						genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
-					}
-				}
+				
 			
 				else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK )
 				{
@@ -787,7 +790,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma endregion Preheat Settings
 				
 				
-			
+					//*****Bed Calibration*****
+				#pragma region Bed Calibration
+				else if (Event.reportObject.index == BUTTON_Z_CAL_WIZARD)
+				{
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("T0"));
+					enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+				}
+				
 				else if (Event.reportObject.index == BUTTON_REDO_BED_CALIB )
 				{
 					enquecommand_P((PSTR("G28")));
@@ -837,7 +849,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						enquecommand_P((PSTR("G34")));
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					}
-				}	
+				}
+#pragma endregion Bed Calibration
+	
 			
 				//*****Success Screens*****
 			#pragma region SuccessScreens	
@@ -1120,7 +1134,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_Down)
 			{
 				float feedrate = homing_feedrate[Z_AXIS];
-				if (current_position[Z_AXIS]>-0.5) current_position[Z_AXIS] -= 0.1; //Max down is Z=-0.5
+				if (current_position[Z_AXIS]>-1) current_position[Z_AXIS] -= 0.1; //Max down is Z=-0.5
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 				Serial.print("Z position: ");
 				Serial.println(current_position[Z_AXIS]);
@@ -1154,7 +1168,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_Down)
 			{
 				float feedrate = homing_feedrate[Z_AXIS];
-				if (current_position[Z_AXIS]>-0.5) current_position[Z_AXIS] -= 0.1;  //Max down is Z=-0.5
+				if (current_position[Z_AXIS]>-1) current_position[Z_AXIS] -= 0.1;  //Max down is Z=-0.5
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 				Serial.print("Z position: ");
 				Serial.println(current_position[Z_AXIS]);

@@ -180,22 +180,7 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHOPAIR(" Y" ,add_homing[1] );
     SERIAL_ECHOPAIR(" Z" ,add_homing[2] );
     SERIAL_ECHOLN("");
-#ifdef DELTA
-    SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM("Endstop adjustement (mm):");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M666 X",endstop_adj[0] );
-    SERIAL_ECHOPAIR(" Y" ,endstop_adj[1] );
-    SERIAL_ECHOPAIR(" Z" ,endstop_adj[2] );
-	SERIAL_ECHOLN("");
-	SERIAL_ECHO_START;
-	SERIAL_ECHOLNPGM("Delta settings: L=delta_diagonal_rod, R=delta_radius, S=delta_segments_per_second");
-	SERIAL_ECHO_START;
-	SERIAL_ECHOPAIR("  M665 L",delta_diagonal_rod );
-	SERIAL_ECHOPAIR(" R" ,delta_radius );
-	SERIAL_ECHOPAIR(" S" ,delta_segments_per_second );
-	SERIAL_ECHOLN("");
-#endif
+
 #ifdef PIDTEMP
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("PID settings:");

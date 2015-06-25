@@ -762,7 +762,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #if MOTHERBOARD == BCN3D_BOARD
 		#define EXTRUDER_OFFSET_Y {0.0,  -0.15}  // (in mm) for each extruder, offset of the hotend on the Y axis
-		#define EXTRUDER_OFFSET_Z {0.0 , -0.1}
+		#define EXTRUDER_OFFSET_Z {0.0 , 0.0}
 #endif
 
 

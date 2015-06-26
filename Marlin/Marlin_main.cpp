@@ -96,6 +96,7 @@ Genie genie;
 // G33 - Autolevel Bed
 // G34 - Autocal Bed
 // G40 - Wizard X
+// G41 - Square
 
 // G90 - Use Absolute Coordinates
 // G91 - Use Relative Coordinates
@@ -2804,9 +2805,10 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	break; //G33 ends
 }
 
+
 	//Rapduch
 	#ifdef SIGMA_BED_AUTOCALIB
-	 case 34: // Performs a BED calibration Wizard with TouchScreen Integration
+	 case 34: // G34 Performs a BED calibration Wizard with TouchScreen Integration
 	 {
 		 //WARNING: T0 (LEFT_EXTRUDER) MUST BE SELECTED!
 		 if (active_extruder==RIGHT_EXTRUDER){
@@ -3178,7 +3180,33 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		 break;		 
 	 }
 	#endif //SIGMA_BED_AUTOCALIB
-
+	
+	case 69: //G69 Square
+	{
+		
+		feedrate = XY_TRAVEL_SPEED;
+		//current_position[X_AXIS]=
+		current_position[Z_AXIS] = 10;
+		plan_buffer_line(250,250,current_position[Z_AXIS],0,feedrate/60,LEFT_EXTRUDER);
+		plan_buffer_line(250,150,current_position[Z_AXIS],0,feedrate/60,LEFT_EXTRUDER);
+		plan_buffer_line(150,150,current_position[Z_AXIS],0,feedrate/60,LEFT_EXTRUDER);
+		plan_buffer_line(150,250,current_position[Z_AXIS],0,feedrate/60,LEFT_EXTRUDER);
+		current_position[X_AXIS]=150;
+		current_position[Y_AXIS]=250;
+		current_position[E_AXIS]=0;
+		current_position[Z_AXIS] = 10;
+		plan_set_position(150,250,current_position[Z_AXIS],0);
+		
+		
+		plan_buffer_line(250,250,current_position[Z_AXIS],0,feedrate/60,active_extruder);
+		plan_buffer_line(250,150,current_position[Z_AXIS],0,feedrate/60,active_extruder);
+		plan_buffer_line(150,150,current_position[Z_AXIS],0,feedrate/60,active_extruder);
+		plan_buffer_line(150,250,current_position[Z_AXIS],0,feedrate/60,active_extruder);
+		enquecommand_P(PSTR("T0"));
+		enquecommand_P(PSTR("G28 X0 Y0"));
+		
+		break;
+	}
 
     case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
         {
@@ -3795,7 +3823,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	current_position[Z_AXIS] = Z_current = st_get_position_mm(Z_AXIS);
 	Z_start_location = st_get_position_mm(Z_AXIS) + Z_RAISE_BEFORE_PROBING;
 
-	plan_buffer_line( X_probe_location, Y_probe_location, Z_start_location,
+plan_buffer_line( X_probe_location, Y_probe_location, Z_start_location,
 			ext_position,
     			homing_feedrate[X_AXIS]/60,
 			active_extruder);
@@ -5795,7 +5823,7 @@ void prepare_move()
 #ifdef DUAL_X_CARRIAGE
   if (active_extruder_parked)
   {  
-	//Rapduch toolchange
+	//Rapduch: movements if whe have done a toolchange. It returns the new tool to the last printing position
 	if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE && current_position[E_AXIS]==destination[E_AXIS]) //Sigma mode and we are in a travel move after toolchange
 	{
 		plan_buffer_line(current_position[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
@@ -6245,4 +6273,295 @@ bool setTargetedHotend(int code){
   }
   return false;
 }
+ void home_axis_from_code()
+ {
+	 #ifdef ENABLE_AUTO_BED_LEVELING
+	 plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
+	 #endif //ENABLE_AUTO_BED_LEVELING
+
+	 #ifdef Z_SIGMA_HOME
+	 int saved_active_extruder = active_extruder;
+	 Serial.print("Extruder active: ");
+	 Serial.println(saved_active_extruder);
+	 #endif
+	 
+	 saved_feedrate = feedrate;
+	 saved_feedmultiply = feedmultiply;
+	 feedmultiply = 100;
+	 previous_millis_cmd = millis();
+
+	 enable_endstops(true); //Activate endstops
+
+	 for(int8_t i=0; i < NUM_AXIS; i++) {
+		 destination[i] = current_position[i];
+	 }
+	 feedrate = 0.0;
+
+	 home_all_axis = !((code_seen(axis_codes[X_AXIS])) || (code_seen(axis_codes[Y_AXIS])) || (code_seen(axis_codes[Z_AXIS])));
+
+	 #if Z_HOME_DIR > 0                      // If homing away from BED do Z first. WE ARE NOT USING THIS IN SIGMA
+	 if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+		 HOMEAXIS(Z);
+	 }
+	 #endif
+
+	 #ifdef QUICK_HOME
+	 if((home_all_axis)||( code_seen(axis_codes[X_AXIS]) && code_seen(axis_codes[Y_AXIS])) )  //first diagonal move
+	 {
+		 current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;
+
+		 #ifndef DUAL_X_CARRIAGE
+		 int x_axis_home_dir = home_dir(X_AXIS); //Set X directions
+		 #else
+		 int x_axis_home_dir = x_home_dir(active_extruder);
+		 extruder_duplication_enabled = false;
+		 #endif
+
+		 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		 
+		 destination[X_AXIS] = 1.5 * max_length(X_AXIS) * x_axis_home_dir;
+		 destination[Y_AXIS] = 1.5 * max_length(Y_AXIS) * home_dir(Y_AXIS);
+		 
+		 feedrate = homing_feedrate[X_AXIS];
+		 
+		 if(homing_feedrate[Y_AXIS]<feedrate)
+		 feedrate = homing_feedrate[Y_AXIS];
+		 
+		 if (max_length(X_AXIS) > max_length(Y_AXIS)) {
+			 feedrate *= sqrt(pow(max_length(Y_AXIS) / max_length(X_AXIS), 2) + 1);
+			 } else {
+			 feedrate *= sqrt(pow(max_length(X_AXIS) / max_length(Y_AXIS), 2) + 1);
+		 }
+		 
+		 plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+		 st_synchronize();
+
+		 axis_is_at_home(X_AXIS);
+		 axis_is_at_home(Y_AXIS);
+		 
+		 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		 destination[X_AXIS] = current_position[X_AXIS];
+		 destination[Y_AXIS] = current_position[Y_AXIS];
+		 plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+		 feedrate = 0.0;
+		 st_synchronize();
+		 endstops_hit_on_purpose();
+
+		 current_position[X_AXIS] = destination[X_AXIS];
+		 current_position[Y_AXIS] = destination[Y_AXIS];
+		 current_position[Z_AXIS] = destination[Z_AXIS];
+	 }
+	 #endif
+
+	 if((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) // First do X
+	 {
+		 #ifdef DUAL_X_CARRIAGE
+		 #ifdef Z_SIGMA_HOME
+		 if(saved_active_extruder == RIGHT_EXTRUDER)
+		 {
+			 //active_extruder=LEFT_EXTRUDER; //Always use the same routine (left extruder probes)
+		 }
+		 #endif
+		 int tmp_extruder = active_extruder;
+		 extruder_duplication_enabled = false;
+		 active_extruder = !active_extruder;
+		 HOMEAXIS(X);
+		 inactive_extruder_x_pos = current_position[X_AXIS];
+		 active_extruder = tmp_extruder;
+		 HOMEAXIS(X);
+		 // reset state used by the different modes
+		 memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+		 delayed_move_time = 0;
+		 active_extruder_parked = true;
+		 #else
+		 HOMEAXIS(X);
+		 #endif
+	 }
+
+	 if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
+		 HOMEAXIS(Y);
+	 }
+
+	 if(code_seen(axis_codes[X_AXIS]))
+	 {
+		 if(code_value_long() != 0) {
+			 current_position[X_AXIS]=code_value()+add_homing[0];
+		 }
+	 }
+
+	 if(code_seen(axis_codes[Y_AXIS])) {
+		 if(code_value_long() != 0) {
+			 current_position[Y_AXIS]=code_value()+add_homing[1];
+		 }
+	 }
+
+	 #if Z_HOME_DIR < 0   // If homing towards BED do Z last
+	 //Rapduch
+	 #ifdef Z_SIGMA_HOME
+	 if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+		 
+		 
+		 if (saved_active_extruder == RIGHT_EXTRUDER){
+			 active_extruder=LEFT_EXTRUDER;
+			 axis_is_at_home(X_AXIS);
+			 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+		 }
+		 
+		 destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
+		 destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
+		 destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+		 feedrate = SIGMA_Z_HOME_TRAVEL_SPEED;
+		 current_position[Z_AXIS] = 0;
+		 
+		 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		 plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);//Left Extruder
+		 st_synchronize();
+		 current_position[X_AXIS] = destination[X_AXIS];
+		 current_position[Y_AXIS] = destination[Y_AXIS];
+		 HOMEAXIS(Z);
+		 
+		 Serial.println("Z SIGMA Homed");
+		 //At this point our probe is homed, no offset is added.
+
+		 //Now lets home with the second extruder:
+		 //st_synchronize();
+		 //
+		 //plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+10, current_position[E_AXIS], feedrate, 1);
+		 ////plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS]+10, current_position[E_AXIS], feedrate, 1);
+		 //destination[X_AXIS] = round(Z_SIGMA_HOME_SECOND_X_POINT);
+		 //destination[Y_AXIS] = round(Z_SIGMA_HOME_SECOND_Y_POINT);
+		 //destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+		 //feedrate = XY_SIGMA_TRAVEL_SPEED;
+		 //current_position[Z_AXIS] = 0;
+		 //SERIAL_ECHO("Z SIGMA Homed");
+		 //
+		 //plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		 //plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, tmp_extruder); //Second extruder(temporal)
+		 //current_position[X_AXIS] = destination[X_AXIS];
+		 //current_position[Y_AXIS] = destination[Y_AXIS];
+		 //HOMEAXIS(Z);
+		 
+	 }
+	 #else
+	 
+	 #ifndef Z_SAFE_HOMING
+	 if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+		 #if defined (Z_RAISE_BEFORE_HOMING) && (Z_RAISE_BEFORE_HOMING > 0)
+		 destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+		 feedrate = max_feedrate[Z_AXIS];
+		 plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+		 st_synchronize();
+		 #endif
+		 HOMEAXIS(Z);
+	 }
+	 #else                   // Z Safe mode activated.
+	 if(home_all_axis) {
+		 destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - X_PROBE_OFFSET_FROM_EXTRUDER);
+		 destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - Y_PROBE_OFFSET_FROM_EXTRUDER);
+		 destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+		 feedrate = XY_TRAVEL_SPEED;
+		 current_position[Z_AXIS] = 0;
+
+		 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		 plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+		 st_synchronize();
+		 current_position[X_AXIS] = destination[X_AXIS];
+		 current_position[Y_AXIS] = destination[Y_AXIS];
+
+		 HOMEAXIS(Z);
+	 }
+	 
+	 //Let's see if X and Y are homed and probe is inside bed area.
+	 if(code_seen(axis_codes[Z_AXIS])) {
+		 if ( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]) \
+		 && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
+		 && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER <= X_MAX_POS) \
+		 && (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER >= Y_MIN_POS) \
+		 && (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER <= Y_MAX_POS)){
+			 
+			 current_position[Z_AXIS] = 0;
+			 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			 destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+			 feedrate = max_feedrate[Z_AXIS];
+			 plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+			 st_synchronize();
+
+			 HOMEAXIS(Z);
+			 } else if (!((axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]))) {
+			 LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+			 SERIAL_ECHO_START;
+			 SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+			 } else {
+			 LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
+			 SERIAL_ECHO_START;
+			 SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
+		 }
+	 }
+	 #endif
+	 
+	 #endif
+	 
+	 #endif
+
+	 if(code_seen(axis_codes[Z_AXIS])) { //Sets Z position
+		 if(code_value_long() != 0) {
+			 current_position[Z_AXIS]=code_value()+add_homing[2];
+		 }
+	 }
+	 
+	 //Rapduch
+	 #ifdef Z_SIGMA_HOME
+	 if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+		 current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
+	 }
+	 #else
+	 #ifdef ENABLE_AUTO_BED_LEVELING  //ADDING the Z offset
+	 //if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+	 //current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
+	 //}
+	 #endif
+	 #endif
+
+	 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+	 #ifdef ENDSTOPS_ONLY_FOR_HOMING
+	 enable_endstops(false);
+	 #endif
+
+	 feedrate = saved_feedrate;
+	 feedmultiply = saved_feedmultiply;
+	 previous_millis_cmd = millis();
+	 endstops_hit_on_purpose();
+
+	 //Rapduch
+	 #ifdef Z_SIGMA_HOME  //This to return the left extruder at Xhome position
+	 if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+		 
+		 feedrate = homing_feedrate[Z_AXIS];
+		 current_position[Z_AXIS]+=Z_SIGMA_RAISE_AFTER_HOMING;
+		 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		 current_position[X_AXIS] = x_home_pos(active_extruder);
+		 feedrate = homing_feedrate[X_AXIS];
+		 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		 current_position[Z_AXIS] = 0;
+		 feedrate = homing_feedrate[Z_AXIS];
+		 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		 st_synchronize();
+		 
+		 if(saved_active_extruder==RIGHT_EXTRUDER)
+		 {
+			 changeToolSigma(RIGHT_EXTRUDER); //Get again the same tool
+			 Serial.print("Extruder released active: ");
+			 Serial.println(saved_active_extruder);
+		 }
+		 ////Activate Probing sequence
+		 //setup_for_endstop_move();
+		 //feedrate = homing_feedrate[Z_AXIS];
+		 //active_extruder=1; //extruder1(right) instead of extruder0(left)
+		 ////tmp_extruder=active_extruder;
+		 //probe_pt(Z_SIGMA_HOME_SECOND_X_POINT,Z_SIGMA_HOME_SECOND_Y_POINT, Z_SIGMA_RAISE_BEFORE_HOMING);
+		 //clean_up_after_endstop_move();
+	 }
+	 #endif
+ }
 

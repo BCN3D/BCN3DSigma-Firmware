@@ -83,6 +83,12 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,absPreheatHPBTemp);
   EEPROM_WRITE_VAR(i,absPreheatFanSpeed);
   EEPROM_WRITE_VAR(i,zprobe_zoffset);
+  
+  //Extruder Offset
+  EEPROM_WRITE_VAR(i,extruder_offset[X_AXIS][RIGHT_EXTRUDER]);
+  EEPROM_WRITE_VAR(i,extruder_offset[Y_AXIS][RIGHT_EXTRUDER]);
+  EEPROM_WRITE_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
+  
   #ifdef PIDTEMP
     EEPROM_WRITE_VAR(i,Kp);
     EEPROM_WRITE_VAR(i,Ki);
@@ -174,22 +180,7 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHOPAIR(" Y" ,add_homing[1] );
     SERIAL_ECHOPAIR(" Z" ,add_homing[2] );
     SERIAL_ECHOLN("");
-#ifdef DELTA
-    SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM("Endstop adjustement (mm):");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M666 X",endstop_adj[0] );
-    SERIAL_ECHOPAIR(" Y" ,endstop_adj[1] );
-    SERIAL_ECHOPAIR(" Z" ,endstop_adj[2] );
-	SERIAL_ECHOLN("");
-	SERIAL_ECHO_START;
-	SERIAL_ECHOLNPGM("Delta settings: L=delta_diagonal_rod, R=delta_radius, S=delta_segments_per_second");
-	SERIAL_ECHO_START;
-	SERIAL_ECHOPAIR("  M665 L",delta_diagonal_rod );
-	SERIAL_ECHOPAIR(" R" ,delta_radius );
-	SERIAL_ECHOPAIR(" S" ,delta_segments_per_second );
-	SERIAL_ECHOLN("");
-#endif
+
 #ifdef PIDTEMP
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("PID settings:");
@@ -246,7 +237,15 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,absPreheatHotendTemp);
         EEPROM_READ_VAR(i,absPreheatHPBTemp);
         EEPROM_READ_VAR(i,absPreheatFanSpeed);
-        EEPROM_READ_VAR(i,zprobe_zoffset);
+        
+		EEPROM_READ_VAR(i,zprobe_zoffset);
+		
+		//Extruder Offset
+		EEPROM_READ_VAR(i,extruder_offset[X_AXIS][RIGHT_EXTRUDER]);
+		EEPROM_READ_VAR(i,extruder_offset[Y_AXIS][RIGHT_EXTRUDER]);
+		EEPROM_READ_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
+		
+		
         #ifndef PIDTEMP
         float Kp,Ki,Kd;
         #endif
@@ -325,6 +324,13 @@ void Config_ResetDefault()
 #ifdef Z_SIGMA_HOME
 	zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
 #endif
+
+	//Extruder Offset
+	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
+	extruder_offset[X_AXIS][RIGHT_EXTRUDER] = X2_MAX_POS;
+	extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = -0.15;
+	extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = -0.1;
+
 #ifdef DOGLCD
     lcd_contrast = DEFAULT_LCD_CONTRAST;
 #endif

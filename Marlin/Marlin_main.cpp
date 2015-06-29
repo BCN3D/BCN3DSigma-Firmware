@@ -943,7 +943,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		//Do always...		
 	}
 	//waitPeriod=250+millis();
-	genie.DoEvents(); //Processes the TouchScreen Queued Events
+	genie.DoEvents(); //Processes the TouchScreen Queued Events. Calls LCD_Handler.h ->myGenieEventHandler()
 }
 #endif //SIGMA TOUCHSCREEN
 

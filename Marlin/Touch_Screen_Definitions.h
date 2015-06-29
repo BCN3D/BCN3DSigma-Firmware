@@ -36,6 +36,11 @@
 #define BUTTON_PROVA			64
 #define BUTTON_PROVA_PRESS		65
 
+//Main Menu
+#define BUTTON_SLEEP	64
+
+//Sleep Screen
+
 
 //Nozzle temps
 #define BUTTON_NOZZLE1_PRINT	29		
@@ -48,7 +53,7 @@
 
 //Insert FILAMENT
 #define BUTTON_REMOVE_FIL		50
-#define	BUTTON_PURGE_FIL		62
+#define	BUTTON_PURGE_FIL		999//deprecated?
 #define BUTTON_INSERT_FIL		2
 #define	BUTTON_FILAMENT_NOZZLE1	75
 #define	BUTTON_FILAMENT_NOZZLE2	76
@@ -236,7 +241,7 @@
 #define FORM_CALIBRATION		23
 #define FORM_FILAMENT			6
 #define FORM_ADJUST_FILAMENT	14
-
+#define FORM_SLEEP				37
 
 
 //INFO SCRENS-----------------------------------------------------------------------

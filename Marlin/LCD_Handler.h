@@ -310,6 +310,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRING_PRINT_SET_BED,buffer);
 					}
 				}
+				
 			#pragma endregion Printing Settings
 					
 								
@@ -1505,10 +1506,22 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				enquecommand_P(PSTR("G43"));
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 			}
-#pragma endregion Info Screens
+			#pragma endregion Info Screens
 		
-			}
-		}
+			
+				//***** Main Screen ******
+			#pragma region main_screen
+
+			
+			#pragma endregion main_screen
+			
+			//*******Sleep screen
+			#pragma region sleep_screen			
+			
+			#pragma endregion sleep_screen
+			
+			}// else
+		}//Userbuttons
 		//USERBUTTONS------------------------------------------------------
 
 		

@@ -81,6 +81,17 @@
 #define BUTTON_PRINT_SET_BED_UP			24
 #define BUTTON_PRINT_SET_BED_DOWN		79
 
+//Print Settings Buttons_ NEW FORM
+#define BUTTON_INCREASE_X3				120 
+#define BUTTON_INCREASE					70
+#define BUTTON_DECREASE					121
+#define BUTTON_DECREASE_X3				112
+#define BUTTON_LEFT_EXTRUDER			123
+#define BUTTON_BED						124
+#define BUTTON_RIGHT_EXTRUDER			125
+#define BUTTON_SPPED					126
+
+
 //Preheat Settings Buttons
 #define BUTTON_PREHEAT_SET_BACK				91
 #define BUTTON_PREHEAT_SET_NOZZ1_UP			84
@@ -204,6 +215,10 @@
 #define STRING_BED_SCREW2		46
 #define STRING_BED_SCREW3		47
 
+//PRINTING SETTINGS_NEW FORM
+#define STRING_PRINT_SELECTED	32
+#define STRING_PRINT_VALUE		31
+
 
 //Form
 #define FORM_SDFILES			2
@@ -242,7 +257,7 @@
 #define FORM_FILAMENT			6
 #define FORM_ADJUST_FILAMENT	14
 #define FORM_SLEEP				37
-
+#define FORM_PRINTING_SETTINGS_NEW		38
 
 //INFO SCRENS-----------------------------------------------------------------------
 //Forms From INFO SCREENS
@@ -254,7 +269,7 @@
 #define FORM_INFO_BED_MUST_CAL			17
 
 
-//Success Screem
+//Success Screen
 #define FORM_SUCCESS_FILAMENT			21
 #define BUTTON_SUCCESS_FILAMENT_OK		53
 

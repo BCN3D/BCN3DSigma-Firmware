@@ -22,6 +22,8 @@
 extern bool cancel_heatup;
 void myGenieEventHandler();
 bool flag_filament_home= false;	
+bool flag_pause = false;
+bool flag_resume = false;
 int print_setting_tool = 2;
 
 //Created by Jordi Calduch for RepRapBCN SIGMA 12/2014
@@ -468,15 +470,17 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME )
 				{
-					int value = genie.GetEventData(&Event);
+					int value = genie.GetEventData(&Event); 
 					if (value == 1) // Need to pause
-					{
-						//I believe it is a really unsafe way to do it
-						//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
-						//st_synchronize();
+					{	
+						////I believe it is a really unsafe way to do it
+						////plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
+						////st_synchronize();
 						card.pauseSDPrint();
-						Serial.println("PAUSE!");
+						Serial.println("PAUSE!");				
+						flag_resume = true;
 					}
+					
 				}
 				
 				//*****Printing Settings*****
@@ -592,6 +596,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//st_synchronize();
 					card.startFileprint();
 					Serial.println("RESUME!");
+					flag_pause = false;
 				}
 				
 				else if (Event.reportObject.index == BUTTON_CHANGE_EXTRUDER)
@@ -1024,7 +1029,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//*********Move the bed down and the extruders inside
 				
 				//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
-				current_position[X_AXIS]+=70;
+				current_position[X_AXIS]+=25;
 				int feedrate=homing_feedrate[X_AXIS];
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 				
@@ -1034,7 +1039,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				current_position[X_AXIS]=extruder_offset[X_AXIS][1];
 				Serial.println(current_position[X_AXIS]);
 				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
-				current_position[X_AXIS]-=70;
+				current_position[X_AXIS]-=25;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				st_synchronize();
 				current_position[Y_AXIS]=10;
@@ -1050,10 +1055,18 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				/****************************************************/
 				
 				//ATTENTION : Order here is important
-				if (filament_mode=='I')setTargetHotend(INSERT_FIL_TEMP,which_extruder);
-				else if (filament_mode=='R') setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
-				is_changing_filament=true; //We are changing filament
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
+				if (filament_mode=='I'){
+					setTargetHotend(INSERT_FIL_TEMP,which_extruder);
+					genie.WriteStr(STRING_ADVISE_FILAMENT,"Make sure there is no filament already");
+				}
+				else if (filament_mode=='R'){
+					setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
+					genie.WriteStr(STRING_ADVISE_FILAMENT,"                                      ");	 
+				}
+				is_changing_filament=true; //We are changing filament
+				
+				
 			}
 
 

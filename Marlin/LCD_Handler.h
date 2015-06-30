@@ -150,7 +150,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//Rapduch
 					//Edit for final TouchScreen
 					Serial.println("PRINTING SETTINGS");
-					char buffer[256];	
+					char buffer[256];						
+					
 					
 					is_on_printing_screen=false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_SETTINGS_NEW,0); 
@@ -161,15 +162,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						sprintf(buffer, "%3d",tHotend);
 						//Serial.println(buffer);
 						genie.WriteStr(STRING_PRINT_VALUE,buffer);
-						genie.WriteStr(STRING_PRINT_SELECTED,"LEFT EXTRUDER");
 						
 					}else if(print_setting_tool == 1){ //RIGHT_EXTRUDER
-						int tHotend1=target_temperature[1];
-						
+						int tHotend1=target_temperature[1];						
 						sprintf(buffer, "%3d",tHotend1);
 						//Serial.println(buffer);
 						genie.WriteStr(STRING_PRINT_VALUE,buffer);
-						genie.WriteStr(STRING_PRINT_SELECTED,"RIGHT EXTRUDER");
 					}
 					
 					else if(print_setting_tool == 2){//BED
@@ -177,15 +175,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						int tBed=target_temperature_bed;
 						sprintf(buffer, "%3d",tBed);
 						//Serial.println(buffer);
-						genie.WriteStr(STRING_PRINT_VALUE,buffer);
-						genie.WriteStr(STRING_PRINT_SELECTED,"BED TEMPERATURE");
+						genie.WriteStr(STRING_PRINT_VALUE,buffer);						
+						genie.WriteStr(STRING_PRINT_SELECTED,"BED");
 					}
 					
 					else if(print_setting_tool == 3){//SPEED
 						sprintf(buffer, "%3d %%",feedmultiply);
 						//Serial.println(buffer);
 						genie.WriteStr(STRING_PRINT_VALUE,buffer);
-						genie.WriteStr(STRING_PRINT_SELECTED,"FEED");
 					}
 					else{
 						
@@ -218,7 +215,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					char buffer[256];
 					int value=1;
 					sprintf(buffer, "%3d",target_temperature[0]);
-					genie.WriteStr(STRING_PRINT_VALUE,buffer);					
+					genie.WriteStr(STRING_PRINT_VALUE,buffer);
+					genie.WriteStr(STRING_PRINT_SELECTED,"LEFT EXTRUDER");					
 					print_setting_tool = 0;
 									
 					
@@ -229,7 +227,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					int value=1;
 					sprintf(buffer, "%3d",target_temperature[1]);
 					genie.WriteStr(STRING_PRINT_VALUE,buffer);
-					print_setting_tool = 0;
+					
+					genie.WriteStr(STRING_PRINT_SELECTED,"RIGHT EXTRUDER");
 					print_setting_tool = 1;	
 				}
 				else if (Event.reportObject.index == BUTTON_BED )
@@ -238,7 +237,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					int value=1;
 					sprintf(buffer, "%3d",target_temperature_bed);
 					genie.WriteStr(STRING_PRINT_VALUE,buffer);
-					print_setting_tool = 0;
+					genie.WriteStr(STRING_PRINT_SELECTED,"BED TEMPERATURE");
 					print_setting_tool = 2;	
 				}
 				else if (Event.reportObject.index == BUTTON_SPPED )
@@ -247,7 +246,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					int value=1;
 					sprintf(buffer, "%3d %%",feedmultiply);
 					genie.WriteStr(STRING_PRINT_VALUE,buffer);
-					print_setting_tool = 0;
+					genie.WriteStr(STRING_PRINT_SELECTED,"FEED");
 					print_setting_tool = 3;	
 					
 				}

@@ -150,10 +150,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//Rapduch
 					//Edit for final TouchScreen
 					Serial.println("PRINTING SETTINGS");
-					char buffer[256];
-					
-					
-					
+					char buffer[256];	
 					
 					is_on_printing_screen=false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_SETTINGS_NEW,0); 
@@ -164,6 +161,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						sprintf(buffer, "%3d",tHotend);
 						//Serial.println(buffer);
 						genie.WriteStr(STRING_PRINT_VALUE,buffer);
+						genie.WriteStr(STRING_PRINT_SELECTED,"LEFT EXTRUDER");
 						
 					}else if(print_setting_tool == 1){ //RIGHT_EXTRUDER
 						int tHotend1=target_temperature[1];
@@ -171,6 +169,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						sprintf(buffer, "%3d",tHotend1);
 						//Serial.println(buffer);
 						genie.WriteStr(STRING_PRINT_VALUE,buffer);
+						genie.WriteStr(STRING_PRINT_SELECTED,"RIGHT EXTRUDER");
 					}
 					
 					else if(print_setting_tool == 2){//BED
@@ -179,12 +178,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						sprintf(buffer, "%3d",tBed);
 						//Serial.println(buffer);
 						genie.WriteStr(STRING_PRINT_VALUE,buffer);
+						genie.WriteStr(STRING_PRINT_SELECTED,"BED TEMPERATURE");
 					}
 					
 					else if(print_setting_tool == 3){//SPEED
 						sprintf(buffer, "%3d %%",feedmultiply);
 						//Serial.println(buffer);
 						genie.WriteStr(STRING_PRINT_VALUE,buffer);
+						genie.WriteStr(STRING_PRINT_SELECTED,"FEED");
 					}
 					else{
 						
@@ -244,7 +245,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					char buffer[256];
 					int value=1;
-					sprintf(buffer, "%3d",feedmultiply);
+					sprintf(buffer, "%3d %%",feedmultiply);
 					genie.WriteStr(STRING_PRINT_VALUE,buffer);
 					print_setting_tool = 0;
 					print_setting_tool = 3;	
@@ -300,154 +301,140 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				
-				/*else if(Event.reportObject.index == BUTTON_INCREASE_X3){
+				else if(Event.reportObject.index == BUTTON_INCREASE_X3){
+					char buffer[256];
+					int value=5;
 					switch (print_setting_tool)
 					{
-						case 0: //LEFT EXTRUDER
-						char buffer[256];
-						int value=5;
-						if (target_temperature[0]<HEATER_0_MAXTEMP)
-						{
-							target_temperature[0]+=value;
-							sprintf(buffer, "%3d",target_temperature[0]);
-							genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
-						}
+						case 0: //LEFT EXTRUDER						
+							if (target_temperature[0]<HEATER_0_MAXTEMP)
+							{
+								target_temperature[0]+=value;
+								sprintf(buffer, "%3d",target_temperature[0]);
+								genie.WriteStr(STRING_PRINT_VALUE,buffer);
+								
+							}
 						break;
 						
 						case 1: //RIGHT EXTRUDER
-						char buffer[256];
-						int value=5;
-						if (target_temperature[1]<HEATER_0_MAXTEMP)
-						{
-							target_temperature[1]+=value;
-							sprintf(buffer, "%3d",target_temperature[1]);
-							genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
-						}
+						
+							if (target_temperature[1]<HEATER_0_MAXTEMP)
+							{
+								target_temperature[1]+=value;
+								sprintf(buffer, "%3d",target_temperature[1]);
+								genie.WriteStr(STRING_PRINT_VALUE,buffer);
+							}
 						break;
 						
 						case 2: //BED
-						char buffer[256];
-						int value=5;
-						//if (target_temperature_bed<BED_MAXTEMP)
-						if (target_temperature_bed<120)//MaxTemp
-						{
-							target_temperature_bed+=value;
-							sprintf(buffer, "%3d",target_temperature_bed);
-							genie.WriteStr(STRING_PRINT_SET_BED,buffer);
-						}
+						
+							//if (target_temperature_bed<BED_MAXTEMP)
+							if (target_temperature_bed<120)//MaxTemp
+							{
+								target_temperature_bed+=value;
+								sprintf(buffer, "%3d",target_temperature_bed);
+								genie.WriteStr(STRING_PRINT_VALUE,buffer);
+							}
 						break;
 						
 						case 3: //SPEED
-						char buffer[256];
-						int value=5;
-						if (feedmultiply<200)
-						{
-							feedmultiply+=value;
-							sprintf(buffer, "%3d %%",feedmultiply);
-							genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
-						}
+							
+							if (feedmultiply<200)
+							{
+								feedmultiply+=value;
+								sprintf(buffer, "%3d %%",feedmultiply);
+								genie.WriteStr(STRING_PRINT_VALUE,buffer);
+							}
 						break;
 					}
 				}
 				else if(Event.reportObject.index == BUTTON_DECREASE){
+					char buffer[256];
+					int value=1;
 					switch (print_setting_tool)
 					{
-						case 0: //LEFT EXTRUDER
-						char buffer[256];
-						int value=1;
+						case 0: //LEFT EXTRUDER						
 						if (target_temperature[0]<HEATER_0_MAXTEMP)
 						{
 							target_temperature[0]-=value;
 							sprintf(buffer, "%3d",target_temperature[0]);
-							genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
+							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
 						
 						case 1: //RIGHT EXTRUDER
-						char buffer[256];
-						int value=1;
-						if (target_temperature[1]<HEATER_0_MAXTEMP)
-						{
-							target_temperature[1]-=value;
-							sprintf(buffer, "%3d",target_temperature[1]);
-							genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
-						}
+							if (target_temperature[1]<HEATER_0_MAXTEMP)
+							{
+								target_temperature[1]-=value;
+								sprintf(buffer, "%3d",target_temperature[1]);
+								genie.WriteStr(STRING_PRINT_VALUE,buffer);
+							}
 						break;
 						
 						case 2: //BED
-						char buffer[256];
-						int value=1;
-						//if (target_temperature_bed<BED_MAXTEMP)
-						if (target_temperature_bed<120)//MaxTemp
-						{
-							target_temperature_bed-=value;
-							sprintf(buffer, "%3d",target_temperature_bed);
-							genie.WriteStr(STRING_PRINT_SET_BED,buffer);
-						}
+							//if (target_temperature_bed<BED_MAXTEMP)
+							if (target_temperature_bed<120)//MaxTemp
+							{
+								target_temperature_bed-=value;
+								sprintf(buffer, "%3d",target_temperature_bed);
+								genie.WriteStr(STRING_PRINT_VALUE,buffer);
+							}
 						break;
 						
 						case 3: //SPEED
-						char buffer[256];
-						int value=1;
-						if (feedmultiply<200)
-						{
-							feedmultiply-=value;
-							sprintf(buffer, "%3d %%",feedmultiply);
-							genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
-						}
+							if (feedmultiply<200)
+							{
+								feedmultiply-=value;
+								sprintf(buffer, "%3d %%",feedmultiply);
+								genie.WriteStr(STRING_PRINT_VALUE,buffer);
+							}
 						break;
 					}
 				}
 				else if(Event.reportObject.index == BUTTON_DECREASE_X3){
+					char buffer[256];
+					int value=5;
 					switch (print_setting_tool)
 					{
-						case 0: //LEFT EXTRUDER
-						char buffer[256];
-						int value=5;
-						if (target_temperature[0]<HEATER_0_MAXTEMP)
-						{
-							target_temperature[0]-=value;
-							sprintf(buffer, "%3d",target_temperature[0]);
-							genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
-						}
+						case 0: //LEFT EXTRUDER						
+							if (target_temperature[0]<HEATER_0_MAXTEMP)
+							{
+								target_temperature[0]-=value;
+								sprintf(buffer, "%3d",target_temperature[0]);
+								genie.WriteStr(STRING_PRINT_VALUE,buffer);
+							}
 						break;
 						
 						case 1: //RIGHT EXTRUDER
-						char buffer[256];
-						int value=5;
-						if (target_temperature[1]<HEATER_0_MAXTEMP)
-						{
-							target_temperature[1]-=value;
-							sprintf(buffer, "%3d",target_temperature[1]);
-							genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
-						}
+							if(target_temperature[1]<HEATER_0_MAXTEMP)
+							{
+								target_temperature[1]-=value;
+								sprintf(buffer, "%3d",target_temperature[1]);
+								genie.WriteStr(STRING_PRINT_VALUE,buffer);
+							}
 						break;
 						
 						case 2: //BED
-						char buffer[256];
-						int value=5;
-						//if (target_temperature_bed<BED_MAXTEMP)
-						if (target_temperature_bed<120)//MaxTemp
-						{
-							target_temperature_bed-=value;
-							sprintf(buffer, "%3d",target_temperature_bed);
-							genie.WriteStr(STRING_PRINT_SET_BED,buffer);
-						}
+							//if (target_temperature_bed<BED_MAXTEMP)
+							if (target_temperature_bed<120)//MaxTemp
+							{
+								target_temperature_bed-=value;
+								sprintf(buffer, "%3d",target_temperature_bed);
+								genie.WriteStr(STRING_PRINT_VALUE,buffer);
+							}
 						break;
 						
 						case 3: //SPEED
-						char buffer[256];
-						int value=5;
-						if (feedmultiply<200)
-						{
-							feedmultiply-=value;
-							sprintf(buffer, "%3d %%",feedmultiply);
-							genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
-						}
+							if (feedmultiply<200)
+							{
+								feedmultiply-=value;
+								sprintf(buffer, "%3d %%",feedmultiply);
+								genie.WriteStr(STRING_PRINT_VALUE,buffer);
+							}
 						break;
 					}
 				}
-				*/		
+				
 				#pragma endregion Printing_settings
 				//*****PRINTING_SEGTTINGS_new
 				

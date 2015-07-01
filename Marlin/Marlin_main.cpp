@@ -1067,8 +1067,7 @@ void get_command()
 	#ifdef SIGMA_TOUCH_SCREEN
 	//Rapduch
 	static long waitperiod=millis();
-	if (millis()>=waitperiod)
-	{  
+	if (millis()>=waitperiod){  
 		screen_status="Paused...";
 		genie.WriteStr(6,"Paused..."); //Print Paused on screen Status
 		
@@ -3076,7 +3075,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		 Serial.println(vuitens3);
 		 Serial.println("");
 		 
-		 if (aprox1==0 && aprox2==0 && aprox3==0)
+		 if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 		 {
 			 #ifdef SIGMA_TOUCH_SCREEN
 			 genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);

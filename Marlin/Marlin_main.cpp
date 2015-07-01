@@ -1067,13 +1067,13 @@ void get_command()
 	#ifdef SIGMA_TOUCH_SCREEN
 	//Rapduch
 	static long waitperiod=millis();
-	if (millis()>=waitperiod){  
-		screen_status="Paused...";
-		genie.WriteStr(6,"Paused..."); //Print Paused on screen Status
+	/*if (millis()>=waitperiod){  
+		//screen_status="Paused...";
+		//genie.WriteStr(6,"Paused..."); //Print Paused on screen Status
 		
 		waitperiod=millis()+500;		
 		////
-	}
+	}*/
 	 
 	//*********PAUSE POSITION AND RESUME POSITION IN PROBES
 	/*if (flag_pause){
@@ -3050,6 +3050,11 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		 if (vuitens1<0) vuitens1=vuitens1*(-1);
 		 if (vuitens2<0) vuitens2=vuitens2*(-1);
 		 if (vuitens3<0) vuitens3=vuitens3*(-1);
+		 
+		 //limit the maxim turns to 1
+		 if (vuitens1>8) vuitens1=8;
+		 if (vuitens2>8) vuitens2=8;
+		 if (vuitens3>8) vuitens3=8;
 		 
 		 Serial.print("Voltes1:  ");
 		 Serial.println(voltes1);

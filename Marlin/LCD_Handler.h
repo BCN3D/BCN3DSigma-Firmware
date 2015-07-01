@@ -1352,7 +1352,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			#pragma region SuccessScreens	
 			else if (Event.reportObject.index == BUTTON_BED_CALIB_SUCCESS )
 			{
-				enquecommand_P((PSTR("G28 X0 Y0")));
+				//enquecommand_P((PSTR("G28 X0 Y0")));
 				enquecommand_P((PSTR("T0")));
 				Serial.println("Calibration Successful, going back to main menu");
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);

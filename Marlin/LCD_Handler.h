@@ -478,7 +478,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						////st_synchronize();
 						card.pauseSDPrint();
 						Serial.println("PAUSE!");				
-						flag_resume = true;
+						//flag_pause = true;
 					}
 					
 				}
@@ -596,7 +596,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//st_synchronize();
 					card.startFileprint();
 					Serial.println("RESUME!");
-					flag_pause = false;
+					//flag_resume = true;
 				}
 				
 				else if (Event.reportObject.index == BUTTON_CHANGE_EXTRUDER)

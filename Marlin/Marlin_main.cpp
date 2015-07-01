@@ -1076,14 +1076,19 @@ void get_command()
 		////
 	}
 	 
-	if (flag_pause){
+	//*********PAUSE POSITION AND RESUME POSITION IN PROBES
+	/*if (flag_pause){
+		
+		Serial.println("Xavi paused");
 		enquecommand_P(((PSTR("G69"))));		
 		flag_pause = false;
 	}
 	if(flag_resume){
+		Serial.println("Xavi resume");
 		enquecommand_P(((PSTR("G70"))));	
 		flag_resume = false;
-	}
+	}*/
+	//****************************************************/
 	  
 	  #endif  
     return;
@@ -3235,14 +3240,9 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		////*******LOAD ACTUIAL POSITION
 		current_position[X_AXIS] = saved_position[X_AXIS];
 		current_position[Y_AXIS] = saved_position[Y_AXIS];
-		current_position[Z_AXIS] = saved_position[Z_AXIS];										  
-		//*********************************//
-					  
-		//********RETRACK
-		current_position[E_AXIS]+=2;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
-		st_synchronize();
-		//*********************************//
+		current_position[Z_AXIS] = saved_position[Z_AXIS];	
+		Serial.println(current_position[Z_AXIS]);									  
+		//*********************************// 
 					  
 		//********MOVE TO ORIGINAL POSITION
 		
@@ -3252,6 +3252,12 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		st_synchronize();
 		feedrate=homing_feedrate[X_AXIS];
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);  
+		st_synchronize();
+		//*********************************//
+		
+		//********EXTRACK
+		current_position[E_AXIS]+=2;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
 		st_synchronize();
 		//*********************************//
 		break;

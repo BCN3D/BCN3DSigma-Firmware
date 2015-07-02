@@ -10,9 +10,10 @@ Features
 - Insert/Remove filament
 - Refined firmware for better printing experience.
 
-This firmware is developed by [Jordi Calduch][1] at [BCN3D Technologies][2] and is a rework of the popular [Marlin][2]. 
+This firmware is developed by [Jordi Calduch][1] and [Xavier Gómez][2] at [BCN3D Technologies][3] and is a rework of the popular [Marlin][4]. 
 It is currently still in development, release date TBA.
 
 [1]:https://github.com/dryrain
-[2]:http://www.bcn3dtechnologies.com/
-[3]:https://github.com/MarlinFirmware/Marlin
+[2]:https://github.com/xawox
+[3]:http://www.bcn3dtechnologies.com/
+[4]:https://github.com/MarlinFirmware/Marlin

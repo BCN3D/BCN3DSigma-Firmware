@@ -1308,7 +1308,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (vuitens2!=0){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
 						sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
-						genie.WriteStr(STRING_BED_SCREW2,buffer);
+						//genie.WriteStr(STRING_BED_SCREW2,buffer);
 						if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,2);
 						else{genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,0);}
 						if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2);} //The direction is inverted in Sigma's bed screws
@@ -1318,7 +1318,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
 						sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
-						genie.WriteStr(STRING_BED_SCREW3,buffer);
+						//genie.WriteStr(STRING_BED_SCREW3,buffer);
 						if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
 						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
 					}else{
@@ -1335,7 +1335,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (vuitens3!=0){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
 						sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
-						genie.WriteStr(STRING_BED_SCREW3,buffer);
+						//genie.WriteStr(STRING_BED_SCREW3,buffer);
 						if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
 						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
 					}else{
@@ -1760,7 +1760,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (vuitens1!= 0){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW1,0);
 					sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
-					genie.WriteStr(STRING_BED_SCREW1,buffer);
+					//genie.WriteStr(STRING_BED_SCREW1,buffer);
 					if (vuitens2==0 && vuitens3==0) {genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,2);}
 					else{genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,0);}
 					if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,vuitens1);} //The direction is inverted in Sigma's bed screws
@@ -1770,7 +1770,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.println("Jump over screw1");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
 					sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
-					genie.WriteStr(STRING_BED_SCREW2,buffer);
+					//genie.WriteStr(STRING_BED_SCREW2,buffer);
 					if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,2);
 					if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2);} //The direction is inverted in Sigma's bed screws
 					else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2+8);}
@@ -1779,7 +1779,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.println("Jump over screw1 and screw2");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
 					sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
-					genie.WriteStr(STRING_BED_SCREW3,buffer);
+					//genie.WriteStr(STRING_BED_SCREW3,buffer);
 					if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
 					else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}				
 				}

@@ -2737,7 +2737,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		#ifdef SIGMA_TOUCH_SCREEN
 			char buffer[256];
 			sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
-			genie.WriteStr(STRING_BED_SCREW1,buffer);
+			//genie.WriteStr(STRING_BED_SCREW1,buffer);
 		
 			if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,3,1);} //The direction is inverted in Sigma's bed screws
 			else{genie.WriteObject(GENIE_OBJ_USERIMAGES,3,0);}

@@ -64,10 +64,10 @@
 #define	BUTTON_REMOVE					52
 
 //Calibration
-#define BUTTON_CAL_EXTRUDERS_X	67
+//#define BUTTON_CAL_EXTRUDERS_X	67
 //#define BUTTON_CAL_EXTRUDERS_Y	118
 #define BUTTON_CAL_FULL	118
-#define BUTTON_CAL_EXTRUDERS_Z	119
+//#define BUTTON_CAL_EXTRUDERS_Z	119
 #define BUTTON_Z_CAL_WIZARD		68
 
 //Print Settings Buttons
@@ -212,7 +212,7 @@
 #define STRING_SCREW3				32
 #define STRING_PREHEATING			33
 #define STRING_FILAMENT				11
-
+#define STRING_AXEL					50
 //#define STRING_BED_SCREW1			13
 //#define STRING_BED_SCREW2			46
 //#define STRING_BED_SCREW3			47
@@ -260,6 +260,8 @@
 #define FORM_ADJUST_FILAMENT	14
 #define FORM_SLEEP				37
 #define FORM_PRINTING_SETTINGS_NEW		38
+
+#define FORM_FULL_CAL		40
 
 //INFO SCRENS-----------------------------------------------------------------------
 //Forms From INFO SCREENS

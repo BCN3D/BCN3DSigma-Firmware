@@ -1145,7 +1145,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			
 				//Extruder Calibrations-------------------------------------------------
-				else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_X)
+				/*else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_X)
 				{
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G40"));
@@ -1154,7 +1154,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}		
 			
 			
-				//else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_Y)
+				//else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_Y)*/
 				else if (Event.reportObject.index == BUTTON_CAL_FULL)
 				{
 					flag_full_calib = true;
@@ -1162,7 +1162,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("T0"));
 					enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 					
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"BED");
 					st_synchronize();
 					
 					/*enquecommand_P(PSTR("G28"));
@@ -1170,12 +1171,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);*/
 				}
 			
-				else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_Z)
+				/*else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_Z)
 				{
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G43"));	
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-				}
+				}*/
 					
 				
 			
@@ -1368,7 +1369,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G40"));
 					st_synchronize();
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"X AXEL, heatting...");
 					
 				}else{
 					enquecommand_P((PSTR("T0")));
@@ -1405,7 +1407,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));		
 					st_synchronize();
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
 					
 				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
@@ -1423,7 +1426,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
 					
 				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
@@ -1441,7 +1445,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
 					
 				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
@@ -1459,7 +1464,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
 					
 				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
@@ -1477,7 +1483,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
 					
 				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
@@ -1495,7 +1502,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
 					
 				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
@@ -1513,7 +1521,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
 					
 				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
@@ -1531,7 +1540,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
 					
 				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
@@ -1549,7 +1559,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
 					
 				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
@@ -1567,7 +1578,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
 					
 				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
@@ -1585,7 +1597,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X-0.5")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 			}
 			
 			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT2)

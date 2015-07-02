@@ -3088,7 +3088,10 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 				 //genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 				 //enquecommand_P(PSTR("G28"));	
 				 changeToolSigma(LEFT_EXTRUDER);
-				 home_axis_from_code();			 
+				 genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+				 genie.WriteStr(STRING_AXEL,"Z AXEL        ");
+				 home_axis_from_code();	
+				 		 
 				 enquecommand_P(PSTR("G43"));
 				 
 				 
@@ -3155,7 +3158,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 			 SERIAL_PROTOCOLPGM(" dz1: ");
 			 SERIAL_PROTOCOL(dz1);
 			 SERIAL_PROTOCOLPGM(" dz2: ");
-			 SERIAL_PROTOCOL(dz2);
+			 SERIAL_PROTOCOL(dz2); 
 			 SERIAL_PROTOCOLPGM(" dz3: ");
 			 SERIAL_PROTOCOL(dz3);
 			 SERIAL_PROTOCOLPGM("\n");

@@ -22,8 +22,9 @@
 extern bool cancel_heatup;
 void myGenieEventHandler();
 bool flag_filament_home= false;	
-bool flag_pause = false;
-bool flag_resume = false;
+//bool flag_pause = false;
+//bool flag_resume = false;
+bool flag_full_calib = false;
 int print_setting_tool = 2;
 
 //Created by Jordi Calduch for RepRapBCN SIGMA 12/2014
@@ -1153,11 +1154,20 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}		
 			
 			
-				else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_Y)
+				//else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_Y)
+				else if (Event.reportObject.index == BUTTON_CAL_FULL)
 				{
+					flag_full_calib = true;
 					enquecommand_P(PSTR("G28"));
-					enquecommand_P(PSTR("G41"));		
+					enquecommand_P(PSTR("T0"));
+					enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
+					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					st_synchronize();
+					
+					/*enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));		//CALIB Y
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);*/
 				}
 			
 				else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_Z)
@@ -1288,6 +1298,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region Bed Calibration
 				else if (Event.reportObject.index == BUTTON_Z_CAL_WIZARD)
 				{
+					flag_full_calib = false;
 					enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("T0"));
 					enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
@@ -1353,9 +1364,17 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_BED_CALIB_SUCCESS )
 			{
 				//enquecommand_P((PSTR("G28 X0 Y0")));
-				enquecommand_P((PSTR("T0")));
-				Serial.println("Calibration Successful, going back to main menu");
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G40"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+				}else{
+					enquecommand_P((PSTR("T0")));
+					Serial.println("Calibration Successful, going back to main menu");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+				}
 			}
 			
 			else if (Event.reportObject.index == BUTTON_SUCCESS_FILAMENT_OK)
@@ -1382,7 +1401,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X-0.5")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));		
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT2)
@@ -1394,7 +1419,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT3)
@@ -1406,7 +1437,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT4)
@@ -1418,7 +1455,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT5)
@@ -1430,7 +1473,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X-0.1")));
 				//enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT6)
@@ -1442,7 +1491,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT7)
@@ -1454,7 +1509,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT8)
@@ -1466,7 +1527,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT9)
@@ -1478,7 +1545,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT10)
@@ -1490,7 +1563,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
 			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT1)

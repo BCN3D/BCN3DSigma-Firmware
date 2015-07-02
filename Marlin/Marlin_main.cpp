@@ -2267,7 +2267,7 @@ case 41://G41 --> Y Extruder calibration
 	setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
 	setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP);
 
-	while (degHotend(0)<degTargetHotend(0)){ //Waiting to heat the extruder
+	while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-2) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-2)){ //Waiting to heat the extruder
 		manage_heater();
 	}
 	
@@ -3082,10 +3082,23 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		 
 		 if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 		 {
-			 #ifdef SIGMA_TOUCH_SCREEN
-			 genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-			 #endif
-			 SERIAL_PROTOCOL(" Platform is Calibrated! ");
+			 if (flag_full_calib){ 
+				 st_synchronize();
+				 
+				 //genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+				 //enquecommand_P(PSTR("G28"));	
+				 changeToolSigma(LEFT_EXTRUDER);
+				 home_axis_from_code();			 
+				 enquecommand_P(PSTR("G43"));
+				 
+				 
+			 }
+			 else{
+				 #ifdef SIGMA_TOUCH_SCREEN
+				 genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				 #endif
+				 SERIAL_PROTOCOL(" Platform is Calibrated! ");
+			 }
 		 }else{
 			 
 			 #ifdef SIGMA_TOUCH_SCREEN

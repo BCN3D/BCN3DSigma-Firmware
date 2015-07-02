@@ -613,8 +613,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
 
 
-
-//----------------------------------SIGMA DEFINITIONS-------------------------------------------
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//**********************************************************************************************//
+//----------------------------------SIGMA DEFINITIONS-------------------------------------------//
+//**********************************************************************************************//
+//////////////////////////////////////////////////////////////////////////////////////////////////
 //4D LCD Touch Screen for RepRapSigma
 #define SIGMA_TOUCH_SCREEN
 
@@ -679,7 +682,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#endif
 	
 	#if MOTHERBOARD == BCN3D_BOARD
-		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  20
+		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  18.5//20
 		#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
 		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  2.9//2.80//3.4 //It is negative, it is compensated
 	#endif

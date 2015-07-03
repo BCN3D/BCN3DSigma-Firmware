@@ -3089,7 +3089,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 				 //enquecommand_P(PSTR("G28"));	
 				 changeToolSigma(LEFT_EXTRUDER);
 				 genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
-				 genie.WriteStr(STRING_AXEL,"Z AXEL        ");
+				 genie.WriteStr(STRING_AXEL,"        Z AXEL");
 				 home_axis_from_code();	
 				 		 
 				 enquecommand_P(PSTR("G43"));

@@ -1597,7 +1597,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X-0.5")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
 			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT2)
@@ -1609,6 +1610,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
@@ -1621,6 +1623,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
@@ -1633,6 +1636,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
@@ -1645,6 +1649,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X-0.1")));
 				//enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
@@ -1657,6 +1662,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
@@ -1669,6 +1675,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
@@ -1681,6 +1688,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
@@ -1693,6 +1701,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			
@@ -1705,6 +1714,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 			

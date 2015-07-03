@@ -275,7 +275,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						case 1: //RIGHT EXTRUDER
 							
-							if (target_temperature[1]<HEATER_0_MAXTEMP)
+							if (target_temperature[1]<HEATER_1_MAXTEMP)
 							{
 								target_temperature[1]+=value;
 								sprintf(buffer, "%3d",target_temperature[1]);
@@ -286,7 +286,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						case 2: //BED 
 							
 							//if (target_temperature_bed<BED_MAXTEMP)
-							if (target_temperature_bed<120)//MaxTemp
+							if (target_temperature_bed<BED_MAXTEMP)//MaxTemp
 							{
 								target_temperature_bed+=value;
 								sprintf(buffer, "%3d",target_temperature_bed);
@@ -323,7 +323,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						case 1: //RIGHT EXTRUDER
 						
-							if (target_temperature[1]<HEATER_0_MAXTEMP)
+							if (target_temperature[1]<HEATER_1_MAXTEMP)
 							{
 								target_temperature[1]+=value;
 								sprintf(buffer, "%3d",target_temperature[1]);
@@ -334,7 +334,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						case 2: //BED
 						
 							//if (target_temperature_bed<BED_MAXTEMP)
-							if (target_temperature_bed<120)//MaxTemp
+							if (target_temperature_bed<BED_MAXTEMP)//MaxTemp
 							{
 								target_temperature_bed+=value;
 								sprintf(buffer, "%3d",target_temperature_bed);
@@ -359,7 +359,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					switch (print_setting_tool)
 					{
 						case 0: //LEFT EXTRUDER						
-						if (target_temperature[0]<HEATER_0_MAXTEMP)
+						if (target_temperature[0]>HEATER_0_MINTEMP)
 						{
 							target_temperature[0]-=value;
 							sprintf(buffer, "%3d",target_temperature[0]);
@@ -368,7 +368,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						break;
 						
 						case 1: //RIGHT EXTRUDER
-							if (target_temperature[1]<HEATER_0_MAXTEMP)
+							if (target_temperature[1]>HEATER_1_MINTEMP)
 							{
 								target_temperature[1]-=value;
 								sprintf(buffer, "%3d",target_temperature[1]);
@@ -378,7 +378,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						case 2: //BED
 							//if (target_temperature_bed<BED_MAXTEMP)
-							if (target_temperature_bed<120)//MaxTemp
+							if (target_temperature_bed>5)//MaxTemp
 							{
 								target_temperature_bed-=value;
 								sprintf(buffer, "%3d",target_temperature_bed);
@@ -387,7 +387,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						break;
 						
 						case 3: //SPEED
-							if (feedmultiply<200)
+							if (feedmultiply>50)
 							{
 								feedmultiply-=value;
 								sprintf(buffer, "%3d %%",feedmultiply);
@@ -402,7 +402,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					switch (print_setting_tool)
 					{
 						case 0: //LEFT EXTRUDER						
-							if (target_temperature[0]<HEATER_0_MAXTEMP)
+							if (target_temperature[0]>HEATER_0_MINTEMP)
 							{
 								target_temperature[0]-=value;
 								sprintf(buffer, "%3d",target_temperature[0]);
@@ -411,7 +411,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						break;
 						
 						case 1: //RIGHT EXTRUDER
-							if(target_temperature[1]<HEATER_0_MAXTEMP)
+							if(target_temperature[1]>HEATER_1_MINTEMP)
 							{
 								target_temperature[1]-=value;
 								sprintf(buffer, "%3d",target_temperature[1]);
@@ -430,7 +430,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						break;
 						
 						case 3: //SPEED
-							if (feedmultiply<200)
+							if (feedmultiply>50)
 							{
 								feedmultiply-=value;
 								sprintf(buffer, "%3d %%",feedmultiply);
@@ -1787,6 +1787,336 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 #pragma endregion CalibrationsXYZ
 			
+				//***** Calibration X new ***
+			#pragma region Calibration X
+			else if (Event.reportObject.index == BUTTON_X_1){
+				//char buffer[30];
+				float calculus = extruder_offset[X_AXIS][1] + 0.4;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+				//enquecommand(buffer);
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_X_2){
+				//char buffer[30];
+				float calculus = extruder_offset[X_AXIS][1] + 0.3;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+				//enquecommand(buffer);
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_X_3){
+				//char buffer[30];
+				float calculus = extruder_offset[X_AXIS][1] + 0.2;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+				//enquecommand(buffer);
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_X_4){
+				//char buffer[30];
+				float calculus = extruder_offset[X_AXIS][1] + 0.1;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+				//enquecommand(buffer);
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_X_5){
+				//char buffer[30];
+				float calculus = extruder_offset[X_AXIS][1];
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+				//enquecommand(buffer);
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_X_6){
+				//char buffer[30];
+				float calculus = extruder_offset[X_AXIS][1] - 0.1;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+				//enquecommand(buffer);
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_X_7){
+				//char buffer[30];
+				float calculus = extruder_offset[X_AXIS][1] - 0.2;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+				//enquecommand(buffer);
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_X_8){
+				//char buffer[30];
+				float calculus = extruder_offset[X_AXIS][1] - 0.3;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+				//enquecommand(buffer);
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_X_9){
+				//char buffer[30];
+				float calculus = extruder_offset[X_AXIS][1] - 0.4;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+				//enquecommand(buffer);
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_X_10){
+				//char buffer[30];
+				float calculus = extruder_offset[X_AXIS][1] - 0.5;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+				//enquecommand(buffer);
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				if(flag_full_calib){
+					enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
+					
+				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}				
+			#pragma endregion Calibration X
+				//***************************
+				//***** Calibration Y new ***
+			#pragma region Calibration Y
+			else if (Event.reportObject.index == BUTTON_Y_1){
+				float calculus = extruder_offset[Y_AXIS][1] - 0.4;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.2")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_Y_2){
+				float calculus = extruder_offset[Y_AXIS][1] - 0.3;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.2")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_Y_3){
+				float calculus = extruder_offset[Y_AXIS][1] - 0.2;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.2")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_Y_4){
+				float calculus = extruder_offset[Y_AXIS][1] - 0.1;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.2")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_Y_5){
+				float calculus = extruder_offset[Y_AXIS][1];
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.2")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_Y_6){
+				float calculus = extruder_offset[Y_AXIS][1] + 0.1;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.2")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_Y_7){
+				float calculus = extruder_offset[Y_AXIS][1] + 0.2;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.2")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_Y_8){
+				float calculus = extruder_offset[Y_AXIS][1] + 0.3;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.2")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_Y_9){
+				float calculus = extruder_offset[Y_AXIS][1] +0.4;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.2")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}
+			else if (Event.reportObject.index == BUTTON_Y_10){
+				float calculus = extruder_offset[Y_AXIS][1] +0.5;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.2")));
+				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				flag_full_calib = false;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+			}				
+			#pragma endregion Calibration Y
+				//***************************
+				
+				
 				//***** Info Screens *****	
 			#pragma region Info Screens																																																																																																								
 			//BACKING FROM INFO SCREENS!------------------------------------------------------------------------

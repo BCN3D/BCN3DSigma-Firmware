@@ -127,6 +127,32 @@
 #define BUTTON_Y_LINE_SELECT9			110
 #define BUTTON_Y_LINE_SELECT10			111
 
+//Y CALIB
+#define BUTTON_Y_1					137
+#define BUTTON_Y_2					138
+#define BUTTON_Y_3					139
+#define BUTTON_Y_4					140
+#define BUTTON_Y_5					141
+#define BUTTON_Y_6					142
+#define BUTTON_Y_7					143
+#define BUTTON_Y_8					144
+#define BUTTON_Y_9					145
+#define BUTTON_Y_10					146
+#define BUTTON_Y_ACCEPT				147
+
+//X CALIB
+#define BUTTON_X_1					134
+#define BUTTON_X_2					119
+#define BUTTON_X_3					127
+#define BUTTON_X_4					128
+#define BUTTON_X_5					129
+#define BUTTON_X_6					130
+#define BUTTON_X_7					131
+#define BUTTON_X_8					132
+#define BUTTON_X_9					133
+#define BUTTON_X_10					135
+#define BUTTON_X_ACCEPT				136
+
 //BED CALIB
 #define BUTTON_BED_CALIB_SW2		93
 #define BUTTON_BED_CALIB_SW3		94
@@ -221,47 +247,51 @@
 #define STRING_PRINT_SELECTED		32
 #define STRING_PRINT_VALUE			31
 
+#define STRING_X_CAB_VALUE			46
+#define STRING_Y_CAB_VALUE			48
+
 
 //Form
-#define FORM_SDFILES			2
-#define FORM_PAUSE				3
-#define FORM_STOP				12
-#define FORM_PRINTING			9
-#define FORM_START_PRINT		10
-#define FORM_PRINTING_SETTINGS	10
-#define FORM_WAITING_ROOM		11
+#define FORM_SDFILES				2
+#define FORM_PAUSE					3
+#define FORM_STOP					12
+#define FORM_PRINTING				9
+#define FORM_START_PRINT			10
+#define FORM_PRINTING_SETTINGS		10
+#define FORM_WAITING_ROOM			11
 
-#define FORM_NOZZLE				16
-#define FORM_BED				17
-#define FORM_FAN				18
-#define FORM_TEMPERATURE		22
-#define FORM_MAIN_SCREEN		5
-#define FORM_SETUP				13
-#define FORM_UTILITIES			4
-#define FORM_CAL_WIZARD_WAIT	27
-#define FORM_CAL_WIZARD_DONE_GOOD 24
-#define FORM_CAL_WIZARD_DONE_BAD 25
-#define FORM_INSERT_FIL_PREHEAT	 26
-#define FORM_SELECT_EXTRUDER	20
-#define FORM_INSERT_FIL			19
-#define FORM_REMOVE_FIL			19
-#define FORM_PURGE_FIL			19
-#define FORM_X_CALIB_SELECT		27
-#define FORM_Y_CALIB_SELECT		33
-#define FORM_PREHEAT_SETTINGS	29
-#define FORM_TEMP_MENU			28
-#define FORM_CALIB_BED_SCREW1	30
-#define FORM_CALIB_BED_SCREW2	31
-#define FORM_CALIB_BED_SCREW3	32
-#define FORM_CALIB_Z_EXTRUDER1	34
-#define FORM_CALIB_Z_EXTRUDER2	35
-#define FORM_CALIBRATION		23
-#define FORM_FILAMENT			6
-#define FORM_ADJUST_FILAMENT	14
-#define FORM_SLEEP				37
-#define FORM_PRINTING_SETTINGS_NEW		38
-
-#define FORM_FULL_CAL		40
+#define FORM_NOZZLE					16
+#define FORM_BED					17
+#define FORM_FAN					18
+#define FORM_TEMPERATURE			22
+#define FORM_MAIN_SCREEN			5
+#define FORM_SETUP					13
+#define FORM_UTILITIES				4
+#define FORM_CAL_WIZARD_WAIT		27
+#define FORM_CAL_WIZARD_DONE_GOOD	24
+#define FORM_CAL_WIZARD_DONE_BAD	25
+#define FORM_INSERT_FIL_PREHEAT		26
+#define FORM_SELECT_EXTRUDER		20
+#define FORM_INSERT_FIL				19
+#define FORM_REMOVE_FIL				19
+#define FORM_PURGE_FIL				19
+#define FORM_X_CALIB_SELECT			27
+#define FORM_Y_CALIB_SELECT			33
+#define FORM_PREHEAT_SETTINGS		29
+#define FORM_TEMP_MENU				28
+#define FORM_CALIB_BED_SCREW1		30
+#define FORM_CALIB_BED_SCREW2		31
+#define FORM_CALIB_BED_SCREW3		32
+#define FORM_CALIB_Z_EXTRUDER1		34
+#define FORM_CALIB_Z_EXTRUDER2		35
+#define FORM_CALIBRATION			23
+#define FORM_FILAMENT				6
+#define FORM_ADJUST_FILAMENT		14
+#define FORM_SLEEP					37
+#define FORM_PRINTING_SETTINGS_NEW	38
+#define FORM_CALIB_X				39
+#define FORM_CALIB_Y				42
+#define FORM_FULL_CAL				40
 
 //INFO SCRENS-----------------------------------------------------------------------
 //Forms From INFO SCREENS

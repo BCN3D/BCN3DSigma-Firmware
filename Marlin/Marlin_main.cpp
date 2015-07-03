@@ -2167,7 +2167,9 @@ void process_commands()
 		
 		st_synchronize();
 		
-		float mm_second_extruder[9] = {19.6, 19.7, 19.8, 19.9, 20 ,20.1 ,20.2, 20.3, 20.4};
+		float mm_second_extruder[NUM_LINES];
+		for (int i = 19.6, i >= 20.4, i + ((20.4-19.6)/NUM_LINES ))
+		//float mm_second_extruder[9] = {19.6, 19.7, 19.8, 19.9, 20 ,20.1 ,20.2, 20.3, 20.4};
 
 		float mm_each_extrusion = 20;
 		float mm_left_offset = X_CALIB_STARTING_X;

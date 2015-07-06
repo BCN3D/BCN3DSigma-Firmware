@@ -705,7 +705,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
 	
 	//Right extruder probe point
-	#define X_SIGMA_PROBE_1_RIGHT_EXTR 255
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 254.5
 	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
 	#define X_SIGMA_PROBE_2_RIGHT_EXTR 255
@@ -740,8 +740,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define SECOND_EXTRUDER_Y {150.5, 149.5, 150, 149}
 		
 		
-	#define X_CALIB_STARTING_X 45
-	#define X_CALIB_STARTING_Y 150
+	#define X_CALIB_STARTING_X 115
+	#define X_CALIB_STARTING_Y 270
 #endif
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).

@@ -2142,6 +2142,9 @@ void process_commands()
 #ifdef EXTRUDER_CALIBRATION_WIZARD
 	case 40://G40 --> X Extruder calibration
 	{ 
+		
+		
+		
 		Serial.println("Starting X Calibration Wizard");
 		//1) Set temps and wait
 		setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP-5);
@@ -2171,11 +2174,11 @@ void process_commands()
 		st_synchronize();
 		
 		float mm_second_extruder[NUM_LINES];
-		float i = - 0.2;
+		float i =  -1;
 		mm_second_extruder[0] = i;
 		for (int count = 1; count <= NUM_LINES; count++){
 		
-			mm_second_extruder[count] =  mm_second_extruder[count-1] - 0.1;
+			mm_second_extruder[count] =  mm_second_extruder[count-1] + 0.2;
 		}
 		//float mm_second_extruder[9] = {19.6, 19.7, 19.8, 19.9, 20 ,20.1 ,20.2, 20.3, 20.4};
 
@@ -2232,18 +2235,18 @@ void process_commands()
 		//Second Extruder (correcting)
 		for (int i=0; i<(NUM_LINES);i++) //4 times
 		{
-			Serial.println(mm_left_offset+(mm_each_extrusion*i)+mm_second_extruder[i]);
-			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i)+mm_second_extruder[i], 199, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move X and Z
+			Serial.println(mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))));
+			plan_buffer_line(mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))), 199, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move X and Z
 			st_synchronize();
 			if (i == 0) current_position[Z_AXIS]-=0.3;
 			current_position[E_AXIS]+=2; //Move the retracked space
-			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i)+mm_second_extruder[i], 199, current_position[Z_AXIS], current_position[E_AXIS], 50 , active_extruder);
+			plan_buffer_line(mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))), 199, current_position[Z_AXIS], current_position[E_AXIS], 50 , active_extruder);
 			Serial.println("We are restoring retrack");
 			st_synchronize();
 			current_position[E_AXIS]+=1;
-			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i)+mm_second_extruder[i], 149, current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Move Y and extrude
+			plan_buffer_line(mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))), 149, current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Move Y and extrude
 			current_position[E_AXIS]-=2;
-			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i)+mm_second_extruder[i], 149, current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
+			plan_buffer_line(mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))), 149, current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 			//plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 150, current_position[Z_AXIS]+5, current_position[E_AXIS], 1500/60, active_extruder);//Lift Z
 			st_synchronize();
 			
@@ -2290,7 +2293,7 @@ void process_commands()
 #ifdef EXTRUDER_CALIBRATION_WIZARD
 case 41://G41 --> Y Extruder calibration
 {
-	Serial.println("Starting Y Calibration Wizard");
+	Serial.println("Starting Y Calibration izard");
 	//1) Set temps and wait
 	setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
 	setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP);
@@ -2315,11 +2318,11 @@ case 41://G41 --> Y Extruder calibration
 	
 		
 	float mm_second_extruder[NUM_LINES];
-	float i = 0;
+	float i = -1;
 	mm_second_extruder[0] = i;
 	for (int count = 1; count <= NUM_LINES; count++){
 		
-		mm_second_extruder[count] =  mm_second_extruder[count-1] - 0.1;
+		mm_second_extruder[count] =  mm_second_extruder[count-1] + 0.2;
 	}
 
 	float mm_each_extrusion = 10;
@@ -2862,6 +2865,10 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	#ifdef SIGMA_BED_AUTOCALIB
 	 case 34: // G34 Performs a BED calibration Wizard with TouchScreen Integration
 	 {
+		 /*extruder_offset[X_AXIS][RIGHT_EXTRUDER]-= 30;
+		 //enquecommand_P((PSTR("M218 T1 X-0.5")));
+		 enquecommand_P((PSTR("M500"))); //Store changes*/
+		 
 		 //WARNING: T0 (LEFT_EXTRUDER) MUST BE SELECTED!
 		 if (active_extruder==RIGHT_EXTRUDER){
 			 Serial.println("Error: Left Extruder MUST BE ACTIVE");

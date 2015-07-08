@@ -176,6 +176,9 @@
 #define BUTTON_ADJUST_ZDown			33
 
 
+//CLEAN EXTRUDERS
+#define BUTTON_CLEAN_DONE			67
+
 //Winbuttons
 #define BUTTON_MOVE_AXIS_X			1
 #define BUTTON_MOVE_AXIS_Y			2
@@ -187,6 +190,8 @@
 #define BUTTON_PREHEAT				15
 #define BUTTON_MOVE_AXIS_E			5
 #define BUTTON_MOVE_AXIS_minusE		6
+
+
 
 #define MENU_PRINT				12
 #define MENU_PREHEAT			12
@@ -206,6 +211,7 @@
 #define USERIMAGE_SCREW1	    3
 #define USERIMAGE_SCREW2	    4
 #define USERIMAGE_SCREW3	    5
+#define USERIMAGE_THERMOMETHER	11
 
 //Strings---------------------------------------------
 #define STRING_PRINTING_NOZZ1		0
@@ -301,7 +307,7 @@
 #define FORM_INFO_PLACE_FIL				19
 #define FORM_INFO_TURN_SCREWS			16
 #define FORM_INFO_BED_MUST_CAL			17
-
+#define FORM_CLEAN_EXTRUDERS			41
 
 //Success Screen
 #define FORM_SUCCESS_FILAMENT			21

@@ -1054,7 +1054,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				current_position[Z_AXIS]=Z_MAX_POS-5;
 				feedrate=homing_feedrate[Z_AXIS];
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder); //check speed
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*4/60, active_extruder); //check speed
 				
 				
 				/****************************************************/
@@ -1178,8 +1178,25 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 				}*/
 					
+				else if (Event.reportObject.index == BUTTON_CLEAN_DONE){
+					if (flag_continue_calib){
+										
+						
+						//make temperature down	
+						setTargetHotend0(0);
+						setTargetHotend1(0);
+						setTargetBed(0);
+								 
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+						genie.WriteStr(STRING_AXEL,"        Z AXEL");
+						home_axis_from_code();
+						enquecommand_P(PSTR("G43"));
+						
+						flag_continue_calib = false;	
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+					}
+				}
 				
-			
 				else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK )
 				{
 					is_on_printing_screen=true;
@@ -1791,7 +1808,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//char buffer[30];
 				
 				genie.WriteStr(STRING_X_CAB_VALUE,"1");
-				offset_x_calib = -1;
+				offset_x_calib = -0.5;
 				/*float calculus = extruder_offset[X_AXIS][1] + 0.4;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -1814,7 +1831,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_2){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"2");
-				offset_x_calib = -0.8;
+				offset_x_calib = -0.4;
 				/*float calculus = extruder_offset[X_AXIS][1] + 0.3;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -1837,7 +1854,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_3){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"3");
-				offset_x_calib = -0.6;
+				offset_x_calib = -0.3;
 				/*float calculus = extruder_offset[X_AXIS][1] + 0.2;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -1859,7 +1876,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			}
 			else if (Event.reportObject.index == BUTTON_X_4){
 				//char buffer[30];
-				offset_x_calib = -0.4;
+				offset_x_calib = -0.2;
 				genie.WriteStr(STRING_X_CAB_VALUE,"4");
 				/*float calculus = extruder_offset[X_AXIS][1] + 0.1;
 				Serial.print("Calculus:  ");
@@ -1883,7 +1900,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_5){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"5");
-				offset_x_calib = -0.2;
+				offset_x_calib = -0.1;
 				/*float calculus = extruder_offset[X_AXIS][1];
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -1929,7 +1946,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_7){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"7");
-				offset_x_calib = 0.2;
+				offset_x_calib = 0.1;
 				/*float calculus = extruder_offset[X_AXIS][1] - 0.2;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -1952,7 +1969,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_8){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"8");
-				offset_x_calib = 0.4;
+				offset_x_calib = 0.2;
 				/*float calculus = extruder_offset[X_AXIS][1] - 0.3;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -1975,7 +1992,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_9){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"9");
-				offset_x_calib = 0.6;
+				offset_x_calib = 0.3;
 				/*float calculus = extruder_offset[X_AXIS][1] - 0.4;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -1998,7 +2015,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_10){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"10");
-				offset_x_calib = 0.8;
+				offset_x_calib = 0.4;
 				/*float calculus = extruder_offset[X_AXIS][1] - 0.5;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -2046,17 +2063,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			#pragma region Calibration Y
 			else if (Event.reportObject.index == BUTTON_Y_1){
 				genie.WriteStr(STRING_Y_CAB_VALUE,"1");
-				offset_y_calib = -0.8;
-				
-				
+				offset_y_calib = -0.5;					
 			}
 			else if (Event.reportObject.index == BUTTON_Y_2){
 				genie.WriteStr(STRING_Y_CAB_VALUE,"2");
-				offset_y_calib = -0.6;
+				offset_y_calib = -0.4;
 			}
 			else if (Event.reportObject.index == BUTTON_Y_3){
 				genie.WriteStr(STRING_Y_CAB_VALUE,"3");
-				offset_y_calib = -0.4;
+				offset_y_calib = -0.3;
 			}
 			else if (Event.reportObject.index == BUTTON_Y_4){
 				genie.WriteStr(STRING_Y_CAB_VALUE,"4");
@@ -2064,27 +2079,27 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			}
 			else if (Event.reportObject.index == BUTTON_Y_5){
 				genie.WriteStr(STRING_Y_CAB_VALUE,"5");
-				offset_y_calib = 0;
+				offset_y_calib = -0.1;
 			}
 			else if (Event.reportObject.index == BUTTON_Y_6){
 				genie.WriteStr(STRING_Y_CAB_VALUE,"6");
-				offset_y_calib = +0.2;
+				offset_y_calib = 0;
 			}
 			else if (Event.reportObject.index == BUTTON_Y_7){
 				genie.WriteStr(STRING_Y_CAB_VALUE,"7");
-				offset_y_calib = +0.4;
+				offset_y_calib = 0.1;
 			}
 			else if (Event.reportObject.index == BUTTON_Y_8){
 				genie.WriteStr(STRING_Y_CAB_VALUE,"8");
-				offset_y_calib = +0.6;
+				offset_y_calib = 0.2;
 			}
 			else if (Event.reportObject.index == BUTTON_Y_9){
 				genie.WriteStr(STRING_Y_CAB_VALUE,"9");
-				offset_y_calib = +0.8;
+				offset_y_calib = 0.3;
 			}
 			else if (Event.reportObject.index == BUTTON_Y_10){
 				genie.WriteStr(STRING_Y_CAB_VALUE,"10");
-				offset_y_calib = +1;
+				offset_y_calib = 0.4;
 			}	
 			
 			else if (Event.reportObject.index == BUTTON_Y_ACCEPT){

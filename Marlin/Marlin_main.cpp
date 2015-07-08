@@ -2228,13 +2228,13 @@ void process_commands()
 		plan_buffer_line(current_position[X_AXIS], 99, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS]/2, active_extruder);//Retrack
 		plan_buffer_line(mm_left_offset+(mm_second_extruder[0]), 99, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS]/2, active_extruder);//Retrack*/
 		st_synchronize();
+		plan_buffer_line(current_position[X_AXIS], 149, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder); //Move Y and Z
+		st_synchronize();
 		
 		//Second Extruder (correcting)
 		for (int i=0; i<(NUM_LINES);i++) //4 times
 		{
-			if (i == 0) current_position[Z_AXIS]-=0.3;
-			plan_buffer_line(current_position[X_AXIS], 149, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder); //Move Y and Z
-			st_synchronize();	
+			if (i == 0) current_position[Z_AXIS]-=0.3;			
 			plan_buffer_line(mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))), 149, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder); //Move X
 			st_synchronize();	
 			current_position[E_AXIS]+=2; 
@@ -2333,22 +2333,22 @@ case 41://G41 --> Y Extruder calibration
 	for (int i=0; i<(NUM_LINES);i++) //4 times
 	{	
 		if (i == 0) current_position[Z_AXIS]-=0.3;
-		plan_buffer_line(150, mm_left_offset-(mm_each_extrusion*i), current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move X and Z
+		plan_buffer_line(100, mm_left_offset-(mm_each_extrusion*i), current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move X and Z
 		st_synchronize();
 		
 		current_position[E_AXIS]+=2; //Move the retracked space
-		plan_buffer_line(150, mm_left_offset-(mm_each_extrusion*i), current_position[Z_AXIS], current_position[E_AXIS], 50 , active_extruder);
+		plan_buffer_line(100, mm_left_offset-(mm_each_extrusion*i), current_position[Z_AXIS], current_position[E_AXIS], 50 , active_extruder);
 		Serial.println("We are restoring retrack");
 		st_synchronize();
 		current_position[E_AXIS]+=1;
-		plan_buffer_line(100, mm_left_offset-(mm_each_extrusion*i), current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Move Y and extrude
+		plan_buffer_line(150, mm_left_offset-(mm_each_extrusion*i), current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Move Y and extrude
 		current_position[E_AXIS]-=2;
-		plan_buffer_line(100, mm_left_offset-(mm_each_extrusion*i), current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
+		plan_buffer_line(150, mm_left_offset-(mm_each_extrusion*i), current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 		//plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 150, current_position[Z_AXIS]+5, current_position[E_AXIS], 1500/60, active_extruder);//Lift Z
 		st_synchronize();
 	}
 	current_position[Y_AXIS]=mm_left_offset-(NUM_LINES-1)*mm_each_extrusion;
-	current_position[X_AXIS]=100;
+	current_position[X_AXIS]=150;
 	//plan_set_position(current_position[X_AXIS]+(4*mm_each_extrusion), 150, current_position[Z_AXIS], current_position[E_AXIS]);
 
 	//2)Extruder 2 prints with corrections
@@ -2366,11 +2366,12 @@ case 41://G41 --> Y Extruder calibration
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 	st_synchronize();
 	
+	plan_buffer_line(current_position[X_AXIS], mm_left_offset-(mm_second_extruder[0]+(mm_each_extrusion*(0))), current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move Y and Z
+	st_synchronize();
+	
 	for (int i=0; i<(NUM_LINES);i++) //4 times
 	{	
-		if (i == 0) current_position[Z_AXIS]-=0.3;
-		plan_buffer_line(current_position[X_AXIS], mm_left_offset-(mm_second_extruder[i]+(mm_each_extrusion*(i))), current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move Y and Z
-		st_synchronize();
+		if (i == 0) current_position[Z_AXIS]-=0.3;		
 		plan_buffer_line(200, mm_left_offset-(mm_second_extruder[i]+(mm_each_extrusion*(i))), current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move X
 		st_synchronize();		
 		current_position[E_AXIS]+=2; 
@@ -2408,6 +2409,27 @@ case 43://G43 --> Z LEFT Extruder calibration
 {
 	//TODO: Check if a G28 has been done!
 	Serial.println("Starting Z Calibration Wizard");
+	
+	changeToolSigma(LEFT_EXTRUDER);
+	//genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
+	//Wait until temperature it's okey
+	setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
+	setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
+	//target_temperature[1] = EXTRUDER_RIGHT_CLEAN_TEMP;
+	//target_temperature[0] = EXTRUDER_LEFT_CLEAN_TEMP;
+	//MOVE EXTRUDERS
+	//while ((int(degHotend(0))<= EXTRUDER_LEFT_CLEAN_TEMP-5) && (int(degHotend(1)) <= EXTRUDER_RIGHT_CLEAN_TEMP -5)){
+		//if ((int(degHotend(0))<= EXTRUDER_LEFT_CLEAN_TEMP-5) && (int(degHotend(1)) <= EXTRUDER_RIGHT_CLEAN_TEMP -5)){
+			////genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
+			//flag_continue_calib = true;
+		//}
+		//Serial.println(int(degHotend(0)));
+		//Serial.println(int(degHotend(1)));
+		
+	//}
+	
+	//genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
+	//flag_continue_calib = true;
 	
 	//Raise to correct
 	feedrate = homing_feedrate[Z_AXIS];
@@ -3129,22 +3151,9 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 				 
 				 //genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 				 //enquecommand_P(PSTR("G28"));	
-				 changeToolSigma(LEFT_EXTRUDER);
-				 genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
-				 //Wait until temperature it's okey
-				 target_temperature[1] = EXTRUDER_RIGHT_CLEAN_TEMP;
-				 target_temperature[0] = EXTRUDER_LEFT_CLEAN_TEMP;
-				 
-				 while ((int(degHotend(0))<= EXTRUDER_LEFT_CLEAN_TEMP-5) && (int(degHotend(1)) <= EXTRUDER_RIGHT_CLEAN_TEMP -5)){
-					 if ((int(degHotend(0))<= EXTRUDER_LEFT_CLEAN_TEMP-5) && (int(degHotend(1)) <= EXTRUDER_RIGHT_CLEAN_TEMP -5)){
-						 genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
-						 flag_continue_calib = true;
-					 }
-					 
-				 }
-				
-				genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
-				flag_continue_calib = true;
+				 home_axis_from_code();
+				 st_synchronize();
+				 enquecommand_P(PSTR("G43"));
 				
 				 
 				 

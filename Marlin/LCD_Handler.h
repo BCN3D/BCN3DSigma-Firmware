@@ -1179,13 +1179,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}*/
 					
 				else if (Event.reportObject.index == BUTTON_CLEAN_DONE){
-					if (flag_continue_calib){
+					/*if (flag_continue_calib){
 										
 						
 						//make temperature down	
 						setTargetHotend0(0);
 						setTargetHotend1(0);
-						setTargetBed(0);
+						setTargetBed(0);*/
 								 
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 						genie.WriteStr(STRING_AXEL,"        Z AXEL");
@@ -1194,7 +1194,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						flag_continue_calib = false;	
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
-					}
+					//}
 				}
 				
 				else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK )

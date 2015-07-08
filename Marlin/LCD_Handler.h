@@ -857,7 +857,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma endregion SD Gcode Selector
 
 			
-				//else if (Event.reportObject.index == BUTTON_SPEED_UP )
+				/*//else if (Event.reportObject.index == BUTTON_SPEED_UP )
 				//{
 					//int value=5;
 					//if (feedmultiply<200)
@@ -993,7 +993,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 				
 			
-				//NOZZLEBUTTONS-------
+				//NOZZLEBUTTONS-------*/
 			
 			
 				//*****INSERT/REMOVE FILAMENT*****
@@ -1054,7 +1054,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				current_position[Z_AXIS]=Z_MAX_POS-5;
 				feedrate=homing_feedrate[Z_AXIS];
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder); //check speed
 				
 				
 				/****************************************************/
@@ -1069,8 +1069,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
 					genie.WriteStr(STRING_ADVISE_FILAMENT,"                                      ");	 
 				}
-				is_changing_filament=true; //We are changing filament
-				
+				is_changing_filament=true; //We are changing filament		
 				
 			}
 

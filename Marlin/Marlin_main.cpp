@@ -272,7 +272,7 @@ float	saved_position[NUM_AXIS] = {0.0,0.0,0.0,0.0}; //Xavi -> array to save the 
 
 float add_homing[3]={0,0,0};
 #ifdef DELTA
-float endstop_adj[3]={0,0,0};
+	float endstop_adj[3]={0,0,0};
 #endif
 
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };

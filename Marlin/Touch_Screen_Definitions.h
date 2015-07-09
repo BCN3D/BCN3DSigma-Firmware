@@ -37,7 +37,8 @@
 #define BUTTON_PROVA_PRESS		65
 
 //Main Menu
-#define BUTTON_SLEEP	64
+#define BUTTON_SLEEP			64
+#define BUTTON_CLEAN_CHANGE		148
 
 //Sleep Screen
 
@@ -256,6 +257,7 @@
 #define STRING_X_CAB_VALUE			46
 #define STRING_Y_CAB_VALUE			48
 
+#define STRING_NAME_FILE			1
 
 //Form
 #define FORM_SDFILES				2

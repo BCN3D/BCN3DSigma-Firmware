@@ -3699,7 +3699,13 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 			Serial.println(buffer2);
 			genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
 		}else{
-			genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+			for (int i = 0; i<=String(card.longFilename).length(); i++)
+			{
+				if (buffer[i] == '.') i = String(card.longFilename).length() +10;
+				else buffer[i]=card.longFilename[i];
+			}
+			//buffer[count]='\0';
+			genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
 		}
 		
 		//Serial.println((char*)prepareString(card.longFilename,12));		

@@ -782,7 +782,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				//*****SD Gcode Selection*****
 				#pragma region SD Gcode Selector
-				else if (Event.reportObject.index == BUTTON_SD_SELECTED )
+				else if (Event.reportObject.index == BUTTON_SD_SELECTED ||  Event.reportObject.index == STRING_NAME_FILE)
 				{
 					if(card.cardOK)
 					{				
@@ -836,18 +836,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//Is a file
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 					}
-					int count = 12;
+					int count = 38;
 					char buffer[count];
-					if (String(card.longFilename).length()>count){
-						for (int i = 0; i<count ; i++)
-						{
-							buffer[i]=card.longFilename[i];
+					if (String(card.longFilename).length()>=count-3){
+						
+						for (int i = 0; i<count ; i++){
+							if (buffer[i] == '.') i = count + 10;
+							else buffer[i]=card.longFilename[i];
 						}
 						buffer[count]='\0';
 						char* buffer2 = strcat(buffer,"...\0");
 						genie.WriteStr(1,buffer2);//Printing form
+						
 					}else{
-						genie.WriteStr(1,card.longFilename);//Printing form
+						for (int i = 0; i<= String(card.longFilename).length() ; i++){
+							if (buffer[i] == '.') i = count + 10;
+							else buffer[i]=card.longFilename[i];
+						}
+						genie.WriteStr(1,buffer);//Printing form
 					}
 					//Keep in mind to control the length of the string displayed!
 					//genie.WriteStr(2,card.longFilename);
@@ -1218,13 +1224,22 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (String(card.longFilename).length()>count){
 						for (int i = 0; i<count ; i++)
 						{
-							buffer[i]=card.longFilename[i];
+							if (buffer[i] == '.') i = count +10;
+							else buffer[i]=card.longFilename[i];
 						}
 						buffer[count]='\0';
 						char* buffer2 = strcat(buffer,"...\0");
 						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
-						}else{
-						genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+					}else{
+						/*char* str;
+						str = strtok (buffer,".");*/
+						for (int i = 0; i<=String(card.longFilename).length(); i++)
+						{
+							if (buffer[i] == '.') i = String(card.longFilename).length() +10;
+							else buffer[i]=card.longFilename[i];
+						}
+						buffer[count]='\0';
+						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form
 					}
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,1);
 				}
@@ -2364,8 +2379,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					buffer[count]='\0';
 					char* buffer2 = strcat(buffer,"...\0");
 					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
-					}else{
-					genie.WriteStr(STRINGS_PRINTING_GCODE,card.longFilename);//Printing form
+				}else{
+					for (int i = 0; i<=String(card.longFilename).length(); i++)
+					{
+						if (buffer[i] == '.') i = String(card.longFilename).length() +10;
+						else buffer[i]=card.longFilename[i];
+					}
+					buffer[count]='\0';
+					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
 				}
 				
 				//genie.WriteStr(2,card.longFilename);

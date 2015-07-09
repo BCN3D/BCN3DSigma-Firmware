@@ -1179,22 +1179,35 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}*/
 					
 				else if (Event.reportObject.index == BUTTON_CLEAN_DONE){
-					/*if (flag_continue_calib){
+					if (flag_continue_calib){
 										
 						
 						//make temperature down	
-						setTargetHotend0(0);
+						/*setTargetHotend0(0);
 						setTargetHotend1(0);
-						setTargetBed(0);*/
+						setTargetBed(0);*/			
 								 
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 						genie.WriteStr(STRING_AXEL,"        Z AXEL");
 						home_axis_from_code();
+						st_synchronize();					
+						
 						enquecommand_P(PSTR("G43"));
 						
 						flag_continue_calib = false;	
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
-					//}
+					}
+				}
+				
+				else if(Event.reportObject.index == BUTTON_CLEAN_CHANGE){
+					
+					if (active_extruder == 0)	changeTool(1);
+					else changeTool(0);
+					//MOVE EXTRUDERS
+					current_position[X_AXIS] = 155;
+					current_position[Y_AXIS] = 0;
+					current_position[Z_AXIS] = 100;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0, 50, active_extruder);//move first extruder, bed and Y
 				}
 				
 				else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK )

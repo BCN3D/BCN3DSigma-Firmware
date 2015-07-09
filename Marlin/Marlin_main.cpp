@@ -2407,30 +2407,10 @@ case 41://G41 --> Y Extruder calibration
 #ifdef EXTRUDER_CALIBRATION_WIZARD
 case 43://G43 --> Z LEFT Extruder calibration
 {
-	//TODO: Check if a G28 has been done!
+	
+	
+	
 	Serial.println("Starting Z Calibration Wizard");
-	
-	changeToolSigma(LEFT_EXTRUDER);
-	//genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
-	//Wait until temperature it's okey
-	setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
-	setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
-	//target_temperature[1] = EXTRUDER_RIGHT_CLEAN_TEMP;
-	//target_temperature[0] = EXTRUDER_LEFT_CLEAN_TEMP;
-	//MOVE EXTRUDERS
-	//while ((int(degHotend(0))<= EXTRUDER_LEFT_CLEAN_TEMP-5) && (int(degHotend(1)) <= EXTRUDER_RIGHT_CLEAN_TEMP -5)){
-		//if ((int(degHotend(0))<= EXTRUDER_LEFT_CLEAN_TEMP-5) && (int(degHotend(1)) <= EXTRUDER_RIGHT_CLEAN_TEMP -5)){
-			////genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
-			//flag_continue_calib = true;
-		//}
-		//Serial.println(int(degHotend(0)));
-		//Serial.println(int(degHotend(1)));
-		
-	//}
-	
-	//genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
-	//flag_continue_calib = true;
-	
 	//Raise to correct
 	feedrate = homing_feedrate[Z_AXIS];
 	current_position[Z_AXIS]=0;
@@ -3151,9 +3131,40 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 				 
 				 //genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 				 //enquecommand_P(PSTR("G28"));	
+				 active_extruder = LEFT_EXTRUDER;
+				 genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+				 genie.WriteStr(STRING_AXEL,"        Z AXEL");
+				 
+				 
+				 
+				 
+				 genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+				 
+				 //changeToolSigma(LEFT_EXTRUDER);
+				 genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
+				 genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+				 
+				 //Wait until temperature it's okey
+				 setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
+				 setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
+				 
+				 while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+					 
+					 manage_heater();
+				 }
+				 
+				 flag_continue_calib = true;
 				 home_axis_from_code();
-				 st_synchronize();
-				 enquecommand_P(PSTR("G43"));
+				 //MOVE EXTRUDERS			 
+				 current_position[Z_AXIS] = 100;				 
+				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0, 200, LEFT_EXTRUDER);//move first extruder, bed and Y
+				 current_position[X_AXIS] = 155;
+				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0, homing_feedrate[X_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
+				 current_position[Y_AXIS] = 0;
+				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0, homing_feedrate[Y_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
+				 
+				 genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
+				 
 				
 				 
 				 
@@ -3170,7 +3181,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 			 
 			 genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_TURN_SCREWS,0);
 			 
-			 //char buffer[256];
+	/*		 //char buffer[256];
 			 //
 		 //
 			//if (vuitens1!= 0){
@@ -3209,7 +3220,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 			 //sprintf(buffer, " %d / 8",vuitens3);
 			 //genie.WriteStr(STRING_SCREW3,buffer);
 			 
-			 //genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_BAD,1);
+			 //genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_BAD,1);*/
 			 
 			 
 			 #endif

@@ -2194,7 +2194,7 @@ void process_commands()
 			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 250, current_position[Z_AXIS], current_position[E_AXIS], 50 , active_extruder);
 			Serial.println("We are restoring retrack");
 			st_synchronize();
-			current_position[E_AXIS]+=1;
+			current_position[E_AXIS]+=2;
 			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 200, current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Move Y and extrude
 			current_position[E_AXIS]-=2;
 			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 200, current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
@@ -3155,13 +3155,14 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 				 
 				 flag_continue_calib = true;
 				 home_axis_from_code();
+				 
 				 //MOVE EXTRUDERS			 
 				 current_position[Z_AXIS] = 100;				 
-				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0, 200, LEFT_EXTRUDER);//move first extruder, bed and Y
+				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, LEFT_EXTRUDER);//move first extruder, bed and Y
 				 current_position[X_AXIS] = 155;
-				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0, homing_feedrate[X_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
+				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
 				 current_position[Y_AXIS] = 0;
-				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0, homing_feedrate[Y_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
+				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Y_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
 				 
 				 genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
 				 

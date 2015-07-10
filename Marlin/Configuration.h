@@ -231,18 +231,23 @@
 #ifdef PROTO2
 	 #define  DEFAULT_Kp 23.12
 	 #define  DEFAULT_Ki 2.12
-	 #define  DEFAULT_Kd 62.98
+	 //#define  DEFAULT_Kd 62.98
 #endif
 #endif
 
+
 #if MOTHERBOARD == BCN3D_BOARD
-	//DEPRECATED First PID
-	//#define  DEFAULT_Kp 23.12
-	//#define  DEFAULT_Ki 2.12
-	//#define  DEFAULT_Kd 62.98
-	#define  DEFAULT_Kp 16.51
-	#define  DEFAULT_Ki 1.17
-	#define  DEFAULT_Kd 58.05
+	////////DEPRECATED First PID
+	////////#define  DEFAULT_Kp 23.12
+	////////#define  DEFAULT_Ki 2.12
+	////////#define  DEFAULT_Kd 62.98
+	//#define  DEFAULT_Kp 16.51
+	//#define  DEFAULT_Ki 1.17
+	//#define  DEFAULT_Kd 58.05
+	#define  DEFAULT_Kp  19.94
+	#define  DEFAULT_Ki 3.25
+	#define  DEFAULT_Kd 30.63
+	
 #endif
 #endif // PIDTEMP
 

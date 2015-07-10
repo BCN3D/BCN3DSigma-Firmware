@@ -836,24 +836,30 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//Is a file
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 					}
-					int count = 38;
+					Serial.println(card.longFilename);
+					int count = 35;
 					char buffer[count];
 					if (String(card.longFilename).length()>=count-3){
 						
 						for (int i = 0; i<count ; i++){
-							if (buffer[i] == '.') i = count + 10;
-							else buffer[i]=card.longFilename[i];
+							/*if (buffer[i] = '.') i = count + 10;
+							else */buffer[i]=card.longFilename[i];
 						}
+						
 						buffer[count]='\0';
 						char* buffer2 = strcat(buffer,"...\0");
 						genie.WriteStr(1,buffer2);//Printing form
 						
 					}else{
 						for (int i = 0; i<= String(card.longFilename).length() ; i++){
-							if (buffer[i] == '.') i = count + 10;
-							else buffer[i]=card.longFilename[i];
+							/*if (buffer[i] = '.') i = count + 10;
+							else */buffer[i]=card.longFilename[i];
+							
 						}
-						genie.WriteStr(1,buffer);//Printing form
+						buffer[count]='\0';
+						char* buffer2 = strcat(buffer,"...\0");
+						genie.WriteStr(1,buffer2);//Printing form
+						//genie.WriteStr(1,buffer);//Printing form
 					}
 					//Keep in mind to control the length of the string displayed!
 					//genie.WriteStr(2,card.longFilename);
@@ -1224,8 +1230,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (String(card.longFilename).length()>count){
 						for (int i = 0; i<count ; i++)
 						{
-							if (buffer[i] == '.') i = count +10;
-							else buffer[i]=card.longFilename[i];
+							/*if (buffer[i] = '.') i = count +10;
+							else */buffer[i]=card.longFilename[i];
 						}
 						buffer[count]='\0';
 						char* buffer2 = strcat(buffer,"...\0");
@@ -1235,8 +1241,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						str = strtok (buffer,".");*/
 						for (int i = 0; i<=String(card.longFilename).length(); i++)
 						{
-							if (buffer[i] == '.') i = String(card.longFilename).length() +10;
-							else buffer[i]=card.longFilename[i];
+							/*if (buffer[i] = '.') i = String(card.longFilename).length() +10;
+							else */buffer[i]=card.longFilename[i];
 						}
 						buffer[count]='\0';
 						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form
@@ -2290,7 +2296,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//genie.WriteStr(1,card.longFilename);
 					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
 				}else{
-					int count = 12;
+					int count = 35;
 					char buffer[count];
 					if (String(card.longFilename).length()>count){
 						for (int i = 0; i<count ; i++)
@@ -2301,10 +2307,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						char* buffer2 = strcat(buffer,"...\0");
 						genie.WriteStr(1,buffer2);//Printing form
 					}else{
-						genie.WriteStr(1,card.longFilename);//Printing form
+						for (int i = 0; i<= String(card.longFilename).length() ; i++){
+							/*if (buffer[i] = '.') i = count + 10;
+							else*/ buffer[i]=card.longFilename[i];
 					}
+					genie.WriteStr(1,buffer);//Printing form
 					//Is a file
 					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+					}
 				}
 			}
 			
@@ -2369,7 +2379,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//Restart the preheat buttons
 				genie.WriteObject(GENIE_OBJ_USERIMAGES,BUTTON_PREHEAT_PLA,0);
 				
-				int count = 12;
+				int count = 35;
 				char buffer[count];
 				if (String(card.longFilename).length()>count){
 					for (int i = 0; i<count ; i++)
@@ -2382,8 +2392,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}else{
 					for (int i = 0; i<=String(card.longFilename).length(); i++)
 					{
-						if (buffer[i] == '.') i = String(card.longFilename).length() +10;
-						else buffer[i]=card.longFilename[i];
+						/*if (buffer[i] = '.') i = String(card.longFilename).length() +10;
+						else */buffer[i]=card.longFilename[i];
 					}
 					buffer[count]='\0';
 					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form

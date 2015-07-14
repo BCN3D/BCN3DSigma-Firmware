@@ -179,13 +179,17 @@
 #define HEATER_2_MINTEMP 5
 #define BED_MINTEMP 5
 
+//To clean the extruder's the best temperature configuration
+#define EXTRUDER_LEFT_CLEAN_TEMP 150
+#define EXTRUDER_RIGHT_CLEAN_TEMP 150
+
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
 #define HEATER_0_MAXTEMP 315
 #define HEATER_1_MAXTEMP 315
 #define HEATER_2_MAXTEMP 315
-#define BED_MAXTEMP 120
+#define BED_MAXTEMP 110
 
 // If your bed has low resistance e.g. .6 ohm and throws the fuse you can duty cycle it to reduce the
 // average current. The value should be an integer and the heat bed will be turned on for 1 interval of
@@ -227,18 +231,23 @@
 #ifdef PROTO2
 	 #define  DEFAULT_Kp 23.12
 	 #define  DEFAULT_Ki 2.12
-	 #define  DEFAULT_Kd 62.98
+	 //#define  DEFAULT_Kd 62.98
 #endif
 #endif
 
+
 #if MOTHERBOARD == BCN3D_BOARD
-	//DEPRECATED First PID
-	//#define  DEFAULT_Kp 23.12
-	//#define  DEFAULT_Ki 2.12
-	//#define  DEFAULT_Kd 62.98
-	#define  DEFAULT_Kp 16.51
-	#define  DEFAULT_Ki 1.17
-	#define  DEFAULT_Kd 58.05
+	////////DEPRECATED First PID
+	////////#define  DEFAULT_Kp 23.12
+	////////#define  DEFAULT_Ki 2.12
+	////////#define  DEFAULT_Kd 62.98
+	//#define  DEFAULT_Kp 16.51
+	//#define  DEFAULT_Ki 1.17
+	//#define  DEFAULT_Kd 58.05
+	#define  DEFAULT_Kp  19.94
+	#define  DEFAULT_Ki 3.25
+	#define  DEFAULT_Kd 30.63
+	
 #endif
 #endif // PIDTEMP
 
@@ -705,7 +714,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
 	
 	//Right extruder probe point
-	#define X_SIGMA_PROBE_1_RIGHT_EXTR 255
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 254.5
 	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
 	#define X_SIGMA_PROBE_2_RIGHT_EXTR 255
@@ -740,8 +749,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define SECOND_EXTRUDER_Y {150.5, 149.5, 150, 149}
 		
 		
-	#define X_CALIB_STARTING_X 45
-	#define X_CALIB_STARTING_Y 150
+	#define X_CALIB_STARTING_X 115
+	#define X_CALIB_STARTING_Y 270
 #endif
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
@@ -786,6 +795,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
+#define NUM_LINES 10
 //#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
 #define HOMING_FEEDRATE {75*60, 75*60, 6*60, 0}
 

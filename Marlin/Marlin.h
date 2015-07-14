@@ -294,6 +294,6 @@ extern void sleep_RELAY();
 extern void wake_RELAY();
 extern void home_axis_from_code();
 extern float saved_position[NUM_AXIS];
-
+extern bool flag_continue_calib;
 
 #endif

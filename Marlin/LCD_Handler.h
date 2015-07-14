@@ -1192,34 +1192,41 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				else if (Event.reportObject.index == BUTTON_CLEAN_DONE){
 					if (flag_continue_calib){
-										
-						
 						//make temperature down	
 						/*setTargetHotend0(0);
 						setTargetHotend1(0);
 						setTargetBed(0);*/			
-								 
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
-						genie.WriteStr(STRING_AXEL,"        Z AXEL");
-						home_axis_from_code();
-						st_synchronize();					
+						if (active_extruder == 0)	{
+							changeTool(1);
+							current_position[X_AXIS] = 155;
+							current_position[Y_AXIS] = 0;
+							current_position[Z_AXIS] = 100;
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]/2, 0, 50, active_extruder);//move first extruder, bed and Y							
+						} else {
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+							genie.WriteStr(STRING_AXEL,"        Z AXEL");							 
+							if (active_extruder == 1) changeTool(0);							
+							home_axis_from_code();
+							st_synchronize();							
+							enquecommand_P(PSTR("G43"));							
+							flag_continue_calib = false;
+							genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);	
+						}
 						
-						enquecommand_P(PSTR("G43"));
-						
-						flag_continue_calib = false;	
-						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
 					}
+					
 				}
 				
 				else if(Event.reportObject.index == BUTTON_CLEAN_CHANGE){
-					
-					if (active_extruder == 0)	changeTool(1);
-					else changeTool(0);
-					//MOVE EXTRUDERS
-					current_position[X_AXIS] = 155;
-					current_position[Y_AXIS] = 0;
-					current_position[Z_AXIS] = 100;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0, 50, active_extruder);//move first extruder, bed and Y
+					/*if (flag_continue_calib){
+						if (active_extruder == 0)	changeTool(1);
+						else changeTool(0);
+						//MOVE EXTRUDERS
+						current_position[X_AXIS] = 155;
+						current_position[Y_AXIS] = 0;
+						current_position[Z_AXIS] = 100;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]/2, 0, 50, active_extruder);//move first extruder, bed and Y
+					}*/
 				}
 				
 				else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK )
@@ -1821,7 +1828,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				Serial.println(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
 				enquecommand_P(PSTR("M500"));//Store everything
 				enquecommand_P(PSTR("T0"));
-				enquecommand_P(PSTR("G28 X0 Y0"));
+				enquecommand_P(PSTR("G28"));
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
 				
 					//enquecommand_P(PSTR("G28"));
@@ -1842,7 +1849,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//char buffer[30];
 				
 				genie.WriteStr(STRING_X_CAB_VALUE,"1");
-				offset_x_calib = -0.5;
+				offset_x_calib = 0.5;
 				/*float calculus = extruder_offset[X_AXIS][1] + 0.4;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -1865,7 +1872,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_2){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"2");
-				offset_x_calib = -0.4;
+				offset_x_calib = 0.4;
 				/*float calculus = extruder_offset[X_AXIS][1] + 0.3;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -1888,7 +1895,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_3){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"3");
-				offset_x_calib = -0.3;
+				offset_x_calib = 0.3;
 				/*float calculus = extruder_offset[X_AXIS][1] + 0.2;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -1910,7 +1917,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			}
 			else if (Event.reportObject.index == BUTTON_X_4){
 				//char buffer[30];
-				offset_x_calib = -0.2;
+				offset_x_calib = 0.2;
 				genie.WriteStr(STRING_X_CAB_VALUE,"4");
 				/*float calculus = extruder_offset[X_AXIS][1] + 0.1;
 				Serial.print("Calculus:  ");
@@ -1934,7 +1941,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_5){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"5");
-				offset_x_calib = -0.1;
+				offset_x_calib = 0.1;
 				/*float calculus = extruder_offset[X_AXIS][1];
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -1980,7 +1987,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_7){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"7");
-				offset_x_calib = 0.1;
+				offset_x_calib = -0.1;
 				/*float calculus = extruder_offset[X_AXIS][1] - 0.2;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -2003,7 +2010,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_8){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"8");
-				offset_x_calib = 0.2;
+				offset_x_calib = -0.2;
 				/*float calculus = extruder_offset[X_AXIS][1] - 0.3;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -2026,7 +2033,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_9){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"9");
-				offset_x_calib = 0.3;
+				offset_x_calib = -0.3;
 				/*float calculus = extruder_offset[X_AXIS][1] - 0.4;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -2049,7 +2056,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_10){
 				//char buffer[30];
 				genie.WriteStr(STRING_X_CAB_VALUE,"10");
-				offset_x_calib = 0.4;
+				offset_x_calib = -0.4;
 				/*float calculus = extruder_offset[X_AXIS][1] - 0.5;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -2070,6 +2077,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);*/
 			}	
 			else if (Event.reportObject.index == BUTTON_X_ACCEPT){
+				
 				float calculus = extruder_offset[X_AXIS][1] + offset_x_calib;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
@@ -2081,7 +2089,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				if(flag_full_calib){
-					enquecommand_P(PSTR("G28"));
+					//enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -2089,6 +2097,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 				
+			}
+			
+			else if (Event.reportObject.index == BUTTON_X_REDO){
+				
+				enquecommand_P(PSTR("G28"));
+				enquecommand_P(PSTR("G40"));
+				st_synchronize();
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+				genie.WriteStr(STRING_AXEL,"X AXEL, heatting...");
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			}
 						
 			#pragma endregion Calibration X
@@ -2147,6 +2165,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);	
 			}
+			else if (Event.reportObject.index == BUTTON_Y_REDO){
+					//enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
+			}
+			
 			#pragma endregion Calibration Y
 				//***************************
 				

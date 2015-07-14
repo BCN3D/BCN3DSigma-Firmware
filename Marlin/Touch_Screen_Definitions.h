@@ -140,6 +140,7 @@
 #define BUTTON_Y_9					145
 #define BUTTON_Y_10					146
 #define BUTTON_Y_ACCEPT				147
+#define BUTTON_Y_REDO				150
 
 //X CALIB
 #define BUTTON_X_1					134
@@ -153,6 +154,7 @@
 #define BUTTON_X_9					133
 #define BUTTON_X_10					135
 #define BUTTON_X_ACCEPT				136
+#define BUTTON_X_REDO				149
 
 //BED CALIB
 #define BUTTON_BED_CALIB_SW2		93

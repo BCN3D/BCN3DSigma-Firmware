@@ -2157,7 +2157,7 @@ void process_commands()
 		}
 		
 		//Raise for a layer of Z=0.2
-		current_position[Z_AXIS]+=0.5;
+		current_position[Z_AXIS]+=0.65; //0.5 + 0.15 per ajustar una bona alçada
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1000/60 , active_extruder);
 
 
@@ -2194,7 +2194,7 @@ void process_commands()
 			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 250, current_position[Z_AXIS], current_position[E_AXIS], 50 , active_extruder);
 			Serial.println("We are restoring retrack");
 			st_synchronize();
-			current_position[E_AXIS]+=2;
+			current_position[E_AXIS]+=1;
 			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 200, current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Move Y and extrude
 			current_position[E_AXIS]-=2;
 			plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 200, current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
@@ -2234,7 +2234,7 @@ void process_commands()
 		//Second Extruder (correcting)
 		for (int i=0; i<(NUM_LINES);i++) //4 times
 		{
-			if (i == 0) current_position[Z_AXIS]-=0.3;			
+			if (i == 0) current_position[Z_AXIS]-=0.5;			
 			plan_buffer_line(mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))), 149, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder); //Move X
 			st_synchronize();	
 			current_position[E_AXIS]+=2; 
@@ -2332,7 +2332,7 @@ case 41://G41 --> Y Extruder calibration
 	
 	for (int i=0; i<(NUM_LINES);i++) //4 times
 	{	
-		if (i == 0) current_position[Z_AXIS]-=0.3;
+		if (i == 0) current_position[Z_AXIS]-=0.5;
 		plan_buffer_line(100, mm_left_offset-(mm_each_extrusion*i), current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move X and Z
 		st_synchronize();
 		
@@ -2371,7 +2371,7 @@ case 41://G41 --> Y Extruder calibration
 	
 	for (int i=0; i<(NUM_LINES);i++) //4 times
 	{	
-		if (i == 0) current_position[Z_AXIS]-=0.3;		
+		if (i == 0) current_position[Z_AXIS]-=0.5;		
 		plan_buffer_line(200, mm_left_offset-(mm_second_extruder[i]+(mm_each_extrusion*(i))), current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move X
 		st_synchronize();		
 		current_position[E_AXIS]+=2; 
@@ -2407,9 +2407,6 @@ case 41://G41 --> Y Extruder calibration
 #ifdef EXTRUDER_CALIBRATION_WIZARD
 case 43://G43 --> Z LEFT Extruder calibration
 {
-	
-	
-	
 	Serial.println("Starting Z Calibration Wizard");
 	//Raise to correct
 	feedrate = homing_feedrate[Z_AXIS];
@@ -3135,9 +3132,6 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 				 genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				 genie.WriteStr(STRING_AXEL,"        Z AXEL");
 				 
-				 
-				 
-				 
 				 genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
 				 
 				 //changeToolSigma(LEFT_EXTRUDER);
@@ -3158,16 +3152,13 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 				 
 				 //MOVE EXTRUDERS			 
 				 current_position[Z_AXIS] = 100;				 
-				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, LEFT_EXTRUDER);//move first extruder, bed and Y
+				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100, LEFT_EXTRUDER);//move first extruder, bed and Y
 				 current_position[X_AXIS] = 155;
-				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
+				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/2, LEFT_EXTRUDER);//move first extruder, bed and Y
 				 current_position[Y_AXIS] = 0;
-				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Y_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
+				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Y_AXIS]/2, LEFT_EXTRUDER);//move first extruder, bed and Y
 				 
-				 genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
-				 
-				
-				 
+				 genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);				 
 				 
 			 }
 			 else{
@@ -5584,15 +5575,12 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && Stopped == false && (delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder)))
         {
           // Park old head: 1) raise 2) move to park position 3) lower
-          plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
-                current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-          plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
-                current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
-          plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS],
-                current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+          plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT, current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+          plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT, current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
+          plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
           st_synchronize();
+		  
         }
-		
 		
 		if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE && current_position[X_AXIS] != x_home_pos(active_extruder)) //DUAL FULL CONTROL and NOT HOMED
 		{	
@@ -5603,20 +5591,17 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 			st_synchronize();
 			current_position[Z_AXIS]= current_position[Z_AXIS]+TOOLCHANGE_PARK_ZLIFT;
 		}
-		
+		Serial.print("POSITION HOME: ");
+		Serial.println(x_home_pos(active_extruder));
 
         // apply Y & Z extruder offset (x offset is already used in determining home pos)
-        current_position[Y_AXIS] = current_position[Y_AXIS] -
-                     extruder_offset[Y_AXIS][active_extruder] +
-                     extruder_offset[Y_AXIS][tmp_extruder];
-        current_position[Z_AXIS] = current_position[Z_AXIS] -
-                     extruder_offset[Z_AXIS][active_extruder] +
-                     extruder_offset[Z_AXIS][tmp_extruder];
+        current_position[Y_AXIS] = current_position[Y_AXIS] - extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder];
+        current_position[Z_AXIS] = current_position[Z_AXIS] - extruder_offset[Z_AXIS][active_extruder] + extruder_offset[Z_AXIS][tmp_extruder];
 
         active_extruder = tmp_extruder;
 
         // This function resets the max/min values - the current position may be overwritten below.
-        axis_is_at_home(X_AXIS);
+        axis_is_at_home(X_AXIS);+
 
 		//Rapduch
 		if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE)
@@ -5880,8 +5865,16 @@ void get_coordinates()
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i]))
     {
-      destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
-      seen[i]=true;
+		 
+		destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
+		if(i == 0) {
+			Serial.print("X old: ");
+			Serial.println(destination[i]);
+			destination[i]+= 53;
+			Serial.print("X new: ");
+			Serial.println(destination[i]);
+		}
+		seen[i]=true;
     }
     else destination[i] = current_position[i]; //Are these else lines really needed?
   }

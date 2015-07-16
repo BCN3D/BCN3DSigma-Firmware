@@ -837,30 +837,42 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 					}
 					Serial.println(card.longFilename);
-					int count = 35;
-					char buffer[count];
-					if (String(card.longFilename).length()>=count-3){
+					int count = 18;
+					char buffer[50];
+					if (String(card.longFilename).length()>count){
 						
-						for (int i = 0; i<count ; i++){
-							/*if (buffer[i] = '.') i = count + 10;
-							else */buffer[i]=card.longFilename[i];
+						for (int i = 0; i<count ; i++)
+						{
+							if (card.longFilename[i] == '.') i = count +10;
+							else buffer[i]=card.longFilename[i];
 						}
-						
-						buffer[count]='\0';
+						//buffer[i]='\0';
 						char* buffer2 = strcat(buffer,"...\0");
 						genie.WriteStr(1,buffer2);//Printing form
-						
-					}else{
-						for (int i = 0; i<= String(card.longFilename).length() ; i++){
-							/*if (buffer[i] = '.') i = count + 10;
-							else */buffer[i]=card.longFilename[i];
-							
-						}
-						buffer[count]='\0';
-						char* buffer2 = strcat(buffer,"...\0");
-						genie.WriteStr(1,buffer2);//Printing form
-						//genie.WriteStr(1,buffer);//Printing form
 					}
+					else{
+						for (int i = 0; i<String(card.longFilename).length() ; i++)	{
+							if (card.longFilename[i] == '.') i = count +10;
+							else buffer[i]=card.longFilename[i];
+						}
+						//buffer[i]='\0';						
+						genie.WriteStr(1,buffer);//Printing form			
+					
+					
+					//Is a file
+					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+					}
+					//***************CIRCLE ARRAY***************
+					char show[count];
+					for (int j = 0; j <= String(card.longFilename).length() + 1; j++){
+						for(int i = 0; i < count; i++){
+							if (i+j == String(card.longFilename).length()) show[i] = ' ';
+							else show[i] = buffer[(i+j)%String(card.longFilename).length() + 1];
+							Serial.print(show[i]);
+						}
+						Serial.println("");
+					}
+					//////////////////////////////////////////////
 					//Keep in mind to control the length of the string displayed!
 					//genie.WriteStr(2,card.longFilename);
 					Serial.print("Image n: ");
@@ -1201,7 +1213,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							current_position[X_AXIS] = 155;
 							current_position[Y_AXIS] = 0;
 							current_position[Z_AXIS] = 100;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]/2, 0, 50, active_extruder);//move first extruder, bed and Y							
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0, 50, active_extruder);//move first extruder, bed and Y							
 						} else {
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 							genie.WriteStr(STRING_AXEL,"        Z AXEL");							 
@@ -1225,7 +1237,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[X_AXIS] = 155;
 						current_position[Y_AXIS] = 0;
 						current_position[Z_AXIS] = 100;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]/2, 0, 50, active_extruder);//move first extruder, bed and Y
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0, 50, active_extruder);//move first extruder, bed and Y
 					}*/
 				}
 				
@@ -1443,7 +1455,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT1)
 			{
 				//char buffer[30];
-				float calculus = extruder_offset[X_AXIS][1] + 0.4;
+				float calculus = extruder_offset[X_AXIS][1] + 0.5;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//sprintf(buffer, "M218 T1 X%f",calculus); //
@@ -1454,8 +1466,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				if(flag_full_calib){
-					enquecommand_P(PSTR("G28"));
-					enquecommand_P(PSTR("G41"));		
+					//enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G41"));
 					st_synchronize();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
@@ -1465,15 +1477,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT2)
 			{
-				//enquecommand_P((PSTR("M218 T1 X-0.4")));
-				float calculus = extruder_offset[X_AXIS][1] + 0.3;
+				float calculus = extruder_offset[X_AXIS][1] + 0.4;
 				Serial.print("Calculus:  ");
-				Serial.println(calculus);
-				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
-				enquecommand_P((PSTR("M500"))); //Store changes
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				Serial.println(calculus);				
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;				
+				enquecommand_P((PSTR("M500"))); //Store changes				
 				if(flag_full_calib){
-					enquecommand_P(PSTR("G28"));
+					//enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -1484,15 +1494,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT3)
 			{
-				float calculus = extruder_offset[X_AXIS][1] + 0.2;
+				float calculus = extruder_offset[X_AXIS][1] + 0.3;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
-				//enquecommand_P((PSTR("M218 T1 X-0.3")));
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 				enquecommand_P((PSTR("M500"))); //Store changes
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				if(flag_full_calib){
-					enquecommand_P(PSTR("G28"));
+					//enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -1503,15 +1511,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT4)
 			{
-				float calculus = extruder_offset[X_AXIS][1] + 0.1;
+				float calculus = extruder_offset[X_AXIS][1] + 0.2;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
-				//enquecommand_P((PSTR("M218 T1 X-0.2")));
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 				enquecommand_P((PSTR("M500"))); //Store changes
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				if(flag_full_calib){
-					enquecommand_P(PSTR("G28"));
+					//enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -1522,15 +1528,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT5)
 			{
-				float calculus = extruder_offset[X_AXIS][1] ;
+				float calculus = extruder_offset[X_AXIS][1] + 0.1;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
-				//enquecommand_P((PSTR("M218 T1 X-0.1")));
-				//enquecommand_P((PSTR("M500"))); //Store changes
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				enquecommand_P((PSTR("M500"))); //Store changes
 				if(flag_full_calib){
-					enquecommand_P(PSTR("G28"));
+					//enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -1541,15 +1545,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT6)
 			{
-				float calculus = extruder_offset[X_AXIS][1] - 0.1;
+				float calculus = extruder_offset[X_AXIS][1];
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
-				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				if(flag_full_calib){
-					enquecommand_P(PSTR("G28"));
+					//enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -1560,15 +1562,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT7)
 			{
-				float calculus = extruder_offset[X_AXIS][1] - 0.2;
+				float calculus = extruder_offset[X_AXIS][1] - 0.1;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
-				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				if(flag_full_calib){
-					enquecommand_P(PSTR("G28"));
+					//enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -1579,15 +1579,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT8)
 			{
-				float calculus = extruder_offset[X_AXIS][1] - 0.3;
+				float calculus = extruder_offset[X_AXIS][1] - 0.2;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
-				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				if(flag_full_calib){
-					enquecommand_P(PSTR("G28"));
+					//enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -1598,15 +1596,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT9)
 			{
-				float calculus = extruder_offset[X_AXIS][1] - 0.4;
+				float calculus = extruder_offset[X_AXIS][1] - 0.3;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
-				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				if(flag_full_calib){
-					enquecommand_P(PSTR("G28"));
+					//enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -1617,15 +1613,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_X_LINE_SELECT10)
 			{
-				float calculus = extruder_offset[X_AXIS][1]-0.5;
+				float calculus = extruder_offset[X_AXIS][1]-0.4;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
-				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				if(flag_full_calib){
-					enquecommand_P(PSTR("G28"));
+					//enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -1637,7 +1631,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT1)
 			{
 				//char buffer[30];
-				float calculus = extruder_offset[Y_AXIS][1] - 0.4;
+				float calculus = extruder_offset[Y_AXIS][1] - 0.5;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//sprintf(buffer, "M218 T1 X%f",calculus); //
@@ -1654,7 +1648,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT2)
 			{
 				//enquecommand_P((PSTR("M218 T1 X-0.4")));
-				float calculus = extruder_offset[Y_AXIS][1] - 0.3;
+				float calculus = extruder_offset[Y_AXIS][1] - 0.4;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1666,7 +1660,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT3)
 			{
-				float calculus = extruder_offset[Y_AXIS][1] - 0.2;
+				float calculus = extruder_offset[Y_AXIS][1] - 0.3;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//enquecommand_P((PSTR("M218 T1 X-0.3")));
@@ -1679,7 +1673,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT4)
 			{
-				float calculus = extruder_offset[Y_AXIS][1] - 0.1;
+				float calculus = extruder_offset[Y_AXIS][1] - 0.2;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//enquecommand_P((PSTR("M218 T1 X-0.2")));
@@ -1692,7 +1686,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT5)
 			{
-				float calculus = extruder_offset[Y_AXIS][1] ;
+				float calculus = extruder_offset[Y_AXIS][1] -0.1;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1705,7 +1699,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT6)
 			{
-				float calculus = extruder_offset[Y_AXIS][1] + 0.1;
+				float calculus = extruder_offset[Y_AXIS][1];
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1718,7 +1712,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT7)
 			{
-				float calculus = extruder_offset[X_AXIS][1] + 0.2;
+				float calculus = extruder_offset[X_AXIS][1] + 0.1;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1731,7 +1725,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT8)
 			{
-				float calculus = extruder_offset[Y_AXIS][1] + 0.3;
+				float calculus = extruder_offset[Y_AXIS][1] + 0.2;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1744,11 +1738,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT9)
 			{
-				float calculus = extruder_offset[Y_AXIS][1] + 0.4;
+				float calculus = extruder_offset[Y_AXIS][1] + 0.3;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
+				//enquecommand_P((PSTR("M218 T1 X-0.2")));
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
-				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
@@ -1757,7 +1751,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT10)
 			{
-				float calculus = extruder_offset[Y_AXIS][1] + 0.5;
+				float calculus = extruder_offset[Y_AXIS][1] + 0.4;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -2099,7 +2093,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 			}
 			
-			else if (Event.reportObject.index == BUTTON_X_REDO){
+			/*else if (Event.reportObject.index == BUTTON_X_REDO){
+				
+				float calculus = extruder_offset[X_AXIS][1] + offset_x_calib;
+				Serial.print("Calculus:  ");
+				Serial.println(calculus);
+				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;				
+				enquecommand_P((PSTR("M500"))); //Store changes
 				
 				enquecommand_P(PSTR("G28"));
 				enquecommand_P(PSTR("G40"));
@@ -2107,7 +2107,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				genie.WriteStr(STRING_AXEL,"X AXEL, heatting...");
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-			}
+			}*/
 						
 			#pragma endregion Calibration X
 				//***************************
@@ -2165,13 +2165,19 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);	
 			}
-			else if (Event.reportObject.index == BUTTON_Y_REDO){
+			/*else if (Event.reportObject.index == BUTTON_Y_REDO){
+					float calculus = extruder_offset[Y_AXIS][1] +offset_y_calib;
+					Serial.print("Calculus:  ");
+					Serial.println(calculus);
+					extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
+					enquecommand_P((PSTR("M500"))); //Store changes
+					
 					//enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
 					st_synchronize();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 					genie.WriteStr(STRING_AXEL,"Y AXEL, heatting");
-			}
+			}*/
 			
 			#pragma endregion Calibration Y
 				//***************************
@@ -2316,31 +2322,49 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				card.getWorkDirName();
 				//Text index starts at 0
 				card.getfilename(filepointer);
+				Serial.println(card.longFilename);
 				if (card.filenameIsDir)
 				{
 					//Is a folder
 					//genie.WriteStr(1,card.longFilename);
 					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
 				}else{
-					int count = 35;
+					int count = 18;					
 					char buffer[count];
-					if (String(card.longFilename).length()>count){
+					memset( buffer, '\0', sizeof(char)*count );
+					if (String(card.longFilename).length()>count-3){												
+						
 						for (int i = 0; i<count ; i++)
 						{
-							buffer[i]=card.longFilename[i];
+							if (card.longFilename[i] == '.') i = count +10;
+							else buffer[i]=card.longFilename[i];
 						}
 						buffer[count]='\0';
 						char* buffer2 = strcat(buffer,"...\0");
-						genie.WriteStr(1,buffer2);//Printing form
-					}else{
-						for (int i = 0; i<= String(card.longFilename).length() ; i++){
-							/*if (buffer[i] = '.') i = count + 10;
-							else*/ buffer[i]=card.longFilename[i];
+						genie.WriteStr(1,buffer);//Printing form
 					}
-					genie.WriteStr(1,buffer);//Printing form
-					//Is a file
-					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+					else{
+						for (int i = 0; i<count ; i++)	{
+							if (card.longFilename[i] == '.') i = count +10;
+							else buffer[i]=card.longFilename[i];
+						}
+						buffer[count]='\0';					
+						genie.WriteStr(1,buffer);//Printing form					
+						//Is a file
+						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+						
 					}
+					//***************CIRCLE ARRAY***************
+					char show[count];
+					for (int j = 0; j <= String(card.longFilename).length() + 1; j++){
+						for(int i = 0; i < count; i++){
+							if (i+j == String(card.longFilename).length()) show[i] = ' ';
+							else show[i] = buffer[(i+j)%String(card.longFilename).length() + 1];
+							Serial.print(show[i]);
+						}
+						Serial.println("");
+					}
+					//////////////////////////////////////////////
 				}
 			}
 			

@@ -748,6 +748,7 @@ void setup()
 	//enquecommand(cmd);
 	//enquecommand_P(PSTR("M24"));
 #endif
+
 }
 
 
@@ -3152,7 +3153,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 				 
 				 //MOVE EXTRUDERS			 
 				 current_position[Z_AXIS] = 100;				 
-				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100, LEFT_EXTRUDER);//move first extruder, bed and Y
+				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, LEFT_EXTRUDER);//move first extruder, bed and Y
 				 current_position[X_AXIS] = 155;
 				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/2, LEFT_EXTRUDER);//move first extruder, bed and Y
 				 current_position[Y_AXIS] = 0;
@@ -5601,7 +5602,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         active_extruder = tmp_extruder;
 
         // This function resets the max/min values - the current position may be overwritten below.
-        axis_is_at_home(X_AXIS);+
+        axis_is_at_home(X_AXIS);
 
 		//Rapduch
 		if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE)
@@ -5868,11 +5869,11 @@ void get_coordinates()
 		 
 		destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
 		if(i == 0) {
-			Serial.print("X old: ");
-			Serial.println(destination[i]);
+			//Serial.print("X old: ");
+			//Serial.println(destination[i]);
 			destination[i]+= 53;
-			Serial.print("X new: ");
-			Serial.println(destination[i]);
+			//Serial.print("X new: ");
+			//Serial.println(destination[i]);
 		}
 		seen[i]=true;
     }

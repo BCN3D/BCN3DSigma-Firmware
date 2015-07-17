@@ -3303,8 +3303,10 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		//*********************************//
 					  
 		//********MOVE TO PAUSE POSITION
-		current_position[Z_AXIS] += 20;
-		//if(current_position[Z_AXIS]>=extruder_offset[Z_AXIS]) += 20;
+		
+		if(current_position[Z_AXIS]>=180) current_position[Z_AXIS] += 2;
+		else if(current_position[Z_AXIS]>=205) {}
+		else current_position[Z_AXIS] += 20;
 		int feedrate=homing_feedrate[Z_AXIS];
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);
 		st_synchronize();
@@ -3323,19 +3325,28 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	}
 	
 	case 70: //G70 resume
+		////******PURGE
+		enquecommand_P(PSTR("G1 F400 E1.2"));
+		enquecommand_P(PSTR("G4 S0.3"));
+		enquecommand_P(PSTR("G1 F2400 E-4"));		
+		//*********************************//
+		
 		////*******LOAD ACTUIAL POSITION
-		current_position[X_AXIS] = saved_position[X_AXIS];
+		
 		current_position[Y_AXIS] = saved_position[Y_AXIS];
-		current_position[Z_AXIS] = saved_position[Z_AXIS];	
-		Serial.println(current_position[Z_AXIS]);									  
+		
+		//Serial.println(current_position[Z_AXIS]);									  
 		//*********************************// 
 					  
 		//********MOVE TO ORIGINAL POSITION
 		
 		//if(current_position[Z_AXIS]>=extruder_offset[Z_AXIS]) += 20;
+		current_position[Z_AXIS] = saved_position[Z_AXIS];	
 		feedrate=homing_feedrate[Z_AXIS];
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);
 		st_synchronize();
+		
+		current_position[X_AXIS] = saved_position[X_AXIS];
 		feedrate=homing_feedrate[X_AXIS];
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);  
 		st_synchronize();

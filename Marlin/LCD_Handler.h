@@ -838,32 +838,32 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					Serial.println(card.longFilename);
 					int count = 18;
-					char buffer[String(card.longFilename).length()];
+					char buffer[count];
 					memset( buffer, '\0', sizeof(char)*count );
 					
-					if (String(card.longFilename).length()-6 > count-3){
+					if (String(card.longFilename).length() > count){
 						for (int i = 0; i<count ; i++)
 						{
-							if (card.longFilename[i] == '.') i = count +10;
-							else buffer[i]=card.longFilename[i];
+							/*if (card.longFilename[i] == '.') i = count +10;
+							else */buffer[i]=card.longFilename[i];
 						}
 						buffer[count]='\0';
 						char* buffer2 = strcat(buffer,"...\0");
-						genie.WriteStr(1,buffer);//Printing form
+						genie.WriteStr(1,buffer2);//Printing form
 					}
 					else {
 						for (int i = 0; i<String(card.longFilename).length() ; i++)	{
-							if (card.longFilename[i] == '.') i = count +10;
-							else buffer[i]=card.longFilename[i];
+							/*if (card.longFilename[i] == '.') i = count +10;
+							else */buffer[i]=card.longFilename[i];
 						}
-						buffer[String(card.longFilename).length()]='\0';
+						buffer[count]='\0';
 						genie.WriteStr(1,buffer);//Printing form
 						//Is a file
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 						
 					}
 					//***************CIRCLE ARRAY***************
-					char show[count];
+					/*char show[count];
 					for (int j = 0; j <= String(card.longFilename).length() + 1; j++){
 						for(int i = 0; i < count; i++){
 							if (i+j == String(card.longFilename).length()) show[i] = ' ';
@@ -872,7 +872,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							delay(1000);
 						}
 						Serial.println("");
-					}
+					}*/
 					//////////////////////////////////////////////
 					//Keep in mind to control the length of the string displayed!
 					//genie.WriteStr(2,card.longFilename);
@@ -1600,8 +1600,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				float calculus = extruder_offset[X_AXIS][1] - 0.3;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
+				//sprintf(buffer, "M218 T1 X%f",calculus); //
+				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+				//enquecommand(buffer);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+				//enquecommand_P((PSTR("M218 T1 X-0.5")));
 				enquecommand_P((PSTR("M500"))); //Store changes
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				if(flag_full_calib){
 					//enquecommand_P(PSTR("G28"));
 					enquecommand_P(PSTR("G41"));
@@ -2330,32 +2335,33 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//genie.WriteStr(1,card.longFilename);
 					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
 				}else{
-					int count = 18;					
-					char buffer[String(card.longFilename).length()];
+					int count = 18;
+					char buffer[count];
 					memset( buffer, '\0', sizeof(char)*count );
-					if (String(card.longFilename).length()-6 > count-3){
+					
+					if (String(card.longFilename).length() > count){
 						for (int i = 0; i<count ; i++)
 						{
-							if (card.longFilename[i] == '.') i = count +10;
-							else buffer[i]=card.longFilename[i];
+							/*if (card.longFilename[i] == '.') i = count +10;
+							else */buffer[i]=card.longFilename[i];
 						}
-						buffer[count]='\0';						
+						buffer[count]='\0';
 						char* buffer2 = strcat(buffer,"...\0");
-						genie.WriteStr(1,buffer);//Printing form
+						genie.WriteStr(1,buffer2);//Printing form
 					}
-					else{
+					else {
 						for (int i = 0; i<String(card.longFilename).length() ; i++)	{
-							if (card.longFilename[i] == '.') i = count +10;
-							else buffer[i]=card.longFilename[i];
+							/*if (card.longFilename[i] == '.') i = count +10;
+							else */buffer[i]=card.longFilename[i];
 						}
-						buffer[String(card.longFilename).length()]='\0';					
-						genie.WriteStr(1,buffer);//Printing form					
+						buffer[count]='\0';
+						genie.WriteStr(1,buffer);//Printing form
 						//Is a file
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 						
 					}
 					//***************CIRCLE ARRAY***************
-					char show[count];
+					/*char show[count];
 					for (int j = 0; j <= String(card.longFilename).length() + 1; j++){
 						for(int i = 0; i < count; i++){
 							if (i+j == String(card.longFilename).length()) show[i] = ' ';
@@ -2364,7 +2370,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							delay(1000);
 						}
 						Serial.println("");
-					}
+					}*/
 					//////////////////////////////////////////////
 				}
 			}

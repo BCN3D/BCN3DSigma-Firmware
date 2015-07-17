@@ -2273,7 +2273,7 @@ void process_commands()
 		st_synchronize();
 			
 		//Go to Calibration select screen
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_X,0);				
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_X_CALIB_SELECT,0);				
 			/*//for (int i=1; i<5;i++) //4 times
 			//{
 			//plan_buffer_line(mm_left_offset+(mm_second_extruder[i-1]*i), 149, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2, active_extruder);//Move X and Z
@@ -2397,7 +2397,7 @@ case 41://G41 --> Y Extruder calibration
 	st_synchronize();
 	
 	//Go to Calibration select screen
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Y,0);
+	genie.WriteObject(GENIE_OBJ_FORM,FORM_Y_CALIB_SELECT,0);
 	
 	break;
 }

@@ -1077,17 +1077,14 @@ void get_command()
 	}*/
 	 
 	//*********PAUSE POSITION AND RESUME POSITION IN PROBES
-	/*if (flag_pause){
-		
-		Serial.println("Xavi paused");
+	if (flag_pause){
 		enquecommand_P(((PSTR("G69"))));		
 		flag_pause = false;
 	}
 	if(flag_resume){
-		Serial.println("Xavi resume");
 		enquecommand_P(((PSTR("G70"))));	
 		flag_resume = false;
-	}*/
+	}
 	//****************************************************/
 	  
 	  #endif  
@@ -3310,6 +3307,10 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		int feedrate=homing_feedrate[Z_AXIS];
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);
 		st_synchronize();
+		
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[Z_AXIS] -= 4, 400, active_extruder);
+		st_synchronize();
+		
 		feedrate=homing_feedrate[X_AXIS];
 		if (active_extruder == LEFT_EXTRUDER){
 		current_position[X_AXIS] = 0;
@@ -3325,16 +3326,9 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 	}
 	
 	case 70: //G70 resume
-		////******PURGE
-		enquecommand_P(PSTR("G1 F400 E1.2"));
-		enquecommand_P(PSTR("G4 S0.3"));
-		enquecommand_P(PSTR("G1 F2400 E-4"));		
-		//*********************************//
-		
-		////*******LOAD ACTUIAL POSITION
-		
-		current_position[Y_AXIS] = saved_position[Y_AXIS];
-		
+				
+		////*******LOAD ACTUIAL POSITION		
+		current_position[Y_AXIS] = saved_position[Y_AXIS];		
 		//Serial.println(current_position[Z_AXIS]);									  
 		//*********************************// 
 					  
@@ -3345,6 +3339,14 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		feedrate=homing_feedrate[Z_AXIS];
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);
 		st_synchronize();
+		
+		////******PURGE
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[Z_AXIS] += 1.2, 400, active_extruder);
+		st_synchronize();
+		delay(300);
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[Z_AXIS] -= 4, 2400, active_extruder);
+		st_synchronize();
+		//*********************************//
 		
 		current_position[X_AXIS] = saved_position[X_AXIS];
 		feedrate=homing_feedrate[X_AXIS];

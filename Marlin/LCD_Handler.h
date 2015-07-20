@@ -22,8 +22,8 @@
 extern bool cancel_heatup;
 void myGenieEventHandler();
 bool flag_filament_home= false;	
-//bool flag_pause = false;
-//bool flag_resume = false;
+bool flag_pause = false;
+bool flag_resume = false;
 bool flag_full_calib = false;
 int print_setting_tool = 2;
 float offset_x_calib = 0;
@@ -483,7 +483,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						////st_synchronize();
 						card.pauseSDPrint();
 						Serial.println("PAUSE!");				
-						//flag_pause = true;
+						flag_pause = true;
 					}
 					
 				}
@@ -601,7 +601,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//st_synchronize();
 					card.startFileprint();
 					Serial.println("RESUME!");
-					//flag_resume = true;
+					flag_resume = true;
 				}
 				
 				else if (Event.reportObject.index == BUTTON_CHANGE_EXTRUDER)

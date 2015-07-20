@@ -682,6 +682,7 @@ void setup()
 
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
+  
 
 
 	//Enabling RELE ( Stepper Drivers Power )
@@ -3301,18 +3302,18 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 					  
 		//********MOVE TO PAUSE POSITION
 		
-		if(current_position[Z_AXIS]>=180) current_position[Z_AXIS] += 2;
-		else if(current_position[Z_AXIS]>=205) {}
-		else current_position[Z_AXIS] += 20;
+		if(current_position[Z_AXIS]>=180) current_position[Z_AXIS] += 2;								//
+		else if(current_position[Z_AXIS]>=205) {}														//Move the bed, more or less in function of current_position
+		else current_position[Z_AXIS] += 20;															//
 		int feedrate=homing_feedrate[Z_AXIS];
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);
 		st_synchronize();
-		
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[Z_AXIS] -= 4, 400, active_extruder);
+	
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, 400, active_extruder);	//Retrack
 		st_synchronize();
 		
 		feedrate=homing_feedrate[X_AXIS];
-		if (active_extruder == LEFT_EXTRUDER){
+		if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
 		current_position[X_AXIS] = 0;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);  
 		}else{
@@ -3332,15 +3333,16 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		//Serial.println(current_position[Z_AXIS]);									  
 		//*********************************// 
 					  
-		//********MOVE TO ORIGINAL POSITION
-		
+		//********MOVE TO ORIGINAL POSITION Z		
 		//if(current_position[Z_AXIS]>=extruder_offset[Z_AXIS]) += 20;
 		current_position[Z_AXIS] = saved_position[Z_AXIS];	
-		feedrate=homing_feedrate[Z_AXIS];
+		feedrate=homing_feedrate[Z_AXIS];																										
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);
 		st_synchronize();
+		//*********************************//
 		
-		////******PURGE
+		
+		////******PURGE   -->> Purge to clean the extruder, retrack to avoid the trickle
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[Z_AXIS] += 1.2, 400, active_extruder);
 		st_synchronize();
 		delay(300);
@@ -3348,13 +3350,14 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 		st_synchronize();
 		//*********************************//
 		
+		//********MOVE TO ORIGINAL POSITION X
 		current_position[X_AXIS] = saved_position[X_AXIS];
 		feedrate=homing_feedrate[X_AXIS];
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);  
 		st_synchronize();
 		//*********************************//
 		
-		//********EXTRACK
+		//********EXTRACK to keep ready to the new isntruction
 		current_position[E_AXIS]+=2;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
 		st_synchronize();
@@ -5245,10 +5248,6 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     } 
     break; 
     #endif
-    
-
-
-
 
     case 500: // M500 Store settings in EEPROM
     {

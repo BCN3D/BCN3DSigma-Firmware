@@ -849,7 +849,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						buffer[count]='\0';
 						char* buffer2 = strcat(buffer,"...\0");
-						genie.WriteStr(1,buffer2);//Printing form
+						genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
 					}
 					else {
 						for (int i = 0; i<String(card.longFilename).length() ; i++)	{
@@ -857,7 +857,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							else buffer[i]=card.longFilename[i];
 						}
 						buffer[count]='\0';
-						genie.WriteStr(1,buffer);//Printing form
+						genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
 						//Is a file
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 						
@@ -1208,7 +1208,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//make temperature down	
 						/*setTargetHotend0(0);
 						setTargetHotend1(0);
-						setTargetBed(0);*/			
+						setTargetBed(0);*/		
+						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Now clean the rigth extruder and press GO, now start the Z calibration");	
 						if (active_extruder == 0)	{
 							changeTool(1);
 							current_position[X_AXIS] = 155;
@@ -2391,7 +2392,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						//buffer[count]='\0';
 						char* buffer2 = strcat(buffer,"...\0");
-						genie.WriteStr(1,buffer2);//Printing form
+						genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
 					}
 					else {
 						for (int i = 0; i<String(card.longFilename).length() -6; i++)	{
@@ -2399,7 +2400,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							else buffer[i]=card.longFilename[i];
 						}
 						//buffer[count]='\0';
-						genie.WriteStr(1,buffer);//Printing form
+						genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
 						//Is a file
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);						
 					}

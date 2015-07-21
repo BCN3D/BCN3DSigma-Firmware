@@ -3132,10 +3132,11 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 				 genie.WriteStr(STRING_AXEL,"        Z AXEL");
 				 
 				 genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
-				 genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image will be red, the extruders are warming");
+				 
 				 
 				 //changeToolSigma(LEFT_EXTRUDER);
 				 genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
+				 genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n will be red, the \n extruders are warming");
 				 genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
 				 
 				 //Wait until temperature it's okey
@@ -3159,7 +3160,7 @@ case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBC
 				 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Y_AXIS]/2, LEFT_EXTRUDER);//move first extruder, bed and Y
 				 
 				 genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);				 
-				 genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Now clean the left extruder and press GO, it will change the extruder");
+				 genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Now clean the left \n extruder and press \n GO, it will change \n the extruder");
 			 }
 			 else{
 				 #ifdef SIGMA_TOUCH_SCREEN

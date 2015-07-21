@@ -1205,11 +1205,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				else if (Event.reportObject.index == BUTTON_CLEAN_DONE){
 					if (flag_continue_calib){
-						//make temperature down	
-						/*setTargetHotend0(0);
-						setTargetHotend1(0);
-						setTargetBed(0);*/		
-						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Now clean the rigth extruder and press GO, now start the Z calibration");	
+						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Now clean the rigth \n extruder and press \n GO, now start the Z \n calibration");	
 						if (active_extruder == 0)	{
 							changeTool(1);
 							current_position[X_AXIS] = 155;

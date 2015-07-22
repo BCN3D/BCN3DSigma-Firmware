@@ -1081,11 +1081,9 @@ void get_command()
 		if (flag_pause){
 			enquecommand_P(((PSTR("G69"))));
 			flag_pause = false;
+			Serial.println("pause detected");
 		}
-		if(flag_resume){
-			enquecommand_P(((PSTR("G70"))));
-			flag_resume = false;
-		}
+		
 		//****************************************************/
 		
 		#endif
@@ -3288,7 +3286,7 @@ void process_commands()
 					
 					case 69: //G69 pause
 					{
-					
+					Serial.println("G69 ACTIVATED");
 					////*******SAVE ACTUIAL POSITION
 					saved_position[X_AXIS] = current_position[X_AXIS];
 					saved_position[Y_AXIS] = current_position[Y_AXIS];
@@ -3308,7 +3306,7 @@ void process_commands()
 					else if(current_position[Z_AXIS]>=205) {}														//Move the bed, more or less in function of current_position
 					else current_position[Z_AXIS] += 20;															//
 					int feedrate=homing_feedrate[Z_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
 					
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, 400, active_extruder);	//Retrack
@@ -3317,19 +3315,19 @@ void process_commands()
 					feedrate=homing_feedrate[X_AXIS];
 					if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
 					current_position[X_AXIS] = 0;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					}else{
 					current_position[X_AXIS] = extruder_offset[X_AXIS][1];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					}
 					st_synchronize();
 					//*********************************//
-					
+					flag_pause = false;
 					break;
 					}
 					
 					case 70: //G70 resume
-					
+					Serial.println("G70 ACTIVATED");
 					////*******LOAD ACTUIAL POSITION
 					current_position[Y_AXIS] = saved_position[Y_AXIS];
 					//Serial.println(current_position[Z_AXIS]);
@@ -3339,31 +3337,32 @@ void process_commands()
 					//if(current_position[Z_AXIS]>=extruder_offset[Z_AXIS]) += 20;
 					current_position[Z_AXIS] = saved_position[Z_AXIS];
 					feedrate=homing_feedrate[Z_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
 					//*********************************//
 					
 					
 					////******PURGE   -->> Purge to clean the extruder, retrack to avoid the trickle
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[Z_AXIS] += 1.2, 400, active_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] += 1.2, 400, active_extruder);
 					st_synchronize();
 					delay(300);
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[Z_AXIS] -= 4, 2400, active_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, 2400, active_extruder);
 					st_synchronize();
 					//*********************************//
 					
 					//********MOVE TO ORIGINAL POSITION X
 					current_position[X_AXIS] = saved_position[X_AXIS];
 					feedrate=homing_feedrate[X_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], 0, feedrate/60, active_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
 					//*********************************//
 					
 					//********EXTRACK to keep ready to the new instruction
-					current_position[E_AXIS]+=2;
+					current_position[E_AXIS]+=0; //2
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
 					st_synchronize();
 					//*********************************//
+					flag_resume = false;
 					break;
 
 					case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.

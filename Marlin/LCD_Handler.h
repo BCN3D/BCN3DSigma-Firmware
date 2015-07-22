@@ -602,6 +602,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					card.startFileprint();
 					Serial.println("RESUME!");
 					flag_resume = true;
+					if(flag_resume){
+						enquecommand_P(((PSTR("G70"))));
+						flag_resume = false;
+						Serial.println("resume detected");
+					}
 				}
 				
 				else if (Event.reportObject.index == BUTTON_CHANGE_EXTRUDER)

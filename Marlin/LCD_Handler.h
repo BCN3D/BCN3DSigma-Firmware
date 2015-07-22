@@ -846,8 +846,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					char buffer[count];
 					memset( buffer, '\0', sizeof(char)*count );
 					
-					if (String(card.longFilename).length() > count){
-						for (int i = 0; i<count ; i++)
+					if (String(card.longFilename).length()-6 > count){
+						for (int i = 0; i<count-3 ; i++)
 						{
 							if (card.longFilename[i] == '.') i = count +10;
 							else buffer[i]=card.longFilename[i];
@@ -2316,109 +2316,109 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//USERBUTTONS------------------------------------------------------
 
 				
-				//FORMS--------------------------------------------------------
-				if (Event.reportObject.object == GENIE_OBJ_FORM)
-				{
+			//FORMS--------------------------------------------------------
+			if (Event.reportObject.object == GENIE_OBJ_FORM)
+			{
 				if (Event.reportObject.index == FORM_SDFILES)
 				{
-				//wake_RELAY();
-				Serial.println("Form 2!");
-				////Check sdcardFiles
+					//wake_RELAY();
+					Serial.println("Form 2!");
+					////Check sdcardFiles
 				
-				/*char filename[] = "123456789012345678901234567890.gcode";
-				int count = 18;
-				char buffer[String(filename).length()-6];
-				memset( buffer, '\0', String(filename).length()-6 );
+					/*char filename[] = "123456789012345678901234567890.gcode";
+					int count = 18;
+					char buffer[String(filename).length()-6];
+					memset( buffer, '\0', String(filename).length()-6 );
 				
-				if (String(filename).length()-6 > count){ //because we erase 6 characters of ".gcode"
-				for (int i = 0; i<String(filename).length() ; i++) //we need 3 characters to write "..."
-				{
-				if (filename[i] == '.') i = String(filename).length() +10; //go out of the for
-				else buffer[i]=filename[i];
-				Serial.print(buffer[i]);
-				}
-				Serial.println("");
-				//buffer[count]='\0';
-				//char* buffer2 = strcat(buffer,"...\0");
-				//genie.WriteStr(1,buffer2);//Printing form
-				//***************CIRCLE ARRAY***************
-				char show[count];
-				for (int j = 0; j <= String(buffer).length() + 1; j++){
-				for(int i = 0; i < count; i++){
-				if (i+j == String(buffer).length()) show[i] = ' ';
-				else show[i] = buffer[(i+j)%(String(buffer).length() + 1)];
-				Serial.print(show[i]);
+					if (String(filename).length()-6 > count){ //because we erase 6 characters of ".gcode"
+					for (int i = 0; i<String(filename).length() ; i++) //we need 3 characters to write "..."
+					{
+					if (filename[i] == '.') i = String(filename).length() +10; //go out of the for
+					else buffer[i]=filename[i];
+					Serial.print(buffer[i]);
+					}
+					Serial.println("");
+					//buffer[count]='\0';
+					//char* buffer2 = strcat(buffer,"...\0");
+					//genie.WriteStr(1,buffer2);//Printing form
+					//***************CIRCLE ARRAY***************
+					char show[count];
+					for (int j = 0; j <= String(buffer).length() + 1; j++){
+					for(int i = 0; i < count; i++){
+					if (i+j == String(buffer).length()) show[i] = ' ';
+					else show[i] = buffer[(i+j)%(String(buffer).length() + 1)];
+					Serial.print(show[i]);
 				
-				}
-				Serial.println(" ");
-				delay(500);
-				genie.WriteStr(1,show);
+					}
+					Serial.println(" ");
+					delay(500);
+					genie.WriteStr(1,show);
 				
-				}
-				//////////////////////////////////////////////
-				}
-				else {
-				for (int i = 0; i<String(filename).length() ; i++)	{
-				if (filename[i] == '.') i = String(filename).length() +10; //go out of the for
-				else buffer[i]=filename[i];
-				}
-				buffer[count]='\0';
-				genie.WriteStr(1,buffer);//Printing form
-				//Is a file
-				//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
-				}
-				*/
-				card.initsd();
-				uint16_t fileCnt = card.getnrfilenames();
-				//Declare filepointer
-				card.getWorkDirName();
-				//Text index starts at 0
-				card.getfilename(filepointer);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-				//Is a folder
-				//genie.WriteStr(1,card.longFilename);
-				//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
-				}else{
-				int count = 18;
-				char buffer[String(card.longFilename).length()-6];
-				memset( buffer, '\0', sizeof(char)*count );
+					}
+					//////////////////////////////////////////////
+					}
+					else {
+					for (int i = 0; i<String(filename).length() ; i++)	{
+					if (filename[i] == '.') i = String(filename).length() +10; //go out of the for
+					else buffer[i]=filename[i];
+					}
+					buffer[count]='\0';
+					genie.WriteStr(1,buffer);//Printing form
+					//Is a file
+					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+					}
+					*/
+					card.initsd();
+					uint16_t fileCnt = card.getnrfilenames();
+					//Declare filepointer
+					card.getWorkDirName();
+					//Text index starts at 0
+					card.getfilename(filepointer);
+					Serial.println(card.longFilename);
+					if (card.filenameIsDir)
+					{
+						//Is a folder
+						//genie.WriteStr(1,card.longFilename);
+						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+					}else{
+						int count = 18;
+						char buffer[String(card.longFilename).length()-6];
+						memset( buffer, '\0', sizeof(char)*count );
 				
-				if (String(card.longFilename).length()-6 > count){ //because we erase 6 characters of ".gcode"
-				for (int i = 0; i< count-3; i++) //we need 3 characters to write "..."
-				{
-				if (card.longFilename[i] == '.') i = count +10; //go out of the for
-				else buffer[i]=card.longFilename[i];
-				}
-				//buffer[count]='\0';
-				char* buffer2 = strcat(buffer,"...\0");
-				genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
-				}
-				else {
-				for (int i = 0; i<String(card.longFilename).length() -6; i++)	{
-				if (card.longFilename[i] == '.') i = String(card.longFilename).length() +10; //go out of the for
-				else buffer[i]=card.longFilename[i];
-				}
-				//buffer[count]='\0';
-				genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
-				//Is a file
-				//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
-				}
-				Serial.println(buffer);
-				//***************CIRCLE ARRAY***************
-				/*	char show[count];
-				for (int j = 0; j <= String(card.longFilename).length() + 1; j++){
-				for(int i = 0; i < count; i++){
-				if (i+j == String(card.longFilename).length()) show[i] = ' ';
-				else show[i] = buffer[(i+j)%(String(card.longFilename).length() + 1)];
-				Serial.print(show[i]);
-				delay(1000);
-				}
-				Serial.println("");
-				}*/
-				//////////////////////////////////////////////
-				}
+						if (String(card.longFilename).length()-6 > count){
+							for (int i = 0; i<count-3 ; i++)
+							{
+								if (card.longFilename[i] == '.') i = count +10; //go out of the for
+								else buffer[i]=card.longFilename[i];
+							}
+							//buffer[count]='\0';
+							char* buffer2 = strcat(buffer,"...\0");
+							genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
+						} 
+						else {
+							for (int i = 0; i<String(card.longFilename).length() -6; i++)	{
+								if (card.longFilename[i] == '.') i = String(card.longFilename).length() +10; //go out of the for
+								else buffer[i]=card.longFilename[i];
+							}
+							//buffer[count]='\0';
+							genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
+							//Is a file
+							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+						}
+						Serial.println(buffer);
+						//***************CIRCLE ARRAY***************
+						/*	char show[count];
+						for (int j = 0; j <= String(card.longFilename).length() + 1; j++){
+						for(int i = 0; i < count; i++){
+						if (i+j == String(card.longFilename).length()) show[i] = ' ';
+						else show[i] = buffer[(i+j)%(String(card.longFilename).length() + 1)];
+						Serial.print(show[i]);
+						delay(1000);
+						}
+						Serial.println("");
+						}*/
+					//////////////////////////////////////////////
+					}
 				}
 				
 				else if (Event.reportObject.index == FORM_PAUSE) //NOT USED!!!!!

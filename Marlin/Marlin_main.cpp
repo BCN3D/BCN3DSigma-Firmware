@@ -72,8 +72,7 @@ Genie genie;
 #include <SPI.h>
 #endif
 
-#define VERSION_STRING_FIRMWARE  "firmware version 1.0"
-#define VERSION_STRING_HARDWARE  "hardware version 1.0"
+
 
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
@@ -602,9 +601,7 @@ void setup()
 	MYSERIAL.begin(BAUDRATE);
 	//delay(100);
 	//delay(1000);
-	SERIAL_PROTOCOLLNPGM(VERSION_STRING_FIRMWARE);
-	
-	SERIAL_PROTOCOLLNPGM(VERSION_STRING_HARDWARE);
+	SERIAL_PROTOCOLLNPGM(VERSION_STRING);
 	SERIAL_ECHO_START;
 	SERIAL_PROTOCOLLNPGM("start");
 	

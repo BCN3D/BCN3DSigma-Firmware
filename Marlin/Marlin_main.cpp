@@ -72,7 +72,8 @@ Genie genie;
 #include <SPI.h>
 #endif
 
-#define VERSION_STRING  " 0.1.0b"
+#define VERSION_STRING_FIRMWARE  "firmware version 1.0"
+#define VERSION_STRING_HARDWARE  "hardware version 1.0"
 
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
@@ -594,16 +595,22 @@ void servo_init()
 
 void setup()
 {
+	
 	setup_killpin();
 	setup_powerhold();
 	
 	MYSERIAL.begin(BAUDRATE);
 	//delay(100);
 	//delay(1000);
-	SERIAL_PROTOCOLLNPGM("start");
+	SERIAL_PROTOCOLLNPGM(VERSION_STRING_FIRMWARE);
+	
+	SERIAL_PROTOCOLLNPGM(VERSION_STRING_HARDWARE);
 	SERIAL_ECHO_START;
+	SERIAL_PROTOCOLLNPGM("start");
+	
+	
 	Serial.println("RepRapBCN Sigma");
-	Serial.println(VERSION_STRING);
+	//Serial.println(VERSION_STRING);
 	
 	//LCD START routine
 	#ifdef SIGMA_TOUCH_SCREEN

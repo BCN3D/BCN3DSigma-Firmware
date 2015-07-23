@@ -1042,8 +1042,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					if (!flag_filament_home){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						home_axis_from_code();
-						st_synchronize();
+						
 						flag_filament_home=true;
 					}
 					

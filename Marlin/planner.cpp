@@ -73,7 +73,9 @@ float max_xy_jerk; //speed than can be stopped at once, if i understand correctl
 float max_z_jerk;
 float max_e_jerk;
 float mintravelfeedrate;
+bool quick_start;
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
+
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 // this holds the required transform to compensate for bed level

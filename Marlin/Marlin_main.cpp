@@ -222,6 +222,8 @@ CardReader card;
 
 #endif
 
+
+
 //Rapduch
 #ifdef SIGMA_TOUCH_SCREEN
 bool surfing_utilities = false;
@@ -279,6 +281,7 @@ float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = {false, false, false};
 float zprobe_zoffset;
+//bool quick_guide;
 
 // Extruder offset
 #if EXTRUDERS > 1
@@ -683,9 +686,21 @@ void setup()
 	{
 		fromsd[i] = false;
 	}
-
+	
+	
+	
+	
 	// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 	Config_RetrieveSettings();
+	
+	/*quick_guide = false;
+	enquecommand_P((PSTR("M500"))); //Store changes
+	
+	Config_RetrieveSettings();
+	
+	Serial.print("quick guide ");	
+	if (quick_guide) Serial.println("true");
+	else Serial.println("false");*/
 	
 
 
@@ -759,6 +774,8 @@ void setup()
 
 void loop()
 {
+
+	
 	if(buflen < (BUFSIZE-1))
 	get_command();
 	#ifdef SDSUPPORT

@@ -207,7 +207,7 @@ void setPwmFrequency(uint8_t pin, int val);
   #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
   #define CRITICAL_SECTION_END    SREG = _sreg;
 #endif //CRITICAL_SECTION_START
-
+extern bool home_made;
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern int feedmultiply;

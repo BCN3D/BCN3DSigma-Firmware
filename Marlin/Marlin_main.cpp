@@ -943,15 +943,18 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			{
 				Serial.println("Ready to Insert/Remove");
 				//We have preheated correctly
-				if (filament_mode =='I')
-				{
+				if (filament_mode =='I')				{
+					Serial.println("enter int form 19");					
 					genie.WriteStr(STRING_FILAMENT,"Press GO to Insert Filament");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
+					genie.WriteStr(STRING_FILAMENT,"Press GO to Insert Filament");
 				}
 				else if (filament_mode =='R')
 				{
 					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
+					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament");
+					
 				}
 				else
 				{
@@ -3179,7 +3182,7 @@ void process_commands()
 						
 						//changeToolSigma(LEFT_EXTRUDER);
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
-						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n hotends are heating up");
+						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
 						
 						//Wait until temperature it's okey
@@ -3203,7 +3206,7 @@ void process_commands()
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Y_AXIS]/2, LEFT_EXTRUDER);//move first extruder, bed and Y
 						
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
-						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the left nozzle \nand press GO to move on to the next hotend");
+						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the left nozzle \nand press GO to move on to the next EXTRUDER");
 					}
 					else{
 						#ifdef SIGMA_TOUCH_SCREEN

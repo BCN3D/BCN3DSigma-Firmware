@@ -147,7 +147,7 @@
 
 // LCD Menu Messages
 // Please note these are limited to 17 characters!
-
+	#define LANGUAGE = "ENGLISH"
 	#define WELCOME_MSG MACHINE_NAME " ready."
 	#define MSG_SD_INSERTED "Card inserted"
 	#define MSG_SD_REMOVED "Card removed"
@@ -272,7 +272,8 @@
 
 // LCD Menu Messages
 // Please note these are limited to 17 characters!
-
+	
+	#define LANGUAGE = "Polish"
 	#define WELCOME_MSG MACHINE_NAME " gotowy."
 	#define MSG_SD_INSERTED "Karta wlozona"
 	#define MSG_SD_REMOVED "Karta usunieta"
@@ -400,7 +401,7 @@
 
 // LCD Menu Messages
 // Please note these are limited to 17 characters!
-
+	#define LANGUAGE = "French"
 	#define WELCOME_MSG MACHINE_NAME " prete."
 	#define MSG_SD_INSERTED "Carte inseree"
 	#define MSG_SD_REMOVED "Carte retiree"
@@ -530,7 +531,7 @@
 // Please note these are limited to 17 characters!
 
 	#define WELCOME_MSG MACHINE_NAME " Bereit."
-
+	#define LANGUAGE = "German"
 	#define MSG_SD_INSERTED      "SDKarte erkannt"
 	#define MSG_SD_REMOVED       "SDKarte entfernt"
 	#define MSG_MAIN             "Hauptmenü"
@@ -657,7 +658,7 @@
 
 // LCD Menu Messages
 // Please note these are limited to 17 characters!
-
+	#define LANGUAGE = "Spanish"
 	#define WELCOME_MSG MACHINE_NAME " lista."
 	#define MSG_SD_INSERTED "Tarjeta colocada"
 	#define MSG_SD_REMOVED "Tarjeta retirada"
@@ -791,7 +792,7 @@
 
 // LCD Menu Messages
 // Please note these are limited to 17 characters!
-
+	#define LANGUAGE = "Rushian"
 	#define WELCOME_MSG MACHINE_NAME			        "Готов."
 	#define MSG_SD_INSERTED						"Карта вставлена"
 	#define MSG_SD_REMOVED						"Карта извлечена"
@@ -917,7 +918,7 @@
 
 // LCD Menu Messages
 // Please note these are limited to 17 characters!
-
+	#define LANGUAGE = "Italian"
 	#define WELCOME_MSG MACHINE_NAME " pronto."
 	#define MSG_SD_INSERTED          "SD Card inserita"
 	#define MSG_SD_REMOVED           "SD Card rimossa"
@@ -1043,7 +1044,7 @@
 
 // LCD Menu Messages
 // Please note these are limited to 17 characters!
-
+	#define LANGUAGE = "Portuguese"
 	#define WELCOME_MSG MACHINE_NAME " pronto."
 	#define MSG_SD_INSERTED "Cartao inserido"
 	#define MSG_SD_REMOVED "Cartao removido"

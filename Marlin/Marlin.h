@@ -296,5 +296,6 @@ extern void home_axis_from_code();
 extern float saved_position[NUM_AXIS];
 extern bool flag_continue_calib;
 //extern bool quick_guide;
+//extern int lang;
 
 #endif

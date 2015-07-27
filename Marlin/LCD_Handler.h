@@ -28,6 +28,7 @@ bool flag_full_calib = false;
 int print_setting_tool = 2;
 float offset_x_calib = 0;
 float offset_y_calib = 0;
+
 //Created by Jordi Calduch for RepRapBCN SIGMA 12/2014
 void myGenieEventHandler(void) //Handler for the do.Events() function
 {
@@ -166,14 +167,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						sprintf(buffer, "%3d",tHotend);
 						//Serial.println(buffer);
 						genie.WriteStr(STRING_PRINT_VALUE,buffer);
-						genie.WriteStr(STRING_PRINT_SELECTED,"LEFT HOTEND");
+						genie.WriteStr(STRING_PRINT_SELECTED,"LEFT EXTRUDER");
 						
 						}else if(print_setting_tool == 1){ //RIGHT_EXTRUDER
 						int tHotend1=target_temperature[1];
 						sprintf(buffer, "%3d",tHotend1);
 						//Serial.println(buffer);
 						genie.WriteStr(STRING_PRINT_VALUE,buffer);
-						genie.WriteStr(STRING_PRINT_SELECTED,"RIGTH HOTEND");
+						genie.WriteStr(STRING_PRINT_SELECTED,"RIGTH EXTRUDER");
 					}
 					
 					else if(print_setting_tool == 2){//BED
@@ -223,7 +224,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					int value=1;
 					sprintf(buffer, "%3d",target_temperature[0]);
 					genie.WriteStr(STRING_PRINT_VALUE,buffer);
-					genie.WriteStr(STRING_PRINT_SELECTED,"LEFT HOTEND");
+					genie.WriteStr(STRING_PRINT_SELECTED,"LEFT EXTRUDER");
 					print_setting_tool = 0;
 					
 					
@@ -235,7 +236,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					sprintf(buffer, "%3d",target_temperature[1]);
 					genie.WriteStr(STRING_PRINT_VALUE,buffer);
 					
-					genie.WriteStr(STRING_PRINT_SELECTED,"RIGHT HOTEND");
+					genie.WriteStr(STRING_PRINT_SELECTED,"RIGHT EXTRUDER");
 					print_setting_tool = 1;
 				}
 				else if (Event.reportObject.index == BUTTON_BED )
@@ -1024,7 +1025,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				
 				//NOZZLEBUTTONS-------*/
-				
+				else if (Event.reportObject.index == 148  )
+				{
+					/*int i = (lang%8)+1;					
+					lang = i;
+					enquecommand_P(PSTR("M500"));
+					Serial.println(5,LANGUAGE);*/
+				}
 				
 				//*****INSERT/REMOVE FILAMENT*****
 				#pragma region Insert_Remove_Fil
@@ -1040,11 +1047,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (Event.reportObject.index == BUTTON_INSERT_FIL) filament_mode = 'I'; //Insert Mode
 					else if (Event.reportObject.index == BUTTON_REMOVE_FIL) filament_mode = 'R'; //Remove Mode
 					
-					if (!flag_filament_home){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					/*if (!flag_filament_home){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);		
 						
-						
-					}
+					}*/
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
 				}
@@ -1060,8 +1066,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						which_extruder=1;
 					}
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+					
 					//*********Move the bed down and the extruders inside
 					if (!home_made) home_axis_from_code();
+					
 					int feedrate;
 					if (!flag_filament_home){
 						//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
@@ -1096,14 +1107,20 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//ATTENTION : Order here is important
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
 					if (filament_mode=='I'){
+						genie.WriteStr(STRING_ADVISE_FILAMENT,"");
+						//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
 						setTargetHotend(INSERT_FIL_TEMP,which_extruder);
-						genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
+						
 					}
-					else if (filament_mode=='R'){
+					else if (filament_mode=='R'){		
+						Serial.println("REMOVING");		
+						genie.WriteStr(STRING_ADVISE_FILAMENT,"");
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
-						genie.WriteStr(STRING_ADVISE_FILAMENT,"Press go and it will start to remove the \n filament");
-					}
-					is_changing_filament=true; //We are changing filament					
+				}
+				
+				is_changing_filament=true; //We are changing filament					
 				}
 
 
@@ -2386,7 +2403,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
 					}else{
 						int count = 18;
-						char buffer[String(card.longFilename).length()-6];
+						char buffer[count];
 						memset( buffer, '\0', sizeof(char)*count );
 				
 						if (String(card.longFilename).length()-6 > count){
@@ -2395,7 +2412,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								if (card.longFilename[i] == '.') i = count +10; //go out of the for
 								else buffer[i]=card.longFilename[i];
 							}
-							//buffer[count]='\0';
+							buffer[count]='\0';
 							char* buffer2 = strcat(buffer,"...\0");
 							genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
 						} 

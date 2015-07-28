@@ -93,7 +93,7 @@ void Config_StoreSettings()
   //EEPROM_WRITE_VAR(i,quick_guide);
    
   //Language
-  EEPROM_WRITE_VAR(i,language);
+//  EEPROM_WRITE_VAR(i,language);
 
   
   #ifdef PIDTEMP
@@ -256,7 +256,7 @@ void Config_RetrieveSettings()
 		//EEPROM_READ_VAR(i,quick_guide);
 		
 		//Language
-		EEPROM_READ_VAR(i,language);
+//		EEPROM_READ_VAR(i,language);
 		
 		
 		

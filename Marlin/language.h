@@ -67,27 +67,6 @@
 #define MSG_MARLIN "Marlin_RepRapBCN_Sigma"
 
 
-// Serial Console Messages (do not translate those!)
-/*void updateLanguage(){
-	#if(language == 1)
-		char idiom[] = "English";
-		Serial.println(idiom);
-	#elif (language == 2)
-		char idiom[] = "Polish";
-	#elif (language == 3)
-		char idiom[] = "French";
-	#elif (language == 4)
-		char idiom[] = "German";
-	#elif (language == 5)
-		char idiom[] = "Spanish";
-	#elif (language == 6)
-		char idiom[] = "Russian";
-	#elif (language == 7)
-		char idiom[] = "Italian";
-	#elif (language == 8)
-		char idiom[] = "Portuguese";
-	#endif
-}*/
 
 #define MSG_Enqueing "enqueing \""
 #define MSG_POWERUP "PowerUp"
@@ -167,7 +146,7 @@
 
 // LCD Menu Messages
 // Please note these are limited to 17 characters!
-	#define LANGUAGE = "ENGLISH"
+	#define LANGUAGE  "ENGLISH"
 	#define WELCOME_MSG MACHINE_NAME " ready."
 	#define MSG_SD_INSERTED "Card inserted"
 	#define MSG_SD_REMOVED "Card removed"

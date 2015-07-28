@@ -18,7 +18,10 @@
 // For a Delta printer replace the configuration files with the files in the
 // example_configurations/SCARA directory.
 //
-
+//This is the version declaration for Sigma, v followed by '_' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
+//get the hw and fw version to Cura-BCN3D and update the new firmware
+#define VERSION_STRING  "v_01-1.0.0"
+//#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
@@ -98,6 +101,7 @@
 	#define PROTO1
 	//#define PROTO2
 #endif
+
 
 
 // Define this to set a custom name for your generic Mendel,

@@ -89,6 +89,13 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,extruder_offset[Y_AXIS][RIGHT_EXTRUDER]);
   EEPROM_WRITE_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
   
+  //Quick Start Guide
+  //EEPROM_WRITE_VAR(i,quick_guide);
+   
+  //Language
+  EEPROM_WRITE_VAR(i,language);
+
+  
   #ifdef PIDTEMP
     EEPROM_WRITE_VAR(i,Kp);
     EEPROM_WRITE_VAR(i,Ki);
@@ -245,6 +252,13 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,extruder_offset[Y_AXIS][RIGHT_EXTRUDER]);
 		EEPROM_READ_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
 		
+		//Quick Start Guide
+		//EEPROM_READ_VAR(i,quick_guide);
+		
+		//Language
+		EEPROM_READ_VAR(i,language);
+		
+		
 		
         #ifndef PIDTEMP
         float Kp,Ki,Kd;
@@ -303,6 +317,8 @@ void Config_ResetDefault()
     max_z_jerk=DEFAULT_ZJERK;
     max_e_jerk=DEFAULT_EJERK;
     add_homing[0] = add_homing[1] = add_homing[2] = 0;
+	//quick_guide = DEFAULT_QUICK_GUIDE;
+	
 #ifdef DELTA
 	endstop_adj[0] = endstop_adj[1] = endstop_adj[2] = 0;
 	delta_radius= DELTA_RADIUS;

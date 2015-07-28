@@ -260,6 +260,7 @@
 #define STRING_Y_CAB_VALUE			48
 
 #define STRING_NAME_FILE			1
+#define STRING_CLEAN_INSTRUCTIONS	53
 
 //Form
 #define FORM_SDFILES				2
@@ -334,5 +335,6 @@
 #define BUTTON_INFO_TURN_SCREWS			41
 #define BUTTON_INFO_BED_MUST_CAL		43
 
+#define SOUND_START						0
 
 #endif 

@@ -248,7 +248,7 @@ void SD_firstPrint();
 #endif
 
 
-int language = 0;
+//int language = 0;
 //bool quick_guide = true;	
 
 bool home_made = false;

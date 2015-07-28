@@ -68,6 +68,26 @@
 
 
 // Serial Console Messages (do not translate those!)
+/*void updateLanguage(){
+	#if(language == 1)
+		char idiom[] = "English";
+		Serial.println(idiom);
+	#elif (language == 2)
+		char idiom[] = "Polish";
+	#elif (language == 3)
+		char idiom[] = "French";
+	#elif (language == 4)
+		char idiom[] = "German";
+	#elif (language == 5)
+		char idiom[] = "Spanish";
+	#elif (language == 6)
+		char idiom[] = "Russian";
+	#elif (language == 7)
+		char idiom[] = "Italian";
+	#elif (language == 8)
+		char idiom[] = "Portuguese";
+	#endif
+}*/
 
 #define MSG_Enqueing "enqueing \""
 #define MSG_POWERUP "PowerUp"
@@ -1802,5 +1822,7 @@
 	#define MSG_ENDSTOP_ABORT "Endstop deuseztat"
 	
 #endif
+
+#define IDIOM_CURRENT_LANGUAGE 1
 
 #endif // ifndef LANGUAGE_H

@@ -1025,13 +1025,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				
 				//NOZZLEBUTTONS-------*/
-				else if (Event.reportObject.index == 148  )
+				/*else if (Event.reportObject.index == 148  )
 				{
-					/*int i = (lang%8)+1;					
-					lang = i;
+					language = (language%8)+1;
 					enquecommand_P(PSTR("M500"));
-					Serial.println(5,LANGUAGE);*/
-				}
+					updateLanguage();
+					Serial.println(idiom[IDIOM_CURRENT_LANGUAGE]);
+				}*/
 				
 				//*****INSERT/REMOVE FILAMENT*****
 				#pragma region Insert_Remove_Fil

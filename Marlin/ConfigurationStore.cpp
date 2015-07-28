@@ -90,10 +90,10 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
   
   //Quick Start Guide
-   // EEPROM_WRITE_VAR(i,quick_guide);
+  //EEPROM_WRITE_VAR(i,quick_guide);
    
   //Language
-  //EEPROM_WRITE_VAR(i,lang);
+  EEPROM_WRITE_VAR(i,language);
 
   
   #ifdef PIDTEMP
@@ -253,11 +253,12 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
 		
 		//Quick Start Guide
+		//EEPROM_READ_VAR(i,quick_guide);
 		
 		//Language
-		//EEPROM_READ_VAR(i,lang);
+		EEPROM_READ_VAR(i,language);
 		
-		//EEPROM_READ_VAR(i,quick_guide);
+		
 		
         #ifndef PIDTEMP
         float Kp,Ki,Kd;

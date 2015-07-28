@@ -247,6 +247,10 @@ bool firstime = true;
 void SD_firstPrint();
 #endif
 
+
+int language = 0;
+//bool quick_guide = true;	
+
 bool home_made = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
@@ -281,7 +285,6 @@ float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = {false, false, false};
 float zprobe_zoffset;
-//bool quick_guide;
 
 // Extruder offset
 #if EXTRUDERS > 1
@@ -693,14 +696,7 @@ void setup()
 	// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 	Config_RetrieveSettings();
 	
-	/*quick_guide = false;
-	enquecommand_P((PSTR("M500"))); //Store changes
 	
-	Config_RetrieveSettings();
-	
-	Serial.print("quick guide ");	
-	if (quick_guide) Serial.println("true");
-	else Serial.println("false");*/
 	
 
 
@@ -769,6 +765,12 @@ void setup()
 	//enquecommand_P(PSTR("M24"));
 	#endif
 
+
+	/*if (quick_guide) {
+		Serial.println("Welcome by first time to SIGMA");
+		quick_guide =false;
+		enquecommand_P(PSTR("M500"));
+	}*/
 }
 
 

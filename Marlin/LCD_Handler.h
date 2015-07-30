@@ -1099,7 +1099,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					current_position[Z_AXIS]=Z_MAX_POS-5;
 					feedrate=homing_feedrate[Z_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*4/60, active_extruder); //check speed
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*2/60, active_extruder); //check speed
 					
 					
 					/****************************************************/
@@ -1107,15 +1107,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//ATTENTION : Order here is important
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
 					if (filament_mode=='I'){
-						genie.WriteStr(STRING_ADVISE_FILAMENT,"");
+						//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
 						//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
 						setTargetHotend(INSERT_FIL_TEMP,which_extruder);
 						
 					}
 					else if (filament_mode=='R'){		
-						Serial.println("REMOVING");		
-						genie.WriteStr(STRING_ADVISE_FILAMENT,"");
+						//Serial.println("REMOVING");		
+						//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
 				}
@@ -1230,27 +1230,26 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}*/
 				
 				else if (Event.reportObject.index == BUTTON_CLEAN_DONE){
-				if (flag_continue_calib){
-				genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \nand press GO, \nthen the Z calibration will start\n");
-				if (active_extruder == 0)	{
-				changeTool(1);
-				current_position[X_AXIS] = 155;
-				current_position[Y_AXIS] = 0;
-				current_position[Z_AXIS] = 100;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0, 50, active_extruder);//move first extruder, bed and Y
-				} else {
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
-				genie.WriteStr(STRING_AXEL,"        Z AXIS");
-				if (active_extruder == 1) changeTool(0);
-				home_axis_from_code();
-				st_synchronize();
-				enquecommand_P(PSTR("G43"));
-				flag_continue_calib = false;
-				genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
-				}
-				
-				}
-				
+					if (flag_continue_calib){
+						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO, \n then the Z calibration will start");
+						if (active_extruder == 0)	{
+							enquecommand_P(PSTR("G28 X0"));
+							changeTool(1);
+							current_position[X_AXIS] = 155;
+							current_position[Y_AXIS] = 0;
+							current_position[Z_AXIS] = 100;
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);//move first extruder, bed and Y
+						} else {
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+							genie.WriteStr(STRING_AXEL,"        Z AXIS");
+							if (active_extruder == 1) changeTool(0);
+							home_axis_from_code();
+						st_synchronize();
+						enquecommand_P(PSTR("G43"));
+						flag_continue_calib = false;
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+						}				
+					}				
 				}
 				
 				else if(Event.reportObject.index == BUTTON_CLEAN_CHANGE){
@@ -1415,7 +1414,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
 				sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
 				//genie.WriteStr(STRING_BED_SCREW2,buffer);
-				if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,2);
+				if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,0);
 				else{genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,0);}
 				if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2);} //The direction is inverted in Sigma's bed screws
 				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2+8);}
@@ -2287,7 +2286,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW1,0);
 				sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
 				//genie.WriteStr(STRING_BED_SCREW1,buffer);
-				if (vuitens2==0 && vuitens3==0) {genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,2);}
+				if (vuitens2==0 && vuitens3==0) {genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,0);}
 				else{genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,0);}
 				if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,vuitens1);} //The direction is inverted in Sigma's bed screws
 				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,vuitens1+8);}
@@ -2297,7 +2296,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
 				sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
 				//genie.WriteStr(STRING_BED_SCREW2,buffer);
-				if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,2);
+				if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,0);
 				if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2);} //The direction is inverted in Sigma's bed screws
 				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2+8);}
 				}

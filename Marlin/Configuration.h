@@ -184,8 +184,8 @@
 #define BED_MINTEMP 5
 
 //To clean the extruder's the best temperature configuration
-#define EXTRUDER_LEFT_CLEAN_TEMP 150
-#define EXTRUDER_RIGHT_CLEAN_TEMP 150
+#define EXTRUDER_LEFT_CLEAN_TEMP 170
+#define EXTRUDER_RIGHT_CLEAN_TEMP 170
 
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!

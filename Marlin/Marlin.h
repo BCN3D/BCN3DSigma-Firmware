@@ -299,4 +299,5 @@ extern bool flag_continue_calib;
 //extern int language;
 //extern const char idiom[50][50]; 
 //extern void updateLanguage();
+extern float x_home_pos(int extruder);
 #endif

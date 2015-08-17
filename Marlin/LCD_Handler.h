@@ -1238,21 +1238,28 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (flag_continue_calib){
 						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO, \n then the Z calibration will start");
 						if (active_extruder == 0)	{
-							enquecommand_P(PSTR("G28 X0"));
+							current_position[X_AXIS] = 0;
+							current_position[Y_AXIS] = 0;
+							current_position[Z_AXIS] = 100;
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
+							st_synchronize();
+							
 							changeTool(1);
 							current_position[X_AXIS] = 155;
 							current_position[Y_AXIS] = 0;
 							current_position[Z_AXIS] = 100;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);//move first extruder, bed and Y
-						} else {
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], RIGHT_EXTRUDER);//move first extruder, bed and Y
+							st_synchronize();
+						} 
+						else {
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 							genie.WriteStr(STRING_AXEL,"        Z AXIS");
-							if (active_extruder == 1) changeTool(0);
+							changeTool(0);
 							home_axis_from_code();
-						st_synchronize();
-						enquecommand_P(PSTR("G43"));
-						flag_continue_calib = false;
-						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+							st_synchronize();
+							enquecommand_P(PSTR("G43"));
+							flag_continue_calib = false;
+							genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
 						}				
 					}				
 				}
@@ -1492,11 +1499,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 				//enquecommand_P((PSTR("M218 T1 X-0.5")));
 				enquecommand_P((PSTR("M500"))); //Store changes
+				st_synchronize();
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				if(flag_full_calib){
 				//enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G41"));
 				st_synchronize();
+				enquecommand_P(PSTR("G41"));
+				
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				genie.WriteStr(STRING_AXEL,"Y AXIS, Heating");
 				
@@ -1512,8 +1521,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				enquecommand_P((PSTR("M500"))); //Store changes
 				if(flag_full_calib){
 				//enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G41"));
 				st_synchronize();
+				enquecommand_P(PSTR("G41"));
+			
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				genie.WriteStr(STRING_AXEL,"Y AXIS, Heating");
 				
@@ -1529,8 +1539,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				enquecommand_P((PSTR("M500"))); //Store changes
 				if(flag_full_calib){
 				//enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G41"));
 				st_synchronize();
+				enquecommand_P(PSTR("G41"));
+				
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				genie.WriteStr(STRING_AXEL,"Y AXIS, Heating");
 				
@@ -1546,8 +1557,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				enquecommand_P((PSTR("M500"))); //Store changes
 				if(flag_full_calib){
 				//enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G41"));
 				st_synchronize();
+				enquecommand_P(PSTR("G41"));
+				
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				genie.WriteStr(STRING_AXEL,"Y AXIS, Heating");
 				
@@ -1563,8 +1575,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				enquecommand_P((PSTR("M500"))); //Store changes
 				if(flag_full_calib){
 				//enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G41"));
 				st_synchronize();
+				enquecommand_P(PSTR("G41"));
+				
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				genie.WriteStr(STRING_AXEL,"Y AXIS, Heating");
 				
@@ -1580,8 +1593,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				enquecommand_P((PSTR("M500"))); //Store changes
 				if(flag_full_calib){
 				//enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G41"));
 				st_synchronize();
+				enquecommand_P(PSTR("G41"));
+				
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				genie.WriteStr(STRING_AXEL,"Y AXIS, Heating");
 				
@@ -1597,8 +1611,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				enquecommand_P((PSTR("M500"))); //Store changes
 				if(flag_full_calib){
 				//enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G41"));
 				st_synchronize();
+				enquecommand_P(PSTR("G41"));
+				
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				genie.WriteStr(STRING_AXEL,"Y AXIS, Heating");
 				
@@ -1614,8 +1629,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				enquecommand_P((PSTR("M500"))); //Store changes
 				if(flag_full_calib){
 				//enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G41"));
 				st_synchronize();
+				enquecommand_P(PSTR("G41"));
+				
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				genie.WriteStr(STRING_AXEL,"Y AXIS, Heating");
 				
@@ -1636,8 +1652,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				if(flag_full_calib){
 				//enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G41"));
 				st_synchronize();
+				enquecommand_P(PSTR("G41"));
+				
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				genie.WriteStr(STRING_AXEL,"Y AXIS, Heating");
 				
@@ -1653,8 +1670,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				enquecommand_P((PSTR("M500"))); //Store changes
 				if(flag_full_calib){
 				//enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G41"));
 				st_synchronize();
+				enquecommand_P(PSTR("G41"));
+				
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				genie.WriteStr(STRING_AXEL,"Y AXIS, Heating");
 				
@@ -1854,16 +1872,17 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				Serial.print("Z2 Offset: ");
 				Serial.println(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
 				enquecommand_P(PSTR("M500"));//Store everything
-				enquecommand_P(PSTR("T0"));
-				enquecommand_P(PSTR("G28"));
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
-				
+				enquecommand_P(PSTR("T0"));				
+				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);				
 				//enquecommand_P(PSTR("G28"));
 				enquecommand_P(PSTR("G40"));
 				st_synchronize();
+				
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				genie.WriteStr(STRING_AXEL,"X AXIS, Heating...");
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				//enquecommand_P(PSTR("G28")); //mounting serie
+				//st_synchronize();
 				#ifdef SIGMA_TOUCH_SCREEN
 				#endif
 				}

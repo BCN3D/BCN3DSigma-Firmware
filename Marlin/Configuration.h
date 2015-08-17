@@ -464,7 +464,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#define X_MAX_POS 312.4//312 //Distance between extruders
+	#define X_MAX_POS 303.9//312 //Distance between extruders
 	//#define X_MAX_POS 210 //Bed X
 	#define X_MIN_POS 0
 	#define Y_MAX_POS 295
@@ -718,10 +718,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
 	
 	//Right extruder probe point
-	#define X_SIGMA_PROBE_1_RIGHT_EXTR 254.5
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 249//254.5
 	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_RIGHT_EXTR 255
+	#define X_SIGMA_PROBE_2_RIGHT_EXTR 249//255
 	//#define X_SIGMA_PROBE_2_RIGHT_EXTR 204
 	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
 	

@@ -953,9 +953,9 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				}
 				else if (filament_mode =='R')
 				{
-					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament,\n move the reel to avoid tangling");
+					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament,\n move the spool to save the filament");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
-					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament,\n move the reel to avoid tangling");
+					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament,\n move the spool to save the filament");
 					
 				}
 				else
@@ -2178,6 +2178,7 @@ void process_commands()
 					
 					manage_heater();
 				}
+				 
 				
 				//Raise for a layer of Z=0.2
 				current_position[Z_AXIS]+=0.65; //0.5 + 0.15 per ajustar una bona alçada
@@ -2926,8 +2927,12 @@ void process_commands()
 				
 				break; //G33 ends
 			}
-
-
+			/*case 999: // G34 Performs a BED calibration Wizard with TouchScreen Integration
+			{
+				Serial.println(VERSION_STRING);
+				break;
+			}
+			*/
 			//Rapduch
 			#ifdef SIGMA_BED_AUTOCALIB
 			case 34: // G34 Performs a BED calibration Wizard with TouchScreen Integration
@@ -3200,6 +3205,7 @@ void process_commands()
 						active_extruder = LEFT_EXTRUDER;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 						genie.WriteStr(STRING_AXEL,"        Z AXIS");
+						delay(1500);
 						
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
 						

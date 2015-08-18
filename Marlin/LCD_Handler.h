@@ -843,24 +843,46 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 					}
 					Serial.println(card.longFilename);
-					int count = 18;
-					char buffer[count];
+					int line = 23;
+					int count = 63;
+					char buffer[count+3];
+					int x = 0;
 					memset( buffer, '\0', sizeof(char)*count );
 					
-					if (String(card.longFilename).length()-6 > count){
-						for (int i = 0; i<count-3 ; i++)
+					if (String(card.longFilename).length() > count){
+						for (int i = 0; i<count ; i++)
 						{
 							if (card.longFilename[i] == '.') i = count +10;
-							else buffer[i]=card.longFilename[i];
+							else if(i == 0) buffer[i]=card.longFilename[x];
+							else if (i%line == 0){
+								buffer[i] = '\n';
+								i++;
+								buffer[i]=card.longFilename[x];
+							}
+							else {
+								buffer[i]=card.longFilename[x];
+							}
+							Serial.print(i);
+							x++;
 						}
 						buffer[count]='\0';
 						char* buffer2 = strcat(buffer,"...\0");
 						genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
 					}
 					else {
-						for (int i = 0; i<String(card.longFilename).length() ; i++)	{
+						for (int i = 0; i<=String(card.longFilename).length() ; i++)	{
 							if (card.longFilename[i] == '.') i = count +10;
-							else buffer[i]=card.longFilename[i];
+							else if(i == 0) buffer[i]=card.longFilename[x];
+							else if (i%line == 0){
+								buffer[i] = '\n';
+								i++;
+								buffer[i]=card.longFilename[x];
+							}
+							else {
+								buffer[i]=card.longFilename[x];
+							}
+							Serial.print(i);
+							x++;
 						}
 						buffer[count]='\0';
 						genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
@@ -868,18 +890,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 						
 					}
-					//***************CIRCLE ARRAY***************
-					/*char show[count];
-					for (int j = 0; j <= String(card.longFilename).length() + 1; j++){
-					for(int i = 0; i < count; i++){
-					if (i+j == String(card.longFilename).length()) show[i] = ' ';
-					else show[i] = buffer[(i+j)%(String(card.longFilename).length() + 1)];
-					Serial.print(show[i]);
-					delay(1000);
-					}
-					Serial.println("");
-					}*/
-					//////////////////////////////////////////////
+					
 					//Keep in mind to control the length of the string displayed!
 					//genie.WriteStr(2,card.longFilename);
 					Serial.print("Image n: ");
@@ -1067,6 +1078,45 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						which_extruder=1;
 					}
 					
+					
+					if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					else {
+						//*********Move the bed down and the extruders inside
+						if (!home_made) home_axis_from_code();
+					
+						int feedrate;
+						if (!flag_filament_home){
+							//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
+							//current_position[X_AXIS]+=25;						
+							enquecommand_P(PSTR("G28 X0 Y0"));
+							st_synchronize();
+							
+							flag_filament_home=true;
+						}		
+					
+						current_position[Z_AXIS]=Z_MAX_POS-5;
+						feedrate=homing_feedrate[Z_AXIS];
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*2/60, active_extruder); //check speed
+										
+						/****************************************************/
+					
+						//ATTENTION : Order here is important
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
+						
+						//Serial.println("REMOVING");		
+						//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
+						delay(3500);
+						setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
+						
+				
+						is_changing_filament=true; //We are changing filament	
+					}	
+				}
+				
+				else if (Event.reportObject.index == BUTTON_INFO_FIL_INSERTED)
+				{
+					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					
 					
@@ -1078,7 +1128,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
 						//current_position[X_AXIS]+=25;
 						
-						current_position[X_AXIS] = x_home_pos(LEFT_EXTRUDER)+25;
+						enquecommand_P(PSTR("G28 X0 Y0"));
+						st_synchronize();
+						/*current_position[X_AXIS] = x_home_pos(LEFT_EXTRUDER)+25;
 						feedrate=homing_feedrate[X_AXIS];
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 						st_synchronize();
@@ -1090,14 +1142,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//current_position[X_AXIS]-=25;
 						current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER)-25;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
-						st_synchronize();
+						st_synchronize();*/
 						flag_filament_home=true;
 					}
 					
-					current_position[Y_AXIS]=285;
+					/*current_position[Y_AXIS]=285;
 					feedrate=homing_feedrate[Y_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-					st_synchronize();
+					st_synchronize();*/
 					
 					current_position[Z_AXIS]=Z_MAX_POS-5;
 					feedrate=homing_feedrate[Z_AXIS];
@@ -1107,24 +1159,23 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					/****************************************************/
 					
 					//ATTENTION : Order here is important
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
-					if (filament_mode=='I'){
-						//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
-						//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
-						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
-						setTargetHotend(INSERT_FIL_TEMP,which_extruder);
-						delay(3500);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);					
+					//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
+					//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
+					setTargetHotend(INSERT_FIL_TEMP,which_extruder);
+					delay(3500);
 						
-					}
-					else if (filament_mode=='R'){		
+					
+					/*else if (filament_mode=='R'){		
 						//Serial.println("REMOVING");		
 						//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						delay(3500);
 						setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
-				}
+					}*/
 				
-				is_changing_filament=true; //We are changing filament					
+					is_changing_filament=true; //We are changing filament					
 				}
 
 
@@ -1140,9 +1191,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{// We should have already checked if filament is inserted
 					if (filament_mode =='I')
 					{ //Inserting...
+						delay(1000);
 						Serial.print("Inserting :   ");
 						current_position[E_AXIS] += 15;//Extra extrusion at low feedrate
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  850/60, which_extruder);
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  700/60, which_extruder); //850/60
 						current_position[E_AXIS] += (BOWDEN_LENGTH-EXTRUDER_LENGTH);//BOWDEN_LENGTH-300+340);
 						Serial.println(current_position[E_AXIS]);
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
@@ -1201,60 +1253,39 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				
 				//Extruder Calibrations-------------------------------------------------
-				/*else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_X)
-				{
-				enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G40"));
-				
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-				}
-				
-				
-				//else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_Y)*/
 				else if (Event.reportObject.index == BUTTON_CAL_FULL)
 				{
 				flag_full_calib = true;
 				enquecommand_P(PSTR("G28"));
 				enquecommand_P(PSTR("T0"));
 				enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
-				
+				changeTool(0);
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 				genie.WriteStr(STRING_AXEL,"BED");
-				st_synchronize();
+				st_synchronize();				
 				
-				/*enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G41"));		//CALIB Y
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);*/
 				}
-				
-				/*else if (Event.reportObject.index == BUTTON_CAL_EXTRUDERS_Z)
-				{
-				enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G43"));
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-				}*/
 				
 				else if (Event.reportObject.index == BUTTON_CLEAN_DONE){
 					if (flag_continue_calib){
 						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO, \n then the Z calibration will start");
 						if (active_extruder == 0)	{
 							current_position[X_AXIS] = 0;
-							current_position[Y_AXIS] = 0;
-							current_position[Z_AXIS] = 100;
+							current_position[Y_AXIS] = 0;							
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
 							st_synchronize();
 							
-							changeTool(1);
+							active_extruder = 1;
+							//changeTool(1);
 							current_position[X_AXIS] = 155;
 							current_position[Y_AXIS] = 0;
-							current_position[Z_AXIS] = 100;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], RIGHT_EXTRUDER);//move first extruder, bed and Y
 							st_synchronize();
 						} 
 						else {
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 							genie.WriteStr(STRING_AXEL,"        Z AXIS");
-							changeTool(0);
+							active_extruder=1;
 							home_axis_from_code();
 							st_synchronize();
 							enquecommand_P(PSTR("G43"));
@@ -1404,63 +1435,63 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region Bed Calibration
 				else if (Event.reportObject.index == BUTTON_Z_CAL_WIZARD)
 				{
-				flag_full_calib = false;
-				enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("T0"));
-				enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					flag_full_calib = false;
+					enquecommand_P(PSTR("G28"));					
+					enquecommand_P(PSTR("T0"));
+					enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_REDO_BED_CALIB )
-				{
-				enquecommand_P((PSTR("G28")));
-				enquecommand_P((PSTR("T0")));
-				enquecommand_P((PSTR("G34")));
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+				{			
+					enquecommand_P(PSTR("G28"));	
+					enquecommand_P((PSTR("T0")));
+					enquecommand_P((PSTR("G34")));
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_BED_CALIB_SW2)
 				{
-				char buffer[256];
-				if (vuitens2!=0){
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
-				sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
-				//genie.WriteStr(STRING_BED_SCREW2,buffer);
-				if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,0);
-				else{genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,0);}
-				if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2);} //The direction is inverted in Sigma's bed screws
-				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2+8);}
+					char buffer[256];
+					if (vuitens2!=0){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
+						sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
+						//genie.WriteStr(STRING_BED_SCREW2,buffer);
+						if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,0);
+						else{genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,0);}
+						if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2);} //The direction is inverted in Sigma's bed screws
+						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2+8);}
 				
-				}else if (vuitens3!=0)
-				{
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
-				sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
-				//genie.WriteStr(STRING_BED_SCREW3,buffer);
-				if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
-				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
-				}else{
-				enquecommand_P((PSTR("G28")));
-				enquecommand_P((PSTR("T0")));
-				enquecommand_P((PSTR("G34")));
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-				}
+					}else if (vuitens3!=0)
+					{
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
+						sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
+						//genie.WriteStr(STRING_BED_SCREW3,buffer);
+						if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
+						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
+					}else{
+						enquecommand_P(PSTR("G28"));
+						enquecommand_P((PSTR("T0")));
+						enquecommand_P((PSTR("G34")));
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					}
 				}
 				
 				else if (Event.reportObject.index == BUTTON_BED_CALIB_SW3)
 				{
-				char buffer[256];
-				if (vuitens3!=0){
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
-				sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
-				//genie.WriteStr(STRING_BED_SCREW3,buffer);
-				if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
-				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
-				}else{
-				enquecommand_P((PSTR("G28")));
-				enquecommand_P((PSTR("T0")));
-				enquecommand_P((PSTR("G34")));
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-				}
+					char buffer[256];
+					if (vuitens3!=0){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
+						sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
+						//genie.WriteStr(STRING_BED_SCREW3,buffer);
+						if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
+						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
+					}else{				
+						enquecommand_P(PSTR("G28"));
+						enquecommand_P((PSTR("T0")));
+						enquecommand_P((PSTR("G34")));
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					}
 				}
 				#pragma endregion Bed Calibration
 				
@@ -1867,24 +1898,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_OK)
 				{
-				Serial.println("OK second Extruder!");
-				extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=current_position[Z_AXIS];//Add the difference to the current offset value
-				Serial.print("Z2 Offset: ");
-				Serial.println(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
-				enquecommand_P(PSTR("M500"));//Store everything
-				enquecommand_P(PSTR("T0"));				
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);				
-				//enquecommand_P(PSTR("G28"));
-				enquecommand_P(PSTR("G40"));
-				st_synchronize();
+					Serial.println("OK second Extruder!");
+					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=current_position[Z_AXIS];//Add the difference to the current offset value
+					Serial.print("Z2 Offset: ");
+					Serial.println(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
+					enquecommand_P(PSTR("M500"));//Store everything
+					enquecommand_P(PSTR("T0"));				
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);				
+					//enquecommand_P(PSTR("G28"));
+					enquecommand_P(PSTR("G40"));
+					st_synchronize();
 				
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
-				genie.WriteStr(STRING_AXEL,"X AXIS, Heating...");
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-				//enquecommand_P(PSTR("G28")); //mounting serie
-				//st_synchronize();
-				#ifdef SIGMA_TOUCH_SCREEN
-				#endif
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"X AXIS, Heating...");
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+					//enquecommand_P(PSTR("G28")); //mounting serie
+					//st_synchronize();
+					#ifdef SIGMA_TOUCH_SCREEN
+					#endif
 				}
 				
 				#pragma endregion CalibrationsXYZ
@@ -2251,11 +2282,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
 				}
 				
-				//Backing from INFO SCREENS
-				else if (Event.reportObject.index == BACKBUTTON_INFO_FIL_INSERTED)
-				{
-				
-				}
 				
 				//Backing from INFO SCREENS
 				else if (Event.reportObject.index == BACKBUTTON_INFO_PLACE_FIL)
@@ -2263,6 +2289,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				setTargetHotend0(0);
 				setTargetHotend1(0);
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
+				}
+				
+				else if (Event.reportObject.index == BACKBUTTON_INSERT)
+				{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
 				}
 				
 				//Backing from INFO SCREENS
@@ -2367,51 +2398,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					//wake_RELAY();
 					Serial.println("Form 2!");
-					////Check sdcardFiles
-				
-					/*char filename[] = "123456789012345678901234567890.gcode";
-					int count = 18;
-					char buffer[String(filename).length()-6];
-					memset( buffer, '\0', String(filename).length()-6 );
-				
-					if (String(filename).length()-6 > count){ //because we erase 6 characters of ".gcode"
-					for (int i = 0; i<String(filename).length() ; i++) //we need 3 characters to write "..."
-					{
-					if (filename[i] == '.') i = String(filename).length() +10; //go out of the for
-					else buffer[i]=filename[i];
-					Serial.print(buffer[i]);
-					}
-					Serial.println("");
-					//buffer[count]='\0';
-					//char* buffer2 = strcat(buffer,"...\0");
-					//genie.WriteStr(1,buffer2);//Printing form
-					//***************CIRCLE ARRAY***************
-					char show[count];
-					for (int j = 0; j <= String(buffer).length() + 1; j++){
-					for(int i = 0; i < count; i++){
-					if (i+j == String(buffer).length()) show[i] = ' ';
-					else show[i] = buffer[(i+j)%(String(buffer).length() + 1)];
-					Serial.print(show[i]);
-				
-					}
-					Serial.println(" ");
-					delay(500);
-					genie.WriteStr(1,show);
-				
-					}
-					//////////////////////////////////////////////
-					}
-					else {
-					for (int i = 0; i<String(filename).length() ; i++)	{
-					if (filename[i] == '.') i = String(filename).length() +10; //go out of the for
-					else buffer[i]=filename[i];
-					}
-					buffer[count]='\0';
-					genie.WriteStr(1,buffer);//Printing form
-					//Is a file
-					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
-					}
-					*/
+					////Check sdcardFiles			
+					
 					card.initsd();
 					uint16_t fileCnt = card.getnrfilenames();
 					//Declare filepointer
@@ -2425,43 +2413,54 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//genie.WriteStr(1,card.longFilename);
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
 					}else{
-						int count = 18;
-						char buffer[count];
+						
+						int line = 23;
+						int count = 63;
+						char buffer[count+3];
+						int x = 0;
 						memset( buffer, '\0', sizeof(char)*count );
 				
-						if (String(card.longFilename).length()-6 > count){
-							for (int i = 0; i<count-3 ; i++)
+						if (String(card.longFilename).length() > count){
+							for (int i = 0; i<count ; i++)
 							{
 								if (card.longFilename[i] == '.') i = count +10; //go out of the for
-								else buffer[i]=card.longFilename[i];
+								else if(i == 0) buffer[i]=card.longFilename[x];
+								else if (i%line == 0){									
+									buffer[i] = '\n';
+									i++;
+									buffer[i]=card.longFilename[x];																																		
+								} 
+								else {
+									buffer[i]=card.longFilename[x];
+								}
+								x++;
+								Serial.print(i);
 							}
 							buffer[count]='\0';
 							char* buffer2 = strcat(buffer,"...\0");
 							genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
 						} 
 						else {
-							for (int i = 0; i<String(card.longFilename).length() -6; i++)	{
+							for (int i = 0; i<String(card.longFilename).length(); i++)	{
 								if (card.longFilename[i] == '.') i = String(card.longFilename).length() +10; //go out of the for
-								else buffer[i]=card.longFilename[i];
+								else if(i == 0) buffer[i]=card.longFilename[x];
+								else if (i%line == 0){									
+									buffer[i] = '\n';
+									i++;
+									buffer[i]=card.longFilename[x];								
+								}
+								else {
+									buffer[i]=card.longFilename[x];
+								}
+								x++;
+								Serial.print(i);
 							}
 							//buffer[count]='\0';
 							genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
 							//Is a file
 							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 						}
-						Serial.println(buffer);
-						//***************CIRCLE ARRAY***************
-						/*	char show[count];
-						for (int j = 0; j <= String(card.longFilename).length() + 1; j++){
-						for(int i = 0; i < count; i++){
-						if (i+j == String(card.longFilename).length()) show[i] = ' ';
-						else show[i] = buffer[(i+j)%(String(card.longFilename).length() + 1)];
-						Serial.print(show[i]);
-						delay(1000);
-						}
-						Serial.println("");
-						}*/
-					//////////////////////////////////////////////
+						Serial.println(buffer);						
 					}
 				}
 				

@@ -771,6 +771,7 @@ void setup()
 		quick_guide =false;
 		enquecommand_P(PSTR("M500"));
 	}*/
+	
 }
 
 
@@ -2927,27 +2928,23 @@ void process_commands()
 				
 				break; //G33 ends
 			}
-			/*case 999: // G34 Performs a BED calibration Wizard with TouchScreen Integration
-			{
-				Serial.println(VERSION_STRING);
-				break;
-			}
-			*/
+			
 			//Rapduch
 			#ifdef SIGMA_BED_AUTOCALIB
 			case 34: // G34 Performs a BED calibration Wizard with TouchScreen Integration
 			{
-				/*extruder_offset[X_AXIS][RIGHT_EXTRUDER]-= 30;
-				//enquecommand_P((PSTR("M218 T1 X-0.5")));
-				enquecommand_P((PSTR("M500"))); //Store changes*/
+				
 				
 				//WARNING: T0 (LEFT_EXTRUDER) MUST BE SELECTED!
 				if (active_extruder==RIGHT_EXTRUDER){
 					Serial.println("Error: Left Extruder MUST BE ACTIVE");
 					break; //An error message should show up on screen
 				}
-				setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
-				setTargetHotend1(EXTRUDER_LEFT_CLEAN_TEMP);
+				
+				if (flag_full_calib){
+					setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
+					setTargetHotend1(EXTRUDER_LEFT_CLEAN_TEMP);
+				}
 				
 				#if Z_MIN_PIN == -1
 				#error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
@@ -2975,7 +2972,7 @@ void process_commands()
 				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 				
 				//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
-				current_position[X_AXIS]+=15;
+				current_position[X_AXIS] += 15;//x_home_pos(LEFT_EXTRUDER)+15;
 				feedrate=homing_feedrate[X_AXIS];
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 				st_synchronize();
@@ -2992,7 +2989,7 @@ void process_commands()
 				active_extruder=LEFT_EXTRUDER;
 				axis_is_at_home(X_AXIS);
 				current_position[X_AXIS]+=15;
-				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]); // We are now at position
+				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]); // We are now at position*/
 				st_synchronize();
 				
 				//STARTING THE ACTUAL PROBE
@@ -3010,8 +3007,7 @@ void process_commands()
 				float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 				float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 				
-				feedrate=homing_feedrate[Z_AXIS];
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+				
 				//feedrate=homing_feedrate[X_AXIS];
 				feedrate = XY_TRAVEL_SPEED;
 				current_position[X_AXIS]=x_home_pos(active_extruder)+15;
@@ -3229,11 +3225,12 @@ void process_commands()
 						
 						//MOVE EXTRUDERS
 						current_position[Z_AXIS] = 100;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/3, LEFT_EXTRUDER);//move first extruder, bed and Y
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS], LEFT_EXTRUDER);//move bed
+						st_synchronize();
 						current_position[X_AXIS] = 155;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder, bed and Y
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
 						current_position[Y_AXIS] = 0;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Y_AXIS]/3, LEFT_EXTRUDER);//move first extruder, bed and Y
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Y_AXIS]/3, LEFT_EXTRUDER);//move Y
 						
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
 						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the left nozzle \n and press GO to move on to \n the next EXTRUDER");

@@ -268,7 +268,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						case 0: //LEFT EXTRUDER
 						
-						if (target_temperature[0]<HEATER_0_MAXTEMP)
+						if (target_temperature[0] < HEATER_0_MAXTEMP)
 						{
 							target_temperature[0]+=value;
 							sprintf(buffer, "%3d",target_temperature[0]);
@@ -278,7 +278,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						case 1: //RIGHT EXTRUDER
 						
-						if (target_temperature[1]<HEATER_1_MAXTEMP)
+						if (target_temperature[1]< HEATER_1_MAXTEMP)
 						{
 							target_temperature[1]+=value;
 							sprintf(buffer, "%3d",target_temperature[1]);
@@ -289,7 +289,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						case 2: //BED
 						
 						//if (target_temperature_bed<BED_MAXTEMP)
-						if (target_temperature_bed<BED_MAXTEMP)//MaxTemp
+						if (target_temperature_bed < BED_MAXTEMP)//MaxTemp
 						{
 							target_temperature_bed+=value;
 							sprintf(buffer, "%3d",target_temperature_bed);
@@ -299,7 +299,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						case 3: //SPEED
 						
-						if (feedmultiply<200)
+						if (feedmultiply < 200)
 						{
 							feedmultiply+=value;
 							sprintf(buffer, "%3d %%",feedmultiply);
@@ -315,20 +315,29 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					switch (print_setting_tool)
 					{
 						case 0: //LEFT EXTRUDER
-						if (target_temperature[0]<HEATER_0_MAXTEMP)
+						if (target_temperature[0] <= HEATER_0_MAXTEMP-4)
 						{
 							target_temperature[0]+=value;
 							sprintf(buffer, "%3d",target_temperature[0]);
+							genie.WriteStr(STRING_PRINT_VALUE,buffer);							
+						}
+						else{
+							target_temperature[0]=HEATER_0_MAXTEMP;
+							sprintf(buffer, "%3d",target_temperature[0]);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
-							
 						}
 						break;
 						
 						case 1: //RIGHT EXTRUDER
 						
-						if (target_temperature[1]<HEATER_1_MAXTEMP)
+						if (target_temperature[1]<= HEATER_1_MAXTEMP-4)
 						{
 							target_temperature[1]+=value;
+							sprintf(buffer, "%3d",target_temperature[1]);
+							genie.WriteStr(STRING_PRINT_VALUE,buffer);
+						}
+						else{
+							target_temperature[1]=HEATER_1_MAXTEMP;
 							sprintf(buffer, "%3d",target_temperature[1]);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
@@ -337,9 +346,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						case 2: //BED
 						
 						//if (target_temperature_bed<BED_MAXTEMP)
-						if (target_temperature_bed<BED_MAXTEMP)//MaxTemp
+						if (target_temperature_bed<= BED_MAXTEMP-4)//MaxTemp
 						{
 							target_temperature_bed+=value;
+							sprintf(buffer, "%3d",target_temperature_bed);
+							genie.WriteStr(STRING_PRINT_VALUE,buffer);
+						}
+						else{
+							target_temperature_bed=BED_MAXTEMP;
 							sprintf(buffer, "%3d",target_temperature_bed);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
@@ -347,9 +361,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						case 3: //SPEED
 						
-						if (feedmultiply<200)
+						if (feedmultiply <= 200-4)
 						{
 							feedmultiply+=value;
+							sprintf(buffer, "%3d %%",feedmultiply);
+							genie.WriteStr(STRING_PRINT_VALUE,buffer);
+						}
+						else{
+							feedmultiply=200;
 							sprintf(buffer, "%3d %%",feedmultiply);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
@@ -362,7 +381,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					switch (print_setting_tool)
 					{
 						case 0: //LEFT EXTRUDER
-						if (target_temperature[0]>HEATER_0_MINTEMP)
+						if (target_temperature[0] > HEATER_0_MINTEMP)
 						{
 							target_temperature[0]-=value;
 							sprintf(buffer, "%3d",target_temperature[0]);
@@ -371,7 +390,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						break;
 						
 						case 1: //RIGHT EXTRUDER
-						if (target_temperature[1]>HEATER_1_MINTEMP)
+						if (target_temperature[1] > HEATER_1_MINTEMP)
 						{
 							target_temperature[1]-=value;
 							sprintf(buffer, "%3d",target_temperature[1]);
@@ -405,18 +424,28 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					switch (print_setting_tool)
 					{
 						case 0: //LEFT EXTRUDER
-						if (target_temperature[0]>HEATER_0_MINTEMP)
+						if (target_temperature[0]>= HEATER_0_MINTEMP+4)
 						{
 							target_temperature[0]-=value;
+							sprintf(buffer, "%3d",target_temperature[0]);
+							genie.WriteStr(STRING_PRINT_VALUE,buffer);
+						}
+						else{
+							target_temperature[0]=HEATER_0_MINTEMP;
 							sprintf(buffer, "%3d",target_temperature[0]);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
 						
 						case 1: //RIGHT EXTRUDER
-						if(target_temperature[1]>HEATER_1_MINTEMP)
+						if(target_temperature[1]>= HEATER_1_MINTEMP+4)
 						{
 							target_temperature[1]-=value;
+							sprintf(buffer, "%3d",target_temperature[1]);
+							genie.WriteStr(STRING_PRINT_VALUE,buffer);
+						}
+						else{
+							target_temperature[1]=HEATER_1_MINTEMP;
 							sprintf(buffer, "%3d",target_temperature[1]);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
@@ -424,18 +453,28 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						case 2: //BED
 						//if (target_temperature_bed<BED_MAXTEMP)
-						if (target_temperature_bed<120)//MaxTemp
+						if (target_temperature_bed<= 5+4)//MaxTemp
 						{
 							target_temperature_bed-=value;
+							sprintf(buffer, "%3d",target_temperature_bed);
+							genie.WriteStr(STRING_PRINT_VALUE,buffer);
+						}
+						else{
+							target_temperature_bed=5;
 							sprintf(buffer, "%3d",target_temperature_bed);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
 						
 						case 3: //SPEED
-						if (feedmultiply>50)
+						if (feedmultiply>= 50+4)
 						{
 							feedmultiply-=value;
+							sprintf(buffer, "%3d %%",feedmultiply);
+							genie.WriteStr(STRING_PRINT_VALUE,buffer);
+						}
+						else{
+							feedmultiply=5;
 							sprintf(buffer, "%3d %%",feedmultiply);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
@@ -457,16 +496,18 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
 					enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
+					enquecommand_P(PSTR("M107"));
+					st_synchronize();
 					
 					if(SD_FINISHED_STEPPERRELEASE)
 					{
 						enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
 					}
 					autotempShutdown();
-					//setTargetHotend0(0);
-					//setTargetHotend1(0);
+					setTargetHotend0(0);
+					setTargetHotend1(0);
 					//setTargetHotend2(0);
-					//setTargetBed(0);
+					setTargetBed(0);
 					card.sdispaused = false;
 					cancel_heatup = true;
 					
@@ -767,18 +808,20 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
 					enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
-					
+					enquecommand_P(PSTR("M107"));
+					st_synchronize();
 					if(SD_FINISHED_STEPPERRELEASE)
 					{
 						enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
 					}
 					autotempShutdown();
-					//setTargetHotend0(0);
-					//setTargetHotend1(0);
+					setTargetHotend0(0);
+					setTargetHotend1(0);
 					//setTargetHotend2(0);
-					//setTargetBed(0);
+					setTargetBed(0);
 					card.sdispaused = false;
 					cancel_heatup = true;
+					
 					
 					//sleep_RELAY();
 					//Rapduch
@@ -2323,9 +2366,32 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region Info Screens
 				//BACKING FROM INFO SCREENS!------------------------------------------------------------------------
 				//Backing from INFO SCREENS
+				/*else if (Event.reportObject.index == BACKBUTTON_PROCESS)
+				{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
+					setTargetHotend0(0);
+					setTargetHotend1(0);
+					kill();	
+					enquecommand_P(PSTR("G28 X0 Y0"));
+				}*/
+				/*else if (Event.reportObject.index == BACKBUTTON_LETSCALIB)
+				{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
+					setTargetHotend0(0);
+					setTargetHotend1(0);
+					enquecommand_P(PSTR("G28 X0 Y0"));
+				}*/
+				else if (Event.reportObject.index == BACKBUTTON_WAIT_TEMP_CLEAN)
+				{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
+					setTargetHotend0(0);
+					setTargetHotend1(0);
+					enquecommand_P(PSTR("G28 X0 Y0"));
+				}
 				else if (Event.reportObject.index == BACKBUTTON_INFO_NEEDFIL)
 				{
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+					
 				}
 				
 				//Backing from INFO SCREENS

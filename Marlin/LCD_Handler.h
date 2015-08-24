@@ -474,7 +474,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						else{
-							feedmultiply=5;
+							feedmultiply=50;
 							sprintf(buffer, "%3d %%",feedmultiply);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
@@ -1126,6 +1126,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
 					else {
 						//*********Move the bed down and the extruders inside
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
 						if (!home_made) home_axis_from_code();
 					
 						int feedrate;
@@ -1145,7 +1146,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						/****************************************************/
 					
 						//ATTENTION : Order here is important
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
+						
 						
 						//Serial.println("REMOVING");		
 						//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
@@ -1161,10 +1162,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_INFO_FIL_INSERTED)
 				{
 					
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-					
-					
 					//*********Move the bed down and the extruders inside
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
 					if (!home_made) home_axis_from_code();
 					
 					int feedrate;
@@ -1251,7 +1250,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 					}else if (filament_mode =='R')
 					{ //Removing...
-						current_position[E_AXIS] = current_position[E_AXIS]-(BOWDEN_LENGTH + EXTRUDER_LENGTH + 100);//Extra extrusion at fast feedrate
+						current_position[E_AXIS] -= (BOWDEN_LENGTH + EXTRUDER_LENGTH + 100);//Extra extrusion at fast feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -1430,24 +1429,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//*****Preheat Settings*****
 				#pragma region Preheat Settings
 				//Buttons for preheat settings
-				
-				else if (Event.reportObject.index == BUTTON_COOLDOWN )
-				{
-				setTargetHotend0(0);
-				setTargetHotend1(0);
-				setTargetBed(0);
+				else if(Event.reportObject.index == BUTTON_COOLDOWN_OK){
+					setTargetHotend0(0);
+					setTargetHotend1(0);
+					setTargetBed(0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_TEMP_MENU,0);
 				}
+				
 				
 				else if (Event.reportObject.index == BUTTON_PREHEAT_SET_NOZZ1_UP )
 				{
-				char buffer[256];
-				int value=5;
-				if (target_temperature[0]<HEATER_0_MAXTEMP)
-				{
-				target_temperature[0]+=value;
-				sprintf(buffer, "%3d",target_temperature[0]);
-				genie.WriteStr(STRING_PREHEAT_SET_NOZZ1,buffer);
-				}
+					char buffer[256];
+					int value=5;
+					if (target_temperature[0]<HEATER_0_MAXTEMP)
+					{
+						target_temperature[0]+=value;
+						sprintf(buffer, "%3d",target_temperature[0]);
+						genie.WriteStr(STRING_PREHEAT_SET_NOZZ1,buffer);
+					}
 				}
 				
 				else if (Event.reportObject.index == BUTTON_PREHEAT_SET_NOZZ1_DOWN )

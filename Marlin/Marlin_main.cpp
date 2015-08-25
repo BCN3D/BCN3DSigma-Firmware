@@ -908,6 +908,9 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			//Serial.println(buffer);
 			genie.WriteStr(STRINGS_PRINTING_FEED,buffer);
 			
+			
+			
+			
 			waitPeriod=5000+millis();	//Every 5s
 		}
 		
@@ -938,6 +941,14 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
 			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
 			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
+			
+			sprintf(buffer, "% 3d",tHotend);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
+			
+			sprintf(buffer, "% 3d",tHotend1);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 			
 			#if EXTRUDERS > 1
 			// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
@@ -2188,7 +2199,7 @@ void process_commands()
 
 				//2)Extruder one prints
 				//Purge & up
-				current_position[E_AXIS]+=20;
+				current_position[E_AXIS]+=25;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60 , active_extruder);
 				//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
 				//current_position[E_AXIS]-=4;
@@ -2269,7 +2280,7 @@ void process_commands()
 				current_position[Z_AXIS]+=0.5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1000/60 , active_extruder); //Raise for a layer of Z=0.2
 				//Purge & up
-				current_position[E_AXIS]+=20;
+				current_position[E_AXIS]+=25;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60 , active_extruder);
 				//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
 				//current_position[E_AXIS]-=4;
@@ -2359,7 +2370,7 @@ void process_commands()
 
 				//2)Extruder one prints
 				//Purge & up
-				current_position[E_AXIS]+=20;
+				current_position[E_AXIS]+=25;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60 , active_extruder);
 				//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
 				current_position[E_AXIS]-=4;
@@ -2442,7 +2453,7 @@ void process_commands()
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1000/60 , active_extruder);
 
 				//Purge & up
-				current_position[E_AXIS]+=20;
+				current_position[E_AXIS]+=25;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60 , active_extruder);
 				//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], 500/60 , active_extruder);
 				current_position[E_AXIS]-=2;

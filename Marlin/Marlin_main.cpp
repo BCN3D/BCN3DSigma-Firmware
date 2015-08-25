@@ -6429,14 +6429,14 @@ void process_commands()
 
 					void Stop()
 					{
-					disable_heater();
-					if(Stopped == false) {
-					Stopped = true;
-					Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
-					SERIAL_ERROR_START;
-					SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
-					LCD_MESSAGEPGM(MSG_STOPPED);
-					}
+						disable_heater();
+						if(Stopped == false) {
+							Stopped = true;
+							Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
+							SERIAL_ERROR_START;
+							SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
+							LCD_MESSAGEPGM(MSG_STOPPED);
+						}
 					}
 
 					bool IsStopped() { return Stopped; };

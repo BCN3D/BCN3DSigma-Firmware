@@ -2295,7 +2295,7 @@ void process_commands()
 				st_synchronize();
 				
 				//Second Extruder (correcting)
-				for (int i=0; i<(NUM_LINES);i++) //4 times
+				for (int i=0; i<(NUM_LINES);i++) //N times
 				{
 					if (i == 0) current_position[Z_AXIS]-=0.5;
 					plan_buffer_line(mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))), 149, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder); //Move X

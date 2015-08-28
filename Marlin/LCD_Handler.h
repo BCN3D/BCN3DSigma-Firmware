@@ -2549,6 +2549,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					setTargetHotend0(0);
 					setTargetHotend1(0);
 					enquecommand_P(PSTR("G28 X0 Y0"));
+					
 				}
 				else if (Event.reportObject.index == BACKBUTTON_INFO_NEEDFIL)
 				{

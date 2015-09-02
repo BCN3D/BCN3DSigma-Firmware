@@ -54,7 +54,7 @@
 
 //Insert FILAMENT
 #define BUTTON_REMOVE_FIL					50
-#define	BUTTON_PURGE_FIL					999//deprecated?
+#define	BUTTON_PURGE_FIL					159//deprecated?
 #define BUTTON_INSERT_FIL					2
 #define	BUTTON_FILAMENT_NOZZLE1				75
 #define	BUTTON_FILAMENT_NOZZLE2				76

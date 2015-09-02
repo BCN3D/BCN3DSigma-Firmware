@@ -5702,17 +5702,17 @@ void process_commands()
 					// Park old head: 1) raise 2) move to park position 3) lower
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);
 					plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[X_AXIS]/2, active_extruder);
-					//plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] ,current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);
+					plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] ,current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);
 					st_synchronize();
-					current_position[Z_AXIS]= current_position[Z_AXIS]+TOOLCHANGE_PARK_ZLIFT;
+					//current_position[Z_AXIS]= current_position[Z_AXIS]+TOOLCHANGE_PARK_ZLIFT;
 					}
 					Serial.print("POSITION HOME: ");
 					Serial.println(x_home_pos(active_extruder));
 
 					// apply Y & Z extruder offset (x offset is already used in determining home pos)
-					current_position[Y_AXIS] = current_position[Y_AXIS] - extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder];
-					current_position[Z_AXIS] = current_position[Z_AXIS] - extruder_offset[Z_AXIS][active_extruder] + extruder_offset[Z_AXIS][tmp_extruder];
-
+					//current_position[Y_AXIS] = current_position[Y_AXIS] - extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder];
+					//current_position[Z_AXIS] = current_position[Z_AXIS] - extruder_offset[Z_AXIS][active_extruder] + extruder_offset[Z_AXIS][tmp_extruder];
+					plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS]- extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder], current_position[Z_AXIS] - extruder_offset[Z_AXIS][tmp_extruder] + extruder_offset[Z_AXIS][active_extruder], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
 					active_extruder = tmp_extruder;
 
 					// This function resets the max/min values - the current position may be overwritten below.
@@ -5883,13 +5883,13 @@ void process_commands()
 								*/
 								
 								// apply Y & Z extruder offset (x offset is already used in determining home pos)
-								current_position[Y_AXIS] = current_position[Y_AXIS] -
+								/*current_position[Y_AXIS] = current_position[Y_AXIS] -
 								extruder_offset[Y_AXIS][active_extruder] +
 								extruder_offset[Y_AXIS][tmp_extruder];
 								current_position[Z_AXIS] = current_position[Z_AXIS] -
 								extruder_offset[Z_AXIS][active_extruder] +
-								extruder_offset[Z_AXIS][tmp_extruder];
-
+								extruder_offset[Z_AXIS][tmp_extruder];*/
+								plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS]- extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder], current_position[Z_AXIS] - extruder_offset[Z_AXIS][tmp_extruder] + extruder_offset[Z_AXIS][active_extruder], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
 								active_extruder = tmp_extruder;
 
 								// This function resets the max/min values - the current position may be overwritten below.

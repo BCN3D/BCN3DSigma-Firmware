@@ -1971,6 +1971,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 				//enquecommand_P((PSTR("M218 T1 X-0.5")));
 				enquecommand_P((PSTR("M500"))); //Store changes
+				st_synchronize();
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
@@ -1984,6 +1985,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 				enquecommand_P((PSTR("M500"))); //Store changes
+				st_synchronize();
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
@@ -1997,6 +1999,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X-0.3")));
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 				enquecommand_P((PSTR("M500"))); //Store changes
+				st_synchronize();
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
@@ -2010,6 +2013,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X-0.2")));
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 				enquecommand_P((PSTR("M500"))); //Store changes
+				st_synchronize();
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
@@ -2022,7 +2026,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 				//enquecommand_P((PSTR("M218 T1 X-0.1")));
-				//enquecommand_P((PSTR("M500"))); //Store changes
+				enquecommand_P((PSTR("M500"))); //Store changes
+				st_synchronize();
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
@@ -2036,6 +2041,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
+				st_synchronize();
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
@@ -2049,6 +2055,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
+				st_synchronize();
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
@@ -2062,6 +2069,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
+				st_synchronize();
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
@@ -2075,6 +2083,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//enquecommand_P((PSTR("M218 T1 X-0.2")));
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 				enquecommand_P((PSTR("M500"))); //Store changes
+				st_synchronize();
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
@@ -2088,6 +2097,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
 				enquecommand_P((PSTR("M500"))); //Store changes
+				st_synchronize();
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);

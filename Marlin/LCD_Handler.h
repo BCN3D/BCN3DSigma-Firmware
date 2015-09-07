@@ -990,20 +990,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_TEMP_UP){
 					
-					target_temperature[purge_extruder_selected] += 5;
-					setTargetHotend0(target_temperature[0]);
-					setTargetHotend1(target_temperature[1]);
-					char buffer[256];
-					sprintf(buffer, "%3d",int(target_temperature[purge_extruder_selected]));
-					genie.WriteStr(STRING_PURGE_SELECTED,buffer);
+					if (target_temperature[purge_extruder_selected] < HEATER_0_MAXTEMP){
+						 target_temperature[purge_extruder_selected] += 5;
+						setTargetHotend0(target_temperature[0]);
+						setTargetHotend1(target_temperature[1]);
+						char buffer[256];
+						sprintf(buffer, "%3d",int(target_temperature[purge_extruder_selected]));
+						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
+					}
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_TEMP_DOWN){
-					target_temperature[purge_extruder_selected] -= 5;
-					setTargetHotend0(target_temperature[0]);
-					setTargetHotend1(target_temperature[1]);
-					char buffer[256];
-					sprintf(buffer, "%3d",int(target_temperature[purge_extruder_selected]));
-					genie.WriteStr(STRING_PURGE_SELECTED,buffer);
+					if (target_temperature[purge_extruder_selected] > 0){
+						target_temperature[purge_extruder_selected] -= 5;
+						setTargetHotend0(target_temperature[0]);
+						setTargetHotend1(target_temperature[1]);
+						char buffer[256];
+						sprintf(buffer, "%3d",int(target_temperature[purge_extruder_selected]));
+						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
+					}
 				}
 				//***MOVING
 				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK){
@@ -1028,6 +1032,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//********CHANGE NEW FILAMENT
 				else if(Event.reportObject.index == BUTTON_PURGE_NEW_FILAMENT){
 					
+					
 					genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
 					
@@ -1036,6 +1041,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					if (!home_made) home_axis_from_code();
 					enquecommand_P(PSTR("G28 X0 Y0"));
+					st_synchronize();
 					current_position[Z_AXIS]=Z_MAX_POS-5;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, active_extruder);
 					
@@ -1284,7 +1290,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						//Serial.println("REMOVING");		
 						//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
-						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
+						if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
+						else if (filament_mode == 'R') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
+						else genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						delay(3500);
 						setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
 						
@@ -1369,7 +1377,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{// We should have already checked if filament is inserted
 					if (filament_mode =='I')
 					{ //Inserting...
-						delay(1000);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						delay(850);
 						Serial.print("Inserting :   ");
 						current_position[E_AXIS] += 15;//Extra extrusion at low feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  700/60, which_extruder); //850/60
@@ -1379,7 +1388,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
 						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						
 						st_synchronize();
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
 						
@@ -1394,17 +1403,18 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}else if (filament_mode == 'C'){	
 						previous_state = FORM_FILAMENT;				
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						delay(1000);
+						delay(850);
 						Serial.print("Inserting :   ");
-						current_position[E_AXIS] += 15;//Extra extrusion at low feedrate
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  700/60, which_extruder); //850/60
+						current_position[E_AXIS] += 60;//Extra extrusion at low feedrate
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder); //850/60
 						current_position[E_AXIS] += (BOWDEN_LENGTH-EXTRUDER_LENGTH);//BOWDEN_LENGTH-300+340);
 						Serial.println(current_position[E_AXIS]);
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);
 						current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);						
 						
 						st_synchronize();
+						Serial.println(current_position[E_AXIS]);
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
 					}
 					
@@ -1448,12 +1458,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//Extruder Calibrations-------------------------------------------------
 				else if (Event.reportObject.index == BUTTON_CAL_FULL)
 				{
+					bed_calibration_times = 0;
 					Serial.print("INFO: BED CALIB - ");
 					Serial.println(flag_bed_calib_done);
 					flag_full_calib = true;
-					enquecommand_P(PSTR("G28"));
-					enquecommand_P(PSTR("T0"));
+					
+					//enquecommand_P(PSTR("T0"));
 					if(!flag_bed_calib_done){  //Do g34
+						enquecommand_P(PSTR("G28"));
 						enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 						changeTool(0);
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -1469,8 +1481,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRING_AXEL,"        Z AXIS");
 						delay(1500);
 						
-						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
 						
 						//changeToolSigma(LEFT_EXTRUDER);
@@ -1482,27 +1496,29 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
 						setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
 						
-						while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
-							
-							manage_heater();
-						}
-						
-						home_axis_from_code();
-						
 						//MOVE EXTRUDERS
-						current_position[Z_AXIS] = 100;
+						current_position[Z_AXIS] = 60;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, LEFT_EXTRUDER);//move bed
 						st_synchronize();
 						current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
 						
+						while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+							
+							manage_heater();
+						}
+						
+						//home_axis_from_code();			
+						
+						
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
 						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the left nozzle \n and press GO to move on to \n the next EXTRUDER");
 						flag_continue_calib = true;
 					}
 				}
 				
-				else if ((Event.reportObject.index == BUTTON_CLEAN_DONE) && (flag_continue_calib)){
+				else if ((Event.reportObject.index == USERBUTTON_CLEAN_DONE) && (flag_continue_calib)){
 					
 					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO, \n then the Z calibration will start");
 					if (active_extruder == 0)	{
@@ -1517,6 +1533,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[Y_AXIS] = 0;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], RIGHT_EXTRUDER);//move first extruder, bed and Y
 						st_synchronize();
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
 					} 
 					else {
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -1531,7 +1548,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						st_synchronize();*/
 						enquecommand_P(PSTR("G43"));
 						flag_continue_calib = false;
-						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
 					}				
 						
 				}
@@ -1676,6 +1693,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region Bed Calibration
 				else if (Event.reportObject.index == BUTTON_Z_CAL_WIZARD)
 				{
+					
+					bed_calibration_times = 0;
 					flag_full_calib = false;
 					enquecommand_P(PSTR("G28"));					
 					enquecommand_P(PSTR("T0"));
@@ -1962,7 +1981,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT1)
 				{
 				//char buffer[30];
-				float calculus = extruder_offset[Y_AXIS][1] - 0.5;
+				float calculus = extruder_offset[Y_AXIS][1] + 0.5;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//sprintf(buffer, "M218 T1 X%f",calculus); //
@@ -1980,7 +1999,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT2)
 				{
 				//enquecommand_P((PSTR("M218 T1 X-0.4")));
-				float calculus = extruder_offset[Y_AXIS][1] - 0.4;
+				float calculus = extruder_offset[Y_AXIS][1] + 0.4;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1993,7 +2012,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT3)
 				{
-				float calculus = extruder_offset[Y_AXIS][1] - 0.3;
+				float calculus = extruder_offset[Y_AXIS][1] + 0.3;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//enquecommand_P((PSTR("M218 T1 X-0.3")));
@@ -2007,7 +2026,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT4)
 				{
-				float calculus = extruder_offset[Y_AXIS][1] - 0.2;
+				float calculus = extruder_offset[Y_AXIS][1] + 0.2;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//enquecommand_P((PSTR("M218 T1 X-0.2")));
@@ -2021,7 +2040,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT5)
 				{
-				float calculus = extruder_offset[Y_AXIS][1] -0.1;
+				float calculus = extruder_offset[Y_AXIS][1] + 0.1;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -2049,7 +2068,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT7)
 				{
-				float calculus = extruder_offset[X_AXIS][1] + 0.1;
+				float calculus = extruder_offset[X_AXIS][1] - 0.1;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -2063,7 +2082,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT8)
 				{
-				float calculus = extruder_offset[Y_AXIS][1] + 0.2;
+				float calculus = extruder_offset[Y_AXIS][1] - 0.2;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -2077,7 +2096,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT9)
 				{
-				float calculus = extruder_offset[Y_AXIS][1] + 0.3;
+				float calculus = extruder_offset[Y_AXIS][1] - 0.3;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//enquecommand_P((PSTR("M218 T1 X-0.2")));
@@ -2091,8 +2110,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT10)
 				{
-				float calculus = extruder_offset[Y_AXIS][1] + 0.4;
+				float calculus = extruder_offset[Y_AXIS][1] - 0.4;
 				Serial.print("Calculus:  ");
+				
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 				//enquecommand_P((PSTR("M218 T1 X0.1")));
@@ -2106,7 +2126,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_Up)
 				{
 				float feedrate = homing_feedrate[Z_AXIS];
-				current_position[Z_AXIS] += 0.1;
+				current_position[Z_AXIS] += 0.05;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 				Serial.print("Z position: ");
 				Serial.println(current_position[Z_AXIS]);
@@ -2115,7 +2135,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_Down)
 				{
 				float feedrate = homing_feedrate[Z_AXIS];
-				if (current_position[Z_AXIS]>-1) current_position[Z_AXIS] -= 0.1; //Max down is Z=-0.5
+				if (current_position[Z_AXIS]>-1.5) current_position[Z_AXIS] -= 0.05; //Max down is Z=-0.5
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 				Serial.print("Z position: ");
 				Serial.println(current_position[Z_AXIS]);
@@ -2140,7 +2160,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_Up)
 				{
 				float feedrate = homing_feedrate[Z_AXIS];
-				current_position[Z_AXIS] += 0.1;
+				current_position[Z_AXIS] += 0.05;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 				Serial.print("Z position: ");
 				Serial.println(current_position[Z_AXIS]);
@@ -2149,7 +2169,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_Down)
 				{
 				float feedrate = homing_feedrate[Z_AXIS];
-				if (current_position[Z_AXIS]>-1) current_position[Z_AXIS] -= 0.1;  //Max down is Z=-0.5
+				if (current_position[Z_AXIS]>-1.5) current_position[Z_AXIS] -= 0.05;  //Max down is Z=-0.5
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 				Serial.print("Z position: ");
 				Serial.println(current_position[Z_AXIS]);
@@ -2599,6 +2619,59 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 				enquecommand_P(PSTR("G28 X0 Y0"));
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+				}
+				
+				//SKIP BED CALIBRATION
+				else if (Event.reportObject.index == BUTTON_SKIP_BED)
+				{
+					if (flag_full_calib){					
+						bed_calibration_times = 0;
+						//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						//enquecommand_P(PSTR("G28"));
+						active_extruder = LEFT_EXTRUDER;
+						genie.WriteStr(STRING_AXEL,"        Z AXIS");
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+						genie.WriteStr(STRING_AXEL,"        Z AXIS");
+						delay(1500);
+						
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
+						
+						//changeToolSigma(LEFT_EXTRUDER);
+						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+						
+						
+						//Wait until temperature it's okey
+						setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
+						setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
+						
+						home_axis_from_code();
+						//changeTool(LEFT_EXTRUDER);
+						
+						//MOVE EXTRUDERS
+						current_position[Z_AXIS] = 60;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, LEFT_EXTRUDER);//move bed
+						st_synchronize();
+						current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
+						
+						while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+							
+							manage_heater();
+						}
+						
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
+						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the left nozzle \n and press GO to move on to \n the next EXTRUDER");
+						flag_continue_calib = true;
+					}
+					else{
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+					}
 				}
 				
 				//Backing from INFO SCREENS

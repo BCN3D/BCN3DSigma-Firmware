@@ -1522,10 +1522,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO, \n then the Z calibration will start");
 					if (active_extruder == 0)	{
-						current_position[X_AXIS] = 0;
-						current_position[Y_AXIS] = 0;							
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
-						st_synchronize();
+						//current_position[X_AXIS] = 0;
+						//current_position[Y_AXIS] = 0;							
+						//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
+						//st_synchronize();
 							
 						//active_extruder = 1;
 						changeTool(1);
@@ -1539,10 +1539,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 						genie.WriteStr(STRING_AXEL,"        Z AXIS");
 						
-						current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER);	
+						/*current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER);	
 						current_position[Y_AXIS] = Y_MAX_POS/2;					
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], RIGHT_EXTRUDER);//move first extruder, bed and Y
-						st_synchronize();
+						st_synchronize();*/
+						
 						changeTool(LEFT_EXTRUDER);
 						/*home_axis_from_code();
 						st_synchronize();*/
@@ -2708,33 +2709,33 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//Backing from INFO SCREENS
 				else if (Event.reportObject.index == BUTTON_INFO_TURN_SCREWS)
 				{
-				char buffer[256];
-				if (vuitens1!= 0){
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW1,0);
-				sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
-				//genie.WriteStr(STRING_BED_SCREW1,buffer);
-				if (vuitens2==0 && vuitens3==0) {genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,0);}
-				else{genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,0);}
-				if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,vuitens1);} //The direction is inverted in Sigma's bed screws
-				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,vuitens1+8);}
-				}
-				else if (vuitens2!= 0){
-				Serial.println("Jump over screw1");
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
-				sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
-				//genie.WriteStr(STRING_BED_SCREW2,buffer);
-				if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,0);
-				if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2);} //The direction is inverted in Sigma's bed screws
-				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2+8);}
-				}
-				else if (vuitens3!= 0){
-				Serial.println("Jump over screw1 and screw2");
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
-				sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
-				//genie.WriteStr(STRING_BED_SCREW3,buffer);
-				if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
-				else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
-				}
+					char buffer[256];
+					if (vuitens1!= 0){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW1,0);
+						sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
+						//genie.WriteStr(STRING_BED_SCREW1,buffer);
+						if (vuitens2==0 && vuitens3==0) {genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,0);}
+						else{genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,0);}
+						if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,vuitens1);} //The direction is inverted in Sigma's bed screws
+						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,vuitens1+8);}
+					}
+					else if (vuitens2!= 0){
+						Serial.println("Jump over screw1");
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
+						sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
+						//genie.WriteStr(STRING_BED_SCREW2,buffer);
+						if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,0);
+						if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2);} //The direction is inverted in Sigma's bed screws
+						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2+8);}
+					}
+					else if (vuitens3!= 0){
+						Serial.println("Jump over screw1 and screw2");
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
+						sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
+						//genie.WriteStr(STRING_BED_SCREW3,buffer);
+						if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
+						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
+					}
 				}
 				
 				//Backing from INFO SCREENS

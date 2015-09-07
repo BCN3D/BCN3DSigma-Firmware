@@ -20,7 +20,7 @@
 //
 //This is the version declaration for Sigma, v followed by '_' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
-#define VERSION_STRING  "01-0.0.2"
+#define VERSION_STRING  "01-0.0.3"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
@@ -667,9 +667,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	//#define Z_SIGMA_HOME_X_POINT 3
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
-	#define SIGMA_Z_HOME_TRAVEL_SPEED 4000
+	#define SIGMA_Z_HOME_TRAVEL_SPEED 8000//4000
 	
-	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
+	#define Z_SIGMA_RAISE_BEFORE_HOMING 2//5
 	#define Z_SIGMA_RAISE_AFTER_HOMING 2
 #endif
 

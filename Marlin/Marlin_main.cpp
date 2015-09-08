@@ -926,7 +926,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
 			if (processing_state == 0) processing_state = (processing_state+1)%3;
 			else processing_state = (processing_state+1)%3;
-			waitPeriod=500+millis();
+			waitPeriod=250+millis();
 		}
 	}
 	else if (surfing_utilities)

@@ -229,6 +229,7 @@
 #define USERIMAGE_SCREW2					4
 #define USERIMAGE_SCREW3					5
 #define USERIMAGE_THERMOMETHER				11
+#define USERIMAGE_PROCESSING				2
 
 //Strings---------------------------------------------
 #define STRING_PRINTING_NOZZ1		0

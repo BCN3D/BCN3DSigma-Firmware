@@ -300,4 +300,5 @@ extern bool flag_continue_calib;
 //extern void updateLanguage();
 extern float x_home_pos(int extruder);
 extern int bed_calibration_times;
+extern bool processing;
 #endif

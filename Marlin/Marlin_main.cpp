@@ -286,6 +286,8 @@ float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = {false, false, false};
 float zprobe_zoffset;
 
+bool processing = false;
+
 int bed_calibration_times = 0;
 
 // Extruder offset
@@ -828,7 +830,7 @@ void loop()
 	#ifdef SIGMA_TOUCH_SCREEN
 	touchscreen_update();
 	#endif
-	
+	//if (processing) updateprocessing();
 	//#ifndef SIGMA_TOUCH_SCREEN //JUST PRINT FIRST GCODE ON SD
 	//if (firstime)
 	//{
@@ -915,8 +917,19 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 			waitPeriod=5000+millis();	//Every 5s
 		}
+		 
+	}
+	else if (processing){
 		
-	}else if (surfing_utilities)
+		if (millis() >= waitPeriod){
+			static int processing_state = 0;			
+			genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
+			if (processing_state == 0) processing_state = (processing_state+1)%3;
+			else processing_state = (processing_state+1)%3;
+			waitPeriod=500+millis();
+		}
+	}
+	else if (surfing_utilities)
 	{
 		if (millis() >= waitPeriod)
 		{
@@ -3234,6 +3247,7 @@ void process_commands()
 				
 				if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 				{
+					processing = false;
 					if (flag_full_calib){						
 						
 						
@@ -3281,12 +3295,14 @@ void process_commands()
 						flag_continue_calib = true;
 					}
 					else{
+						
 						#ifdef SIGMA_TOUCH_SCREEN
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 						#endif
 						SERIAL_PROTOCOL(" Platform is Calibrated! ");
 					}
 				}else{	
+					processing = false;
 					bed_calibration_times++;
 								
 					#ifdef SIGMA_TOUCH_SCREEN	

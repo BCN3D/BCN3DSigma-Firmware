@@ -1535,6 +1535,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 						//active_extruder = 1;
 						changeTool(1);
+						st_synchronize();
+						
 						current_position[X_AXIS] = 155;
 						current_position[Y_AXIS] = 0;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], RIGHT_EXTRUDER);//move first extruder, bed and Y

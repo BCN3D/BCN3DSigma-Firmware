@@ -912,9 +912,6 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			//Serial.println(buffer);
 			genie.WriteStr(STRINGS_PRINTING_FEED,buffer);
 			
-			
-			
-			
 			waitPeriod=5000+millis();	//Every 5s
 		}
 		 
@@ -3284,6 +3281,9 @@ void process_commands()
 						current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
 						
+						//block hotend to avoid posterior colision
+						
+						
 						while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
 							
 							manage_heater();
@@ -3794,13 +3794,13 @@ void process_commands()
 					break;
 					#endif
 					case 17:
-					LCD_MESSAGEPGM(MSG_NO_MOVE);
-					enable_x();
-					enable_y();
-					enable_z();
-					enable_e0();
-					enable_e1();
-					enable_e2();
+						LCD_MESSAGEPGM(MSG_NO_MOVE);
+						enable_x();
+						enable_y();
+						enable_z();
+						enable_e0();
+						enable_e1();
+						enable_e2();
 					break;
 
 					#ifdef SDSUPPORT
@@ -5925,6 +5925,7 @@ void process_commands()
 								current_position[Z_AXIS] = current_position[Z_AXIS] -
 								extruder_offset[Z_AXIS][active_extruder] +
 								extruder_offset[Z_AXIS][tmp_extruder];*/
+								enquecommand_P((PSTR("G28 X0")));
 								plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS]- extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder], current_position[Z_AXIS] - extruder_offset[Z_AXIS][tmp_extruder] + extruder_offset[Z_AXIS][active_extruder], current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
 								active_extruder = tmp_extruder;
 								//current_position[Y_AXIS] =  current_position[Y_AXIS]- extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder];
@@ -6371,74 +6372,69 @@ void process_commands()
 
 					void manage_inactivity()
 					{
-					if(buflen < (BUFSIZE-1))
-					get_command();
-
-					if( (millis() - previous_millis_cmd) >  max_inactive_time )
-					if(max_inactive_time)
-					kill();
-					if(stepper_inactive_time)  {
-					if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
-					{
-					if(blocks_queued() == false) {
-					disable_x();
-					disable_y();
-					disable_z();
-					disable_e0();
-					disable_e1();
-					disable_e2();
-					}
-					}
-					}
+						if(buflen < (BUFSIZE-1)) get_command();
+						if( (millis() - previous_millis_cmd) >  max_inactive_time ) if(max_inactive_time) kill();
+						if(stepper_inactive_time)  {
+							if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
+							{
+								if(blocks_queued() == false) {
+									disable_x();
+									disable_y();
+									disable_z();
+									disable_e0();
+									disable_e1();
+									disable_e2();
+								}
+							}
+						}
 					
-					#ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
-					if (chdkActive && (millis() - chdkHigh > CHDK_DELAY))
-					{
-					chdkActive = false;
-					WRITE(CHDK, LOW);
-					}
-					#endif
+						#ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
+							if (chdkActive && (millis() - chdkHigh > CHDK_DELAY))
+							{
+								chdkActive = false;
+								WRITE(CHDK, LOW);
+							}
+						#endif
 					
-					#if defined(KILL_PIN) && KILL_PIN > -1
-					if( 0 == READ(KILL_PIN) )
-					kill();
-					#endif
-					#if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
-					controllerFan(); //Check if fan should be turned on to cool stepper drivers down
-					#endif
-					#ifdef EXTRUDER_RUNOUT_PREVENT
-					if( (millis() - previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 )
-					if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
-					{
-					bool oldstatus=READ(E0_ENABLE_PIN);
-					enable_e0();
-					float oldepos=current_position[E_AXIS];
-					float oldedes=destination[E_AXIS];
-					plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
-					destination[E_AXIS]+EXTRUDER_RUNOUT_EXTRUDE*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS],
-					EXTRUDER_RUNOUT_SPEED/60.*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS], active_extruder);
-					current_position[E_AXIS]=oldepos;
-					destination[E_AXIS]=oldedes;
-					plan_set_e_position(oldepos);
-					previous_millis_cmd=millis();
-					st_synchronize();
-					WRITE(E0_ENABLE_PIN,oldstatus);
-					}
-					#endif
-					#if defined(DUAL_X_CARRIAGE)
-					// handle delayed move timeout
-					if (delayed_move_time != 0 && (millis() - delayed_move_time) > 1000 && Stopped == false)
-					{
-					// travel moves have been received so enact them
-					delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
-					memcpy(destination,current_position,sizeof(destination));
-					prepare_move();
-					}
-					#endif
-					#ifdef TEMP_STAT_LEDS
-					handle_status_leds();
-					#endif
-					check_axes_activity();
+						#if defined(KILL_PIN) && KILL_PIN > -1
+							if( 0 == READ(KILL_PIN) ) kill();
+						#endif
+						#if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
+							controllerFan(); //Check if fan should be turned on to cool stepper drivers down
+						#endif
+						#ifdef EXTRUDER_RUNOUT_PREVENT
+							if( (millis() - previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
+								if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
+								{
+									bool oldstatus=READ(E0_ENABLE_PIN);
+									enable_e0();
+									float oldepos=current_position[E_AXIS];
+									float oldedes=destination[E_AXIS];
+									plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
+									destination[E_AXIS]+EXTRUDER_RUNOUT_EXTRUDE*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS],
+									EXTRUDER_RUNOUT_SPEED/60.*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS], active_extruder);
+									current_position[E_AXIS]=oldepos;
+									destination[E_AXIS]=oldedes;
+									plan_set_e_position(oldepos);
+									previous_millis_cmd=millis();
+									st_synchronize();
+									WRITE(E0_ENABLE_PIN,oldstatus);
+								}
+						#endif
+						#if defined(DUAL_X_CARRIAGE)
+							// handle delayed move timeout
+							if (delayed_move_time != 0 && (millis() - delayed_move_time) > 1000 && Stopped == false)
+							{
+								// travel moves have been received so enact them
+								delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
+								memcpy(destination,current_position,sizeof(destination));
+								prepare_move();
+							}
+						#endif
+						#ifdef TEMP_STAT_LEDS
+							handle_status_leds();
+						#endif
+						check_axes_activity();
 					}
 
 					void kill()

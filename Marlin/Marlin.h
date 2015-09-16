@@ -110,7 +110,7 @@ void manage_inactivity();
 
 #if defined(DUAL_X_CARRIAGE) && defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1 \
     && defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
-  #define  enable_x() do { WRITE(X_ENABLE_PIN, X_ENABLE_ON); WRITE(X2_ENABLE_PIN, X_ENABLE_ON); } while (0)
+  #define  enable_x() do { WRITE(X_ENABLE_PIN, X_ENABLE_ON); WRITE(X2_ENABLE_PIN, X_ENABLE_ON);}  while (0)  
   #define disable_x() do { WRITE(X_ENABLE_PIN,!X_ENABLE_ON); WRITE(X2_ENABLE_PIN,!X_ENABLE_ON); axis_known_position[X_AXIS] = false; } while (0)
 #elif defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1
   #define  enable_x() WRITE(X_ENABLE_PIN, X_ENABLE_ON)
@@ -131,7 +131,7 @@ void manage_inactivity();
 #else
   #define enable_y() ;
   #define disable_y() ;
-#endif
+#endif	
 
 #if defined(Z_ENABLE_PIN) && Z_ENABLE_PIN > -1
   #ifdef Z_DUAL_STEPPER_DRIVERS
@@ -175,7 +175,7 @@ enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3};
 
 
 void FlushSerialRequestResend();
-void ClearToSend();
+void ClearToSend(); 
 
 void get_coordinates();
 #ifdef DELTA
@@ -301,4 +301,6 @@ extern bool flag_continue_calib;
 extern float x_home_pos(int extruder);
 extern int bed_calibration_times;
 extern bool processing;
+extern bool blocking_x;
+extern bool blocking_y;
 #endif

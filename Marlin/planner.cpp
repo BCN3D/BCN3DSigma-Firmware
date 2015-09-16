@@ -948,98 +948,95 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 		}
 		}
 	#endif
-  // Start with a safe speed
-  float vmax_junction = max_xy_jerk/2; 
-  float vmax_junction_factor = 1.0; 
-  if(fabs(current_speed[Z_AXIS]) > max_z_jerk/2) 
-    vmax_junction = min(vmax_junction, max_z_jerk/2);
-  if(fabs(current_speed[E_AXIS]) > max_e_jerk/2) 
-    vmax_junction = min(vmax_junction, max_e_jerk/2);
-  vmax_junction = min(vmax_junction, block->nominal_speed);
-  float safe_speed = vmax_junction;
+	// Start with a safe speed
+	float vmax_junction = max_xy_jerk/2; 
+	float vmax_junction_factor = 1.0; 
+	if(fabs(current_speed[Z_AXIS]) > max_z_jerk/2) vmax_junction = min(vmax_junction, max_z_jerk/2);
+	if(fabs(current_speed[E_AXIS]) > max_e_jerk/2) vmax_junction = min(vmax_junction, max_e_jerk/2);
+	vmax_junction = min(vmax_junction, block->nominal_speed);
+	float safe_speed = vmax_junction;
 
-  if ((moves_queued > 1) && (previous_nominal_speed > 0.0001)) {
-    float jerk = sqrt(pow((current_speed[X_AXIS]-previous_speed[X_AXIS]), 2)+pow((current_speed[Y_AXIS]-previous_speed[Y_AXIS]), 2));
-    //    if((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
-    vmax_junction = block->nominal_speed;
-    //    }
-    if (jerk > max_xy_jerk) {
-      vmax_junction_factor = (max_xy_jerk/jerk);
-    } 
-    if(fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]) > max_z_jerk) {
-      vmax_junction_factor= min(vmax_junction_factor, (max_z_jerk/fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS])));
-    } 
-    if(fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]) > max_e_jerk) {
-      vmax_junction_factor = min(vmax_junction_factor, (max_e_jerk/fabs(current_speed[E_AXIS] - previous_speed[E_AXIS])));
-    } 
-    vmax_junction = min(previous_nominal_speed, vmax_junction * vmax_junction_factor); // Limit speed to max previous speed
-  }
-  block->max_entry_speed = vmax_junction;
+	if ((moves_queued > 1) && (previous_nominal_speed > 0.0001)) {
+		float jerk = sqrt(pow((current_speed[X_AXIS]-previous_speed[X_AXIS]), 2)+pow((current_speed[Y_AXIS]-previous_speed[Y_AXIS]), 2));
+		//    if((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
+		vmax_junction = block->nominal_speed;
+		//    }
+		if (jerk > max_xy_jerk) {
+			vmax_junction_factor = (max_xy_jerk/jerk);
+		} 
+		if(fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]) > max_z_jerk) {
+			vmax_junction_factor= min(vmax_junction_factor, (max_z_jerk/fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS])));
+		} 
+		if(fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]) > max_e_jerk) {
+			vmax_junction_factor = min(vmax_junction_factor, (max_e_jerk/fabs(current_speed[E_AXIS] - previous_speed[E_AXIS])));
+		} 
+		vmax_junction = min(previous_nominal_speed, vmax_junction * vmax_junction_factor); // Limit speed to max previous speed
+	}
+	block->max_entry_speed = vmax_junction;
 
-  // Initialize block entry speed. Compute based on deceleration to user-defined MINIMUM_PLANNER_SPEED.
-  double v_allowable = max_allowable_speed(-block->acceleration,MINIMUM_PLANNER_SPEED,block->millimeters);
-  block->entry_speed = min(vmax_junction, v_allowable);
+	  // Initialize block entry speed. Compute based on deceleration to user-defined MINIMUM_PLANNER_SPEED.
+	double v_allowable = max_allowable_speed(-block->acceleration,MINIMUM_PLANNER_SPEED,block->millimeters);
+	block->entry_speed = min(vmax_junction, v_allowable);
+	
+	// Initialize planner efficiency flags
+	// Set flag if block will always reach maximum junction speed regardless of entry/exit speeds.
+	// If a block can de/ac-celerate from nominal speed to zero within the length of the block, then
+	// the current block and next block junction speeds are guaranteed to always be at their maximum
+	// junction speeds in deceleration and acceleration, respectively. This is due to how the current
+	// block nominal speed limits both the current and next maximum junction speeds. Hence, in both
+	// the reverse and forward planners, the corresponding block junction speed will always be at the
+	// the maximum junction speed and may always be ignored for any speed reduction checks.
+	if (block->nominal_speed <= v_allowable) { 
+		block->nominal_length_flag = true; 
+	}
+	else { 
+		block->nominal_length_flag = false; 
+	}
+	block->recalculate_flag = true; // Always calculate trapezoid for new block
 
-  // Initialize planner efficiency flags
-  // Set flag if block will always reach maximum junction speed regardless of entry/exit speeds.
-  // If a block can de/ac-celerate from nominal speed to zero within the length of the block, then
-  // the current block and next block junction speeds are guaranteed to always be at their maximum
-  // junction speeds in deceleration and acceleration, respectively. This is due to how the current
-  // block nominal speed limits both the current and next maximum junction speeds. Hence, in both
-  // the reverse and forward planners, the corresponding block junction speed will always be at the
-  // the maximum junction speed and may always be ignored for any speed reduction checks.
-  if (block->nominal_speed <= v_allowable) { 
-    block->nominal_length_flag = true; 
-  }
-  else { 
-    block->nominal_length_flag = false; 
-  }
-  block->recalculate_flag = true; // Always calculate trapezoid for new block
+	// Update previous path unit_vector and nominal speed
+	memcpy(previous_speed, current_speed, sizeof(previous_speed)); // previous_speed[] = current_speed[]
+	previous_nominal_speed = block->nominal_speed;
+	
 
-  // Update previous path unit_vector and nominal speed
-  memcpy(previous_speed, current_speed, sizeof(previous_speed)); // previous_speed[] = current_speed[]
-  previous_nominal_speed = block->nominal_speed;
+	#ifdef ADVANCE
+		// Calculate advance rate
+		if((block->steps_e == 0) || (block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0)) {
+			block->advance_rate = 0;
+			block->advance = 0;
+		}
+		else {
+			long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_st);
+			float advance = (STEPS_PER_CUBIC_MM_E * EXTRUDER_ADVANCE_K) * 
+			(current_speed[E_AXIS] * current_speed[E_AXIS] * EXTRUTION_AREA * EXTRUTION_AREA)*256;
+			block->advance = advance;
+			if(acc_dist == 0) {
+			block->advance_rate = 0;
+		} 
+		else {
+			block->advance_rate = advance / (float)acc_dist;
+		}
+	}
+	/*
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPGM("advance :");
+	SERIAL_ECHO(block->advance/256.0);
+	SERIAL_ECHOPGM("advance rate :");
+	SERIAL_ECHOLN(block->advance_rate/256.0);
+	*/
+	#endif // ADVANCE
 
+	calculate_trapezoid_for_block(block, block->entry_speed/block->nominal_speed, safe_speed/block->nominal_speed);
 
-#ifdef ADVANCE
-  // Calculate advance rate
-  if((block->steps_e == 0) || (block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0)) {
-    block->advance_rate = 0;
-    block->advance = 0;
-  }
-  else {
-    long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_st);
-    float advance = (STEPS_PER_CUBIC_MM_E * EXTRUDER_ADVANCE_K) * 
-      (current_speed[E_AXIS] * current_speed[E_AXIS] * EXTRUTION_AREA * EXTRUTION_AREA)*256;
-    block->advance = advance;
-    if(acc_dist == 0) {
-      block->advance_rate = 0;
-    } 
-    else {
-      block->advance_rate = advance / (float)acc_dist;
-    }
-  }
-  /*
-    SERIAL_ECHO_START;
-   SERIAL_ECHOPGM("advance :");
-   SERIAL_ECHO(block->advance/256.0);
-   SERIAL_ECHOPGM("advance rate :");
-   SERIAL_ECHOLN(block->advance_rate/256.0);
-   */
-#endif // ADVANCE
+	// Move buffer head
+	block_buffer_head = next_buffer_head;
 
-  calculate_trapezoid_for_block(block, block->entry_speed/block->nominal_speed,
-  safe_speed/block->nominal_speed);
+	// Update position
+	memcpy(position, target, sizeof(target)); // position[] = target[]
 
-  // Move buffer head
-  block_buffer_head = next_buffer_head;
+	planner_recalculate();
 
-  // Update position
-  memcpy(position, target, sizeof(target)); // position[] = target[]
-
-  planner_recalculate();
-
-  st_wake_up();
+	st_wake_up();
 }
 
 #ifdef ENABLE_AUTO_BED_LEVELING

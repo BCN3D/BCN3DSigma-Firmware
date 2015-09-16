@@ -14,7 +14,7 @@
 //#define BUTTON_COOLDOWN						83//57
 #define BUTTON_AUTOLEVEL					12
 #define BUTTON_RESUME						200
-#define BUTTON_STOP							20
+//#define BUTTON_STOP							20
 #define BUTTON_STOP_YES						1
 #define BUTTON_SD_SELECTED					15
 #define BUTTON_SD_LEFT						14
@@ -22,7 +22,7 @@
 #define BUTTON_SPEED_UP						999
 #define BUTTON_SPEED_DOWN					999
 #define BUTTON_START_PRINTING				100
-#define BUTTON_SETUP_BACK					26
+//#define BUTTON_SETUP_BACK					26
 #define BUTTON_PAUSE_RESUME					18
 #define BUTTON_PREHEAT_PLA					36
 #define BUTTON_FAN_DOWN						47
@@ -44,8 +44,8 @@
 
 
 //Nozzle temps
-#define BUTTON_NOZZLE1_PRINT				29
-#define BUTTON_NOZZLE2_PRINT				28
+//#define BUTTON_NOZZLE1_PRINT				29
+//#define BUTTON_NOZZLE2_PRINT				28
 #define BUTTON_NOZZLE1_TEMP					58
 #define BUTTON_NOZZLE2_TEMP					59
 //#define BUTTON_NOZZLE_DOWN				42
@@ -58,7 +58,7 @@
 #define BUTTON_INSERT_FIL					2
 #define	BUTTON_FILAMENT_NOZZLE1				75
 #define	BUTTON_FILAMENT_NOZZLE2				76
-#define	BUTTON_INSERT_BACK					20
+//#define	BUTTON_INSERT_BACK					20
 #define	BUTTON_FILAMENT_BACK				0
 
 #define	BUTTON_INSERT						52
@@ -115,6 +115,10 @@
 #define BUTTON_X_LINE_SELECT8				99
 #define BUTTON_X_LINE_SELECT9				100
 #define BUTTON_X_LINE_SELECT10				101
+#define BUTTON_REDO_X_CAB					20
+#define BUTTON_REDO_LEFT_CAB				27
+#define BUTTON_REDO_RIGHT_CAB				28
+#define BUTTON_REDO_X_CAB					29
 
 //Button Y Line Select
 #define BUTTON_Y_LINE_SELECT1				102
@@ -127,6 +131,10 @@
 #define BUTTON_Y_LINE_SELECT8				109
 #define BUTTON_Y_LINE_SELECT9				110
 #define BUTTON_Y_LINE_SELECT10				111
+#define BUTTON_REDO_Y_CAB					26
+#define BUTTON_REDO_Y_CAB					30
+#define BUTTON_REDO_UP_CAB					31
+#define BUTTON_REDO_DOWN_CAB				35
 
 //Y CALIB
 #define BUTTON_Y_1							137
@@ -180,7 +188,7 @@
 
 
 //CLEAN EXTRUDERS
-#define USERBUTTON_CLEAN_DONE					67
+#define USERBUTTON_CLEAN_DONE				67
 
 //Winbuttons
 #define BUTTON_MOVE_AXIS_X					1
@@ -324,6 +332,8 @@
 #define FORM_CALIB_X				39
 #define FORM_CALIB_Y				42
 #define FORM_FULL_CAL				40
+#define FORM_REDO_X_CAB				3
+#define FORM_REDO_Y_CAB				13
 
 //INFO SCRENS-----------------------------------------------------------------------
 //Forms From INFO SCREENS

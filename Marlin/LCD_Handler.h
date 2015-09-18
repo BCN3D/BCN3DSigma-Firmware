@@ -2062,6 +2062,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT2)
@@ -2076,6 +2079,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT3)
@@ -2090,6 +2096,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT4)
@@ -2104,6 +2113,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT5)
@@ -2118,6 +2130,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT6)
@@ -2132,6 +2147,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT7)
@@ -2146,6 +2164,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT8)
@@ -2160,6 +2181,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT9)
@@ -2174,6 +2198,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT10)
@@ -2189,7 +2216,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				flag_full_calib = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);				
 				}
+				
 				else if (Event.reportObject.index == BUTTON_REDO_UP_CAB)
 				{
 					float calculus = extruder_offset[Y_AXIS][1] + 0.5;
@@ -2199,13 +2230,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P((PSTR("M500"))); //Store changes
 					st_synchronize();
 					
-					current_position[Z_AXIS] = 0.1;
+					current_position[Z_AXIS] = 0.3;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 					enquecommand_P((PSTR("G41")));
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
-					genie.WriteStr(STRING_AXEL,"Y AXIS, Heating...");
-					
+					genie.WriteStr(STRING_AXEL,"Y AXIS, Heating...");					
 				}
+				
 				else if (Event.reportObject.index == BUTTON_REDO_DOWN_CAB)
 				{
 					float calculus = extruder_offset[Y_AXIS][1] -0.4;
@@ -2215,7 +2246,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P((PSTR("M500"))); //Store changes
 					st_synchronize();
 					
-					current_position[Z_AXIS] = 0.1;
+					current_position[Z_AXIS] = 0.3;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 					enquecommand_P((PSTR("G41")));
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -2224,7 +2255,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BUTTON_REDO_Y_CAB)
 				{
-					current_position[Z_AXIS] = 0.1;
+					current_position[Z_AXIS] = 0.3;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 					enquecommand_P((PSTR("G41")));
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);

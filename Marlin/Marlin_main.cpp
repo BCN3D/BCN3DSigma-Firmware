@@ -2203,7 +2203,7 @@ void process_commands()
 					manage_heater();
 				}
 				 
-				
+				delay(5000);
 				//Raise for a layer of Z=0.2
 				current_position[Z_AXIS]+=0.65; //0.5 + 0.15 per ajustar una bona alçada
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1000/60 , active_extruder);
@@ -2409,6 +2409,7 @@ void process_commands()
 					
 					manage_heater();
 				}
+				delay(5000);
 				
 				//Raise for a layer of Z=0.2
 				current_position[Z_AXIS]+=0.4;
@@ -2571,9 +2572,7 @@ void process_commands()
 				//enquecommand_P((PSTR("T0")));
 				
 				st_synchronize();
-				setTargetHotend0(0);
-				setTargetHotend1(0);
-				setTargetBed(0);
+				
 				//Go to Calibration select screen
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_Y_CALIB_SELECT,0);
 				

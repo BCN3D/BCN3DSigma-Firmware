@@ -428,63 +428,63 @@ void manage_heater()
   for(int e = 0; e < EXTRUDERS; e++) 
   {
 
-  #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
-    thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
-  #endif
+	#ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+		thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
+	#endif
 
-  #ifdef PIDTEMP
-    pid_input = current_temperature[e];
+	#ifdef PIDTEMP
+		pid_input = current_temperature[e];
 
-    #ifndef PID_OPENLOOP
-        pid_error[e] = target_temperature[e] - pid_input;
-        if(pid_error[e] > PID_FUNCTIONAL_RANGE) {
-          pid_output = BANG_MAX;
-          pid_reset[e] = true;
-        }
-        else if(pid_error[e] < -PID_FUNCTIONAL_RANGE || target_temperature[e] == 0) {
-          pid_output = 0;
-          pid_reset[e] = true;
-        }
-        else {
-          if(pid_reset[e] == true) {
-            temp_iState[e] = 0.0;
-            pid_reset[e] = false;
-          }
-          pTerm[e] = Kp * pid_error[e];
-          temp_iState[e] += pid_error[e];
-          temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
-          iTerm[e] = Ki * temp_iState[e];
+		#ifndef PID_OPENLOOP
+	        pid_error[e] = target_temperature[e] - pid_input;
+		    if(pid_error[e] > PID_FUNCTIONAL_RANGE) {
+				pid_output = BANG_MAX;
+				pid_reset[e] = true;
+			}
+			else if(pid_error[e] < -PID_FUNCTIONAL_RANGE || target_temperature[e] == 0) {
+				pid_output = 0;
+				pid_reset[e] = true;
+			}
+			else {
+				if(pid_reset[e] == true) {
+					temp_iState[e] = 0.0;
+					pid_reset[e] = false;
+				}
+				pTerm[e] = Kp * pid_error[e];
+				temp_iState[e] += pid_error[e];
+				temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
+				iTerm[e] = Ki * temp_iState[e];
 
-          //K1 defined in Configuration.h in the PID settings
-          #define K2 (1.0-K1)
-          dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
-          pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e], 0, PID_MAX);
-        }
-        temp_dState[e] = pid_input;
-    #else 
+				//K1 defined in Configuration.h in the PID settings
+				#define K2 (1.0-K1)
+				dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
+				pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e], 0, PID_MAX);
+			}
+			temp_dState[e] = pid_input;
+		#else 
           pid_output = constrain(target_temperature[e], 0, PID_MAX);
-    #endif //PID_OPENLOOP
-    #ifdef PID_DEBUG
-    SERIAL_ECHO_START;
-    SERIAL_ECHO(" PID_DEBUG ");
-    SERIAL_ECHO(e);
-    SERIAL_ECHO(": Input ");
-    SERIAL_ECHO(pid_input);
-    SERIAL_ECHO(" Output ");
-    SERIAL_ECHO(pid_output);
-    SERIAL_ECHO(" pTerm ");
-    SERIAL_ECHO(pTerm[e]);
-    SERIAL_ECHO(" iTerm ");
-    SERIAL_ECHO(iTerm[e]);
-    SERIAL_ECHO(" dTerm ");
-    SERIAL_ECHOLN(dTerm[e]);  
-    #endif //PID_DEBUG
-  #else /* PID off */
-    pid_output = 0;
-    if(current_temperature[e] < target_temperature[e]) {
-      pid_output = PID_MAX;
-    }
-  #endif
+		#endif //PID_OPENLOOP
+		#ifdef PID_DEBUG
+			SERIAL_ECHO_START;
+			SERIAL_ECHO(" PID_DEBUG ");
+			SERIAL_ECHO(e);
+			SERIAL_ECHO(": Input ");
+			SERIAL_ECHO(pid_input);
+			SERIAL_ECHO(" Output ");
+			SERIAL_ECHO(pid_output);
+			SERIAL_ECHO(" pTerm ");
+			SERIAL_ECHO(pTerm[e]);
+			SERIAL_ECHO(" iTerm ");
+			SERIAL_ECHO(iTerm[e]);
+			SERIAL_ECHO(" dTerm ");
+			SERIAL_ECHOLN(dTerm[e]);
+		#endif //PID_DEBUG
+	#else /* PID off */
+		pid_output = 0;
+		if(current_temperature[e] < target_temperature[e]) {
+			pid_output = PID_MAX;
+		}
+	#endif
 
     // Check if temperature is within the correct range
     if((current_temperature[e] > minttemp[e]) && (current_temperature[e] < maxttemp[e])) 
@@ -496,18 +496,18 @@ void manage_heater()
     }
 
     #ifdef WATCH_TEMP_PERIOD
-    if(watchmillis[e] && millis() - watchmillis[e] > WATCH_TEMP_PERIOD)
-    {
-        if(degHotend(e) < watch_start_temp[e] + WATCH_TEMP_INCREASE)
-        {
-            setTargetHotend(0, e);
-            LCD_MESSAGEPGM("Heating failed");
-            SERIAL_ECHO_START;
-            SERIAL_ECHOLN("Heating failed");
-        }else{
-            watchmillis[e] = 0;
-        }
-    }
+		if(watchmillis[e] && millis() - watchmillis[e] > WATCH_TEMP_PERIOD)
+		{
+	        if(degHotend(e) < watch_start_temp[e] + WATCH_TEMP_INCREASE)
+			{
+	            setTargetHotend(0, e);
+				LCD_MESSAGEPGM("Heating failed");
+				SERIAL_ECHO_START;
+				SERIAL_ECHOLN("Heating failed");
+			}else{
+				watchmillis[e] = 0;
+			}
+		}
     #endif
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
       if(fabs(current_temperature[0] - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF) {

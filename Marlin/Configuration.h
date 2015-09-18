@@ -20,7 +20,7 @@
 //
 //This is the version declaration for Sigma, v followed by '_' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
-#define VERSION_STRING  "v_01-1.0.0"
+#define VERSION_STRING  "01-0.0.4"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
@@ -248,9 +248,9 @@
 	//#define  DEFAULT_Kp 16.51
 	//#define  DEFAULT_Ki 1.17
 	//#define  DEFAULT_Kd 58.05
-	#define  DEFAULT_Kp  19.94
-	#define  DEFAULT_Ki 3.25
-	#define  DEFAULT_Kd 30.63
+	#define  DEFAULT_Kp  15.16
+	#define  DEFAULT_Ki 1.16
+	#define  DEFAULT_Kd 49.38
 	
 #endif
 #endif // PIDTEMP
@@ -464,7 +464,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#define X_MAX_POS 312.4//312 //Distance between extruders
+	#define X_MAX_POS 303.9//312 //Distance between extruders
 	//#define X_MAX_POS 210 //Bed X
 	#define X_MIN_POS 0
 	#define Y_MAX_POS 295
@@ -645,7 +645,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //Rapduch
 //Insert Filament parameters
-#define BOWDEN_LENGTH 850
+#define BOWDEN_LENGTH 860
 #define EXTRUDER_LENGTH 50
 #define INSERT_FAST_SPEED 5000	
 #define INSERT_SLOW_SPEED 150
@@ -667,16 +667,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	//#define Z_SIGMA_HOME_X_POINT 3
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
-	#define SIGMA_Z_HOME_TRAVEL_SPEED 6000
+	#define SIGMA_Z_HOME_TRAVEL_SPEED 8000//4000
 	
-	#define Z_SIGMA_RAISE_BEFORE_HOMING 5
+	#define Z_SIGMA_RAISE_BEFORE_HOMING 2//5
 	#define Z_SIGMA_RAISE_AFTER_HOMING 2
 #endif
 
 
 #ifdef Z_SIGMA_AUTOLEVEL
 	#if MOTHERBOARD == BCN3D_BOARD
-		#define XY_SIGMA_TRAVEL_SPEED 7000
+		#define XY_SIGMA_TRAVEL_SPEED 4000
 	#else
 		#define XY_SIGMA_TRAVEL_SPEED 8000
 	#endif
@@ -718,10 +718,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
 	
 	//Right extruder probe point
-	#define X_SIGMA_PROBE_1_RIGHT_EXTR 254.5
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 249//254.5
 	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_RIGHT_EXTR 255
+	#define X_SIGMA_PROBE_2_RIGHT_EXTR 249//255
 	//#define X_SIGMA_PROBE_2_RIGHT_EXTR 204
 	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
 	
@@ -801,7 +801,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define NUM_LINES 10
 //#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
-#define HOMING_FEEDRATE {75*60, 75*60, 6*60, 0}
+#define HOMING_FEEDRATE {75*60, 65*60, 6*60, 0}
 
 // default settings if screen not defined
 #ifndef SIGMA_TOUCH_SCREEN
@@ -810,9 +810,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
 	#if MOTHERBOARD == BCN3D_BOARD
-		//#define DEFAULT_AXIS_STEPS_PER_UNIT   {160,160,3200,304}  // 1/8 microstepping for BCN3D Board
-		#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,152}//MK8
-		//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}//MK7
+		//#define DEFAULT_AXIS_STEPS_PER_UNIT {160,160,3200,608}  //1/32 microstepping for BCN3D Board
+		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,152}	  //1/16 microstepping for BCN3D Board
+		//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}	  //MK7 1/8 microstepping for BCN3D Board
 	#else
 		#if MOTHERBOARD == MEGATRONICS_V3
 			#ifdef PROTO1
@@ -826,8 +826,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#endif
 #endif
 
+<<<<<<< HEAD
 #define DEFAULT_MAX_FEEDRATE          {250, 250, 15, 100}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {2500,2500,100,2000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+=======
+#define DEFAULT_MAX_FEEDRATE          {250, 180, 15, 60}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {2250,2250,80,800}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+>>>>>>> calibration-assistent-improves
 //#define DEFAULT_MAX_ACCELERATION      {2000,2000,50,1000}
 //#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
 //#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum star

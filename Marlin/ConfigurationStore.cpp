@@ -197,6 +197,14 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd));
     SERIAL_ECHOLN(""); 
 #endif
+
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOLNPGM("Offsets (mm):");
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOPAIR(" X ",extruder_offset[X_AXIS][1] );
+	 SERIAL_ECHOPAIR(" Y " ,extruder_offset[Y_AXIS][1]  );
+	 SERIAL_ECHOPAIR(" Z " ,extruder_offset[Z_AXIS][1]  );
+	 SERIAL_ECHOLN("");
 } 
 #endif
 

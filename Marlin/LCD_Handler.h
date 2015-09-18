@@ -1546,10 +1546,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						st_synchronize();
 						
 						blocking_x = true; blocking_y = true;
-						while(blocking_x && blocking_y){
+						/*while(blocking_x && blocking_y){
 							enable_x();
 							enable_y();
-						}
+						}*/
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
 					}	
 					else {
@@ -2030,7 +2030,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 					enquecommand_P((PSTR("M500"))); //Store changes
 					st_synchronize();
-					current_position[Z_AXIS] = 0;
+					current_position[Z_AXIS] = 0.1;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 					enquecommand_P((PSTR("G40")));
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);

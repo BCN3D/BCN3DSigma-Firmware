@@ -249,7 +249,7 @@ void SD_firstPrint();
 
 
 //int language = 0;
-//bool quick_guide = true;	
+bool quick_guide = true;	
 bool blocking_x = false;
 bool blocking_y = false;
 
@@ -770,6 +770,7 @@ void setup()
 		quick_guide =false;
 		enquecommand_P(PSTR("M500"));
 	}*/
+	
 	
 }
 

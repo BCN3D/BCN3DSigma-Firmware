@@ -643,6 +643,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //Auto Bed Calib
 #define SIGMA_BED_AUTOCALIB
 
+//Quick guide control
+#define DEFAULT_QUICK_GUIDE true;
+
 //Rapduch
 //Insert Filament parameters
 #define BOWDEN_LENGTH 860

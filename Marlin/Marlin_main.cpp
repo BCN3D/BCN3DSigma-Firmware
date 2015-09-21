@@ -694,16 +694,10 @@ void setup()
 	for(int8_t i = 0; i < BUFSIZE; i++)
 	{
 		fromsd[i] = false;
-	}
-	
-	
-	
+	}	
 	
 	// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 	Config_RetrieveSettings();
-	
-	
-	
 
 
 	//Enabling RELE ( Stepper Drivers Power )
@@ -770,8 +764,7 @@ void setup()
 	//enquecommand(cmd);
 	//enquecommand_P(PSTR("M24"));
 	#endif
-
-
+	
 	/*if (quick_guide) {
 		Serial.println("Welcome by first time to SIGMA");
 		quick_guide =false;

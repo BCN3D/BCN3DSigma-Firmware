@@ -218,6 +218,12 @@
 #define BUTTON_COOLDOWN_OK					34
 #define BUTTON_COOLDOWN_CANCEL				74
 
+//QUICKSTART
+#define BUTTON_QUICK_INSERT_LEFT			40
+#define BUTTON_QUICK_INSERT_RIGHT			42
+#define BUTTON_QUICK_FULLCALIB				54
+#define BUTTON_QUICK_START_FULLCALIB		46
+
 #define MENU_PRINT							12
 #define MENU_PREHEAT						12
 #define MENU_UTILITY						12
@@ -238,6 +244,7 @@
 #define USERIMAGE_SCREW3					5
 #define USERIMAGE_THERMOMETHER				11
 #define USERIMAGE_PROCESSING				2
+#define USERIMAGE_QUICK_MESAGE_CALIB		24
 
 //Strings---------------------------------------------
 #define STRING_PRINTING_NOZZ1		0
@@ -291,7 +298,12 @@
 
 
 
+
 //Form
+#define FORM_WELCOME				15
+#define FORM_QUICK_MAIN				22
+#define FORM_QUICK_CALIBRATE		45
+
 #define FORM_SDFILES				2
 #define FORM_PAUSE					3
 #define FORM_STOP					12

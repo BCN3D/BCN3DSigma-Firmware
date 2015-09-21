@@ -303,4 +303,5 @@ extern int bed_calibration_times;
 extern bool processing;
 extern bool blocking_x;
 extern bool blocking_y;
+extern int quick_guide_step;
 #endif

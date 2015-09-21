@@ -487,6 +487,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma endregion Printing_settings
 				//*****PRINTING_SEGTTINGS_new
 				
+				
+				
 				else if (Event.reportObject.index == BUTTON_STOP_YES )
 				{
 					is_on_printing_screen=false;
@@ -1256,6 +1258,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (Event.reportObject.index == BUTTON_FILAMENT_NOZZLE1) //Left Nozzle
 					{
 						which_extruder=0;
+						
 					}
 					else //Right Nozzle
 					{
@@ -1290,13 +1293,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						//Serial.println("REMOVING");		
 						//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
-						if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
-						else if (filament_mode == 'R') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
-						else genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
+						if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
+						else if (filament_mode == 'R') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
+						else genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						delay(3500);
 						setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
-						
-				
 						is_changing_filament=true; //We are changing filament	
 					}	
 				}
@@ -1436,7 +1437,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region AdjustFilament
 				else if (Event.reportObject.index == BUTTON_ACCEPT_ADJUST)
 				{
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+					if (quick_guide){
+						if (quick_guide_step == 1) genie.WriteObject(GENIE_OBJ_FORM,BUTTON_QUICK_INSERT_RIGHT,0);
+						else if(quick_guide_step == 2) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_CALIBRATE,0);
+					}
+					else genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
 					
 				}
 				
@@ -2338,7 +2343,105 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				#pragma endregion CalibrationsXYZ
 				
+				#pragma region QUICK START
+				//*****START QUICK GUIDE
 				
+				else if (Event.reportObject.index == BUTTON_QUICK_INSERT_LEFT )
+				{
+					quick_guide_step = 1;
+					Serial.println("button detected");
+					which_extruder=0;
+					filament_mode = 'I';
+					setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					surfing_utilities = true;
+					is_changing_filament = true;
+					Serial.println(surfing_utilities);
+					Serial.print("changing_filament: ");  Serial.println(is_changing_filament);
+				}
+				
+				else if (Event.reportObject.index == BUTTON_QUICK_INSERT_RIGHT )
+				{
+					quick_guide_step = 2;
+					Serial.println("button detected");
+					which_extruder=1;
+					setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+				}
+				
+				else if (Event.reportObject.index == BUTTON_QUICK_FULLCALIB )
+				{
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_QUICK_MESAGE_CALIB,1);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_QUICK_START_FULLCALIB,1);
+				}
+				
+				else if (Event.reportObject.index == BUTTON_QUICK_START_FULLCALIB)
+				{
+					bed_calibration_times = 0;
+					Serial.print("INFO: BED CALIB - ");
+					Serial.println(flag_bed_calib_done);
+					flag_full_calib = true;
+					
+					//enquecommand_P(PSTR("T0"));
+					if(!flag_bed_calib_done){  //Do g34
+						enquecommand_P(PSTR("G28"));
+						enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
+						changeTool(0);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_QUICK_MESAGE_CALIB,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_QUICK_START_FULLCALIB,0);
+						genie.WriteStr(STRING_AXEL,"BED");
+						st_synchronize();
+					}
+					else{ //Do Z clean
+						//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						//enquecommand_P(PSTR("G28"));
+						active_extruder = LEFT_EXTRUDER;
+						genie.WriteStr(STRING_AXEL,"        Z AXIS");
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+						genie.WriteStr(STRING_AXEL,"        Z AXIS");
+						delay(1500);
+						
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
+						
+						//changeToolSigma(LEFT_EXTRUDER);
+						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+						
+						
+						//Wait until temperature it's okey
+						setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
+						setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
+						
+						//MOVE EXTRUDERS
+						current_position[Z_AXIS] = 60;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, LEFT_EXTRUDER);//move bed
+						st_synchronize();
+						current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
+						
+						while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+							
+							manage_heater();
+						}
+						
+						//home_axis_from_code();
+						
+						
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
+						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the left nozzle \n and press GO to move on to \n the next EXTRUDER");
+						flag_continue_calib = true;
+					}
+				}
+				
+				
+				//*****END QUICK GUIDE
+				#pragma endregion QUICK START
 				
 				
 				//***** Info Screens *****

@@ -992,21 +992,20 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			#endif //Extruders > 1
 			waitPeriod=1000+millis(); // Every Second
 		}
+	}	
+	else
+	{
+		//Serial.println("NOTHING DONE");//Do always...
 	}
-	else if (processing){
-		
+	if (processing){
 		if (millis() >= waitPeriod){
 			Serial.println(waitPeriod);
-			static int processing_state = 0;			
+			static int processing_state = 0;
 			genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
 			if (processing_state == 0) processing_state = (processing_state+1)%3;
 			else processing_state = (processing_state+1)%3;
 			waitPeriod=250+millis();
 		}
-	}
-	else
-	{
-		//Serial.println("NOTHING DONE");//Do always...
 	}
 	//waitPeriod=250+millis();
 	genie.DoEvents(); //Processes the TouchScreen Queued Events. Calls LCD_Handler.h ->myGenieEventHandler()

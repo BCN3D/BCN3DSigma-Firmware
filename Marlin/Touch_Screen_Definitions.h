@@ -224,6 +224,7 @@
 #define BUTTON_QUICK_FULLCALIB				54
 #define BUTTON_QUICK_START_FULLCALIB		46
 
+
 #define MENU_PRINT							12
 #define MENU_PREHEAT						12
 #define MENU_UTILITY						12
@@ -303,6 +304,7 @@
 #define FORM_WELCOME				15
 #define FORM_QUICK_MAIN				22
 #define FORM_QUICK_CALIBRATE		45
+#define FORM_QUICK_RIGHT			42
 
 #define FORM_SDFILES				2
 #define FORM_PAUSE					3
@@ -342,7 +344,7 @@
 #define FORM_SLEEP					37
 #define FORM_PRINTING_SETTINGS_NEW	38
 #define FORM_CALIB_X				39
-#define FORM_CALIB_Y				42
+//#define FORM_CALIB_Y				42
 #define FORM_FULL_CAL				40
 #define FORM_REDO_X_CAB				3
 #define FORM_REDO_Y_CAB				13

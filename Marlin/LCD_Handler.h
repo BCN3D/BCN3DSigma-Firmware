@@ -1438,7 +1438,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_ACCEPT_ADJUST)
 				{
 					if (quick_guide){
-						if (quick_guide_step == 1) genie.WriteObject(GENIE_OBJ_FORM,BUTTON_QUICK_INSERT_RIGHT,0);
+						if (quick_guide_step == 1) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_RIGHT,0);
 						else if(quick_guide_step == 2) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_CALIBRATE,0);
 					}
 					else genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
@@ -2019,7 +2019,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;					
 					enquecommand_P((PSTR("M500"))); //Store changes
 					st_synchronize();					
-					current_position[Z_AXIS] = 0.1;
+					current_position[Z_AXIS] = 0.2;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 					enquecommand_P((PSTR("G40")));
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -2035,7 +2035,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 					enquecommand_P((PSTR("M500"))); //Store changes
 					st_synchronize();
-					current_position[Z_AXIS] = 0.1;
+					current_position[Z_AXIS] = 0.2;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 					enquecommand_P((PSTR("G40")));
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -2044,7 +2044,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BUTTON_REDO_X_CAB)
 				{
-					current_position[Z_AXIS] = 0.1;
+					current_position[Z_AXIS] = 0.2;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 					enquecommand_P((PSTR("G40")));
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);

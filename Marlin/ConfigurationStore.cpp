@@ -90,7 +90,7 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
   
   //Quick Start Guide
-  //EEPROM_WRITE_VAR(i,quick_guide);
+  EEPROM_WRITE_VAR(i,quick_guide);
    
   //Language
 //  EEPROM_WRITE_VAR(i,language);
@@ -325,7 +325,7 @@ void Config_ResetDefault()
     max_z_jerk=DEFAULT_ZJERK;
     max_e_jerk=DEFAULT_EJERK;
     add_homing[0] = add_homing[1] = add_homing[2] = 0;
-	//quick_guide = DEFAULT_QUICK_GUIDE;
+	quick_guide = DEFAULT_QUICK_GUIDE;
 	
 #ifdef DELTA
 	endstop_adj[0] = endstop_adj[1] = endstop_adj[2] = 0;

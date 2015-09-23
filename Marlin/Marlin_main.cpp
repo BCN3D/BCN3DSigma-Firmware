@@ -590,17 +590,17 @@ void servo_init()
 
 	// Set position of Servo Endstops that are defined
 	#ifdef SERVO_ENDSTOPS
-	for(int8_t i = 0; i < 3; i++)
-	{
-		if(servo_endstops[i] > -1) {
-			servos[servo_endstops[i]].write(servo_endstop_angles[i * 2 + 1]);
+		for(int8_t i = 0; i < 3; i++)
+		{
+			if(servo_endstops[i] > -1) {
+				servos[servo_endstops[i]].write(servo_endstop_angles[i * 2 + 1]);
+			}
 		}
-	}
 	#endif
 
 	#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
-	delay(PROBE_SERVO_DEACTIVATION_DELAY);
-	servos[servo_endstops[Z_AXIS]].detach();
+		delay(PROBE_SERVO_DEACTIVATION_DELAY);
+		servos[servo_endstops[Z_AXIS]].detach();
 	#endif
 }
 
@@ -629,14 +629,17 @@ void setup()
 	MYSERIAL_SCREEN.begin(200000);
 	//delay(100);
 	//delay(1000);
+	
 	genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
 	genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
 	// Reset the Display
 	// THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
+	
 	pinMode(RESETLINE, OUTPUT);  // Set Output (4D Arduino Adaptor V2 - Display Reset)
 	digitalWrite(RESETLINE, 0);  // Reset the Display
 	delay(100);
 	digitalWrite(RESETLINE, 1);  // unReset the Display
+	
 	delay(3500); //showing the splash screen
 	delay(1000);
 	
@@ -644,8 +647,10 @@ void setup()
 	Config_RetrieveSettings();
 	
 	if (quick_guide) {
+		genie.WriteStr(3,VERSION_STRING);
+		delay(2500);
 		Serial.println("Welcome by first time to SIGMA");
-		quick_guide =false;
+		//quick_guide =false; ////UNCOMENT TO FINSIH
 		enquecommand_P(PSTR("M500"));
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_WELCOME,0);
 		surfing_utilities=true;
@@ -653,6 +658,8 @@ void setup()
 		Serial.print("changing_filament: ");  Serial.println(is_changing_filament);
 	} ///////////////////////////////THIS MUST HAVE REMOVED WHEN QUICK GUIDE WORKS
 	else{
+		genie.WriteStr(3,VERSION_STRING);
+		delay(2500);
 		enquecommand_P(PSTR("M502"));
 		enquecommand_P(PSTR("M500"));
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_WELCOME,0);
@@ -668,13 +675,15 @@ void setup()
 	genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
 	// Reset the Display (change D4 to D2 if you have original 4D Arduino Adaptor)
 	// THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
+	
 	pinMode(RESETLINE, OUTPUT);  // Set D4 on Arduino to Output (4D Arduino Adaptor V2 - Display Reset)
 	digitalWrite(RESETLINE, 0);  // Reset the Display
 	delay(100);
-	digitalWrite(RESETLINE, 1);  // unReset the Display
+	digitalWrite(RESETLINE, 1);  // unReset the Display	
+	
 	delay (3500); //let the display start up after the reset (This is important)
 	delay (3500); //showing the splash screen
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+	//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 	//Turn the Display on (Contrast) - (Not needed but illustrates how)
 	//genie.WriteContrast(1);
 
@@ -714,9 +723,6 @@ void setup()
 		fromsd[i] = false;
 	}	
 	
-
-
-
 	//Enabling RELE ( Stepper Drivers Power )
 	#if MOTHERBOARD==BCN3D_BOARD //BCNElectronics v1
 	//enable 24V
@@ -781,10 +787,6 @@ void setup()
 	//enquecommand(cmd);
 	//enquecommand_P(PSTR("M24"));
 	#endif
-	
-	
-	
-	
 }
 
 
@@ -925,7 +927,16 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		}
 		 
 	}
-	
+	else if (processing){
+		if (millis() >= waitPeriod){
+			Serial.println(waitPeriod);
+			static int processing_state = 0;
+			genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
+			if (processing_state == 0) processing_state = (processing_state+1)%3;
+			else processing_state = (processing_state+1)%3;
+			waitPeriod=250+millis();
+		}
+	}
 	else if (surfing_utilities)
 	{
 		if (millis() >= waitPeriod)
@@ -969,8 +980,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			{
 				Serial.println("Ready to Insert/Remove");
 				//We have preheated correctly
-				if (filament_mode =='I')				{
-					Serial.println("enter int form 19");					
+				if (filament_mode =='I')				{										
 					genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
 					genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
@@ -997,16 +1007,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	{
 		//Serial.println("NOTHING DONE");//Do always...
 	}
-	if (processing){
-		if (millis() >= waitPeriod){
-			Serial.println(waitPeriod);
-			static int processing_state = 0;
-			genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
-			if (processing_state == 0) processing_state = (processing_state+1)%3;
-			else processing_state = (processing_state+1)%3;
-			waitPeriod=250+millis();
-		}
-	}
+	
 	//waitPeriod=250+millis();
 	genie.DoEvents(); //Processes the TouchScreen Queued Events. Calls LCD_Handler.h ->myGenieEventHandler()
 }
@@ -2300,17 +2301,22 @@ void process_commands()
 					//plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 150, current_position[Z_AXIS]+5, current_position[E_AXIS], 1500/60, active_extruder);//Lift Z
 					st_synchronize();
 				}
+				
 				current_position[X_AXIS]=mm_left_offset+(NUM_LINES-1)*mm_each_extrusion;
 				current_position[Y_AXIS]=200;				
 				current_position[E_AXIS]-=2;
+				current_position[Z_AXIS]+=0.2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//MORE Retrack
 				//plan_set_position(current_position[X_AXIS]+(4*mm_each_extrusion), 150, current_position[Z_AXIS], current_position[E_AXIS]);
 				//plan_buffer_line(mm_left_offset, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2, active_extruder);
 				
 				
 				//2)Extruder 2 prints with corrections
-				current_position[X_AXIS]= x_home_pos(LEFT_EXTRUDER);
+				current_position[X_AXIS]= x_home_pos(LEFT_EXTRUDER);				
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//MORE Retrack
+				current_position[Z_AXIS]-= 0.2;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//MORE Retrack
+				
 				changeTool(1);
 
 				
@@ -2323,12 +2329,13 @@ void process_commands()
 				//current_position[E_AXIS]-=4;
 				current_position[E_AXIS]-=2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
+				st_synchronize();
 				/*plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 500/60 , active_extruder);
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 				plan_buffer_line(current_position[X_AXIS], 99, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS]/2, active_extruder);//Retrack
 				plan_buffer_line(mm_left_offset+(mm_second_extruder[0]), 99, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS]/2, active_extruder);//Retrack*/
-				st_synchronize();
-				plan_buffer_line(current_position[X_AXIS], 149, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder); //Move Y and Z
+				
+				plan_buffer_line(current_position[X_AXIS], 250+11+5, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder); //Move Y and Z
 				st_synchronize();
 				
 				//Second Extruder (correcting)
@@ -2380,8 +2387,13 @@ void process_commands()
 				}
 				current_position[X_AXIS]=mm_left_offset+(mm_second_extruder[NUM_LINES-1]+(mm_each_extrusion*(NUM_LINES-1)));
 				current_position[Y_AXIS]=199;
-
+				current_position[Z_AXIS]+=0.2;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//MORE Retrack
+				
 				changeTool(0);
+				
+				current_position[Z_AXIS]-=0.2;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//MORE Retrack
 				
 				enquecommand_P((PSTR("G28 X0 Y0")));
 				//enquecommand_P((PSTR("T0")));

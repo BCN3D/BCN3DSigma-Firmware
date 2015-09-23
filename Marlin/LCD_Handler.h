@@ -1189,7 +1189,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				NOZZLE BUTTONS reusability---------------------------------------------------
 				else if (Event.reportObject.index == BUTTON_NOZZLE1_PRINT || Event.reportObject.index == BUTTON_NOZZLE2_PRINT || Event.reportObject.index == BUTTON_NOZZLE1_TEMP || Event.reportObject.index == BUTTON_NOZZLE2_TEMP)
 				{
-				if (Event.reportObject.index == BUTTON_NOZZLE1_PRINT || Event.reportObject.index == BUTTON_NOZZLE1_TEMP)
+				if (Event.reportObject.index == BUTTON_NOZZLE1_PRINT || Event.reportObject.index == 
+				BUTTON_NOZZLE1_TEMP)
 				{
 				which_extruder=0;
 				}else{
@@ -1269,6 +1270,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
 					else {
 						//*********Move the bed down and the extruders inside
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
 						if (!home_made) home_axis_from_code();
 					
@@ -1306,7 +1308,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					
 					//*********Move the bed down and the extruders inside
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
+					processing = true;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					if (!home_made) home_axis_from_code();
 					
 					int feedrate;
@@ -1340,19 +1343,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					current_position[Z_AXIS]=Z_MAX_POS-5;
 					feedrate=homing_feedrate[Z_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*2/60, active_extruder); //check speed
-					
+					st_synchronize();
 					
 					/****************************************************/
+					processing = false;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FILAMENT_HANDS,0);
 					
-					//ATTENTION : Order here is important
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);					
-					//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
-					//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
-					genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
-					setTargetHotend(INSERT_FIL_TEMP,which_extruder);
-					delay(3500);
-						
-					
+					 //We are changing filament	
 					/*else if (filament_mode=='R'){		
 						//Serial.println("REMOVING");		
 						//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
@@ -1361,10 +1358,29 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
 					}*/
 				
-					is_changing_filament=true; //We are changing filament					
+									
 				}
 
-
+				else if(Event.reportObject.index == BUTTON_MOVE_INSERT){					
+					
+					//ATTENTION : Order here is important
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);					
+					//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
+					//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
+					setTargetHotend(INSERT_FIL_TEMP,which_extruder);
+					delay(3500);
+					is_changing_filament=true;
+					
+					if (which_extruder == 0) changeTool(0);
+					else changeTool(1);
+					
+					current_position[Y_AXIS] = 5;
+					current_position[X_AXIS] = 155;					
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
+					st_synchronize();
+				}
 				/*else if (Event.reportObject.index == BUTTON_INSERT_BACK)
 				{
 					is_changing_filament=false; //We are no longer waiting for heat
@@ -1437,12 +1453,17 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region AdjustFilament
 				else if (Event.reportObject.index == BUTTON_ACCEPT_ADJUST)
 				{
+					enquecommand_P(PSTR("G28 X0 Y0"));
+					
 					if (quick_guide){
 						if (quick_guide_step == 1) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_RIGHT,0);
 						else if(quick_guide_step == 2) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_CALIBRATE,0);
 					}
-					else genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
-					
+					else {
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+					}
+					setTargetHotend0(0);
+					setTargetHotend1(0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_ADJUST_ZUp)
@@ -2346,26 +2367,22 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region QUICK START
 				//*****START QUICK GUIDE
 				
-				else if (Event.reportObject.index == BUTTON_QUICK_INSERT_LEFT )
+				else if (Event.reportObject.index == BUTTON_QUICK_INSERT_LEFT || Event.reportObject.index == BUTTON_QUICK_INSERT_LEFT2)
 				{
 					quick_guide_step = 1;
-					Serial.println("button detected");
 					which_extruder=0;
 					filament_mode = 'I';
-					setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
+					//setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
 					surfing_utilities = true;
-					is_changing_filament = true;
-					Serial.println(surfing_utilities);
-					Serial.print("changing_filament: ");  Serial.println(is_changing_filament);
+					
 				}
 				
-				else if (Event.reportObject.index == BUTTON_QUICK_INSERT_RIGHT )
+				else if (Event.reportObject.index == BUTTON_QUICK_INSERT_RIGHT || Event.reportObject.index == BUTTON_QUICK_INSERT_RIGHT2 )
 				{
 					quick_guide_step = 2;
-					Serial.println("button detected");
 					which_extruder=1;
-					setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
+					//setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
 				}
 				
@@ -2599,11 +2616,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 				}
 				
-				//Backing from INFO SCREENS
-				else if (Event.reportObject.index == BUTTON_INFO_FIL_INSERTED)
-				{
 				
-				}
+				
 				
 				//Backing from INFO SCREENS
 				else if (Event.reportObject.index == BUTTON_INFO_TURN_SCREWS)

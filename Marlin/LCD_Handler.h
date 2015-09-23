@@ -1033,7 +1033,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if(Event.reportObject.index == BUTTON_PURGE_NEW_FILAMENT){
 					
 					
-					genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
 					
 					if (purge_extruder_selected == 0) setTargetHotend0(INSERT_FIL_TEMP);
@@ -1266,7 +1266,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
 					else {
 						//*********Move the bed down and the extruders inside
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						if (!home_made) home_axis_from_code();
 					
 						int feedrate;

@@ -50,7 +50,7 @@
 #define BUTTON_NOZZLE2_TEMP					59
 //#define BUTTON_NOZZLE_DOWN				42
 //define BUTTON_NOZZLE_UP					41
-#define BUTTON_SETUP_BACK_NOZZLE			43
+//#define BUTTON_SETUP_BACK_NOZZLE			43
 
 //Insert FILAMENT
 #define BUTTON_REMOVE_FIL					50
@@ -103,6 +103,7 @@
 #define BUTTON_PREHEAT_SET_NOZZ2_DOWN		89
 #define BUTTON_PREHEAT_SET_BED_UP			85
 #define BUTTON_PREHEAT_SET_BED_DOWN			88
+
 
 
 //Button X Line Select
@@ -181,6 +182,14 @@
 #define BUTTON_Z_CALIB_Z2_Down				117
 #define BUTTON_Z_CALIB_Z2_OK				115
 
+//Button Z line Select
+#define BUTTON_Z_LEFT_SELECT1				43
+#define BUTTON_Z_LEFT_SELECT2				47
+#define BUTTON_Z_LEFT_SELECT3				48
+
+#define BUTTON_Z_RIGHT_SELECT1				60
+#define BUTTON_Z_RIGHT_SELECT2				62
+#define BUTTON_Z_RIGHT_SELECT3				119
 
 //ADJUST FILAMENT
 #define BUTTON_ACCEPT_ADJUST				17
@@ -312,6 +321,9 @@
 
 #define FORM_INSERT_FILAMENT_HANDS		47
 
+#define FORM_LEFT_Z_TEST			25
+#define FORM_RIGHT_Z_TEST			48
+
 #define FORM_SDFILES				2
 #define FORM_PAUSE					3
 #define FORM_STOP					12
@@ -322,7 +334,7 @@
 
 #define FORM_NOZZLE					16
 #define FORM_BED					17
-#define FORM_FAN					18
+//#define FORM_FAN					18
 #define FORM_TEMPERATURE			22
 #define FORM_MAIN_SCREEN			5
 #define FORM_SETUP					13
@@ -354,6 +366,7 @@
 #define FORM_FULL_CAL				40
 #define FORM_REDO_X_CAB				3
 #define FORM_REDO_Y_CAB				13
+#define	FORM_INFO_Z_PRINT			17
 
 //INFO SCRENS-----------------------------------------------------------------------
 //Forms From INFO SCREENS

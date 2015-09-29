@@ -2324,11 +2324,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_Up)
 				{
-				float feedrate = homing_feedrate[Z_AXIS];
-				current_position[Z_AXIS] += 0.05;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-				Serial.print("Z position: ");
-				Serial.println(current_position[Z_AXIS]);
+					float feedrate = homing_feedrate[Z_AXIS];
+					current_position[Z_AXIS] += 0.05;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					Serial.print("Z position: ");
+					Serial.println(current_position[Z_AXIS]);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_Down)
@@ -2347,19 +2347,144 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.print("Z2 Offset: ");
 					Serial.println(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
 					enquecommand_P(PSTR("M500"));//Store everything
-					enquecommand_P(PSTR("T0"));				
+					changeTool(0);
+					//enquecommand_P(PSTR("T0"));	
+					st_synchronize();			
 					//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);				
 					//enquecommand_P(PSTR("G28"));
-					enquecommand_P(PSTR("G40"));
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
+										
+					setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP-5);
+					setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP-5);
+					setTargetBed(PLA_PREHEAT_HPB_TEMP-5);
+					
+					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-10) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-10)&& degBed()<(PLA_PREHEAT_HPB_TEMP-10)){ //Waiting to heat the extruder
+						
+						manage_heater();
+					}
+					delay(6000);
+					
+					////////////////////
+					//LEFT Z TEST PRINT/
+					////////////////////
+					current_position[E_AXIS]+=30;  //0.5 + 0.15 per ajustar una bona alçada
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
+					current_position[Z_AXIS]+=0.65; //0.5 + 0.15 per ajustar una bona alçada
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+					st_synchronize();					
+					
+					//HALF SKIRT
+					current_position[X_AXIS] = 90; current_position[Y_AXIS] = 149-10; current_position[E_AXIS] -= 2; current_position[Z_AXIS] -= 0.3;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+					st_synchronize();
+					current_position[X_AXIS] = 90; current_position[Y_AXIS] = 250+11+10; current_position[E_AXIS] += 2;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+					st_synchronize();
+					current_position[X_AXIS] = 110; current_position[Y_AXIS] = 250+11+10; current_position[E_AXIS] += 2;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+					st_synchronize();
+					// RIGHT LINE
+					current_position[X_AXIS] = 105; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0;current_position[E_AXIS] -= 2;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+					st_synchronize();
+					current_position[X_AXIS] = 105; current_position[Y_AXIS] = 201; current_position[E_AXIS]+=1;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+					st_synchronize();
+					//CENTER LINE
+					current_position[X_AXIS] = 100; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0.1; current_position[E_AXIS]-=1;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+					st_synchronize();
+					current_position[X_AXIS] = 100; current_position[Y_AXIS] = 201; current_position[E_AXIS]+=1;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+					st_synchronize();
+					// LEFT LINE
+					current_position[X_AXIS] = 95; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0.2; current_position[E_AXIS]-=1;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+					st_synchronize();
+					current_position[X_AXIS] = 95; current_position[Y_AXIS] = 201;  current_position[E_AXIS]+=1;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+					st_synchronize();
+					
+					//RETIRE HOTEND
+					current_position[Z_AXIS]+= 0.3; current_position[E_AXIS]-=1;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+					st_synchronize();
+					enquecommand_P(PSTR("G28 X"));
+					st_synchronize();
+					current_position[Z_AXIS]-= 0.3;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+					
+					st_synchronize();
+					
+					
+					//SELECT LINES SCREEN
+					//z_print_test =false;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_Z_TEST,0);
+					
+					////////////////////////////////////////////////////////////
+					/*enquecommand_P(PSTR("G40"));
 					st_synchronize();
 				
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
-					genie.WriteStr(STRING_AXEL,"X AXIS, Heating...");
+					genie.WriteStr(STRING_AXEL,"X AXIS, Heating...");*/
+					/////////////////////////////////////////////////////////////
+					
 					//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 					//enquecommand_P(PSTR("G28")); //mounting serie
 					//st_synchronize();
 					#ifdef SIGMA_TOUCH_SCREEN
 					#endif
+				}
+				
+				else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT1){
+					//z_print_test =true;
+					changeTool(1);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
+					delay(1500);
+					right_test_print_code();
+				}
+				else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT2){
+					//z_print_test =true;
+					changeTool(1);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
+					delay(1500);
+					right_test_print_code();
+				}
+				else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT3){
+					//z_print_test =true;
+					changeTool(1);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
+					delay(1500);
+					right_test_print_code();
+				}
+				
+				else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT1){
+					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.05;
+					enquecommand_P(PSTR("M500"));
+					enquecommand_P(PSTR("T0"));
+					enquecommand_P(PSTR("G40"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"X AXIS, Heating...");
+					
+				}
+				else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT2){					
+					enquecommand_P(PSTR("T0"));
+					enquecommand_P(PSTR("G40"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"X AXIS, Heating...");
+					
+				}
+				else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT3){
+					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.05;
+					enquecommand_P(PSTR("M500"));
+					enquecommand_P(PSTR("T0"));
+					enquecommand_P(PSTR("G40"));
+					st_synchronize();
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"X AXIS, Heating...");
+					
 				}
 				
 				#pragma endregion CalibrationsXYZ
@@ -2499,8 +2624,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BACKBUTTON_INFO_NEEDFIL)
 				{
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
-					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);					
 				}
 				
 				//Backing from INFO SCREENS

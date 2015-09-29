@@ -611,58 +611,31 @@ void setup()
 	setup_powerhold();
 	
 	MYSERIAL.begin(BAUDRATE);
-	//delay(100);
-	//delay(1000);
 	SERIAL_PROTOCOLLNPGM(VERSION_STRING);
 	SERIAL_ECHO_START;
 	SERIAL_PROTOCOLLNPGM("start");
 	
 	
 	Serial.println("BCN3D Sigma");
-	//Serial.println(VERSION_STRING);
 	
 	//LCD START routine
 	#ifdef SIGMA_TOUCH_SCREEN
-	
-	#if MOTHERBOARD == BCN3D_BOARD
-	MYSERIAL_SCREEN.begin(200000);
-	//delay(100);
-	//delay(1000);
-	genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
-	genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
-	// Reset the Display
-	// THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
-	pinMode(RESETLINE, OUTPUT);  // Set Output (4D Arduino Adaptor V2 - Display Reset)
-	digitalWrite(RESETLINE, 0);  // Reset the Display
-	delay(100);
-	digitalWrite(RESETLINE, 1);  // unReset the Display
-	delay(3500); //showing the splash screen
-	delay(1000);
-	genie.WriteStr(3,VERSION_STRING);
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-	//Turn the Display on (Contrast) - (Not needed but illustrates how)
-	//genie.WriteContrast(1);
-	#endif
-
-	#if MOTHERBOARD == MEGATRONICS_V3
-	MYSERIAL_SCREEN.begin(200000);
-	delay (100);
-	genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
-	genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
-	// Reset the Display (change D4 to D2 if you have original 4D Arduino Adaptor)
-	// THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
-	pinMode(RESETLINE, OUTPUT);  // Set D4 on Arduino to Output (4D Arduino Adaptor V2 - Display Reset)
-	digitalWrite(RESETLINE, 0);  // Reset the Display
-	delay(100);
-	digitalWrite(RESETLINE, 1);  // unReset the Display
-	delay (3500); //let the display start up after the reset (This is important)
-	delay (3500); //showing the splash screen
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-	//Turn the Display on (Contrast) - (Not needed but illustrates how)
-	//genie.WriteContrast(1);
-
-	#endif
-
+		#if MOTHERBOARD == BCN3D_BOARD
+			MYSERIAL_SCREEN.begin(200000);
+			genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
+			genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
+			// Reset the Display. THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
+			pinMode(RESETLINE, OUTPUT);  // Set Output (4D Arduino Adaptor V2 - Display Reset)
+			digitalWrite(RESETLINE, 0);  // Reset the Display. Active LOW.
+			delay(100);
+			digitalWrite(RESETLINE, 1);  // unReset the Display
+			delay(4500); //showing the splash screen
+			genie.WriteStr(3,VERSION_STRING);
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			//Turn the Display on (Contrast)
+			//For uLCD43, uLCD-70DT, and uLCD-35DT, use 0-15 for Brightness Control, where 0 = Display OFF, though to 15 = Max Brightness ON.
+			//genie.WriteContrast(1);
+		#endif
 	#endif
 
 	//// Check startup - does nothing if bootloader sets MCUSR to 0
@@ -697,50 +670,32 @@ void setup()
 		fromsd[i] = false;
 	}
 	
-	
-	
-	
 	// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 	Config_RetrieveSettings();
 	
-	
-	
-
-
-	//Enabling RELE ( Stepper Drivers Power )
-	#if MOTHERBOARD==BCN3D_BOARD //BCNElectronics v1
-	//enable 24V
-	pinMode(RELAY, OUTPUT);
-	digitalWrite(RELAY, LOW);
-	//delay(50);
-	digitalWrite(RELAY, HIGH);
-	//delay(50);
-	
-	//pinMode(RED,OUTPUT);
-	//pinMode(GREEN,OUTPUT);
-	//pinMode(BLUE,OUTPUT);
-
-	//analogWrite(RED,177);
-	//analogWrite(GREEN,177);
-	//analogWrite(BLUE,127);//Turn printer Blue rgb
-	
-	analogWrite(RED,255);
-	analogWrite(GREEN,255);
-	analogWrite(BLUE,255);
-	#endif
-	
-	#if MOTHERBOARD==MEGATRONICS_V3
-	//pinMode(Z2_MIN_PIN,INPUT);
-	//ITS SET on st_init();
-	#endif
-
-
 	tp_init();    // Initialize temperature loop
 	plan_init();  // Initialize planner;
 	watchdog_init();
 	st_init();    // Initialize stepper, this enables interrupts!
 	setup_photpin();
 	servo_init();
+	
+	//Enabling RELAY ( Stepper Drivers Power )
+	#if MOTHERBOARD==BCN3D_BOARD
+	pinMode(RED,OUTPUT);
+	pinMode(GREEN,OUTPUT);
+	pinMode(BLUE,OUTPUT);
+	//Setting the LEDs at full power -> WHITE
+	digitalWrite(RED,HIGH);
+	digitalWrite(GREEN,HIGH);
+	digitalWrite(BLUE,HIGH);
+	
+	//enable 24V
+	pinMode(RELAY, OUTPUT);
+	digitalWrite(RELAY, LOW);
+	delay(1);
+	digitalWrite(RELAY, HIGH); //Relay On
+	#endif
 
 	//lcd_init();
 	#if MOTHERBOARD == BCN3D_BOARD
@@ -785,8 +740,6 @@ void setup()
 
 void loop()
 {
-
-	
 	if(buflen < (BUFSIZE-1))
 	get_command();
 	#ifdef SDSUPPORT

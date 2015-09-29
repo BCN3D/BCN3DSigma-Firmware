@@ -682,19 +682,19 @@ void setup()
 	
 	//Enabling RELAY ( Stepper Drivers Power )
 	#if MOTHERBOARD==BCN3D_BOARD
-	pinMode(RED,OUTPUT);
-	pinMode(GREEN,OUTPUT);
-	pinMode(BLUE,OUTPUT);
-	//Setting the LEDs at full power -> WHITE
-	digitalWrite(RED,HIGH);
-	digitalWrite(GREEN,HIGH);
-	digitalWrite(BLUE,HIGH);
+		pinMode(RED,OUTPUT);
+		pinMode(GREEN,OUTPUT);
+		pinMode(BLUE,OUTPUT);
+		//Setting the LEDs at full power -> WHITE
+		digitalWrite(RED,HIGH);
+		digitalWrite(GREEN,HIGH);
+		digitalWrite(BLUE,HIGH);
 	
-	//enable 24V
-	pinMode(RELAY, OUTPUT);
-	digitalWrite(RELAY, LOW);
-	delay(1);
-	digitalWrite(RELAY, HIGH); //Relay On
+		//enable 24V
+		pinMode(RELAY, OUTPUT);
+		digitalWrite(RELAY, LOW);
+		delay(1);
+		digitalWrite(RELAY, HIGH); //Relay On
 	#endif
 
 	//lcd_init();
@@ -815,19 +815,6 @@ int getBuflen ()
 {
 	return buflen;
 }
-
-#if MOTHERBOARD==BCN3D_BOARD //BCN Electronics
-void sleep_RELAY()
-{
-	digitalWrite(RELAY, LOW);
-}
-
-void wake_RELAY()
-{
-	digitalWrite(RELAY, HIGH);
-}
-#endif
-
 
 
 #ifdef SIGMA_TOUCH_SCREEN

@@ -2373,40 +2373,49 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 					st_synchronize();					
 					
+					
 					//HALF SKIRT
-					current_position[X_AXIS] = 90; current_position[Y_AXIS] = 149-10; current_position[E_AXIS] -= 2; current_position[Z_AXIS] -= 0.3;
+					current_position[X_AXIS] = 110; current_position[Y_AXIS] = 250+11+10; current_position[E_AXIS] -= 4; current_position[Z_AXIS] = 0.2;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
 					st_synchronize();
-					current_position[X_AXIS] = 90; current_position[Y_AXIS] = 250+11+10; current_position[E_AXIS] += 2;
+					current_position[X_AXIS] = 75; current_position[Y_AXIS] = 250+11+10; current_position[E_AXIS] += 2;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+					st_synchronize();
+					current_position[X_AXIS] = 75; current_position[Y_AXIS] = 149-10; current_position[E_AXIS] += 2;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+					st_synchronize();
+					current_position[X_AXIS] = 110; current_position[Y_AXIS] = 149-10; current_position[E_AXIS] += 2;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 					st_synchronize();
 					current_position[X_AXIS] = 110; current_position[Y_AXIS] = 250+11+10; current_position[E_AXIS] += 2;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-					st_synchronize();
+					st_synchronize();				
+					
+					
 					// RIGHT LINE
-					current_position[X_AXIS] = 105; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0;current_position[E_AXIS] -= 2;
-					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-					st_synchronize();
-					current_position[X_AXIS] = 105; current_position[Y_AXIS] = 201; current_position[E_AXIS]+=1;
-					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-					st_synchronize();
-					//CENTER LINE
-					current_position[X_AXIS] = 100; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0.1; current_position[E_AXIS]-=1;
+					current_position[X_AXIS] = 100; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0;//current_position[E_AXIS] -= 2;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
 					st_synchronize();
 					current_position[X_AXIS] = 100; current_position[Y_AXIS] = 201; current_position[E_AXIS]+=1;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 					st_synchronize();
-					// LEFT LINE
-					current_position[X_AXIS] = 95; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0.2; current_position[E_AXIS]-=1;
+					//CENTER LINE
+					current_position[X_AXIS] = 92; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0.1; //current_position[E_AXIS]-=2;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
 					st_synchronize();
-					current_position[X_AXIS] = 95; current_position[Y_AXIS] = 201;  current_position[E_AXIS]+=1;
+					current_position[X_AXIS] = 92; current_position[Y_AXIS] = 201; current_position[E_AXIS]+=1;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+					st_synchronize();
+					// LEFT LINE
+					current_position[X_AXIS] = 85; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0.2; //current_position[E_AXIS]-=2;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+					st_synchronize();
+					current_position[X_AXIS] = 85; current_position[Y_AXIS] = 201;  current_position[E_AXIS]+=1;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 					st_synchronize();
 					
 					//RETIRE HOTEND
-					current_position[Z_AXIS]+= 0.3; current_position[E_AXIS]-=1;
+					current_position[Z_AXIS]+= 0.3; current_position[E_AXIS]-=4;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 					st_synchronize();
 					enquecommand_P(PSTR("G28 X"));

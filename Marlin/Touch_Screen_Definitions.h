@@ -191,6 +191,13 @@
 #define BUTTON_Z_RIGHT_SELECT2				62
 #define BUTTON_Z_RIGHT_SELECT3				119
 
+#define BUTTON_REDO_Z_1						128
+#define BUTTON_REDO_Z						130
+#define BUTTON_REDO_Z_3						129
+
+#define BUTTON_REDO_LEFT					127
+#define	BUTTON_REDO_RIGHT					131
+
 //ADJUST FILAMENT
 #define BUTTON_ACCEPT_ADJUST				17
 #define BUTTON_ADJUST_ZUp					32
@@ -310,9 +317,6 @@
 #define STRING_PURGE_RIGHT_TEMP		17
 #define STRING_PURGE_SELECTED		5
 
-
-
-
 //Form
 #define FORM_WELCOME				15
 #define FORM_QUICK_MAIN				22
@@ -334,6 +338,7 @@
 
 #define FORM_NOZZLE					16
 #define FORM_BED					17
+
 //#define FORM_FAN					18
 #define FORM_TEMPERATURE			22
 #define FORM_MAIN_SCREEN			5
@@ -367,6 +372,7 @@
 #define FORM_REDO_X_CAB				3
 #define FORM_REDO_Y_CAB				13
 #define	FORM_INFO_Z_PRINT			17
+#define FORM_REDO_Z_TEST			49
 
 //INFO SCRENS-----------------------------------------------------------------------
 //Forms From INFO SCREENS

@@ -2333,8 +2333,9 @@ void process_commands()
 				
 				current_position[Z_AXIS]-=0.2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);	
-				
-				//Go to Calibration select screen
+				current_position[Y_AXIS] = Y_MAX_POS;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED, active_extruder);
+				//Go to Calibration select screen	
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_X_CALIB_SELECT,0);
 				
 				break;

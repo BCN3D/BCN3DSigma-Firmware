@@ -2489,8 +2489,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("T0"));
 					enquecommand_P(PSTR("G40"));
 					st_synchronize();
-					enquecommand_P(PSTR("G28 Z"));
-					st_synchronize();
+					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 					genie.WriteStr(STRING_AXEL,"X AXIS, Heating...");
 					
@@ -2499,8 +2498,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("T0"));
 					enquecommand_P(PSTR("G40"));
 					st_synchronize();
-					enquecommand_P(PSTR("G28 Z"));
-					st_synchronize();
+					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 					genie.WriteStr(STRING_AXEL,"X AXIS, Heating...");
 					
@@ -2511,8 +2509,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("T0"));
 					enquecommand_P(PSTR("G40"));
 					st_synchronize();
-					enquecommand_P(PSTR("G28 Z"));
-					st_synchronize();
+					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 					genie.WriteStr(STRING_AXEL,"X AXIS, Heating...");
 					

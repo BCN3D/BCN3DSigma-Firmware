@@ -2289,7 +2289,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteStr(STRING_AXEL,"Y AXIS, Heating...");
 				}
 				
-				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_Up)
+				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_Down)
 				{
 				float feedrate = homing_feedrate[Z_AXIS];
 				current_position[Z_AXIS] += 0.05;
@@ -2298,7 +2298,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				Serial.println(current_position[Z_AXIS]);
 				}
 				
-				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_Down)
+				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_Up)
 				{
 				float feedrate = homing_feedrate[Z_AXIS];
 				if (current_position[Z_AXIS]>-1.5) current_position[Z_AXIS] -= 0.05; //Max down is Z=-0.5
@@ -2323,7 +2323,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER2,0);
 				}
 				
-				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_Up)
+				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_Down )
 				{
 					float feedrate = homing_feedrate[Z_AXIS];
 					current_position[Z_AXIS] += 0.05;
@@ -2332,7 +2332,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.println(current_position[Z_AXIS]);
 				}
 				
-				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_Down)
+				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_Up)
 				{
 				float feedrate = homing_feedrate[Z_AXIS];
 				if (current_position[Z_AXIS]>-1.5) current_position[Z_AXIS] -= 0.05;  //Max down is Z=-0.5

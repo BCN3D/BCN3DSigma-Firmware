@@ -2388,7 +2388,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT1){
 					//z_print_test =true;
-					zprobe_zoffset-=0.1;
+					zprobe_zoffset-=0.05;
 					enquecommand_P(PSTR("M500"));
 					changeTool(1);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
@@ -2404,7 +2404,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT3){
 					//z_print_test =true;
-					zprobe_zoffset+=0.1;
+					zprobe_zoffset+=0.05;
 					changeTool(1);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 					delay(1500);
@@ -2444,7 +2444,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (active_extruder == 0){
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						zprobe_zoffset+=0.1;
+						zprobe_zoffset+=0.05;
 						enquecommand_P(PSTR("M500"));						
 						enquecommand_P(PSTR("T1"));
 						enquecommand_P(PSTR("T0"));
@@ -2455,7 +2455,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else{
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.1;
+						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.05;
 						enquecommand_P(PSTR("M500"));
 						enquecommand_P(PSTR("T0"));
 						enquecommand_P(PSTR("T1"));
@@ -2482,7 +2482,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				
 				else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT1){
-					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.1;
+					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.05;
 					enquecommand_P(PSTR("M500"));
 					enquecommand_P(PSTR("T0"));
 					enquecommand_P(PSTR("G40"));
@@ -2504,7 +2504,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				}
 				else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT3){
-					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.1;
+					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.05;
 					enquecommand_P(PSTR("M500"));
 					enquecommand_P(PSTR("T0"));
 					enquecommand_P(PSTR("G40"));

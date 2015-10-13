@@ -2,9 +2,10 @@
 #define CONFIGURATION_H
 
 
-////////////////////////////////PROTOSIGMA///////////////////////////////////
+////////////////////////////////PROTOSIGMA///////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Which variables has been affected
 //SIGMA_Z_HOME_TRAVEL_SPEED , XY_SIGMA_TRAVEL_SPEED, HOMING_FEEDRATE, DEFAULT_AXIS_STEPS_PER_UNIT, DEFAULT_MAX_FEEDRATE, DEFAULT_MAX_ACCELERATION,   
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // This configuration file contains the basic settings.
 // Advanced settings can be found in Configuration_adv.h
@@ -676,7 +677,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	//#define Z_SIGMA_HOME_X_POINT 3
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
-	#define SIGMA_Z_HOME_TRAVEL_SPEED 6000//8000
+	#define SIGMA_Z_HOME_TRAVEL_SPEED 8000
 	
 	#define Z_SIGMA_RAISE_BEFORE_HOMING 2//5
 	#define Z_SIGMA_RAISE_AFTER_HOMING 2
@@ -685,7 +686,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #ifdef Z_SIGMA_AUTOLEVEL
 	#if MOTHERBOARD == BCN3D_BOARD
-		#define XY_SIGMA_TRAVEL_SPEED 7000//4000
+		#define XY_SIGMA_TRAVEL_SPEED 4000
 	#else
 		#define XY_SIGMA_TRAVEL_SPEED 8000
 	#endif
@@ -810,7 +811,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define NUM_LINES 10
 //#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
-#define HOMING_FEEDRATE {75*60, 75*60, 6*60, 0}//{75*60, 65*60, 6*60, 0}
+#define HOMING_FEEDRATE {75*60, 65*60, 6*60, 0}
 
 // default settings if screen not defined
 #ifndef SIGMA_TOUCH_SCREEN
@@ -820,7 +821,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
 	#if MOTHERBOARD == BCN3D_BOARD
 		//#define DEFAULT_AXIS_STEPS_PER_UNIT {160,160,3200,608}  //1/32 microstepping for BCN3D Board
-		#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,152}//{80,80,1600,152}	  //1/16 microstepping for BCN3D Board
+		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,152}	  //1/16 microstepping for BCN3D Board
 		//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}	  //MK7 1/8 microstepping for BCN3D Board
 	#else
 		#if MOTHERBOARD == MEGATRONICS_V3
@@ -838,8 +839,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 
-#define DEFAULT_MAX_FEEDRATE          {250, 250, 50, 100}//{250, 180, 15, 60}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {2500,2500,100,2000} //{2250,2250,80,800}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_MAX_FEEDRATE          {250, 180, 15, 60}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {2250,2250,80,800}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
 //#define DEFAULT_MAX_ACCELERATION      {2000,2000,50,1000}
 //#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)

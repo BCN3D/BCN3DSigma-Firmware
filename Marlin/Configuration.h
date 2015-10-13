@@ -471,7 +471,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#define X_MAX_POS 312//303.9//312 //Distance between extruders
+	#define X_MAX_POS 303.9//312 //Distance between extruders
 	//#define X_MAX_POS 210 //Bed X
 	#define X_MIN_POS 0
 	#define Y_MAX_POS 295

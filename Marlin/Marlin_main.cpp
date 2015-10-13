@@ -647,7 +647,7 @@ void setup()
 				genie.WriteStr(3,VERSION_STRING);						
 				delay(2500);
 				Serial.println("Welcome by first time to SIGMA");
-				quick_guide =false; ////UNCOMENT TO FINSIH
+				
 				enquecommand_P(PSTR("M500"));				
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_WELCOME,0);
 				surfing_utilities=true;				
@@ -872,7 +872,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
 			if (processing_state == 0) processing_state = (processing_state+1)%3;
 			else processing_state = (processing_state+1)%3;
-			waitPeriod=250+millis();
+			waitPeriod=200+millis();
 		}
 	}
 	else if (surfing_utilities)

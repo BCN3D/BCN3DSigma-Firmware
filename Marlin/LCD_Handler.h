@@ -1825,6 +1825,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				Serial.println("Calibration Successful, going back to main menu");
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
 				flag_bed_calib_done = true;
+				quick_guide = false;
 				
 				}
 				

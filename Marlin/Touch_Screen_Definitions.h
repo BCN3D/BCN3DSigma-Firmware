@@ -46,11 +46,11 @@
 //Nozzle temps
 //#define BUTTON_NOZZLE1_PRINT				29
 //#define BUTTON_NOZZLE2_PRINT				28
-#define BUTTON_NOZZLE1_TEMP					58
+//#define BUTTON_NOZZLE1_TEMP					58
 #define BUTTON_NOZZLE2_TEMP					59
 //#define BUTTON_NOZZLE_DOWN				42
 //define BUTTON_NOZZLE_UP					41
-#define BUTTON_SETUP_BACK_NOZZLE			43
+//#define BUTTON_SETUP_BACK_NOZZLE			43
 
 //Insert FILAMENT
 #define BUTTON_REMOVE_FIL					50
@@ -60,6 +60,7 @@
 #define	BUTTON_FILAMENT_NOZZLE2				76
 //#define	BUTTON_INSERT_BACK					20
 #define	BUTTON_FILAMENT_BACK				0
+#define BUTTON_MOVE_INSERT					58
 
 #define	BUTTON_INSERT						52
 #define	BUTTON_REMOVE						52
@@ -102,6 +103,7 @@
 #define BUTTON_PREHEAT_SET_NOZZ2_DOWN		89
 #define BUTTON_PREHEAT_SET_BED_UP			85
 #define BUTTON_PREHEAT_SET_BED_DOWN			88
+
 
 
 //Button X Line Select
@@ -180,6 +182,21 @@
 #define BUTTON_Z_CALIB_Z2_Down				117
 #define BUTTON_Z_CALIB_Z2_OK				115
 
+//Button Z line Select
+#define BUTTON_Z_LEFT_SELECT1				43
+#define BUTTON_Z_LEFT_SELECT2				47
+#define BUTTON_Z_LEFT_SELECT3				48
+
+#define BUTTON_Z_RIGHT_SELECT1				60
+#define BUTTON_Z_RIGHT_SELECT2				62
+#define BUTTON_Z_RIGHT_SELECT3				119
+
+#define BUTTON_REDO_Z_1						128
+#define BUTTON_REDO_Z						130
+#define BUTTON_REDO_Z_3						129
+
+#define BUTTON_REDO_LEFT					127
+#define	BUTTON_REDO_RIGHT					131
 
 //ADJUST FILAMENT
 #define BUTTON_ACCEPT_ADJUST				17
@@ -218,6 +235,16 @@
 #define BUTTON_COOLDOWN_OK					34
 #define BUTTON_COOLDOWN_CANCEL				74
 
+//QUICKSTART
+#define BUTTON_QUICK_INSERT_LEFT			40
+#define BUTTON_QUICK_INSERT_LEFT2			55
+#define BUTTON_QUICK_INSERT_RIGHT			42
+#define BUTTON_QUICK_INSERT_RIGHT2			56
+#define BUTTON_QUICK_FULLCALIB				54
+#define BUTTON_QUICK_START_FULLCALIB		46
+
+
+
 #define MENU_PRINT							12
 #define MENU_PREHEAT						12
 #define MENU_UTILITY						12
@@ -238,6 +265,7 @@
 #define USERIMAGE_SCREW3					5
 #define USERIMAGE_THERMOMETHER				11
 #define USERIMAGE_PROCESSING				2
+#define USERIMAGE_QUICK_MESAGE_CALIB		24
 
 //Strings---------------------------------------------
 #define STRING_PRINTING_NOZZ1		0
@@ -289,9 +317,17 @@
 #define STRING_PURGE_RIGHT_TEMP		17
 #define STRING_PURGE_SELECTED		5
 
-
-
 //Form
+#define FORM_WELCOME				15
+#define FORM_QUICK_MAIN				22
+#define FORM_QUICK_CALIBRATE		45
+#define FORM_QUICK_RIGHT			42
+
+#define FORM_INSERT_FILAMENT_HANDS		47
+
+#define FORM_LEFT_Z_TEST			25
+#define FORM_RIGHT_Z_TEST			48
+
 #define FORM_SDFILES				2
 #define FORM_PAUSE					3
 #define FORM_STOP					12
@@ -302,7 +338,8 @@
 
 #define FORM_NOZZLE					16
 #define FORM_BED					17
-#define FORM_FAN					18
+
+//#define FORM_FAN					18
 #define FORM_TEMPERATURE			22
 #define FORM_MAIN_SCREEN			5
 #define FORM_SETUP					13
@@ -330,10 +367,12 @@
 #define FORM_SLEEP					37
 #define FORM_PRINTING_SETTINGS_NEW	38
 #define FORM_CALIB_X				39
-#define FORM_CALIB_Y				42
+//#define FORM_CALIB_Y				42
 #define FORM_FULL_CAL				40
 #define FORM_REDO_X_CAB				3
 #define FORM_REDO_Y_CAB				13
+#define	FORM_INFO_Z_PRINT			17
+#define FORM_REDO_Z_TEST			49
 
 //INFO SCRENS-----------------------------------------------------------------------
 //Forms From INFO SCREENS

@@ -205,6 +205,8 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOPAIR(" Y " ,extruder_offset[Y_AXIS][1]  );
 	 SERIAL_ECHOPAIR(" Z " ,extruder_offset[Z_AXIS][1]  );
 	 SERIAL_ECHOLN("");
+	
+	
 } 
 #endif
 
@@ -261,7 +263,7 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
 		
 		//Quick Start Guide
-		//EEPROM_READ_VAR(i,quick_guide);
+		EEPROM_READ_VAR(i,quick_guide);
 		
 		//Language
 //		EEPROM_READ_VAR(i,language);

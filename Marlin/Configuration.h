@@ -1,6 +1,12 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
+
+////////////////////////////////PROTOSIGMA///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Which variables has been affected
+//SIGMA_Z_HOME_TRAVEL_SPEED , XY_SIGMA_TRAVEL_SPEED, HOMING_FEEDRATE, DEFAULT_AXIS_STEPS_PER_UNIT, DEFAULT_MAX_FEEDRATE, DEFAULT_MAX_ACCELERATION,   
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // This configuration file contains the basic settings.
 // Advanced settings can be found in Configuration_adv.h
 // BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
@@ -20,7 +26,7 @@
 //
 //This is the version declaration for Sigma, v followed by '_' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
-#define VERSION_STRING  "01-0.0.5"
+#define VERSION_STRING  "01-1.0.0"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
@@ -210,7 +216,7 @@
 #define BANG_MAX 255 // limits current to nozzle while in bang-bang mode; 255=full current
 #define PID_MAX 255 // limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #ifdef PIDTEMP
-  //#define PID_DEBUG // Sends debug data to the serial port.
+ // #define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   
   //Rapduch ATENCIÓ
@@ -459,6 +465,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Y_MAX_POS 280
 	#define Y_MIN_POS 0
 	#define Z_MAX_POS 150
+
 	#define Z_MIN_POS 0
 #endif
 #endif
@@ -670,7 +677,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	//#define Z_SIGMA_HOME_X_POINT 3
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
-	#define SIGMA_Z_HOME_TRAVEL_SPEED 8000//4000
+	#define SIGMA_Z_HOME_TRAVEL_SPEED 8000
 	
 	#define Z_SIGMA_RAISE_BEFORE_HOMING 2//5
 	#define Z_SIGMA_RAISE_AFTER_HOMING 2
@@ -756,7 +763,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define SECOND_EXTRUDER_Y {150.5, 149.5, 150, 149}
 		
 		
-	#define X_CALIB_STARTING_X 115
+	#define X_CALIB_STARTING_X 125
 	#define X_CALIB_STARTING_Y 270
 #endif
 

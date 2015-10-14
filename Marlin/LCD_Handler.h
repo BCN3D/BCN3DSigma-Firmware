@@ -2417,7 +2417,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (active_extruder == 0){
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						zprobe_zoffset-=0.1;	
+						zprobe_zoffset-=0.05;	
 						enquecommand_P(PSTR("M500"));	
 						enquecommand_P(PSTR("T1"));
 						enquecommand_P(PSTR("T0"));
@@ -2429,7 +2429,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else{
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.1;
+						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.05;
 						enquecommand_P(PSTR("M500"));
 						enquecommand_P(PSTR("T0"));
 						enquecommand_P(PSTR("T1"));

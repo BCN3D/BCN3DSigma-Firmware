@@ -1399,9 +1399,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						delay(850);
 						Serial.print("Inserting :   ");
-						current_position[E_AXIS] += 15;//Extra extrusion at low feedrate
+						current_position[E_AXIS] += 30;//Extra extrusion at low feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  700/60, which_extruder); //850/60
-						current_position[E_AXIS] += (BOWDEN_LENGTH-EXTRUDER_LENGTH);//BOWDEN_LENGTH-300+340);
+						current_position[E_AXIS] += ((BOWDEN_LENGTH-EXTRUDER_LENGTH)-15);//BOWDEN_LENGTH-300+340);
 						Serial.println(current_position[E_AXIS]);
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
 						current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
@@ -1528,6 +1528,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//Wait until temperature it's okey
 						setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
 						setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
+						setTargetBed(PLA_PREHEAT_HPB_TEMP);
 						
 						//MOVE EXTRUDERS
 						current_position[Z_AXIS] = 60;
@@ -1559,7 +1560,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//current_position[Y_AXIS] = 0;							
 						//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
 						//st_synchronize();
-						
+						current_position[E_AXIS]-=8;
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED,active_extruder);
+						st_synchronize();
+						setTargetHotend0(120);
 						blocking_x = false;
 						blocking_y = false;
 												
@@ -1593,7 +1597,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						enquecommand_P(PSTR("G28 X"));
 						st_synchronize();
-						changeTool(LEFT_EXTRUDER);
+						
+						current_position[E_AXIS]-=8;
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED,active_extruder);
+						st_synchronize();
+						setTargetHotend1(120);
+						
+						changeTool(LEFT_EXTRUDER);					
+						
+						
+						
 						/*home_axis_from_code();
 						st_synchronize();*/
 						enquecommand_P(PSTR("G43"));
@@ -2316,6 +2329,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				extruder_offset[Z_AXIS][LEFT_EXTRUDER]=0.0;//It is always the reference
 				current_position[Z_AXIS]=0;//We are setting this position as Zero
 				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+				
+				setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
+				
 				Serial.print("Z1 Probe offset: ");
 				Serial.println(zprobe_zoffset);
 				enquecommand_P(PSTR("M500"));//Store everything
@@ -2350,15 +2366,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.println(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
 					enquecommand_P(PSTR("M500"));//Store everything
 					changeTool(0);
+					setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP);
 					//enquecommand_P(PSTR("T0"));	
 					st_synchronize();			
 					//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);				
 					//enquecommand_P(PSTR("G28"));
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 										
-					setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP-5);
-					setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP-5);
-					setTargetBed(PLA_PREHEAT_HPB_TEMP);
+					
+					
 					
 					
 					

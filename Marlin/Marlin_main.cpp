@@ -2246,7 +2246,7 @@ void process_commands()
 					
 					current_position[E_AXIS]+=((250-200)*0.33*current_position[Z_AXIS]*10/55.119)*1.25;
 					plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 200, current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Move Y and extrude
-					current_position[E_AXIS]-=4;
+					current_position[E_AXIS]-=2;
 					if (i != 9) plan_buffer_line(mm_left_offset+(mm_each_extrusion*(i+1)), 250, current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//Retrack
 					else plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 200, current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//Retrack
 					st_synchronize();
@@ -6041,7 +6041,7 @@ void process_commands()
 							if(i == 0) {
 								//Serial.print("X old: ");
 								//Serial.println(destination[i]);
-								destination[i]+= 53;
+								destination[i]+= 48.5;
 								//Serial.print("X new: ");
 								//Serial.println(destination[i]);
 							}

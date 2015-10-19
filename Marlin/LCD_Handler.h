@@ -1354,16 +1354,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					processing = false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FILAMENT_HANDS,0);
 					
-					 //We are changing filament	
-					/*else if (filament_mode=='R'){		
-						//Serial.println("REMOVING");		
-						//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
-						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
-						delay(3500);
-						setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
-					}*/
-				
-									
 				}
 
 				else if(Event.reportObject.index == BUTTON_MOVE_INSERT){					

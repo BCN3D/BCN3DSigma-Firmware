@@ -1270,9 +1270,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
 					else {
 						//*********Move the bed down and the extruders inside
-						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
-						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
+						processing = true;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						if (!home_made) home_axis_from_code();
 					
 						int feedrate;
@@ -1288,7 +1287,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[Z_AXIS]=Z_MAX_POS-5;
 						feedrate=homing_feedrate[Z_AXIS];
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*2/60, active_extruder); //check speed
-										
+						st_synchronize();
+						
+						processing = false;
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);				
 						/****************************************************/
 					
 						//ATTENTION : Order here is important

@@ -198,6 +198,9 @@
 #define BUTTON_REDO_LEFT					127
 #define	BUTTON_REDO_RIGHT					131
 
+#define BUTTON_RECALIBRATE_Z_LEFT			64
+#define	BUTTON_RECALIBRATE_Z_RIGHT			71
+
 //ADJUST FILAMENT
 #define BUTTON_ACCEPT_ADJUST				17
 #define BUTTON_ADJUST_ZUp					32
@@ -266,6 +269,7 @@
 #define USERIMAGE_THERMOMETHER				11
 #define USERIMAGE_PROCESSING				2
 #define USERIMAGE_QUICK_MESAGE_CALIB		24
+#define USERIMAGE_HEATTING					0
 
 //Strings---------------------------------------------
 #define STRING_PRINTING_NOZZ1		0

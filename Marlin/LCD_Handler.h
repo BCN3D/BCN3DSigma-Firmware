@@ -1306,7 +1306,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else if (filament_mode == 'R') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						else genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						delay(3500);
-						setTargetHotend(REMOVE_FIL_TEMP,which_extruder);
+						setTargetHotend(max(remove_temp,old_remove_temp),which_extruder);
 						is_changing_filament=true; //We are changing filament	
 					}	
 				}
@@ -1366,7 +1366,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
 					//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
 					genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
-					setTargetHotend(INSERT_FIL_TEMP,which_extruder);
+					
+					setTargetHotend(max(insert_temp,old_insert_temp),which_extruder);
 					delay(3500);
 					is_changing_filament=true;
 					
@@ -1378,13 +1379,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 					st_synchronize();
 				}
-				/*else if (Event.reportObject.index == BUTTON_INSERT_BACK)
-				{
-					is_changing_filament=false; //We are no longer waiting for heat
-					setTargetHotend(0,which_extruder); //ATTENTION : Order here is important
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
-					
-				}*/
+				
 				
 				
 				else if (Event.reportObject.index == BUTTON_INSERT )

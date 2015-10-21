@@ -190,6 +190,19 @@
 #define BED_MINTEMP 5
 
 //To clean the extruder's the best temperature configuration
+#define	PLA_INSERT_TEMP			230
+#define	PLA_REMOVE_TEMP			170
+#define	PLA_PRINT_TEMP			215
+
+#define	ABS_INSERT_TEMP			230
+#define	ABS_REMOVE_TEMP			230
+#define	ABS_PRINT_TEMP			215
+
+#define	PVA_INSERT_TEMP			230
+#define	PVA_REMOVE_TEMP			230
+#define	PVA_PRINT_TEMP			215
+
+
 #define EXTRUDER_LEFT_CLEAN_TEMP 170
 #define EXTRUDER_RIGHT_CLEAN_TEMP 170
 
@@ -652,6 +665,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //Quick guide control
 #define DEFAULT_QUICK_GUIDE false;
+#define DEFAULT_PRINT_TEMP  PLA_PRINT_TEMP;
+#define DEFAULT_INSERT_TEMP PLA_INSERT_TEMP;
+#define DEFAULT_REMOVE_TEMP PLA_REMOVE_TEMP;
+#define DEFAULT_OLD_PRINT_TEMP PLA_PRINT_TEMP;
+#define DEFAULT_OLD_INSERT_TEMP PLA_INSERT_TEMP;
+#define DEFAULT_OLD_REMOVE_TEMP PLA_REMOVE_TEMP;
 
 //Rapduch
 //Insert Filament parameters

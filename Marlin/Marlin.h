@@ -308,4 +308,10 @@ extern bool z_print_test;
 extern void right_test_print_code();
 extern void left_test_print_code();
 extern bool heatting;
+extern int insert_temp;
+extern int remove_temp;
+extern int print_temp;
+extern int old_insert_temp;
+extern int old_remove_temp;
+extern int old_print_temp;
 #endif

@@ -256,13 +256,19 @@ bool blocking_y = false;
 int quick_guide_step = 0;
 bool z_print_test = false;
 
-int insert_temp;
-int remove_temp;
-int print_temp;
+int insert_temp_l;
+int remove_temp_l;
+int print_temp_l;
+int insert_temp_r;
+int remove_temp_r;
+int print_temp_r;
 
-int old_insert_temp;
-int old_remove_temp;
-int old_print_temp;
+int old_insert_temp_l;
+int old_remove_temp_l;
+int old_print_temp_l;
+int old_insert_temp_r;
+int old_remove_temp_r;
+int old_print_temp_r;
 
 bool home_made = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
@@ -886,7 +892,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
 			if (processing_state == 0) processing_state = (processing_state+1)%3;
 			else processing_state = (processing_state+1)%3;
-			waitPeriod=200+millis();
+			waitPeriod=180+millis();
 		}
 	}
 	else if (heatting){

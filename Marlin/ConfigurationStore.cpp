@@ -91,12 +91,19 @@ void Config_StoreSettings()
   
   //Quick Start Guide
   EEPROM_WRITE_VAR(i,quick_guide);
-  EEPROM_WRITE_VAR(i,print_temp);
-  EEPROM_WRITE_VAR(i,insert_temp);
-  EEPROM_WRITE_VAR(i,remove_temp);
-  EEPROM_WRITE_VAR(i,old_print_temp);
-  EEPROM_WRITE_VAR(i,old_insert_temp);
-  EEPROM_WRITE_VAR(i,old_remove_temp); 
+  EEPROM_WRITE_VAR(i,print_temp_l);
+  EEPROM_WRITE_VAR(i,insert_temp_l);
+  EEPROM_WRITE_VAR(i,remove_temp_l);
+  EEPROM_WRITE_VAR(i,old_print_temp_l);
+  EEPROM_WRITE_VAR(i,old_insert_temp_l);
+  EEPROM_WRITE_VAR(i,old_remove_temp_l); 
+  
+   EEPROM_WRITE_VAR(i,print_temp_r);
+   EEPROM_WRITE_VAR(i,insert_temp_r);
+   EEPROM_WRITE_VAR(i,remove_temp_r);
+   EEPROM_WRITE_VAR(i,old_print_temp_r);
+   EEPROM_WRITE_VAR(i,old_insert_temp_r);
+   EEPROM_WRITE_VAR(i,old_remove_temp_r);
   
   //Language
 //  EEPROM_WRITE_VAR(i,language);
@@ -270,12 +277,19 @@ void Config_RetrieveSettings()
 		
 		//Quick Start Guide
 		EEPROM_READ_VAR(i,quick_guide);
-		EEPROM_READ_VAR(i,print_temp);
-		EEPROM_READ_VAR(i,insert_temp);
-		EEPROM_READ_VAR(i,remove_temp);
-		EEPROM_READ_VAR(i,old_print_temp);
-		EEPROM_READ_VAR(i,old_insert_temp);
-		EEPROM_READ_VAR(i,old_remove_temp);
+		EEPROM_READ_VAR(i,print_temp_l);
+		EEPROM_READ_VAR(i,insert_temp_l);
+		EEPROM_READ_VAR(i,remove_temp_l);
+		EEPROM_READ_VAR(i,old_print_temp_l);
+		EEPROM_READ_VAR(i,old_insert_temp_l);
+		EEPROM_READ_VAR(i,old_remove_temp_l);
+		
+		EEPROM_READ_VAR(i,print_temp_r);
+		EEPROM_READ_VAR(i,insert_temp_r);
+		EEPROM_READ_VAR(i,remove_temp_r);
+		EEPROM_READ_VAR(i,old_print_temp_r);
+		EEPROM_READ_VAR(i,old_insert_temp_r);
+		EEPROM_READ_VAR(i,old_remove_temp_r);
 		//Language
 //		EEPROM_READ_VAR(i,language);
 		
@@ -339,12 +353,18 @@ void Config_ResetDefault()
     max_e_jerk=DEFAULT_EJERK;
     add_homing[0] = add_homing[1] = add_homing[2] = 0;
 	quick_guide = DEFAULT_QUICK_GUIDE;
-	print_temp = DEFAULT_PRINT_TEMP;
-	insert_temp=DEFAULT_INSERT_TEMP;
-	remove_temp=DEFAULT_REMOVE_TEMP;
-	old_print_temp=DEFAULT_OLD_PRINT_TEMP;
-	old_insert_temp=DEFAULT_OLD_INSERT_TEMP;
-	old_remove_temp=DEFAULT_OLD_REMOVE_TEMP;
+	print_temp_l = DEFAULT_PRINT_TEMP;
+	insert_temp_l=DEFAULT_INSERT_TEMP;
+	remove_temp_l=DEFAULT_REMOVE_TEMP;
+	old_print_temp_l=DEFAULT_OLD_PRINT_TEMP;
+	old_insert_temp_l=DEFAULT_OLD_INSERT_TEMP;
+	old_remove_temp_l=DEFAULT_OLD_REMOVE_TEMP;
+	print_temp_r = DEFAULT_PRINT_TEMP;
+	insert_temp_r=DEFAULT_INSERT_TEMP;
+	remove_temp_r=DEFAULT_REMOVE_TEMP;
+	old_print_temp_r=DEFAULT_OLD_PRINT_TEMP;
+	old_insert_temp_r=DEFAULT_OLD_INSERT_TEMP;
+	old_remove_temp_r=DEFAULT_OLD_REMOVE_TEMP;
 	
 #ifdef DELTA
 	endstop_adj[0] = endstop_adj[1] = endstop_adj[2] = 0;

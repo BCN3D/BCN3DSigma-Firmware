@@ -10,6 +10,27 @@
 #define TOUCH_SCREEN_DEFINITIONS_H_
 
 //Userbuttons
+
+//MATERIAL BUTTONS
+#define BUTTON_PLA_L						132
+#define BUTTON_ABS_L						133
+#define BUTTON_PVA_L						134	
+#define BUTTON_CUST_L						135
+#define BUTTON_PLA_R						138
+#define BUTTON_ABS_R						139
+#define BUTTON_PVA_R						140
+#define BUTTON_CUST_R						141			
+	//MATERIAL CUSTOM BUTTONS		
+	#define BUTTON_CUSTOM_INS_LESS			142
+	#define BUTTON_CUSTOM_INS_MORE			146
+	#define BUTTON_CUSTOM_REM_LESS			143
+	#define BUTTON_CUSTOM_REM_MORE			147
+	#define BUTTON_CUSTOM_PRINT_LESS		144
+	#define BUTTON_CUSTOM_PRINT_MORE		148
+	#define BUTTON_CUSTOM_BACK				145
+	#define BUTTON_CUSTOM_ACCEPT			149
+	
+
 #define BUTTON_STORE						12
 //#define BUTTON_COOLDOWN						83//57
 #define BUTTON_AUTOLEVEL					12
@@ -321,6 +342,11 @@
 #define STRING_PURGE_RIGHT_TEMP		17
 #define STRING_PURGE_SELECTED		5
 
+//STRING TEMP CUSTOM MATERIAL
+#define STRING_CUSTOM_INSERT		13
+#define STRING_CUSTOM_REMOVE		14
+#define STRING_CUSTOM_PRINT			15
+
 //Form
 #define FORM_WELCOME				15
 #define FORM_QUICK_MAIN				22
@@ -377,6 +403,12 @@
 #define FORM_REDO_Y_CAB				13
 #define	FORM_INFO_Z_PRINT			17
 #define FORM_REDO_Z_TEST			49
+
+//FORMS MATERIAL
+#define FORM_LEFT_MATERIAL			50
+#define FORM_RIGHT_MATERIAL			51
+	//FORM CUSTOM MATERIAL
+	#define FORM_CUSTOM_MATERIAL	52
 
 //INFO SCRENS-----------------------------------------------------------------------
 //Forms From INFO SCREENS

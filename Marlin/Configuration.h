@@ -740,11 +740,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	
 	#define X_SIGMA_PROBE_2_LEFT_EXTR 55.5
 	//#define X_SIGMA_PROBE_2_LEFT_EXTR 3
-	#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
+	#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 	
 	#define X_SIGMA_PROBE_3_LEFT_EXTR 255
 	//#define X_SIGMA_PROBE_3_LEFT_EXTR 204
-	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
+	#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 	
 	//Right extruder probe point
 	#define X_SIGMA_PROBE_1_RIGHT_EXTR 249//254.5
@@ -752,11 +752,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	
 	#define X_SIGMA_PROBE_2_RIGHT_EXTR 249//255
 	//#define X_SIGMA_PROBE_2_RIGHT_EXTR 204
-	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
+	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 	
 	#define X_SIGMA_PROBE_3_RIGHT_EXTR 55.5
 	//#define X_SIGMA_PROBE_3_RIGHT_EXTR 3
-	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
+	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
 #endif
 
 #ifdef  SIGMA_BED_AUTOCALIB

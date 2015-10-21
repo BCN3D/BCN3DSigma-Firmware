@@ -31,6 +31,9 @@ float offset_x_calib = 0;
 float offset_y_calib = 0;
 int  purge_extruder_selected = 0;
 int  previous_state = FORM_MAIN_SCREEN;
+int custom_insert_temp = 210;
+int custom_remove_temp = 210;
+int custom_print_temp = 210;
 
 
 //Created by Jordi Calduch for RepRapBCN SIGMA 12/2014
@@ -1268,7 +1271,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					
 					
-					if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					if (filament_mode == 'I') {
+						if (which_extruder == 0)	genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_MATERIAL,0);
+						else genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_MATERIAL,0);
+					}
+					
 					else {
 						//*********Move the bed down and the extruders inside
 						processing = true;
@@ -1306,11 +1313,107 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else if (filament_mode == 'R') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						else genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						delay(3500);
-						setTargetHotend(max(remove_temp,old_remove_temp),which_extruder);
+						if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
+						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
 						is_changing_filament=true; //We are changing filament	
 					}	
 				}
 				
+				else if (Event.reportObject.index == BUTTON_PLA_R){
+					print_temp_r = PLA_PRINT_TEMP;
+					insert_temp_r = PLA_INSERT_TEMP;
+					remove_temp_r = PLA_REMOVE_TEMP;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+				}		
+				
+				else if (Event.reportObject.index == BUTTON_ABS_R){
+					print_temp_r = ABS_PRINT_TEMP;
+					insert_temp_r = ABS_INSERT_TEMP;
+					remove_temp_r = ABS_REMOVE_TEMP;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+				}
+				else if (Event.reportObject.index == BUTTON_PVA_R){
+					print_temp_r = PVA_PRINT_TEMP;
+					insert_temp_r = PVA_INSERT_TEMP;
+					remove_temp_r = PVA_REMOVE_TEMP;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+				}
+				else if (Event.reportObject.index == BUTTON_PLA_L){
+					print_temp_l = PLA_PRINT_TEMP;
+					insert_temp_l = PLA_INSERT_TEMP;
+					remove_temp_l = PLA_REMOVE_TEMP;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+				}
+				
+				else if (Event.reportObject.index == BUTTON_ABS_L){
+					print_temp_l = ABS_PRINT_TEMP;
+					insert_temp_l = ABS_INSERT_TEMP;
+					remove_temp_l = ABS_REMOVE_TEMP;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+				}
+				else if (Event.reportObject.index == BUTTON_PVA_L){
+					print_temp_l = PVA_PRINT_TEMP;
+					insert_temp_l = PVA_INSERT_TEMP;
+					remove_temp_l = PVA_REMOVE_TEMP;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+				}
+				
+				//CUSTOM MATERIAL BUTTONS
+				else if (Event.reportObject.index == BUTTON_CUSTOM_BACK){
+					if (which_extruder == 0) genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_MATERIAL,0);
+					else genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_MATERIAL,0);
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_INS_LESS){
+					char buffer[256];
+					custom_insert_temp -= 10;
+					sprintf(buffer, "ºC3d",custom_insert_temp);
+					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_INS_MORE){
+					char buffer[256];
+					custom_insert_temp += 10;
+					sprintf(buffer, "ºC3d",custom_insert_temp);
+					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_REM_LESS){
+					char buffer[256];
+					custom_remove_temp -= 10;
+					sprintf(buffer, "ºC3d",custom_remove_temp);
+					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_REM_MORE){
+					char buffer[256];
+					custom_remove_temp += 10;
+					sprintf(buffer, "%3d",custom_remove_temp);
+					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_PRINT_LESS){
+					char buffer[256];
+					custom_print_temp -= 10;
+					sprintf(buffer, "ºC3d",custom_print_temp);
+					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_PRINT_MORE){
+					char buffer[256];
+					custom_print_temp -= 10;
+					sprintf(buffer, "ºC3d",custom_print_temp);
+					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_ACCEPT){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					if(which_extruder == 0){
+						print_temp_l = custom_print_temp;
+						insert_temp_l = custom_insert_temp;
+						remove_temp_l = custom_remove_temp;
+					}
+					else{
+						print_temp_r = custom_print_temp;
+						insert_temp_r = custom_insert_temp;
+						remove_temp_r = custom_remove_temp;
+					}
+				}
+				
+				//////////////////////////
 				else if (Event.reportObject.index == BUTTON_INFO_FIL_INSERTED)
 				{
 					
@@ -1367,7 +1470,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
 					genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
 					
-					setTargetHotend(max(insert_temp,old_insert_temp),which_extruder);
+					if (which_extruder==0) setTargetHotend(max(insert_temp_l,old_insert_temp_l),which_extruder);
+					else setTargetHotend(max(insert_temp_r,old_insert_temp_r),which_extruder);
 					delay(3500);
 					is_changing_filament=true;
 					
@@ -3043,8 +3147,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					sprintf(buffer, "%3d",int(degHotend(0)));
 					genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);	Serial.println(buffer);
 					sprintf(buffer, "%3d",int(degHotend(1)));
-					genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);	Serial.println(buffer);		
-							
+					genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);	Serial.println(buffer);	
 				}
 				
 				//else if (Event.reportObject.index == FORM_INSERT_FIL_PREHEAT)

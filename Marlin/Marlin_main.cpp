@@ -259,16 +259,20 @@ bool z_print_test = false;
 int insert_temp_l;
 int remove_temp_l;
 int print_temp_l;
+int bed_temp_l;
 int insert_temp_r;
 int remove_temp_r;
 int print_temp_r;
+int bed_temp_r;
 
 int old_insert_temp_l;
 int old_remove_temp_l;
 int old_print_temp_l;
+int old_bed_temp_l;
 int old_insert_temp_r;
 int old_remove_temp_r;
 int old_print_temp_r;
+int old_bed_temp_r;
 
 bool home_made = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
@@ -895,7 +899,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod=180+millis();
 		}
 	}
-	else if (heatting){
+	/*else if (heatting){
 		if (millis() >= waitPeriod){			
 			static int heatting_state = 0;
 			genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_HEATTING,heatting);
@@ -903,7 +907,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			else heatting_state = (heatting_state+1)%6;
 			waitPeriod=16+millis();
 		}
-	}
+	}*/
 	else if (surfing_utilities)
 	{
 		if (millis() >= waitPeriod)
@@ -2433,15 +2437,15 @@ void process_commands()
 						 plan_buffer_line(85,mm_left_offset-(mm_each_extrusion*10), current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
 						 st_synchronize();
 						 current_position[E_AXIS]+=((115)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
-						 plan_buffer_line(100,mm_left_offset+15, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
+						 plan_buffer_line(85,mm_left_offset+15, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
 						 st_synchronize();
 						 current_position[E_AXIS]-=2;
-						 plan_buffer_line(100,mm_left_offset+15, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
+						 plan_buffer_line(85,mm_left_offset+15, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
 						 st_synchronize();
 						 current_position[Z_AXIS]=0.15; //Move X and Z
-						 plan_buffer_line(100,mm_left_offset+15, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);
+						 plan_buffer_line(85,mm_left_offset+15, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);
 						 st_synchronize();	
-						 plan_buffer_line(100, mm_left_offset-(mm_each_extrusion*i), current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move X and Z
+						 plan_buffer_line(85, mm_left_offset-(mm_each_extrusion*i), current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);//Move X and Z
 						 st_synchronize();			
 						  //draw a one						 
 						 /*plan_buffer_line(100-6, mm_left_offset-(mm_each_extrusion*i)-2, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);
@@ -6756,7 +6760,7 @@ void process_commands()
 						current_position[E_AXIS]-=4;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],12000/60,active_extruder);
 						st_synchronize();
-						enquecommand_P(PSTR("G28 X"));
+						enquecommand_P(PSTR("G28 X Y"));
 						st_synchronize();
 						current_position[Z_AXIS]-= 0.3;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);

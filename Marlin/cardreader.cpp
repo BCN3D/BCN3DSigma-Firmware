@@ -640,6 +640,10 @@ void CardReader::printingHasFinished()
 		enquecommand_P(PSTR("T0")); 
 		enquecommand_P(PSTR("M107"));
 		st_synchronize();
+		enquecommand_P(PSTR("T1"));
+		fanSpeed = 0;
+		enquecommand_P(PSTR("T0"));
+		st_synchronize();
 		//The default states is Left Extruder active
 	#endif	  
       if(SD_FINISHED_STEPPERRELEASE)

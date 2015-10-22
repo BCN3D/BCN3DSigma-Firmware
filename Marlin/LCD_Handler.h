@@ -1324,6 +1324,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					insert_temp_r = PLA_INSERT_TEMP;
 					remove_temp_r = PLA_REMOVE_TEMP;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					Config_StoreSettings();
 				}		
 				
 				else if (Event.reportObject.index == BUTTON_ABS_R){
@@ -1331,18 +1332,21 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					insert_temp_r = ABS_INSERT_TEMP;
 					remove_temp_r = ABS_REMOVE_TEMP;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					Config_StoreSettings();
 				}
 				else if (Event.reportObject.index == BUTTON_PVA_R){
 					print_temp_r = PVA_PRINT_TEMP;
 					insert_temp_r = PVA_INSERT_TEMP;
 					remove_temp_r = PVA_REMOVE_TEMP;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					Config_StoreSettings();
 				}
 				else if (Event.reportObject.index == BUTTON_PLA_L){
 					print_temp_l = PLA_PRINT_TEMP;
 					insert_temp_l = PLA_INSERT_TEMP;
 					remove_temp_l = PLA_REMOVE_TEMP;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					Config_StoreSettings();
 				}
 				
 				else if (Event.reportObject.index == BUTTON_ABS_L){
@@ -1350,54 +1354,83 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					insert_temp_l = ABS_INSERT_TEMP;
 					remove_temp_l = ABS_REMOVE_TEMP;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					Config_StoreSettings();
 				}
 				else if (Event.reportObject.index == BUTTON_PVA_L){
 					print_temp_l = PVA_PRINT_TEMP;
 					insert_temp_l = PVA_INSERT_TEMP;
 					remove_temp_l = PVA_REMOVE_TEMP;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					Config_StoreSettings();
 				}
 				
 				//CUSTOM MATERIAL BUTTONS
+				else if((Event.reportObject.index == BUTTON_CUST_L) || (Event.reportObject.index == BUTTON_CUST_R) ){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CUSTOM_MATERIAL,0);
+					char buffer[10];
+					char buffer1[10];
+					char buffer2[10];
+					//char buffer3[256];
+					sprintf(buffer, "%d %c C",custom_insert_temp,0x00B0);
+					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+					sprintf(buffer1, "%d %c C",custom_remove_temp,0x00B0);
+					genie.WriteStr(STRING_CUSTOM_REMOVE,buffer1);
+					sprintf(buffer2, "%d %c C",custom_print_temp,0x00B0);
+					genie.WriteStr(STRING_CUSTOM_PRINT,buffer2);
+					
+				}
 				else if (Event.reportObject.index == BUTTON_CUSTOM_BACK){
 					if (which_extruder == 0) genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_MATERIAL,0);
 					else genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_MATERIAL,0);
 				}
+				
 				else if(Event.reportObject.index == BUTTON_CUSTOM_INS_LESS){
-					char buffer[256];
-					custom_insert_temp -= 10;
-					sprintf(buffer, "ºC3d",custom_insert_temp);
-					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+					if (custom_insert_temp > 0){
+						char buffer[256];
+						custom_insert_temp -= 10;
+						sprintf(buffer, "%1d %c C",custom_insert_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_INSERT,buffer);	
+					}					
 				}
 				else if(Event.reportObject.index == BUTTON_CUSTOM_INS_MORE){
-					char buffer[256];
-					custom_insert_temp += 10;
-					sprintf(buffer, "ºC3d",custom_insert_temp);
-					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+					if (custom_insert_temp < HEATER_0_MAXTEMP-5){
+						char buffer[256];
+						custom_insert_temp += 10;
+						sprintf(buffer, "%1d %c C",custom_insert_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+					}
 				}
 				else if(Event.reportObject.index == BUTTON_CUSTOM_REM_LESS){
-					char buffer[256];
-					custom_remove_temp -= 10;
-					sprintf(buffer, "ºC3d",custom_remove_temp);
-					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+					if (custom_remove_temp > 0){
+						char buffer[256];
+						custom_remove_temp -= 10;
+						sprintf(buffer, "%1d %c C",custom_remove_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_REMOVE,buffer);
+					}
 				}
 				else if(Event.reportObject.index == BUTTON_CUSTOM_REM_MORE){
-					char buffer[256];
-					custom_remove_temp += 10;
-					sprintf(buffer, "%3d",custom_remove_temp);
-					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+					if (custom_remove_temp < HEATER_0_MAXTEMP-5){
+						char buffer[256];
+						custom_remove_temp += 10;
+						sprintf(buffer, "%1d %c C",custom_remove_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_REMOVE,buffer);
+					}
 				}
 				else if(Event.reportObject.index == BUTTON_CUSTOM_PRINT_LESS){
-					char buffer[256];
-					custom_print_temp -= 10;
-					sprintf(buffer, "ºC3d",custom_print_temp);
-					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+					if (custom_print_temp > 0){
+						char buffer[256];
+						custom_print_temp -= 10;
+						sprintf(buffer, "%1d %c C",custom_print_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_PRINT,buffer);
+					}
 				}
 				else if(Event.reportObject.index == BUTTON_CUSTOM_PRINT_MORE){
-					char buffer[256];
-					custom_print_temp -= 10;
-					sprintf(buffer, "ºC3d",custom_print_temp);
-					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+					if (custom_print_temp < HEATER_0_MAXTEMP-5){
+						char buffer[256];
+						custom_print_temp += 10;
+						sprintf(buffer, "%1d %c C",custom_print_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_PRINT,buffer);
+					}
 				}
 				else if(Event.reportObject.index == BUTTON_CUSTOM_ACCEPT){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
@@ -1411,6 +1444,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						insert_temp_r = custom_insert_temp;
 						remove_temp_r = custom_remove_temp;
 					}
+					Config_StoreSettings();
 				}
 				
 				//////////////////////////
@@ -1453,11 +1487,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					current_position[Z_AXIS]=Z_MAX_POS-5;
 					feedrate=homing_feedrate[Z_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*2/60, active_extruder); //check speed
-					st_synchronize();
-					
+					st_synchronize();					
 					/****************************************************/
-					processing = false;
+										
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FILAMENT_HANDS,0);
+					processing = false;
 					
 				}
 
@@ -1517,6 +1551,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						st_synchronize();
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+						if (which_extruder == 0){
+							old_insert_temp_l = insert_temp_l;
+							old_remove_temp_l = remove_temp_l;
+							old_print_temp_l  = print_temp_l;
+						}
+						else{
+							old_insert_temp_r = insert_temp_r;
+							old_remove_temp_r = remove_temp_r;
+							old_print_temp_r  = print_temp_r;
+						}						
 					}else if (filament_mode == 'C'){	
 						previous_state = FORM_FILAMENT;	
 						processing = true;			
@@ -2416,7 +2460,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
-					delay(6000);					
+					delay(6000);
+					home_axis_from_code();						
 					left_test_print_code();
 				}
 				
@@ -2459,6 +2504,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					delay(6000);
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
+					home_axis_from_code();	
 					right_test_print_code(); 
 					
 				}
@@ -2530,7 +2576,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						Config_StoreSettings(); //Store changes
 						enquecommand_P(PSTR("T1"));
 						enquecommand_P(PSTR("T0"));
-						st_synchronize();									
+						st_synchronize();	
+						home_axis_from_code();								
 						left_test_print_code();
 						processing =false;
 						
@@ -2543,7 +2590,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						enquecommand_P(PSTR("T0"));
 						enquecommand_P(PSTR("T1"));
 						st_synchronize();
-						
+						home_axis_from_code();
 						right_test_print_code();
 						processing =false;		
 										
@@ -2559,7 +2606,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						Config_StoreSettings(); //Store changes					
 						enquecommand_P(PSTR("T1"));
 						enquecommand_P(PSTR("T0"));
-						st_synchronize();						
+						st_synchronize();	
+						home_axis_from_code();						
 						left_test_print_code();
 						processing =false;
 					}
@@ -2570,7 +2618,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						Config_StoreSettings(); //Store changes
 						enquecommand_P(PSTR("T0"));
 						enquecommand_P(PSTR("T1"));
-						st_synchronize();						
+						st_synchronize();
+						home_axis_from_code();							
 						right_test_print_code();
 						processing =false;						
 					}
@@ -2579,13 +2628,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if(Event.reportObject.index == BUTTON_REDO_Z){
 					if (active_extruder == 0){
 						processing = true;
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						home_axis_from_code();							
 						left_test_print_code();
 						processing =false;
 					}
 					else{
 						processing = true;
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);	
+						home_axis_from_code();						
 						right_test_print_code();
 						processing =false;
 					}

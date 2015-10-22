@@ -311,13 +311,17 @@ extern bool heatting;
 extern int insert_temp_l;
 extern int remove_temp_l;
 extern int print_temp_l;
+extern int bed_temp_l;
 extern int insert_temp_r;
 extern int remove_temp_r;
 extern int print_temp_r;
+extern int bed_temp_r;
 extern int old_insert_temp_l;
 extern int old_remove_temp_l;
 extern int old_print_temp_l;
+extern int old_bed_temp_l;
 extern int old_insert_temp_r;
 extern int old_remove_temp_r;
 extern int old_print_temp_r;
+extern int old_bed_temp_r;
 #endif

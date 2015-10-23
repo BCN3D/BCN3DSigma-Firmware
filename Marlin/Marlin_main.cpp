@@ -867,15 +867,15 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			//Rapduch
 			//Edit for final TouchScreen
 			char buffer[256];
-			sprintf(buffer, "% 3d",tHotend);
+			sprintf(buffer, "%3d %c C",tHotend,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PRINTING_NOZZ1,buffer);
 			
-			sprintf(buffer, "% 3d",tHotend1);
+			sprintf(buffer, "%3d %c C",tHotend1,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PRINTING_NOZZ2,buffer);
 			
-			sprintf(buffer, "% 2d",tBed);
+			sprintf(buffer, "%2d %c C",tBed,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PRINTING_BED,buffer);
 			
@@ -920,15 +920,15 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			//Rapduch
 			//Edit for final TouchScreen
 			
-			sprintf(buffer, "% 3d",tHotend);
+			sprintf(buffer, "%3d %c C",tHotend,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_NOZZ1,buffer);
 			
-			sprintf(buffer, "% 3d",tHotend1);
+			sprintf(buffer, "%3d %c C",tHotend1,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_NOZZ2,buffer);
 			
-			sprintf(buffer, "% 2d",tBed);
+			sprintf(buffer, "%2d %c C",tBed,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_BED,buffer);
 			
@@ -936,11 +936,11 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
 			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
 			
-			sprintf(buffer, "% 3d",tHotend);
+			sprintf(buffer, "%3d %c C",tHotend,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 			
-			sprintf(buffer, "% 3d",tHotend1);
+			sprintf(buffer, "%3d %c C",tHotend1,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 			
@@ -6624,14 +6624,18 @@ void process_commands()
 						current_position[Z_AXIS]+=0.65; //0.5 + 0.15 per ajustar una bona alçada
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 						st_synchronize();
-						
+						current_position[E_AXIS]-=4;  //0.5 + 0.15 per ajustar una bona alçada
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
 						
 						//SKIRT
 						current_position[Y_AXIS] = 250+11+10; current_position[Z_AXIS] = 0.2;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
-						st_synchronize();
+						st_synchronize();						
 						current_position[X_AXIS] = 110;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+						st_synchronize();
+						current_position[E_AXIS]+=4;
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
 						st_synchronize();
 						current_position[X_AXIS] = 75; current_position[Y_AXIS] = 250+11+10; current_position[E_AXIS] += ((110-75)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
@@ -6698,13 +6702,16 @@ void process_commands()
 						current_position[Z_AXIS]=0.2; //0.5 + 0.15 per ajustar una bona alçada
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],6000/60,active_extruder);
 						st_synchronize();
-						current_position[E_AXIS]-=4; //0.5 + 0.15 per ajustar una bona alçada
+						current_position[E_AXIS]-=8; //0.5 + 0.15 per ajustar una bona alçada
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],12000/60,active_extruder);
 						st_synchronize();
 						
 						//SKIRT
 						current_position[X_AXIS] = 80; current_position[Y_AXIS] = 149-5; /*current_position[E_AXIS] -= 2;*/ //current_position[Z_AXIS] = 0.2;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+						st_synchronize();
+						current_position[E_AXIS]+=4; //0.5 + 0.15 per ajustar una bona alçada
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],12000/60,active_extruder);
 						st_synchronize();
 						current_position[X_AXIS] = 80; current_position[Y_AXIS] = 250+11+5; current_position[E_AXIS] += ((266-144)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
@@ -6754,12 +6761,12 @@ void process_commands()
 						current_position[Z_AXIS]+= 0.3; //current_position[E_AXIS]-=4;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
 						st_synchronize();
+						current_position[E_AXIS]-=4;
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
+						st_synchronize();
 						current_position[X_AXIS]= X2_MAX_POS; //current_position[E_AXIS]-=4;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
-						st_synchronize();
-						current_position[E_AXIS]-=4;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],12000/60,active_extruder);
-						st_synchronize();
+						st_synchronize();						
 						enquecommand_P(PSTR("G28 X Y"));
 						st_synchronize();
 						current_position[Z_AXIS]-= 0.3;

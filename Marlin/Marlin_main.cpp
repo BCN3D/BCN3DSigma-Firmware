@@ -875,7 +875,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PRINTING_NOZZ2,buffer);
 			
-			sprintf(buffer, "%2d %c C",tBed,0x00B0);
+			sprintf(buffer, "%2d %cC",tBed,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PRINTING_BED,buffer);
 			
@@ -928,7 +928,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_NOZZ2,buffer);
 			
-			sprintf(buffer, "%2d %c C",tBed,0x00B0);
+			sprintf(buffer, "%2d %cC",tBed,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_BED,buffer);
 			

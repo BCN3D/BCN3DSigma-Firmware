@@ -190,19 +190,19 @@
 #define BED_MINTEMP 5
 
 //To clean the extruder's the best temperature configuration
-#define	PLA_INSERT_TEMP			230
+#define	PLA_INSERT_TEMP			220
 #define	PLA_REMOVE_TEMP			170
 #define	PLA_PRINT_TEMP			215
 #define PLA_BED_TEMP			50
 
-#define	ABS_INSERT_TEMP			230
-#define	ABS_REMOVE_TEMP			230
-#define	ABS_PRINT_TEMP			215
+#define	ABS_INSERT_TEMP			245
+#define	ABS_REMOVE_TEMP			220
+#define	ABS_PRINT_TEMP			245
 #define ABS_BED_TEMP			70
 
-#define	PVA_INSERT_TEMP			230
-#define	PVA_REMOVE_TEMP			230
-#define	PVA_PRINT_TEMP			215
+#define	PVA_INSERT_TEMP			200
+#define	PVA_REMOVE_TEMP			170
+#define	PVA_PRINT_TEMP			190
 #define PVA_BED_TEMP			50
 
 

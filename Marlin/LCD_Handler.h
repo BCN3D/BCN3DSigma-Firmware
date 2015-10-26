@@ -171,14 +171,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					if(print_setting_tool == 0){ //LEFT_EXTRUDER
 						int tHotend=target_temperature[0];
-						sprintf(buffer, "%3d %c C",tHotend,0x00B0);
+						sprintf(buffer, "%3d %cC",tHotend,0x00B0);
 						//Serial.println(buffer);
 						genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						genie.WriteStr(STRING_PRINT_SELECTED,"LEFT EXTRUDER");
 						
 						}else if(print_setting_tool == 1){ //RIGHT_EXTRUDER
 						int tHotend1=target_temperature[1];
-						sprintf(buffer, "%3d %c C",tHotend1,0x00B0);
+						sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
 						//Serial.println(buffer);
 						genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						genie.WriteStr(STRING_PRINT_SELECTED,"RIGTH EXTRUDER");
@@ -187,7 +187,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if(print_setting_tool == 2){//BED
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED,1);
 						int tBed=target_temperature_bed;
-						sprintf(buffer, "%3d %c C",tBed,0x00B0);
+						sprintf(buffer, "%3d %cC",tBed,0x00B0);
 						//Serial.println(buffer);
 						genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						genie.WriteStr(STRING_PRINT_SELECTED,"BED");
@@ -229,7 +229,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					char buffer[256];
 					int value=1;
-					sprintf(buffer, "%3d %c C",target_temperature[0],0x00B0);
+					sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 					genie.WriteStr(STRING_PRINT_VALUE,buffer);
 					genie.WriteStr(STRING_PRINT_SELECTED,"LEFT EXTRUDER");
 					print_setting_tool = 0;
@@ -240,7 +240,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					char buffer[256];
 					int value=1;
-					sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+					sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 					genie.WriteStr(STRING_PRINT_VALUE,buffer);
 					
 					genie.WriteStr(STRING_PRINT_SELECTED,"RIGHT EXTRUDER");
@@ -250,7 +250,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					char buffer[256];
 					int value=1;
-					sprintf(buffer, "%3d %c C",target_temperature_bed,0x00B0);
+					sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 					genie.WriteStr(STRING_PRINT_VALUE,buffer);
 					genie.WriteStr(STRING_PRINT_SELECTED,"BED TEMPERATURE");
 					print_setting_tool = 2;
@@ -277,7 +277,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (target_temperature[0] < HEATER_0_MAXTEMP)
 						{
 							target_temperature[0]+=value;
-							sprintf(buffer, "%3d %c C",target_temperature[0],0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
@@ -287,7 +287,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (target_temperature[1]< HEATER_1_MAXTEMP)
 						{
 							target_temperature[1]+=value;
-							sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
@@ -298,7 +298,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (target_temperature_bed < BED_MAXTEMP)//MaxTemp
 						{
 							target_temperature_bed+=value;
-							sprintf(buffer, "%3d %c C",target_temperature_bed,0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
@@ -324,12 +324,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (target_temperature[0] <= HEATER_0_MAXTEMP-4)
 						{
 							target_temperature[0]+=value;
-							sprintf(buffer, "%3d %c C",target_temperature[0],0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);							
 						}
 						else{
 							target_temperature[0]=HEATER_0_MAXTEMP;
-							sprintf(buffer, "%3d %c C",target_temperature[0],0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
@@ -339,12 +339,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (target_temperature[1]<= HEATER_1_MAXTEMP-4)
 						{
 							target_temperature[1]+=value;
-							sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						else{
 							target_temperature[1]=HEATER_1_MAXTEMP;
-							sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
@@ -355,12 +355,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (target_temperature_bed<= BED_MAXTEMP-4)//MaxTemp
 						{
 							target_temperature_bed+=value;
-							sprintf(buffer, "%3d %c C",target_temperature_bed,0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						else{
 							target_temperature_bed=BED_MAXTEMP;
-							sprintf(buffer, "%3d %c C",target_temperature_bed,0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
@@ -390,7 +390,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (target_temperature[0] > HEATER_0_MINTEMP)
 						{
 							target_temperature[0]-=value;
-							sprintf(buffer, "%3d %c C",target_temperature[0],0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
@@ -399,7 +399,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (target_temperature[1] > HEATER_1_MINTEMP)
 						{
 							target_temperature[1]-=value;
-							sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
@@ -409,7 +409,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (target_temperature_bed>5)//MaxTemp
 						{
 							target_temperature_bed-=value;
-							sprintf(buffer, "%3d %c C",target_temperature_bed,0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
@@ -433,12 +433,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (target_temperature[0]>= HEATER_0_MINTEMP+4)
 						{
 							target_temperature[0]-=value;
-							sprintf(buffer, "%3d %c C",target_temperature[0],0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						else{
 							target_temperature[0]=HEATER_0_MINTEMP;
-							sprintf(buffer, "%3d %c C",target_temperature[0],0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
@@ -447,12 +447,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if(target_temperature[1]>= HEATER_1_MINTEMP+4)
 						{
 							target_temperature[1]-=value;
-							sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						else{
 							target_temperature[1]=HEATER_1_MINTEMP;
-							sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
@@ -462,12 +462,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (target_temperature_bed>= 5+4)//MaxTemp
 						{
 							target_temperature_bed-=value;
-							sprintf(buffer, "%3d %c C",target_temperature_bed,0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						else{
 							target_temperature_bed=5;
-							sprintf(buffer, "%3d %c C",target_temperature_bed,0x00B0);
+							sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 							genie.WriteStr(STRING_PRINT_VALUE,buffer);
 						}
 						break;
@@ -572,7 +572,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (target_temperature[0]<HEATER_0_MAXTEMP)
 					{
 						target_temperature[0]+=value;
-						sprintf(buffer, "%3d %c C",target_temperature[0],0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 						genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
 					}
 				}
@@ -584,7 +584,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (target_temperature[0]>HEATER_0_MINTEMP)
 					{
 						target_temperature[0]-=value;
-						sprintf(buffer, "%3d %c C",target_temperature[0],0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 						genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
 					}
 				}
@@ -596,7 +596,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (target_temperature[1]<HEATER_1_MAXTEMP)
 					{
 						target_temperature[1]+=value;
-						sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 						genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
 					}
 				}
@@ -608,7 +608,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (target_temperature[1]>HEATER_1_MINTEMP)
 					{
 						target_temperature[1]-=value;
-						sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 						genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
 					}
 				}
@@ -621,7 +621,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (target_temperature_bed<120)//MaxTemp
 					{
 						target_temperature_bed+=value;
-						sprintf(buffer, "%3d %c C",target_temperature_bed,0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 						genie.WriteStr(STRING_PRINT_SET_BED,buffer);
 					}
 				}
@@ -634,7 +634,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (target_temperature_bed>5)//Mintemp
 					{
 						target_temperature_bed-=value;
-						sprintf(buffer, "%3d %c C",target_temperature_bed,0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 						genie.WriteStr(STRING_PRINT_SET_BED,buffer);
 					}
 				}
@@ -686,15 +686,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					is_on_printing_screen=false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_SETTINGS,0);
 					
-					sprintf(buffer, "%3d %c C",tHotend,0x00B0);
+					sprintf(buffer, "%3d %cC",tHotend,0x00B0);
 					//Serial.println(buffer);
 					genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
 					
-					sprintf(buffer, "%3d %c C",tHotend1,0x00B0);
+					sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
 					//Serial.println(buffer);
 					genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
 					
-					sprintf(buffer, "%3d %c C",tBed,0x00B0);
+					sprintf(buffer, "%3d %cC",tBed,0x00B0);
 					//Serial.println(buffer);
 					genie.WriteStr(STRING_PRINT_SET_BED,buffer);
 					
@@ -736,7 +736,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (target_temperature[0]<HEATER_0_MAXTEMP)
 					{
 						target_temperature[0]+=value;
-						sprintf(buffer, "%3d %c C",target_temperature[0],0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 						genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
 					}
 				}
@@ -748,7 +748,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (target_temperature[0]>HEATER_0_MINTEMP)
 					{
 						target_temperature[0]-=value;
-						sprintf(buffer, "%3d %c C",target_temperature[0],0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 						genie.WriteStr(STRING_PRINT_SET_NOZZ1,buffer);
 					}
 				}
@@ -760,7 +760,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (target_temperature[1]<HEATER_1_MAXTEMP)
 					{
 						target_temperature[1]+=value;
-						sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 						genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
 					}
 				}
@@ -772,7 +772,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (target_temperature[1]>HEATER_1_MINTEMP)
 					{
 						target_temperature[1]-=value;
-						sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 						genie.WriteStr(STRING_PRINT_SET_NOZZ2,buffer);
 					}
 				}
@@ -785,7 +785,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (target_temperature_bed<120)//MaxTemp
 					{
 						target_temperature_bed+=value;
-						sprintf(buffer, "%3d %c C",target_temperature_bed,0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 						genie.WriteStr(STRING_PRINT_SET_BED,buffer);
 					}
 				}
@@ -798,7 +798,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (target_temperature_bed>5)//Mintemp
 					{
 						target_temperature_bed-=value;
-						sprintf(buffer, "%3d %c C",target_temperature_bed,0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 						genie.WriteStr(STRING_PRINT_SET_BED,buffer);
 					}
 				}
@@ -844,6 +844,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					if(card.cardOK)
 					{
+						/*setTargetBed(0);
+						setTargetHotend0(0);
+						setTargetHotend1(1);
+						enquecommand_P(PSTR("T0"));*/
 						if (!card.filenameIsDir){ //If the filename is a gcode we start printing
 							char cmd[30];
 							char* c;
@@ -859,7 +863,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							enquecommand_P(PSTR("M24")); // It also sends you to PRINTING screen
 							
 							screen_status="Ready...";//Write the selected SD file to all strings
-						}
+						}						
 					}
 				}
 				
@@ -961,7 +965,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						sprintf(buffer, "%d %c C",target_temperature[0],0x00B0);
 						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
 						Serial.println(buffer);
-						sprintf(buffer, "%3d %c C",int(degHotend(0)),0x00B0);
+						sprintf(buffer, "%3d %cC",int(degHotend(0)),0x00B0);
 						genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 					}	
 					else{
@@ -969,7 +973,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						purge_extruder_selected = 0;
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
-						sprintf(buffer, "%3d %c C",int(degHotend(0)),0x00B0);
+						sprintf(buffer, "%3d %cC",int(degHotend(0)),0x00B0);
 						genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 					}
 				}
@@ -979,10 +983,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
 						char buffer[256];
-						sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
 						Serial.println(buffer);
-						sprintf(buffer, "%3d %c C",int(degHotend(1)),0x00B0);
+						sprintf(buffer, "%3d %cC",int(degHotend(1)),0x00B0);
 						genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 					}
 					else{
@@ -990,7 +994,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
 						char buffer[256];
-						sprintf(buffer, "%3d %c C",int(degHotend(1)),0x00B0);
+						sprintf(buffer, "%3d %cC",int(degHotend(1)),0x00B0);
 						genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 					}
 				}
@@ -1001,7 +1005,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						setTargetHotend0(target_temperature[0]);
 						setTargetHotend1(target_temperature[1]);
 						char buffer[256];
-						sprintf(buffer, "%3d %c C",int(target_temperature[purge_extruder_selected]),0x00B0);
+						sprintf(buffer, "%3d %cC",int(target_temperature[purge_extruder_selected]),0x00B0);
 						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
 					}
 				}
@@ -1011,7 +1015,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						setTargetHotend0(target_temperature[0]);
 						setTargetHotend1(target_temperature[1]);
 						char buffer[256];
-						sprintf(buffer, "%3d %c C",int(target_temperature[purge_extruder_selected]),0x00B0);
+						sprintf(buffer, "%3d %cC",int(target_temperature[purge_extruder_selected]),0x00B0);
 						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
 					}
 				}
@@ -1076,12 +1080,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					
 					char buffer[256];
-					sprintf(buffer, "%3d %c C",int(degHotend(0)),0x00B0);
+					sprintf(buffer, "%3d %cC",int(degHotend(0)),0x00B0);
 					genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);	Serial.println(buffer);
-					sprintf(buffer, "%3d %c C",int(degHotend(1)),0x00B0);
+					sprintf(buffer, "%3d %cC",int(degHotend(1)),0x00B0);
 					genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);	Serial.println(buffer);
 					
-					sprintf(buffer, "%3d %c C",int(target_temperature[purge_extruder_selected]),0x00B0);
+					sprintf(buffer, "%3d %cC",int(target_temperature[purge_extruder_selected]),0x00B0);
 					genie.WriteStr(STRING_PURGE_SELECTED,buffer);	Serial.println(buffer);
 				}
 				
@@ -1604,6 +1608,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					setTargetHotend0(0);
 					setTargetHotend1(0);
+					//changeTool(0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_ADJUST_ZUp)
@@ -1813,7 +1818,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (target_temperature[0]<HEATER_0_MAXTEMP)
 					{
 						target_temperature[0]+=value;
-						sprintf(buffer, "%3d %c C",target_temperature[0],0x00B0);
+						sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 						genie.WriteStr(STRING_PREHEAT_SET_NOZZ1,buffer);
 					}
 				}
@@ -1825,7 +1830,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (target_temperature[0]>HEATER_0_MINTEMP)
 				{
 				target_temperature[0]-=value;
-				sprintf(buffer, "%3d %c C",target_temperature[0],0x00B0);
+				sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 				genie.WriteStr(STRING_PREHEAT_SET_NOZZ1,buffer);
 				}
 				}
@@ -1837,7 +1842,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (target_temperature[1]<HEATER_1_MAXTEMP)
 				{
 				target_temperature[1]+=value;
-				sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+				sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 				genie.WriteStr(STRING_PREHEAT_SET_NOZZ2,buffer);
 				}
 				}
@@ -1849,7 +1854,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (target_temperature[1]>HEATER_1_MINTEMP)
 				{
 				target_temperature[1]-=value;
-				sprintf(buffer, "%3d %c C",target_temperature[1],0x00B0);
+				sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 				genie.WriteStr(STRING_PREHEAT_SET_NOZZ2,buffer);
 				}
 				}
@@ -1862,7 +1867,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (target_temperature_bed<120)//MaxTemp
 				{
 				target_temperature_bed+=value;
-				sprintf(buffer, "%3d %c C",target_temperature_bed,0x00B0);
+				sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 				genie.WriteStr(STRING_PREHEAT_SET_BED,buffer);
 				}
 				}
@@ -1875,7 +1880,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (target_temperature_bed>5)//Mintemp
 				{
 				target_temperature_bed-=value;
-				sprintf(buffer, "%3d %c C",target_temperature_bed,0x00B0);
+				sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 				genie.WriteStr(STRING_PREHEAT_SET_BED,buffer);
 				}
 				}
@@ -1973,21 +1978,21 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region SuccessScreens
 				else if (Event.reportObject.index == BUTTON_BED_CALIB_SUCCESS )
 				{
-				//enquecommand_P((PSTR("G28 X0 Y0")));
-				enquecommand_P((PSTR("T0")));
-				Serial.println("Calibration Successful, going back to main menu");
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
-				flag_bed_calib_done = true;
-				quick_guide = false;
-				
+					//enquecommand_P((PSTR("G28 X0 Y0")));
+					enquecommand_P((PSTR("T0")));
+					st_synchronize();
+					Serial.println("Calibration Successful, going back to main menu");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+					flag_bed_calib_done = true;
+					quick_guide = false;				
 				}
 				
 				else if (Event.reportObject.index == BUTTON_SUCCESS_FILAMENT_OK)
 				{
-				//enquecommand_P((PSTR("G28 X0 Y0")));
-				enquecommand_P((PSTR("T0")));
-				Serial.println("Filament Inserted/Removed, returning to Main Menu");
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
+					//enquecommand_P((PSTR("G28 X0 Y0")));
+					enquecommand_P((PSTR("T0")));
+					Serial.println("Filament Inserted/Removed, returning to Main Menu");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
 				}
 				#pragma endregion SuccessScreens
 				
@@ -3195,9 +3200,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}		
 					
 					char buffer[256];
-					sprintf(buffer, "%3d %c C",int(degHotend(0)),0x00B0);
+					sprintf(buffer, "%3d %cC",int(degHotend(0)),0x00B0);
 					genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);	Serial.println(buffer);
-					sprintf(buffer, "%3d %c C",int(degHotend(1)),0x00B0);
+					sprintf(buffer, "%3d %cC",int(degHotend(1)),0x00B0);
 					genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);	Serial.println(buffer);	
 				}
 				
@@ -3228,15 +3233,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				//Serial.println("TARGET TEMPS");
 				
-				sprintf(buffer, "%3d %c C",tHotend,0x00B0);
+				sprintf(buffer, "%3d %cC",tHotend,0x00B0);
 				//Serial.println(buffer);
 				genie.WriteStr(STRING_PREHEAT_SET_NOZZ1,buffer);
 				
-				sprintf(buffer, "%3d %c C",tHotend1,0x00B0);
+				sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
 				//Serial.println(buffer);
 				genie.WriteStr(STRING_PREHEAT_SET_NOZZ2,buffer);
 				
-				sprintf(buffer, "%3d %c C",tBed,0x00B0);
+				sprintf(buffer, "%3d %cC",tBed,0x00B0);
 				//Serial.println(buffer);
 				genie.WriteStr(STRING_PREHEAT_SET_BED,buffer);
 				}

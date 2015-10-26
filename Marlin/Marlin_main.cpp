@@ -867,11 +867,11 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			//Rapduch
 			//Edit for final TouchScreen
 			char buffer[256];
-			sprintf(buffer, "%3d %c C",tHotend,0x00B0);
+			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PRINTING_NOZZ1,buffer);
 			
-			sprintf(buffer, "%3d %c C",tHotend1,0x00B0);
+			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PRINTING_NOZZ2,buffer);
 			
@@ -920,11 +920,11 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			//Rapduch
 			//Edit for final TouchScreen
 			
-			sprintf(buffer, "%3d %c C",tHotend,0x00B0);
+			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_NOZZ1,buffer);
 			
-			sprintf(buffer, "%3d %c C",tHotend1,0x00B0);
+			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_NOZZ2,buffer);
 			
@@ -936,11 +936,11 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
 			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
 			
-			sprintf(buffer, "%3d %c C",tHotend,0x00B0);
+			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 			
-			sprintf(buffer, "%3d %c C",tHotend1,0x00B0);
+			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 			
@@ -3863,46 +3863,45 @@ void process_commands()
 
 					break;
 					case 23: //M23 - Select file
-					starpos = (strchr(strchr_pointer + 4,'*'));
-					if(starpos!=NULL)
-					*(starpos)='\0';
-					card.openFile(strchr_pointer + 4,true);
-					break;
+						starpos = (strchr(strchr_pointer + 4,'*'));
+						if(starpos!=NULL)	*(starpos)='\0';
+						card.openFile(strchr_pointer + 4,true);
+						break;
 					case 24: //M24 - Start SD print
-					card.startFileprint();
-					starttime=millis();
-					//Rapduch
-					#ifdef SIGMA_TOUCH_SCREEN
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
-					char buffer[13];
-					if (String(card.longFilename).length()>12){
-					for (int i = 0; i<12 ; i++)
-					{
-					buffer[i]=card.longFilename[i];
-					}
-					buffer[12]='\0';
-					char* buffer2 = strcat(buffer,"...\0");
-					Serial.print("Card Name: ");
-					Serial.println(card.longFilename);
-					Serial.print("Buffer1: ");
-					Serial.println(buffer);
-					Serial.print("buffer out: ");
-					Serial.println(buffer2);
-					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
-					}else{
-					for (int i = 0; i<=String(card.longFilename).length(); i++)
-					{
-					if (buffer[i] == '.') i = String(card.longFilename).length() +10;
-					else buffer[i]=card.longFilename[i];
-					}
-					//buffer[count]='\0';
-					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
-					}
+						card.startFileprint();
+						starttime=millis();
+						//Rapduch
+						#ifdef SIGMA_TOUCH_SCREEN
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+						char buffer[13];
+						if (String(card.longFilename).length()>12){
+							for (int i = 0; i<12 ; i++)
+							{
+								buffer[i]=card.longFilename[i];
+							}
+							buffer[12]='\0';
+							char* buffer2 = strcat(buffer,"...\0");
+							Serial.print("Card Name: ");
+							Serial.println(card.longFilename);
+							Serial.print("Buffer1: ");
+							Serial.println(buffer);
+							Serial.print("buffer out: ");
+							Serial.println(buffer2);
+							genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+						}else{
+							for (int i = 0; i<=String(card.longFilename).length(); i++)
+							{
+								if (buffer[i] == '.') i = String(card.longFilename).length() +10;
+								else buffer[i]=card.longFilename[i];
+							}
+							//buffer[count]='\0';
+							genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
+						}
 					
-					//Serial.println((char*)prepareString(card.longFilename,12));
-					//genie.WriteStr(6,"Ready");
-					#endif
-					break;
+						//Serial.println((char*)prepareString(card.longFilename,12));
+						//genie.WriteStr(6,"Ready");
+						#endif
+						break;
 					case 25: //M25 - Pause SD print
 					card.pauseSDPrint();
 					break;

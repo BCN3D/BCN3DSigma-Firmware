@@ -848,7 +848,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						setTargetBed(0);
 						setTargetHotend0(0);
-						setTargetHotend1(1);
+						setTargetHotend1(0);
 						enquecommand_P(PSTR("T0"));
 						if (!card.filenameIsDir){ //If the filename is a gcode we start printing
 							char cmd[30];
@@ -1054,7 +1054,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (!home_made) home_axis_from_code();
 					enquecommand_P(PSTR("G28 X0 Y0"));
 					st_synchronize();
-					current_position[Z_AXIS]=Z_MAX_POS-5;
+					current_position[Z_AXIS]=Z_MAX_POS-15;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, active_extruder);
 					
 					while (degHotend(purge_extruder_selected)<=(degTargetHotend(purge_extruder_selected)-5)){ //Waiting to heat the extruder						
@@ -1298,7 +1298,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							flag_filament_home=true;
 						}		
 					
-						current_position[Z_AXIS]=Z_MAX_POS-5;
+						current_position[Z_AXIS]=Z_MAX_POS-15;
 						feedrate=homing_feedrate[Z_AXIS];
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*2/60, active_extruder); //check speed
 						st_synchronize();
@@ -1506,7 +1506,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();*/
 					
-					current_position[Z_AXIS]=Z_MAX_POS-5;
+					current_position[Z_AXIS]=Z_MAX_POS-15;
 					feedrate=homing_feedrate[Z_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*2/60, active_extruder); //check speed
 					st_synchronize();					

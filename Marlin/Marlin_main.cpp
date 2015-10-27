@@ -3036,6 +3036,7 @@ void process_commands()
 				if (flag_full_calib){
 					setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
 					setTargetHotend1(EXTRUDER_LEFT_CLEAN_TEMP);
+					setTargetBed(max(bed_temp_l,bed_temp_r));
 				}
 				
 				#if Z_MIN_PIN == -1

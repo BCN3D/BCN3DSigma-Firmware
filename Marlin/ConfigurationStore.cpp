@@ -223,6 +223,23 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOPAIR(" Z " ,extruder_offset[Z_AXIS][1]  );
 	 SERIAL_ECHOLN("");
 	
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOLNPGM("Temp (ºC):");
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOPAIR(" L_INSERT ",(float)insert_temp_l);
+	 SERIAL_ECHOPAIR(" L_REMOVE " ,(float)remove_temp_l);
+	 SERIAL_ECHOPAIR(" L_BED " ,(float)bed_temp_l);
+	 SERIAL_ECHOPAIR(" L_PRINT " ,(float)print_temp_l);
+	 SERIAL_ECHOLN("");
+	 
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOLNPGM("Temp (ºC):");
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOPAIR(" R_INSERT ",(float)insert_temp_r);
+	 SERIAL_ECHOPAIR(" R_REMOVE " ,(float)remove_temp_r);
+	 SERIAL_ECHOPAIR(" R_BED " ,(float)bed_temp_r);
+	 SERIAL_ECHOPAIR(" R_PRINT " ,(float)print_temp_r);
+	 SERIAL_ECHOLN("");
 	
 } 
 #endif

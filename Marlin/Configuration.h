@@ -705,7 +705,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define SIGMA_Z_HOME_TRAVEL_SPEED 13000
 	
 	#define Z_SIGMA_RAISE_BEFORE_HOMING 2//5
-	#define Z_SIGMA_RAISE_AFTER_HOMING 2
+	#define Z_SIGMA_RAISE_AFTER_HOMING 5
+
 #endif
 
 

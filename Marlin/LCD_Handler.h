@@ -34,7 +34,7 @@ int  previous_state = FORM_MAIN_SCREEN;
 int custom_insert_temp = 210;
 int custom_remove_temp = 210;
 int custom_print_temp = 210;
-int custom_bed_temp = 210;
+int custom_bed_temp = 40;
 
 
 //Created by Jordi Calduch for RepRapBCN SIGMA 12/2014
@@ -205,15 +205,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 					}*/
 					
-					sprintf(buffer, "%3d",target_temperature[0]);
+					sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 					//Serial.println(buffer);
 					genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
 					
-					sprintf(buffer, "%3d",target_temperature[1]);
+					sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 					//Serial.println(buffer);
 					genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
 					
-					sprintf(buffer, "%3d",target_temperature_bed);
+					sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 					//Serial.println(buffer);
 					genie.WriteStr(STRING_PS_BED_TEMP,buffer);
 					
@@ -846,10 +846,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					if(card.cardOK)
 					{
+						
 						setTargetBed(0);
 						setTargetHotend0(0);
 						setTargetHotend1(0);
 						enquecommand_P(PSTR("T0"));
+						st_synchronize();
 						if (!card.filenameIsDir){ //If the filename is a gcode we start printing
 							char cmd[30];
 							char* c;
@@ -1329,6 +1331,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					print_temp_r = PLA_PRINT_TEMP;
 					insert_temp_r = PLA_INSERT_TEMP;
 					remove_temp_r = PLA_REMOVE_TEMP;
+					bed_temp_r = PLA_BED_TEMP;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
 					Config_StoreSettings();
 				}		
@@ -1337,6 +1340,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					print_temp_r = ABS_PRINT_TEMP;
 					insert_temp_r = ABS_INSERT_TEMP;
 					remove_temp_r = ABS_REMOVE_TEMP;
+					bed_temp_r = ABS_BED_TEMP;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
 					Config_StoreSettings();
 				}
@@ -1344,6 +1348,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					print_temp_r = PVA_PRINT_TEMP;
 					insert_temp_r = PVA_INSERT_TEMP;
 					remove_temp_r = PVA_REMOVE_TEMP;
+					bed_temp_r = PVA_BED_TEMP;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
 					Config_StoreSettings();
 				}
@@ -1351,6 +1356,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					print_temp_l = PLA_PRINT_TEMP;
 					insert_temp_l = PLA_INSERT_TEMP;
 					remove_temp_l = PLA_REMOVE_TEMP;
+					bed_temp_l = PLA_BED_TEMP;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
 					Config_StoreSettings();
 				}
@@ -1359,6 +1365,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					print_temp_l = ABS_PRINT_TEMP;
 					insert_temp_l = ABS_INSERT_TEMP;
 					remove_temp_l = ABS_REMOVE_TEMP;
+					bed_temp_l = ABS_BED_TEMP;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
 					Config_StoreSettings();
 				}
@@ -1366,6 +1373,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					print_temp_l = PVA_PRINT_TEMP;
 					insert_temp_l = PVA_INSERT_TEMP;
 					remove_temp_l = PVA_REMOVE_TEMP;
+					bed_temp_l = PVA_BED_TEMP;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
 					Config_StoreSettings();
 				}
@@ -1376,13 +1384,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					char buffer[10];
 					char buffer1[10];
 					char buffer2[10];
-					//char buffer3[256];
+					char buffer3[256];
 					sprintf(buffer, "%d %cC",custom_insert_temp,0x00B0);
 					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
 					sprintf(buffer1, "%d %cC",custom_remove_temp,0x00B0);
 					genie.WriteStr(STRING_CUSTOM_REMOVE,buffer1);
 					sprintf(buffer2, "%d %cC",custom_print_temp,0x00B0);
 					genie.WriteStr(STRING_CUSTOM_PRINT,buffer2);
+					sprintf(buffer3, "%d %cC",custom_bed_temp,0x00B0);
+					genie.WriteStr(STRING_CUSTOM_BED,buffer3);
 					
 				}
 				else if (Event.reportObject.index == BUTTON_CUSTOM_BACK){
@@ -1439,7 +1449,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				else if(Event.reportObject.index == BUTTON_CUSTOM_BED_LESS){
-					if (custom_insert_temp > 0){
+					if (custom_bed_temp > 0){
 						char buffer[256];
 						custom_bed_temp -= 10;
 						sprintf(buffer, "%1d %cC",custom_bed_temp,0x00B0);
@@ -1447,7 +1457,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				else if(Event.reportObject.index == BUTTON_CUSTOM_BED_MORE){
-					if (custom_insert_temp < BED_MAXTEMP -5){
+					if (custom_bed_temp < BED_MAXTEMP -5){
 						char buffer[256];
 						custom_bed_temp += 10;
 						sprintf(buffer, "%1d %cC",custom_bed_temp,0x00B0);
@@ -1460,11 +1470,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						print_temp_l = custom_print_temp;
 						insert_temp_l = custom_insert_temp;
 						remove_temp_l = custom_remove_temp;
+						bed_temp_l = custom_bed_temp;
 					}
 					else{
 						print_temp_r = custom_print_temp;
 						insert_temp_r = custom_insert_temp;
 						remove_temp_r = custom_remove_temp;
+						bed_temp_r = custom_bed_temp;
 					}
 					Config_StoreSettings();
 				}
@@ -1534,7 +1546,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (which_extruder == 0) changeTool(0);
 					else changeTool(1);
 					
-					current_position[Y_AXIS] = 20;
+					current_position[Y_AXIS] = 100;
 					current_position[X_AXIS] = 155;					
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 					st_synchronize();
@@ -2464,7 +2476,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 					Serial.println("OK first Extruder!");
 					//We have to override z_prove_offset
-					zprobe_zoffset-=current_position[Z_AXIS]; //We are putting more offset if needed
+					zprobe_zoffset-=(current_position[Z_AXIS]+0.05); //We are putting more offset if needed
 					extruder_offset[Z_AXIS][LEFT_EXTRUDER]=0.0;//It is always the reference
 					current_position[Z_AXIS]=0;//We are setting this position as Zero
 					plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -2509,7 +2521,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_OK)
 				{
 					Serial.println("OK second Extruder!");
-					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=current_position[Z_AXIS];//Add the difference to the current offset value
+					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=(current_position[Z_AXIS]+0.05);//Add the difference to the current offset value
 					Serial.print("Z2 Offset: ");
 					Serial.println(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
 					Config_StoreSettings(); //Store changes					

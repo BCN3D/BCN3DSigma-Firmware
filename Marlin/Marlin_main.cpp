@@ -3037,6 +3037,7 @@ void process_commands()
 					setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
 					setTargetHotend1(EXTRUDER_LEFT_CLEAN_TEMP);
 					setTargetBed(max(bed_temp_l,bed_temp_r));
+					Serial.print("Temperatura del llit: ");Serial.println(max(bed_temp_l,bed_temp_r));
 				}
 				
 				#if Z_MIN_PIN == -1

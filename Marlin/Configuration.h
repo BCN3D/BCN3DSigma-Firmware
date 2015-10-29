@@ -1,12 +1,6 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
-
-////////////////////////////////PROTOSIGMA///////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Which variables has been affected
-//SIGMA_Z_HOME_TRAVEL_SPEED , XY_SIGMA_TRAVEL_SPEED, HOMING_FEEDRATE, DEFAULT_AXIS_STEPS_PER_UNIT, DEFAULT_MAX_FEEDRATE, DEFAULT_MAX_ACCELERATION,   
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // This configuration file contains the basic settings.
 // Advanced settings can be found in Configuration_adv.h
 // BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
@@ -26,7 +20,7 @@
 //
 //This is the version declaration for Sigma, v followed by '_' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
-#define VERSION_STRING  "01-1.0.0"
+#define VERSION_STRING  "01-0.0.5"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
@@ -190,22 +184,6 @@
 #define BED_MINTEMP 5
 
 //To clean the extruder's the best temperature configuration
-#define	PLA_INSERT_TEMP			220
-#define	PLA_REMOVE_TEMP			170
-#define	PLA_PRINT_TEMP			215
-#define PLA_BED_TEMP			50
-
-#define	ABS_INSERT_TEMP			245
-#define	ABS_REMOVE_TEMP			220
-#define	ABS_PRINT_TEMP			245
-#define ABS_BED_TEMP			70
-
-#define	PVA_INSERT_TEMP			200
-#define	PVA_REMOVE_TEMP			170
-#define	PVA_PRINT_TEMP			190
-#define PVA_BED_TEMP			50
-
-
 #define EXTRUDER_LEFT_CLEAN_TEMP 170
 #define EXTRUDER_RIGHT_CLEAN_TEMP 170
 
@@ -232,7 +210,7 @@
 #define BANG_MAX 255 // limits current to nozzle while in bang-bang mode; 255=full current
 #define PID_MAX 255 // limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #ifdef PIDTEMP
- // #define PID_DEBUG // Sends debug data to the serial port.
+  //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   
   //Rapduch ATENCIÓ
@@ -335,7 +313,7 @@
 //if PREVENT_DANGEROUS_EXTRUDE is on, you can still disable (uncomment) very long bits of extrusion separately.
 //#define PREVENT_LENGTHY_EXTRUDE
 
-#define EXTRUDE_MINTEMP 150 //With DUAL X it only counts extruder0 temp
+#define EXTRUDE_MINTEMP 0 //With DUAL X it only counts extruder0 temp
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
 
@@ -481,7 +459,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Y_MAX_POS 280
 	#define Y_MIN_POS 0
 	#define Z_MAX_POS 150
-
 	#define Z_MIN_POS 0
 #endif
 #endif
@@ -667,16 +644,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define SIGMA_BED_AUTOCALIB
 
 //Quick guide control
-#define DEFAULT_QUICK_GUIDE false;
-#define DEFAULT_PRINT_TEMP  PLA_PRINT_TEMP;
-#define DEFAULT_INSERT_TEMP PLA_INSERT_TEMP;
-#define DEFAULT_REMOVE_TEMP PLA_REMOVE_TEMP;
-#define DEFAULT_BED_TEMP	PLA_BED_TEMP;
-#define DEFAULT_OLD_PRINT_TEMP PLA_PRINT_TEMP;
-#define DEFAULT_OLD_INSERT_TEMP PLA_INSERT_TEMP;
-#define DEFAULT_OLD_REMOVE_TEMP PLA_REMOVE_TEMP;
-#define DEFAULT_OLD_BED_TEMP	PLA_BED_TEMP;
-
+//#define DEFAULT_QUICK_GUIDE true;
 
 //Rapduch
 //Insert Filament parameters
@@ -702,11 +670,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	//#define Z_SIGMA_HOME_X_POINT 3
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
-	#define SIGMA_Z_HOME_TRAVEL_SPEED 13000
+	#define SIGMA_Z_HOME_TRAVEL_SPEED 8000//4000
 	
 	#define Z_SIGMA_RAISE_BEFORE_HOMING 2//5
-	#define Z_SIGMA_RAISE_AFTER_HOMING 5
-
+	#define Z_SIGMA_RAISE_AFTER_HOMING 2
 #endif
 
 
@@ -747,11 +714,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	
 	#define X_SIGMA_PROBE_2_LEFT_EXTR 55.5
 	//#define X_SIGMA_PROBE_2_LEFT_EXTR 3
-	#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
+	#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
 	
 	#define X_SIGMA_PROBE_3_LEFT_EXTR 255
 	//#define X_SIGMA_PROBE_3_LEFT_EXTR 204
-	#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
+	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
 	
 	//Right extruder probe point
 	#define X_SIGMA_PROBE_1_RIGHT_EXTR 249//254.5
@@ -759,11 +726,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	
 	#define X_SIGMA_PROBE_2_RIGHT_EXTR 249//255
 	//#define X_SIGMA_PROBE_2_RIGHT_EXTR 204
-	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
+	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
 	
 	#define X_SIGMA_PROBE_3_RIGHT_EXTR 55.5
 	//#define X_SIGMA_PROBE_3_RIGHT_EXTR 3
-	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
+	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
 #endif
 
 #ifdef  SIGMA_BED_AUTOCALIB
@@ -789,7 +756,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define SECOND_EXTRUDER_Y {150.5, 149.5, 150, 149}
 		
 		
-	#define X_CALIB_STARTING_X 125
+	#define X_CALIB_STARTING_X 115
 	#define X_CALIB_STARTING_Y 270
 #endif
 

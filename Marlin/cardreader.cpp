@@ -619,6 +619,7 @@ void CardReader::updir()
 
 void CardReader::printingHasFinished()
 {
+	enquecommand_P(PSTR("M107"));	
     st_synchronize();
     if(file_subcall_ctr>0) //heading up to a parent file that called current as a procedure.
     {
@@ -636,8 +637,12 @@ void CardReader::printingHasFinished()
 	  //Rapduch
 	#ifdef SIGMA_TOUCH_SCREEN
 	//also we need to put the platform down and do an autohome to prevent blocking
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,1);
-		enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,1);		
+		enquecommand_P(PSTR("T0")); 
+		st_synchronize();		
+		enquecommand_P(PSTR("M107"));
+		st_synchronize();
+		//The default states is Left Extruder active	
 	#endif	  
       if(SD_FINISHED_STEPPERRELEASE)
       {

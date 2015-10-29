@@ -90,8 +90,25 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
   
   //Quick Start Guide
-  //EEPROM_WRITE_VAR(i,quick_guide);
-   
+  EEPROM_WRITE_VAR(i,quick_guide);
+  EEPROM_WRITE_VAR(i,print_temp_l);
+  EEPROM_WRITE_VAR(i,insert_temp_l);
+  EEPROM_WRITE_VAR(i,bed_temp_l);
+  EEPROM_WRITE_VAR(i,remove_temp_l);
+  EEPROM_WRITE_VAR(i,old_print_temp_l);
+  EEPROM_WRITE_VAR(i,old_insert_temp_l);
+  EEPROM_WRITE_VAR(i,old_remove_temp_l); 
+  EEPROM_WRITE_VAR(i,old_bed_temp_l);
+  
+   EEPROM_WRITE_VAR(i,print_temp_r);
+   EEPROM_WRITE_VAR(i,insert_temp_r);
+   EEPROM_WRITE_VAR(i,remove_temp_r);
+   EEPROM_WRITE_VAR(i,bed_temp_r);
+   EEPROM_WRITE_VAR(i,old_print_temp_r);
+   EEPROM_WRITE_VAR(i,old_insert_temp_r);
+   EEPROM_WRITE_VAR(i,old_remove_temp_r);
+   EEPROM_WRITE_VAR(i,old_bed_temp_r);
+  
   //Language
 //  EEPROM_WRITE_VAR(i,language);
 
@@ -205,6 +222,25 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOPAIR(" Y " ,extruder_offset[Y_AXIS][1]  );
 	 SERIAL_ECHOPAIR(" Z " ,extruder_offset[Z_AXIS][1]  );
 	 SERIAL_ECHOLN("");
+	
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOLNPGM("Temp (ºC):");
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOPAIR(" L_INSERT ",(float)insert_temp_l);
+	 SERIAL_ECHOPAIR(" L_REMOVE " ,(float)remove_temp_l);
+	 SERIAL_ECHOPAIR(" L_BED " ,(float)bed_temp_l);
+	 SERIAL_ECHOPAIR(" L_PRINT " ,(float)print_temp_l);
+	 SERIAL_ECHOLN("");
+	 
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOLNPGM("Temp (ºC):");
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOPAIR(" R_INSERT ",(float)insert_temp_r);
+	 SERIAL_ECHOPAIR(" R_REMOVE " ,(float)remove_temp_r);
+	 SERIAL_ECHOPAIR(" R_BED " ,(float)bed_temp_r);
+	 SERIAL_ECHOPAIR(" R_PRINT " ,(float)print_temp_r);
+	 SERIAL_ECHOLN("");
+	
 } 
 #endif
 
@@ -261,8 +297,24 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
 		
 		//Quick Start Guide
-		//EEPROM_READ_VAR(i,quick_guide);
+		EEPROM_READ_VAR(i,quick_guide);
+		EEPROM_READ_VAR(i,print_temp_l);
+		EEPROM_READ_VAR(i,insert_temp_l);
+		EEPROM_READ_VAR(i,remove_temp_l);
+		EEPROM_READ_VAR(i,bed_temp_l);
+		EEPROM_READ_VAR(i,old_print_temp_l);
+		EEPROM_READ_VAR(i,old_insert_temp_l);
+		EEPROM_READ_VAR(i,old_remove_temp_l);
+		EEPROM_READ_VAR(i,old_bed_temp_l);
 		
+		EEPROM_READ_VAR(i,print_temp_r);
+		EEPROM_READ_VAR(i,insert_temp_r);
+		EEPROM_READ_VAR(i,remove_temp_r);
+		EEPROM_READ_VAR(i,bed_temp_r);
+		EEPROM_READ_VAR(i,old_print_temp_r);
+		EEPROM_READ_VAR(i,old_insert_temp_r);
+		EEPROM_READ_VAR(i,old_remove_temp_r);
+		EEPROM_READ_VAR(i,old_bed_temp_r);
 		//Language
 //		EEPROM_READ_VAR(i,language);
 		
@@ -325,7 +377,23 @@ void Config_ResetDefault()
     max_z_jerk=DEFAULT_ZJERK;
     max_e_jerk=DEFAULT_EJERK;
     add_homing[0] = add_homing[1] = add_homing[2] = 0;
-	//quick_guide = DEFAULT_QUICK_GUIDE;
+	quick_guide = DEFAULT_QUICK_GUIDE;
+	print_temp_l = DEFAULT_PRINT_TEMP;
+	insert_temp_l=DEFAULT_INSERT_TEMP;
+	remove_temp_l=DEFAULT_REMOVE_TEMP;
+	bed_temp_l = DEFAULT_BED_TEMP;
+	old_print_temp_l=DEFAULT_OLD_PRINT_TEMP;
+	old_insert_temp_l=DEFAULT_OLD_INSERT_TEMP;
+	old_remove_temp_l=DEFAULT_OLD_REMOVE_TEMP;
+	old_bed_temp_l = DEFAULT_OLD_BED_TEMP;
+	print_temp_r = DEFAULT_PRINT_TEMP;
+	insert_temp_r=DEFAULT_INSERT_TEMP;
+	remove_temp_r=DEFAULT_REMOVE_TEMP;
+	bed_temp_r = DEFAULT_BED_TEMP;
+	old_print_temp_r=DEFAULT_OLD_PRINT_TEMP;
+	old_insert_temp_r=DEFAULT_OLD_INSERT_TEMP;
+	old_remove_temp_r=DEFAULT_OLD_REMOVE_TEMP;
+	old_bed_temp_r = DEFAULT_OLD_BED_TEMP;
 	
 #ifdef DELTA
 	endstop_adj[0] = endstop_adj[1] = endstop_adj[2] = 0;

@@ -642,6 +642,9 @@ void CardReader::printingHasFinished()
 		st_synchronize();		
 		enquecommand_P(PSTR("M107"));
 		st_synchronize();
+		setTargetHotend0(0);
+		setTargetHotend1(0);
+		setTargetBed(0);
 		//The default states is Left Extruder active	
 	#endif	  
       if(SD_FINISHED_STEPPERRELEASE)

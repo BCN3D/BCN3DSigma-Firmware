@@ -508,6 +508,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
 					enquecommand_P(PSTR("M107"));
 					st_synchronize();
+					setTargetHotend0(0);
+					setTargetHotend1(0);
+					setTargetBed(0);
 					
 					if(SD_FINISHED_STEPPERRELEASE)
 					{
@@ -1710,7 +1713,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//Wait until temperature it's okey
 						setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
 						setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
-						setTargetBed(PLA_PREHEAT_HPB_TEMP);
+						setTargetBed(max(bed_temp_l,bed_temp_r));
 						
 						//MOVE EXTRUDERS
 						current_position[Z_AXIS] = 60;
@@ -3261,7 +3264,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//First send the actual command
 				setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
 				setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP);
-				setTargetBed(PLA_PREHEAT_HPB_TEMP);
+				setTargetBed(max(bed_temp_l,bed_temp_r));
 				
 				//Now let's print it on the touchscreen
 				char buffer[256];

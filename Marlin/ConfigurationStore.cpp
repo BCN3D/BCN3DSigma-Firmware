@@ -93,8 +93,8 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,quick_guide);
   EEPROM_WRITE_VAR(i,print_temp_l);
   EEPROM_WRITE_VAR(i,insert_temp_l);
-  EEPROM_WRITE_VAR(i,bed_temp_l);
   EEPROM_WRITE_VAR(i,remove_temp_l);
+  EEPROM_WRITE_VAR(i,bed_temp_l);
   EEPROM_WRITE_VAR(i,old_print_temp_l);
   EEPROM_WRITE_VAR(i,old_insert_temp_l);
   EEPROM_WRITE_VAR(i,old_remove_temp_l); 

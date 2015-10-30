@@ -2324,7 +2324,7 @@ void process_commands()
 						plan_buffer_line(mm_left_offset-5,250+11+5, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);
 						st_synchronize();
 						current_position[E_AXIS]+=2;
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*10)-5,250+11+5, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
+						plan_buffer_line(mm_left_offset-5,250+11+5, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
 						st_synchronize();						
 						current_position[E_AXIS]+=((100)*0.33*current_position[Z_AXIS]*10/55.119)*2;
 						plan_buffer_line(mm_left_offset+(mm_each_extrusion*10)-5,250+11+5, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);

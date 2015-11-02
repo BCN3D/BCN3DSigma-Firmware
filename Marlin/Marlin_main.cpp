@@ -664,7 +664,7 @@ void setup()
 			// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 			Config_RetrieveSettings();
 	
-			if (quick_guide) {
+			/*if (quick_guide) {
 				genie.WriteStr(3,VERSION_STRING);						
 				delay(2500);
 				Serial.println("Welcome by first time to SIGMA");
@@ -673,11 +673,11 @@ void setup()
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_WELCOME,0);
 				surfing_utilities=true;				
 				
-			} else {
+			} else {*/
 				genie.WriteStr(3,VERSION_STRING);
 				delay(2500);
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-			}
+			//}
 			//Turn the Display on (Contrast) - (Not needed but illustrates how)
 			/*for(int i = 0;i<16;i++){				
 				genie.WriteContrast(i);	

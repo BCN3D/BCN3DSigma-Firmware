@@ -1317,7 +1317,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						st_synchronize();
 						
 						processing = false;
-						heatting = true;
+						
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);				
@@ -2034,6 +2034,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P((PSTR("T0")));
 					Serial.println("Filament Inserted/Removed, returning to Main Menu");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
+					setTargetHotend0(0);
+					setTargetHotend1(0);
 				}
 				#pragma endregion SuccessScreens
 				

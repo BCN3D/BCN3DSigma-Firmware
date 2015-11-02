@@ -677,6 +677,8 @@ void setup()
 				genie.WriteStr(3,VERSION_STRING);
 				delay(2500);
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
+					Config_RetrieveSettings();
 			//}
 			//Turn the Display on (Contrast) - (Not needed but illustrates how)
 			/*for(int i = 0;i<16;i++){				
@@ -689,8 +691,7 @@ void setup()
 
 	#endif
 
-	// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
-	Config_RetrieveSettings();
+	
 	
 	/*//Enabling RELE ( Stepper Drivers Power )
 	#if MOTHERBOARD==BCN3D_BOARD //BCNElectronics v1
@@ -2544,7 +2545,7 @@ void process_commands()
 						
 					}	
 					
-					current_position[E_AXIS]+=2;
+					current_position[E_AXIS]-=4;
 					plan_buffer_line(200, mm_left_offset-(mm_second_extruder[i]+(mm_each_extrusion*(i))), current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/ , active_extruder);//Move the retracked space
 					Serial.println("We are restoring retrack");
 					st_synchronize();

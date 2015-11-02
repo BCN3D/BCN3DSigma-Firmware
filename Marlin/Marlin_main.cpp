@@ -5141,47 +5141,47 @@ void process_commands()
 					#ifdef PIDTEMP
 					case 301: // M301
 					{
-					if(code_seen('P')) Kp = code_value();
-					if(code_seen('I')) Ki = scalePID_i(code_value());
-					if(code_seen('D')) Kd = scalePID_d(code_value());
+						if(code_seen('P')) Kp = code_value();
+						if(code_seen('I')) Ki = scalePID_i(code_value());
+						if(code_seen('D')) Kd = scalePID_d(code_value());
 
-					#ifdef PID_ADD_EXTRUSION_RATE
-					if(code_seen('C')) Kc = code_value();
-					#endif
+						#ifdef PID_ADD_EXTRUSION_RATE
+							if(code_seen('C')) Kc = code_value();
+						#endif
 
-					updatePID();
-					SERIAL_PROTOCOL(MSG_OK);
-					SERIAL_PROTOCOL(" p:");
-					SERIAL_PROTOCOL(Kp);
-					SERIAL_PROTOCOL(" i:");
-					SERIAL_PROTOCOL(unscalePID_i(Ki));
-					SERIAL_PROTOCOL(" d:");
-					SERIAL_PROTOCOL(unscalePID_d(Kd));
-					#ifdef PID_ADD_EXTRUSION_RATE
-					SERIAL_PROTOCOL(" c:");
-					//Kc does not have scaling applied above, or in resetting defaults
-					SERIAL_PROTOCOL(Kc);
-					#endif
-					SERIAL_PROTOCOLLN("");
+						updatePID();
+						SERIAL_PROTOCOL(MSG_OK);
+						SERIAL_PROTOCOL(" p:");
+						SERIAL_PROTOCOL(Kp);
+						SERIAL_PROTOCOL(" i:");
+						SERIAL_PROTOCOL(unscalePID_i(Ki));
+						SERIAL_PROTOCOL(" d:");
+						SERIAL_PROTOCOL(unscalePID_d(Kd));
+						#ifdef PID_ADD_EXTRUSION_RATE
+							SERIAL_PROTOCOL(" c:");
+							//Kc does not have scaling applied above, or in resetting defaults
+							SERIAL_PROTOCOL(Kc);
+						#endif
+						SERIAL_PROTOCOLLN("");
 					}
 					break;
 					#endif //PIDTEMP
 					#ifdef PIDTEMPBED
 					case 304: // M304
 					{
-					if(code_seen('P')) bedKp = code_value();
-					if(code_seen('I')) bedKi = scalePID_i(code_value());
-					if(code_seen('D')) bedKd = scalePID_d(code_value());
+						if(code_seen('P')) bedKp = code_value();
+						if(code_seen('I')) bedKi = scalePID_i(code_value());
+						if(code_seen('D')) bedKd = scalePID_d(code_value());
 
-					updatePID();
-					SERIAL_PROTOCOL(MSG_OK);
-					SERIAL_PROTOCOL(" p:");
-					SERIAL_PROTOCOL(bedKp);
-					SERIAL_PROTOCOL(" i:");
-					SERIAL_PROTOCOL(unscalePID_i(bedKi));
-					SERIAL_PROTOCOL(" d:");
-					SERIAL_PROTOCOL(unscalePID_d(bedKd));
-					SERIAL_PROTOCOLLN("");
+						updatePID();
+						SERIAL_PROTOCOL(MSG_OK);
+						SERIAL_PROTOCOL(" p:");
+						SERIAL_PROTOCOL(bedKp);
+						SERIAL_PROTOCOL(" i:");
+						SERIAL_PROTOCOL(unscalePID_i(bedKi));
+						SERIAL_PROTOCOL(" d:");
+						SERIAL_PROTOCOL(unscalePID_d(bedKd));
+						SERIAL_PROTOCOLLN("");
 					}
 					break;
 					#endif //PIDTEMP
@@ -5239,15 +5239,30 @@ void process_commands()
 					#endif
 					case 303: // M303 PID autotune
 					{
-					float temp = 150.0;
-					int e=0;
-					int c=5;
-					if (code_seen('E')) e=code_value();
-					if (e<0)
-					temp=70;
-					if (code_seen('S')) temp=code_value();
-					if (code_seen('C')) c=code_value();
-					PID_autotune(temp, e, c);
+						float temp = 150.0;
+						int e=0;
+						int c=5;
+						if (code_seen('E')) e=code_value();
+						if (e<0) temp=70;						
+						if (code_seen('S')) temp=code_value();
+						if (code_seen('C')) c=code_value();
+						PID_autotune(temp, e, c);
+					}					
+					break;
+					case 307: //M307 PID AUTOTUNE SAVE
+					{
+						float temp = max((float)print_temp_l,(float)print_temp_r);
+						int e=0;
+						int c=8;
+						PID_autotune_Save(temp, e, c);
+						Config_StoreSettings();
+						SERIAL_PROTOCOL(MSG_OK);
+						SERIAL_PROTOCOL(" p:");
+						SERIAL_PROTOCOL(Kp);
+						SERIAL_PROTOCOL(" i:");
+						SERIAL_PROTOCOL(unscalePID_i(Ki));
+						SERIAL_PROTOCOL(" d:");
+						SERIAL_PROTOCOL(unscalePID_d(Kd));
 					}
 					break;
 					#ifdef SCARA

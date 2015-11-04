@@ -1281,11 +1281,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					if (Event.reportObject.index == BUTTON_FILAMENT_NOZZLE1) //Left Nozzle
 					{
+						
 						which_extruder=0;
 						
 					}
 					else //Right Nozzle
 					{
+						
 						which_extruder=1;
 					}
 					
@@ -1335,6 +1337,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
 						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
 						is_changing_filament=true; //We are changing filament	
+						
 					}	
 				}
 				

@@ -662,7 +662,7 @@ void setup()
 			delay(4500); //showing the splash screen			
 	
 			// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
-			Config_RetrieveSettings();
+			//Config_RetrieveSettings();
 	
 			/*if (quick_guide) {
 				genie.WriteStr(3,VERSION_STRING);						
@@ -2545,14 +2545,14 @@ void process_commands()
 						
 					}	
 					
-					current_position[E_AXIS]-=4;
+					current_position[E_AXIS]+=4;
 					plan_buffer_line(200, mm_left_offset-(mm_second_extruder[i]+(mm_each_extrusion*(i))), current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/ , active_extruder);//Move the retracked space
 					Serial.println("We are restoring retrack");
-					st_synchronize();
-									
+					st_synchronize();									
 					
 					current_position[E_AXIS]+=((200-151)*0.33*current_position[Z_AXIS]*10/55.119)*1.75;
 					plan_buffer_line(151, mm_left_offset-(mm_second_extruder[i]+(mm_each_extrusion*(i))), current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Move Y and extrude
+					
 					current_position[E_AXIS]-=2;
 					if (i != 9) plan_buffer_line(200, mm_left_offset-(mm_second_extruder[i+1]+(mm_each_extrusion*(i+1))), current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//Retrack
 					else plan_buffer_line(151, mm_left_offset-(mm_second_extruder[i]+(mm_each_extrusion*(i))), current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//Retrack
@@ -2560,7 +2560,7 @@ void process_commands()
 				}
 				current_position[Y_AXIS]=mm_left_offset-(mm_second_extruder[NUM_LINES-1]+(mm_each_extrusion*(NUM_LINES-1)));
 				current_position[X_AXIS]=151;
-				current_position[E_AXIS]+=2;
+				current_position[E_AXIS]-=2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//MORE Retrack
 				current_position[Z_AXIS]+=2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//MORE Retrack

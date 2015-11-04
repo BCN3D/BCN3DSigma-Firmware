@@ -174,6 +174,9 @@ Rapduch
  M302 - Allow cold extrudes, or set the minimum extrude S<temperature>.
  M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
  M304 - Set bed PID parameters P I and D
+ M350 - Set microstepping mode.
+ M351 - Toggle MS1 MS2 pins directly.
+ M352 - Reset quick wizard guide
  M400 - Finish all moves
  M401 - Lower z-probe if present
  M402 - Raise z-probe if present
@@ -191,10 +194,7 @@ Rapduch
  M666 - set delta endstop adjustment
  M605 - Set dual x-carriage movement mode: S<mode> [ X<duplication x-offset> R<duplication temp offset> ]
  M907 - Set digital trimpot motor current using axis codes.
- M908 - Control digital trimpot directly.
- M350 - Set microstepping mode.
- M351 - Toggle MS1 MS2 pins directly.
- M352 - Reset quick wizard guide
+ M908 - Control digital trimpot directly. 
 
  ************ SCARA Specific - This can change to suit future G-code regulations
  M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
@@ -2545,12 +2545,13 @@ void process_commands()
 						
 					}	
 					
-					current_position[E_AXIS]+=4;
+					current_position[E_AXIS]+=2;
 					plan_buffer_line(200, mm_left_offset-(mm_second_extruder[i]+(mm_each_extrusion*(i))), current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/ , active_extruder);//Move the retracked space
 					Serial.println("We are restoring retrack");
 					st_synchronize();									
 					
-					current_position[E_AXIS]+=((200-151)*0.33*current_position[Z_AXIS]*10/55.119)*1.75;
+					//((50)*0.33*current_position[Z_AXIS]*10/55.119)*1.75;
+					current_position[E_AXIS]+=((50)*0.33*current_position[Z_AXIS]*10/55.119)*1.75;
 					plan_buffer_line(151, mm_left_offset-(mm_second_extruder[i]+(mm_each_extrusion*(i))), current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Move Y and extrude
 					
 					current_position[E_AXIS]-=2;
@@ -6653,21 +6654,21 @@ void process_commands()
 						//current_position[E_AXIS] -= 2;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
 						st_synchronize();
-						current_position[X_AXIS] = 100; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0.05;//current_position[E_AXIS] -= 4;
+						current_position[X_AXIS] = 100; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0.05;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
 						st_synchronize();
 						current_position[X_AXIS] = 100; current_position[Y_AXIS] = 201; current_position[E_AXIS]+=((261-201)*0.33*0.1*10/55.119)*1.1;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 						st_synchronize();
 						//CENTER LINE
-						current_position[X_AXIS] = 92; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0.1; //current_position[E_AXIS]-=2;
+						current_position[X_AXIS] = 92; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0.1; ;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
 						st_synchronize();
 						current_position[X_AXIS] = 92; current_position[Y_AXIS] = 201; current_position[E_AXIS]+=((261-201)*0.33*0.1*10/55.119)*1.1;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 						st_synchronize();
 						// LEFT LINE
-						current_position[X_AXIS] = 85; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0.15; //current_position[E_AXIS]-=2;
+						current_position[X_AXIS] = 85; current_position[Y_AXIS] = 250+11; current_position[Z_AXIS]= 0.15; 
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
 						st_synchronize();
 						current_position[X_AXIS] = 85; current_position[Y_AXIS] = 201;  current_position[E_AXIS]+=((261-201)*0.33*0.1*10/55.119)*1.1;

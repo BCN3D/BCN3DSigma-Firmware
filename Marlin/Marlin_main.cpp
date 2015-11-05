@@ -1395,7 +1395,7 @@ int aprox (float voltes)
 {
 	float res =0.125; //resolució d' 1/8 de volta
 	float aprox_raw = voltes/res;
-	int aprox = round(aprox_raw); // Arrodoniment de les voltes
+	int aprox = round(aprox_raw-0.05); // Arrodoniment de les voltes
 	return aprox;
 }
 

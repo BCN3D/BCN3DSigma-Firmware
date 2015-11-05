@@ -1644,13 +1644,8 @@ static void homeaxis(int axis) {
 	#define HOMEAXIS_DO(LETTER) \
 	((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
 
-	if (axis==X_AXIS ? HOMEAXIS_DO(X) :
-	axis==Y_AXIS ? HOMEAXIS_DO(Y) :
-	axis==Z_AXIS ? HOMEAXIS_DO(Z) :
-	0) {
-		int axis_home_dir = home_dir(axis);
-		
-		
+	if (axis==X_AXIS ? HOMEAXIS_DO(X) :	axis==Y_AXIS ? HOMEAXIS_DO(Y) :	axis==Z_AXIS ? HOMEAXIS_DO(Z) :	0) {
+		int axis_home_dir = home_dir(axis);		
 		#ifdef DUAL_X_CARRIAGE
 			if (axis == X_AXIS) axis_home_dir = x_home_dir(active_extruder);
 		#endif
@@ -1963,25 +1958,25 @@ void process_commands()
 				if((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) // First do X
 				{
 					#ifdef DUAL_X_CARRIAGE
-					#ifdef Z_SIGMA_HOME
-					if(saved_active_extruder == RIGHT_EXTRUDER)
-					{
-						//active_extruder=LEFT_EXTRUDER; //Always use the same routine (left extruder probes)
-					}
-					#endif
-					int tmp_extruder = active_extruder;
-					extruder_duplication_enabled = false;
-					active_extruder = !active_extruder;
-					HOMEAXIS(X);
-					inactive_extruder_x_pos = current_position[X_AXIS];
-					active_extruder = tmp_extruder;
-					HOMEAXIS(X);
-					// reset state used by the different modes
-					memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
-					delayed_move_time = 0;
-					active_extruder_parked = true;
+						#ifdef Z_SIGMA_HOME
+							if(saved_active_extruder == RIGHT_EXTRUDER)
+							{
+								//active_extruder=LEFT_EXTRUDER; //Always use the same routine (left extruder probes)
+							}
+						#endif
+						int tmp_extruder = active_extruder;
+						extruder_duplication_enabled = false;
+						active_extruder = !active_extruder;
+						HOMEAXIS(X);
+						inactive_extruder_x_pos = current_position[X_AXIS];
+						active_extruder = tmp_extruder;
+						HOMEAXIS(X);
+						// reset state used by the different modes
+						memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+						delayed_move_time = 0;
+						active_extruder_parked = true;
 					#else
-					HOMEAXIS(X);
+						HOMEAXIS(X);
 					#endif
 				}
 
@@ -6772,6 +6767,7 @@ void process_commands()
 						z_print_test =false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_Z_TEST,0);
 					}
+					
 					
 					
 					void home_axis_from_code()

@@ -57,11 +57,9 @@
 
 #define BUTTON_SETUP_BACK_BED				44
 #define BUTTON_CHANGE_EXTRUDER				63
-#define BUTTON_PROVA						64
 #define BUTTON_PROVA_PRESS					65
 
 //Main Menu
-#define BUTTON_SLEEP						64
 #define BUTTON_CLEAN_CHANGE					148
 
 //Sleep Screen
@@ -187,20 +185,6 @@
 #define BUTTON_Y_10							146
 #define BUTTON_Y_ACCEPT						147
 #define BUTTON_Y_REDO						150
-
-//X CALIB
-#define BUTTON_X_1							134
-#define BUTTON_X_2							119
-#define BUTTON_X_3							127
-#define BUTTON_X_4							128
-#define BUTTON_X_5							129
-#define BUTTON_X_6							130
-#define BUTTON_X_7							131
-#define BUTTON_X_8							132
-#define BUTTON_X_9							133
-#define BUTTON_X_10							135
-#define BUTTON_X_ACCEPT						136
-#define BUTTON_X_REDO						149
 
 //BED CALIB
 #define BUTTON_BED_CALIB_SW2				93
@@ -450,6 +434,7 @@
 #define FORM_INFO_TURN_SCREWS			16
 #define FORM_INFO_BED_MUST_CAL			17
 #define FORM_CLEAN_EXTRUDERS			41
+#define FORM_INSERT_FILAMENT_TOP		12
 
 #define FORM_PURGE						44
 

@@ -1548,7 +1548,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					st_synchronize();					
 					/****************************************************/
 										
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FILAMENT_HANDS,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FILAMENT_TOP,0);
 					processing = false;
 					
 				}
@@ -2228,9 +2228,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.println(calculus);					
 					extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;					
 					Config_StoreSettings(); //Store changes
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
-					
-					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_REDO_RIGHT_CAB)
@@ -2241,7 +2239,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.println(calculus);
 					extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 					Config_StoreSettings(); //Store changes
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
 					
 					
 				}
@@ -2598,9 +2596,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					st_synchronize();
 				}
 				
-				else if(Event.reportObject.index == BUTTON_RECALIBRATE_Z){
+				else if(Event.reportObject.index == BUTTON_RECALIBRATE_Z){					
 					redo_source = 3;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);				
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);			
 					
 				}
 				

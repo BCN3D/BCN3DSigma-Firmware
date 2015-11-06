@@ -2478,7 +2478,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 					Serial.println("OK first Extruder!");
 					//We have to override z_prove_offset
-					zprobe_zoffset-=(current_position[Z_AXIS]+0.2); //We are putting more offset if needed
+					zprobe_zoffset-=(current_position[Z_AXIS]-0.05); //We are putting more offset if needed
 					extruder_offset[Z_AXIS][LEFT_EXTRUDER]=0.0;//It is always the reference
 					current_position[Z_AXIS]=0;//We are setting this position as Zero
 					plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -2533,7 +2533,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_OK)
 				{
 					Serial.println("OK second Extruder!");
-					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=(current_position[Z_AXIS]+0.2);//Add the difference to the current offset value
+					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=(current_position[Z_AXIS]-0.05);//Add the difference to the current offset value
 					Serial.print("Z2 Offset: ");
 					Serial.println(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
 					Config_StoreSettings(); //Store changes					

@@ -962,9 +962,9 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				else if (filament_mode =='R')
 				{
 					heatting = false;	
-					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament,\n move the spool to save the filament");
+					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament,roll\n the spool backwards to save the filament");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
-					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament,\n move the spool to save the filament");
+					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament,roll\n the spool backwards to save the filament");
 					
 				}
 				else

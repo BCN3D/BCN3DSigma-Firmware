@@ -2570,7 +2570,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//z_print_test =true;
 					processing = true;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-					zprobe_zoffset-=0.1;
+					zprobe_zoffset+=0.1;
 					Config_StoreSettings(); //Store changes
 					changeTool(1);
 					
@@ -2581,7 +2581,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//z_print_test =true;
 					processing = true;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);		
-					zprobe_zoffset-=0.05;
+					zprobe_zoffset+=0.05;
 					Config_StoreSettings(); //Store changes			
 					changeTool(1);					
 					enquecommand_P(PSTR("G43"));
@@ -2598,7 +2598,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT4){
 					processing = true;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-					zprobe_zoffset+=0.05;
+					zprobe_zoffset-=0.05;
 					Config_StoreSettings(); //Store changes
 					changeTool(1);
 					enquecommand_P(PSTR("G43"));
@@ -2607,7 +2607,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT5){
 					processing = true;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-					zprobe_zoffset+=0.1;
+					zprobe_zoffset-=0.1;
 					Config_StoreSettings(); //Store changes
 					changeTool(1);
 					enquecommand_P(PSTR("G43"));
@@ -2679,7 +2679,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if(Event.reportObject.index == BUTTON_REDO_Z_1){
 					redo_source = 0;
 					if (active_extruder == 0){						
-						zprobe_zoffset-=0.1;	
+						zprobe_zoffset+=0.1;	
 						Config_StoreSettings(); //Store changes
 						enquecommand_P(PSTR("T1"));
 						enquecommand_P(PSTR("T0"));
@@ -2687,7 +2687,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 					}
 					else{						
-						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.1;
+						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.1;
 						Config_StoreSettings(); //Store changes
 						enquecommand_P(PSTR("T0"));
 						enquecommand_P(PSTR("T1"));
@@ -2700,14 +2700,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					redo_source = 0;
 					if (active_extruder == 0){
 						
-						zprobe_zoffset+=0.1;
+						zprobe_zoffset-=0.1;
 						Config_StoreSettings(); //Store changes					
 						enquecommand_P(PSTR("T1"));
 						enquecommand_P(PSTR("T0"));
 						st_synchronize();	
 					}
 					else{						
-						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.1;
+						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.1;
 						Config_StoreSettings(); //Store changes
 						enquecommand_P(PSTR("T0"));
 						enquecommand_P(PSTR("T1"));
@@ -2721,7 +2721,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				
 				else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT1){
-					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.1;
+					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.1;
 					Config_StoreSettings(); //Store changes
 					enquecommand_P(PSTR("T0"));
 					enquecommand_P(PSTR("G40"));
@@ -2732,7 +2732,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				}
 				else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT2){					
-					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.05;
+					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.05;
 					Config_StoreSettings(); //Store changes					
 					enquecommand_P(PSTR("T0"));
 					enquecommand_P(PSTR("G40"));
@@ -2752,7 +2752,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				}
 				else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT4){
-					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.05;
+					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.05;
 					Config_StoreSettings(); //Store changes
 					enquecommand_P(PSTR("T0"));
 					enquecommand_P(PSTR("G40"));
@@ -2763,7 +2763,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				}
 				else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT5){
-					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.1;
+					extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.1;
 					Config_StoreSettings(); //Store changes
 					enquecommand_P(PSTR("T0"));
 					enquecommand_P(PSTR("G40"));

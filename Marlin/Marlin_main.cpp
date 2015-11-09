@@ -6794,7 +6794,7 @@ void process_commands()
 						current_position[E_AXIS]+=15; 
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
 						st_synchronize();
-						current_position[Z_AXIS]=0.65; //0.5 + 0.15 per ajustar una bona alçada
+						current_position[Z_AXIS]=0.4; 
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],6000/60,active_extruder);
 						st_synchronize();
 						current_position[E_AXIS]-=4; //0.5 + 0.15 per ajustar una bona alçada

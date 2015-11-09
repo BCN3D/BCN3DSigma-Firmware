@@ -57,11 +57,9 @@
 
 #define BUTTON_SETUP_BACK_BED				44
 #define BUTTON_CHANGE_EXTRUDER				63
-#define BUTTON_PROVA						64
 #define BUTTON_PROVA_PRESS					65
 
 //Main Menu
-#define BUTTON_SLEEP						64
 #define BUTTON_CLEAN_CHANGE					148
 
 //Sleep Screen
@@ -188,20 +186,6 @@
 #define BUTTON_Y_ACCEPT						147
 #define BUTTON_Y_REDO						150
 
-//X CALIB
-#define BUTTON_X_1							134
-#define BUTTON_X_2							119
-#define BUTTON_X_3							127
-#define BUTTON_X_4							128
-#define BUTTON_X_5							129
-#define BUTTON_X_6							130
-#define BUTTON_X_7							131
-#define BUTTON_X_8							132
-#define BUTTON_X_9							133
-#define BUTTON_X_10							135
-#define BUTTON_X_ACCEPT						136
-#define BUTTON_X_REDO						149
-
 //BED CALIB
 #define BUTTON_BED_CALIB_SW2				93
 #define BUTTON_BED_CALIB_SW3				94
@@ -222,20 +206,24 @@
 #define BUTTON_Z_LEFT_SELECT1				43
 #define BUTTON_Z_LEFT_SELECT2				47
 #define BUTTON_Z_LEFT_SELECT3				48
+#define BUTTON_Z_LEFT_SELECT4				23
+#define BUTTON_Z_LEFT_SELECT5				24
 
 #define BUTTON_Z_RIGHT_SELECT1				60
 #define BUTTON_Z_RIGHT_SELECT2				62
 #define BUTTON_Z_RIGHT_SELECT3				119
+#define BUTTON_Z_RIGHT_SELECT4				25
+#define BUTTON_Z_RIGHT_SELECT5				73
 
 #define BUTTON_REDO_Z_1						128
 #define BUTTON_REDO_Z						130
-#define BUTTON_REDO_Z_3						129
+#define BUTTON_REDO_Z_5						129
 
-#define BUTTON_REDO_LEFT					127
-#define	BUTTON_REDO_RIGHT					131
+#define BUTTON_REDO_LEFT					131
+#define	BUTTON_REDO_RIGHT					127
 
-#define BUTTON_RECALIBRATE_Z_LEFT			64
-#define	BUTTON_RECALIBRATE_Z_RIGHT			71
+#define BUTTON_RECALIBRATE_Z				64
+#define	BUTTON_CLEAN_BED					71
 
 //ADJUST FILAMENT
 #define BUTTON_ACCEPT_ADJUST				17
@@ -374,6 +362,7 @@
 #define PRINTTING_SETTINGS_DEF		53
 
 //Form
+#define FORM_CLEAN_BED				10
 #define FORM_WELCOME				15
 #define FORM_QUICK_MAIN				22
 #define FORM_QUICK_CALIBRATE		45
@@ -445,6 +434,7 @@
 #define FORM_INFO_TURN_SCREWS			16
 #define FORM_INFO_BED_MUST_CAL			17
 #define FORM_CLEAN_EXTRUDERS			41
+#define FORM_INSERT_FILAMENT_TOP		12
 
 #define FORM_PURGE						44
 

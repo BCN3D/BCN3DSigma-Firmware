@@ -3224,7 +3224,38 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					//Restart the preheat buttons
 					genie.WriteObject(GENIE_OBJ_USERIMAGES,BUTTON_PREHEAT_PLA,0);
-				
+					
+					#ifdef SIGMA_TOUCH_SCREEN
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+					char buffer[13];
+					if (String(card.longFilename).length()>12){
+						for (int i = 0; i<12 ; i++)
+						{
+							buffer[i]=card.longFilename[i];
+						}
+						buffer[12]='\0';
+						char* buffer2 = strcat(buffer,"...\0");
+						Serial.print("Card Name: ");
+						Serial.println(card.longFilename);
+						Serial.print("Buffer1: ");
+						Serial.println(buffer);
+						Serial.print("buffer out: ");
+						Serial.println(buffer2);
+						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+						}else{
+						for (int i = 0; i<=String(card.longFilename).length(); i++)
+						{
+							if (buffer[i] == '.') i = String(card.longFilename).length() +10;
+							else buffer[i]=card.longFilename[i];
+						}
+						//buffer[count]='\0';
+						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
+					}
+					
+					//Serial.println((char*)prepareString(card.longFilename,12));
+					//genie.WriteStr(6,"Ready");
+					#endif
+					/*enquecommand_P(PSTR("M24"));
 					int count = 12;
 					char buffer[count];
 					if (String(card.longFilename).length()>count){
@@ -3239,11 +3270,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						for (int i = 0; i<=String(card.longFilename).length(); i++)
 						{
 							/*if (buffer[i] = '.') i = String(card.longFilename).length() +10;
-							else */buffer[i]=card.longFilename[i];
+							else *//*buffer[i]=card.longFilename[i];
 						}
 						buffer[count]='\0';
 						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
-					}
+					}*/
 				
 				//genie.WriteStr(2,card.longFilename);
 				//genie.WriteStr(6,"Printing...");

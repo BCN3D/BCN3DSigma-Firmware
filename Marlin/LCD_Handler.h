@@ -2439,6 +2439,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_REDO_DOWN_CAB)
 				{
+					redo_source = 2;
 					float calculus = extruder_offset[Y_AXIS][1] -0.4;
 					Serial.print("Calculus:  ");
 					Serial.println(calculus);
@@ -2451,6 +2452,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BUTTON_REDO_Y_CAB)
 				{
+					redo_source = 2;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
 					
 				}
@@ -2658,7 +2660,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							current_position[E_AXIS]-=4;
 							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,LEFT_EXTRUDER);
 							st_synchronize();
-							setTargetHotend0(120);
+							setTargetHotend0(170);
 							home_axis_from_code();
 							enquecommand_P(PSTR("G43"));
 							processing = false;
@@ -2669,7 +2671,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							current_position[E_AXIS]-=4;
 							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,RIGHT_EXTRUDER);
 							st_synchronize();
-							setTargetHotend1(120);
+							setTargetHotend1(170);
 							home_axis_from_code();
 							enquecommand_P(PSTR("G43"));
 							processing = false;

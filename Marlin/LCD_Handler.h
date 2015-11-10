@@ -99,7 +99,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			{
 				//if (millis() >= waitPeriod){
 				Serial.println("HOME");
-				home_axis_from_code();
+				home_axis_from_code(true,true,true);
 				//waitPeriod=millis()+50;
 				//}
 			}
@@ -511,8 +511,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
 					st_synchronize();
 					
-					
-					
 					setTargetHotend0(0);
 					setTargetHotend1(0);
 					setTargetBed(0);
@@ -524,8 +522,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					autotempShutdown();
 					setTargetHotend0(0);
 					setTargetHotend1(0);
-					//setTargetHotend2(0);
 					setTargetBed(0);
+					
 					card.sdispaused = false;
 					cancel_heatup = true;
 					
@@ -1061,7 +1059,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (purge_extruder_selected == 0) setTargetHotend0(INSERT_FIL_TEMP);
 					else setTargetHotend1(INSERT_FIL_TEMP);
 					
-					if (!home_made) home_axis_from_code();
+					if (!home_made) home_axis_from_code(true,true,true);
 					enquecommand_P(PSTR("G28 X0 Y0"));
 					st_synchronize();
 					current_position[Z_AXIS]=Z_MAX_POS-15;
@@ -1306,7 +1304,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//*********Move the bed down and the extruders inside
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						if (!home_made) home_axis_from_code();
+						if (!home_made) home_axis_from_code(true,true,true);
 					
 						int feedrate;
 						if (!flag_filament_home){
@@ -1515,7 +1513,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//*********Move the bed down and the extruders inside
 					processing = true;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-					if (!home_made) home_axis_from_code();
+					if (!home_made) home_axis_from_code(true,true,true);
 					
 					int feedrate;
 					if (!flag_filament_home){
@@ -1701,7 +1699,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if(!flag_bed_calib_done){  //Do g34
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 						genie.WriteStr(STRING_AXEL,"BED");
-						home_axis_from_code();
+						home_axis_from_code(true,true,true);
 						enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 						changeTool(0);						
 						st_synchronize();
@@ -1765,7 +1763,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
 						st_synchronize();		
 						
-						home_axis_from_code();
+						home_axis_from_code(true,false,false);
 						st_synchronize();
 						
 						changeTool(1);
@@ -1952,7 +1950,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					bed_calibration_times = 0;
 					flag_full_calib = false;
-					home_axis_from_code();				
+					home_axis_from_code(true,true,true);				
 					enquecommand_P(PSTR("T0"));
 					enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 					previous_state = FORM_CALIBRATION;
@@ -2501,7 +2499,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Config_StoreSettings(); //Store changes		
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);			
-					home_axis_from_code();
+					home_axis_from_code(true,true,true);
 											
 					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-10) || degBed()<(target_temperature_bed)-10){ //Waiting to heat the extruder
 						manage_heater();
@@ -2513,7 +2511,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 					delay(6000);
-					home_axis_from_code();						
+					home_axis_from_code(true,true,true);						
 					left_test_print_code();
 				}
 				
@@ -2550,7 +2548,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],600,RIGHT_EXTRUDER);					
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
-					home_axis_from_code();	
+					home_axis_from_code(true,true,true);	
 									
 					while (degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-10) || degBed()<(target_temperature_bed)-10){ //Waiting to heat the extruder
 						
@@ -2563,7 +2561,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					st_synchronize();
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
-					home_axis_from_code();	
+					home_axis_from_code(true,true,true);	
 					right_test_print_code(); 
 					
 				}
@@ -2630,14 +2628,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (active_extruder==0){
 							processing = true;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-							home_axis_from_code();
+							home_axis_from_code(true,true,true);
 							left_test_print_code();
 							processing =false;
 						}
 						else{
 							processing = true;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-							home_axis_from_code();
+							home_axis_from_code(true,true,true);
 							right_test_print_code();
 							processing =false;
 						}
@@ -2664,7 +2662,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,LEFT_EXTRUDER);
 							st_synchronize();
 							setTargetHotend0(170);
-							home_axis_from_code();
+							home_axis_from_code(true,true,true);
 							enquecommand_P(PSTR("G43"));
 							processing = false;
 						}
@@ -2675,7 +2673,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,RIGHT_EXTRUDER);
 							st_synchronize();
 							setTargetHotend1(170);
-							home_axis_from_code();
+							home_axis_from_code(true,true,true);
 							enquecommand_P(PSTR("G43"));
 							processing = false;
 						}
@@ -2817,7 +2815,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					//enquecommand_P(PSTR("T0"));
 					if(!flag_bed_calib_done){  //Do g34
-						home_axis_from_code();
+						home_axis_from_code(true,true,true);
 						enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 						changeTool(0);
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -2980,7 +2978,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
 						setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
 						
-						home_axis_from_code();
+						home_axis_from_code(true,true,true);
 						//changeTool(LEFT_EXTRUDER);
 						
 						//MOVE EXTRUDERS
@@ -3024,7 +3022,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//Backing from INFO SCREENS
 				else if (Event.reportObject.index == BUTTON_INFO_INI_XYCALIB)
 				{
-				home_axis_from_code();
+				home_axis_from_code(true,true,true);
 				enquecommand_P(PSTR("G40"));
 				previous_state = FORM_CALIBRATION;
 				processing = true;
@@ -3069,7 +3067,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//Backing from INFO SCREENS
 				else if (Event.reportObject.index == BUTTON_INFO_BED_MUST_CAL)
 				{
-				home_axis_from_code();
+				home_axis_from_code(true,true,true);
 				enquecommand_P(PSTR("G43"));
 				previous_state = FORM_CALIBRATION;
 				processing = true;
@@ -3306,8 +3304,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == FORM_MAIN_SCREEN)
 				{
-				surfing_utilities=false;
-				Serial.println("Surfing 0");
+					surfing_utilities=false;
+					Serial.println("Surfing 0");
 				}
 				
 				else if (Event.reportObject.index == FORM_UTILITIES)

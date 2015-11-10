@@ -291,7 +291,7 @@ extern int sentit3;
 extern float extruder_offset[3][EXTRUDERS];
 extern void sleep_RELAY();
 extern void wake_RELAY();
-extern void home_axis_from_code();
+extern void home_axis_from_code(bool x_c, bool y_c, bool z_c);
 extern float saved_position[NUM_AXIS];
 extern bool flag_continue_calib;
 extern bool quick_guide;

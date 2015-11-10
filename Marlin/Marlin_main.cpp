@@ -3086,8 +3086,7 @@ void process_commands()
 				if (flag_full_calib){
 					setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
 					setTargetHotend1(EXTRUDER_LEFT_CLEAN_TEMP);
-					setTargetBed(max(bed_temp_l,bed_temp_r));
-					Serial.print("Temperatura del llit: ");Serial.println(max(bed_temp_l,bed_temp_r));
+					setTargetBed(max(bed_temp_l,bed_temp_r));					
 				}
 				
 				#if Z_MIN_PIN == -1
@@ -3361,7 +3360,7 @@ void process_commands()
 						setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
 						setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);		
 						
-						home_axis_from_code();
+						home_axis_from_code(true,true,true);
 						//changeTool(LEFT_EXTRUDER);
 						
 						while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
@@ -6964,8 +6963,9 @@ void process_commands()
 					
 					
 					
-					void home_axis_from_code()
+					void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 					{
+						
 						#ifdef ENABLE_AUTO_BED_LEVELING
 							plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 						#endif //ENABLE_AUTO_BED_LEVELING
@@ -6988,16 +6988,16 @@ void process_commands()
 						}
 						feedrate = 0.0;
 
-						home_all_axis = !((code_seen(axis_codes[X_AXIS])) || (code_seen(axis_codes[Y_AXIS])) || (code_seen(axis_codes[Z_AXIS])));
+						home_all_axis = !(x_c || y_c || z_c);
 
 						#if Z_HOME_DIR > 0                      // If homing away from BED do Z first. WE ARE NOT USING THIS IN SIGMA
-							if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+							if((home_all_axis) || (z_c) {
 								HOMEAXIS(Z);
 							}
 						#endif
 
 						#ifdef QUICK_HOME
-							if((home_all_axis)||( code_seen(axis_codes[X_AXIS]) && code_seen(axis_codes[Y_AXIS])) )  //first diagonal move
+							if((home_all_axis)||( x_c) && (y_c))  //first diagonal move
 							{
 								current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;
 
@@ -7043,7 +7043,7 @@ void process_commands()
 							}
 						#endif
 
-						if((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) // First do X
+						if((home_all_axis) || (x_c)) // First do X
 						{
 							#ifdef DUAL_X_CARRIAGE
 								#ifdef Z_SIGMA_HOME
@@ -7068,27 +7068,16 @@ void process_commands()
 							#endif
 						}
 
-						if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
+						if((home_all_axis) || (y_c)) {
 							HOMEAXIS(Y);
 						}
 
-						if(code_seen(axis_codes[X_AXIS]))
-						{
-							if(code_value_long() != 0) {
-								current_position[X_AXIS]=code_value()+add_homing[0];
-							}
-						}
-
-						if(code_seen(axis_codes[Y_AXIS])) {
-							if(code_value_long() != 0) {
-								current_position[Y_AXIS]=code_value()+add_homing[1];
-							}
-						}
+						
 
 						#if Z_HOME_DIR < 0   // If homing towards BED do Z last
 							//Rapduch
 							#ifdef Z_SIGMA_HOME
-								if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+								if((home_all_axis) || (z_c)) {
 					
 					
 									if (saved_active_extruder == RIGHT_EXTRUDER){
@@ -7135,7 +7124,7 @@ void process_commands()
 							#else
 					
 								#ifndef Z_SAFE_HOMING
-									if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+									if((home_all_axis) || (z_c)) {
 										#if defined (Z_RAISE_BEFORE_HOMING) && (Z_RAISE_BEFORE_HOMING > 0)
 											destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
 											feedrate = max_feedrate[Z_AXIS];
@@ -7162,7 +7151,7 @@ void process_commands()
 									}
 					
 									//Let's see if X and Y are homed and probe is inside bed area.
-									if(code_seen(axis_codes[Z_AXIS])) {
+									if(z_c) {
 										if ( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]) \
 										&& (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
 										&& (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER <= X_MAX_POS) \
@@ -7191,17 +7180,11 @@ void process_commands()
 					
 							#endif
 					
-						#endif
-
-						if(code_seen(axis_codes[Z_AXIS])) { //Sets Z position
-							if(code_value_long() != 0) {
-								current_position[Z_AXIS]=code_value()+add_homing[2];
-							}
-						}
+						#endif						
 					
 						//Rapduch
 						#ifdef Z_SIGMA_HOME
-							if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+							if((home_all_axis) || (z_c)) {
 								current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
 							}
 						#else
@@ -7225,7 +7208,7 @@ void process_commands()
 
 						//Rapduch
 						#ifdef Z_SIGMA_HOME  //This to return the left extruder at Xhome position
-							if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+							if((home_all_axis) || (z_c)) {
 					
 							feedrate = homing_feedrate[Z_AXIS];
 							current_position[Z_AXIS]+=Z_SIGMA_RAISE_AFTER_HOMING;

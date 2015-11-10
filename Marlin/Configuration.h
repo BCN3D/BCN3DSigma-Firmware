@@ -698,7 +698,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 #ifdef Z_SIGMA_HOME
-	#define Z_SIGMA_HOME_X_POINT 55.5
+	#define Z_SIGMA_HOME_X_POINT 61.5
 	//#define Z_SIGMA_HOME_X_POINT 3
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
@@ -741,11 +741,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//2.90
 	
 	//Left extruder probe point
-	#define X_SIGMA_PROBE_1_LEFT_EXTR 55.5
+	#define X_SIGMA_PROBE_1_LEFT_EXTR 61.5
 	//#define X_SIGMA_PROBE_1_LEFT_EXTR 3
 	#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_LEFT_EXTR 55.5
+	#define X_SIGMA_PROBE_2_LEFT_EXTR 61.5
 	//#define X_SIGMA_PROBE_2_LEFT_EXTR 3
 	#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 	

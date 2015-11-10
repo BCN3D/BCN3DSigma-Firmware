@@ -4588,15 +4588,15 @@ void process_commands()
 
 					#if defined(FAN_PIN) && FAN_PIN > -1
 					case 106: //M106 Fan On
-					if (code_seen('S')){
-					fanSpeed=constrain(code_value(),0,255);
-					}
-					else {
-					fanSpeed=255;
-					}
+						if (code_seen('S')){
+							fanSpeed=constrain(code_value(),0,255);
+						}
+						else {
+							fanSpeed=255;
+						}
 					break;
 					case 107: //M107 Fan Off
-					fanSpeed = 0;
+						fanSpeed = 0;
 					break;
 					#endif //FAN_PIN
 					#ifdef BARICUDA

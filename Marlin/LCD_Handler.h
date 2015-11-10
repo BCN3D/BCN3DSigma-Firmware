@@ -507,9 +507,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					quickStop();
 					
 					enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
-					enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
-					enquecommand_P(PSTR("M107"));
 					st_synchronize();
+					enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
+					st_synchronize();
+					
+					
+					
 					setTargetHotend0(0);
 					setTargetHotend1(0);
 					setTargetBed(0);

@@ -1671,7 +1671,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//Adjusting the filament with a retrack Up
 					Serial.println("Adjust ZUp");
 					float modified_position=current_position[E_AXIS]-5;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, 500/60, which_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
 					current_position[E_AXIS]=modified_position;
 				}
 				
@@ -1680,7 +1680,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//Adjusting the filament with a purge Down
 					Serial.println("Adjust ZDown");
 					float modified_position=current_position[E_AXIS]+5;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, 500/60, which_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
 					current_position[E_AXIS]=modified_position;
 				}
 				#pragma endregion AdjustFilament

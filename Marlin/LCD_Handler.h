@@ -1078,8 +1078,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//****************************************
 				
 				else if(Event.reportObject.index == BUTTON_PURGE){
-					purge_utilities = true;
+										
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE,0);
+					
+					
 					Serial.println("Enter in purge mode");
 					setTargetHotend0(print_temp_l);
 					setTargetHotend1(print_temp_r);
@@ -1090,8 +1092,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else {
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
-						
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);						
 					}
 					
 					char buffer[256];
@@ -1101,12 +1102,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);	Serial.println(buffer);
 					sprintf(buffer, "%3d %cC",int(target_temperature[purge_extruder_selected]),0x00B0);
 					genie.WriteStr(STRING_PURGE_SELECTED,buffer);	Serial.println(buffer);
+					
+					
 				}
 				else if(Event.reportObject.index	== BUTTON_PURGE_BACK){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
 					setTargetHotend0(0);
 					setTargetHotend1(0);
-					purge_utilities = false;					
+									
 				}
 				
 				//************************************

@@ -296,6 +296,7 @@
 #define USERIMAGE_QUICK_MESAGE_CALIB		24
 #define USERIMAGE_HEATTING					0
 
+
 //Strings---------------------------------------------
 #define STRING_PRINTING_NOZZ1		0
 #define STRING_PRINTING_NOZZ2		34

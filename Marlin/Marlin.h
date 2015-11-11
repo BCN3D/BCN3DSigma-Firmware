@@ -324,5 +324,4 @@ extern int old_insert_temp_r;
 extern int old_remove_temp_r;
 extern int old_print_temp_r;
 extern int old_bed_temp_r;
-extern bool purge_utilities;
 #endif

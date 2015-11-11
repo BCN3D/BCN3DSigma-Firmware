@@ -1078,6 +1078,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//****************************************
 				
 				else if(Event.reportObject.index == BUTTON_PURGE){
+					purge_utilities = true;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE,0);
 					Serial.println("Enter in purge mode");
 					setTargetHotend0(print_temp_l);
@@ -1104,7 +1105,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if(Event.reportObject.index	== BUTTON_PURGE_BACK){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
 					setTargetHotend0(0);
-					setTargetHotend1(0);					
+					setTargetHotend1(0);
+					purge_utilities = false;					
 				}
 				
 				//************************************

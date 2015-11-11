@@ -229,6 +229,7 @@ CardReader card;
 //Rapduch
 #ifdef SIGMA_TOUCH_SCREEN
 bool surfing_utilities = false;
+bool purge_utilities = false;
 bool is_on_printing_screen = false;
 uint16_t filepointer = 0;
 String screen_status = "Printing...";
@@ -891,15 +892,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod=5000+millis();	//Every 5s
 		}		 
 	}
-	else if (processing){
-		if (millis() >= waitPeriod){			
-			static int processing_state = 0;
-			genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
-			if (processing_state == 0) processing_state = (processing_state+1)%3;
-			else processing_state = (processing_state+1)%3;
-			waitPeriod=180+millis();
-		}
-	}
+	
 	/*else if (heatting){
 		if (millis() >= waitPeriod){			
 			static int heatting_state = 0;
@@ -909,6 +902,21 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod=16+millis();
 		}
 	}*/
+	else if(purge_utilities){
+		if (millis() >= waitPeriod){			
+			if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5) {
+				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,0);
+			}
+			else{
+				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,1);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,1);
+			}	
+			waitPeriod=1000+millis();		
+		}	
+	}
 	else if (surfing_utilities)
 	{
 		if (millis() >= waitPeriod)
@@ -982,6 +990,15 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	else
 	{
 		//Serial.println("NOTHING DONE");//Do always...
+	}
+	if (processing){
+		if (millis() >= waitPeriod){
+			static int processing_state = 0;
+			genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
+			if (processing_state == 0) processing_state = (processing_state+1)%3;
+			else processing_state = (processing_state+1)%3;
+			waitPeriod=180+millis();
+		}
 	}
 	
 	//waitPeriod=250+millis();

@@ -1310,15 +1310,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!flag_filament_home){
 							//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
 							//current_position[X_AXIS]+=25;						
-							enquecommand_P(PSTR("G28 X0 Y0"));
+							home_axis_from_code(true,true,false);
 							st_synchronize();
 							
 							flag_filament_home=true;
 						}		
 					
 						current_position[Z_AXIS]=Z_MAX_POS-15;
-						feedrate=homing_feedrate[Z_AXIS];
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*2/60, active_extruder); //check speed
+						current_position[Y_AXIS]=10;
+						feedrate=max_feedrate[Z_AXIS];
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate, active_extruder); //check speed
 						st_synchronize();
 						
 						processing = false;
@@ -1520,8 +1521,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
 						//current_position[X_AXIS]+=25;
 						
-						enquecommand_P(PSTR("G28 X0 Y0"));
-						st_synchronize();
+						home_axis_from_code(true,true,false);						
 						/*current_position[X_AXIS] = x_home_pos(LEFT_EXTRUDER)+25;
 						feedrate=homing_feedrate[X_AXIS];
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);

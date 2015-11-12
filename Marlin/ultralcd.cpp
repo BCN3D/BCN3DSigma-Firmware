@@ -1125,7 +1125,7 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01)
     lcd_move_y();
 	}
 	static void reprapworld_keypad_move_home() {
-		enquecommand_P((PSTR("G28"))); // move all axis home
+		home_axis_from_code(true,true,true); // move all axis home
 	}
 #endif
 

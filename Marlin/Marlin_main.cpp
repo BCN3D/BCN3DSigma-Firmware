@@ -2624,7 +2624,7 @@ void process_commands()
 				
 				current_position[Z_AXIS]-=2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//MORE Retrack
-				enquecommand_P((PSTR("G28 X0 Y0")));
+				home_axis_from_code(true,true,false);
 				st_synchronize();
 				
 				//Go to Calibration select screen
@@ -2641,15 +2641,12 @@ void process_commands()
 			{
 				Serial.println("Starting Z Calibration Wizard");
 				//Raise to correct
-				feedrate = homing_feedrate[Z_AXIS];
-				current_position[Z_AXIS]=0;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);				
-				st_synchronize();
+				
 				
 				feedrate = homing_feedrate[Z_AXIS];
-				current_position[Z_AXIS]=1;
-				
+				current_position[Z_AXIS]=1;				
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
+				
 				feedrate = homing_feedrate[X_AXIS];
 				current_position[X_AXIS]=X_MAX_POS/2;
 				current_position[Y_AXIS]=Y_MAX_POS/2;
@@ -6786,7 +6783,7 @@ void process_commands()
 						current_position[Z_AXIS]+= 0.5; 
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 						st_synchronize();
-						enquecommand_P(PSTR("G28 X Y"));
+						home_axis_from_code(true,true,false);
 						st_synchronize();
 									
 						
@@ -6955,7 +6952,7 @@ void process_commands()
 						current_position[X_AXIS]= X2_MAX_POS; //current_position[E_AXIS]-=4;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
 						st_synchronize();						
-						enquecommand_P(PSTR("G28 X Y"));
+						home_axis_from_code(true,true,false);
 						st_synchronize();
 						current_position[Z_AXIS]-= 0.3;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);

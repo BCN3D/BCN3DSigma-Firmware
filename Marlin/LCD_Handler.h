@@ -506,7 +506,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
 					quickStop();
 					
-					enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
+					home_axis_from_code(true,true,false); //Home X and Y
 					st_synchronize();
 					enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
 					st_synchronize();
@@ -822,7 +822,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
 					quickStop();
 					
-					enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
+					home_axis_from_code(true,true,false); //Home X and Y
 					enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
 					enquecommand_P(PSTR("M107"));
 					st_synchronize();
@@ -1060,7 +1060,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else setTargetHotend1(INSERT_FIL_TEMP);
 					
 					if (!home_made) home_axis_from_code(true,true,true);
-					enquecommand_P(PSTR("G28 X0 Y0"));
+					home_axis_from_code(true,true,false);
 					st_synchronize();
 					current_position[Z_AXIS]=Z_MAX_POS-15;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, active_extruder);
@@ -1657,7 +1657,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region AdjustFilament
 				else if (Event.reportObject.index == BUTTON_ACCEPT_ADJUST)
 				{
-					enquecommand_P(PSTR("G28 X0 Y0"));
+					home_axis_from_code(true,true,false);
 					
 					if (quick_guide){
 						if (quick_guide_step == 1) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_RIGHT,0);
@@ -1711,7 +1711,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else{ //Do Z clean
 						//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						//enquecommand_P(PSTR("G28"));
+						//home_axis_from_code(true,true,true);
 						active_extruder = LEFT_EXTRUDER;
 						genie.WriteStr(STRING_AXEL,"        Z AXIS");
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
@@ -1759,19 +1759,18 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if ((Event.reportObject.index == USERBUTTON_CLEAN_DONE) && (flag_continue_calib)){
 					
 					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO, \n then the Z calibration will start");
-					if (active_extruder == 0)	{
-						//current_position[X_AXIS] = 0;
-						//current_position[Y_AXIS] = 0;							
-						//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], LEFT_EXTRUDER);//move first extruder, bed and Y
-						//st_synchronize();
-						current_position[E_AXIS]-=8;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
-						st_synchronize();		
+					if (active_extruder == 0)	{	
 						
-						home_axis_from_code(true,false,false);
-						st_synchronize();
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+						genie.WriteStr(STRING_AXEL,"        Z AXIS");
+											
+						home_axis_from_code(true,false,false);										
 						
-						changeTool(1);
+						enquecommand_P(PSTR("G43"));
+						flag_continue_calib = false;						
+						
+						///IT HAS TO BE DONE BY SELECT Z0 LINE
+						/*changeTool(1);
 						st_synchronize();		
 						
 						
@@ -1785,28 +1784,18 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);//move second extruder, bed and Y
 						st_synchronize();
 						
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);*/
 					}	
 					else {
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 						genie.WriteStr(STRING_AXEL,"        Z AXIS");
 						
-						blocking_x = false;
-						blocking_y = false;
+						home_axis_from_code(true,false,false);	
 						
-						enquecommand_P(PSTR("G28 X"));
-						st_synchronize();
-						
-						current_position[E_AXIS]-=8;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
-						st_synchronize();					
-						
-						changeTool(LEFT_EXTRUDER);	
-						
-					
 						enquecommand_P(PSTR("G43"));
-						flag_continue_calib = false;
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
+						st_synchronize();			
+					
+						flag_continue_calib = false;						
 					}				
 						
 				}
@@ -1964,7 +1953,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_REDO_BED_CALIB )
 				{			
-					enquecommand_P(PSTR("G28 X0"));	
+					home_axis_from_code(true,false,false);	
 					enquecommand_P((PSTR("T0")));
 					enquecommand_P((PSTR("G34")));
 					previous_state = FORM_CALIBRATION;
@@ -1993,7 +1982,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
 						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
 					}else{
-						enquecommand_P(PSTR("G28 X0"));	
+						home_axis_from_code(true,false,false);	
 						enquecommand_P((PSTR("T0")));
 						enquecommand_P((PSTR("G34")));
 						previous_state = FORM_CALIBRATION;
@@ -2013,7 +2002,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
 						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
 					}else{				
-						enquecommand_P(PSTR("G28 X0"));	
+						home_axis_from_code(true,false,false);	
 						enquecommand_P((PSTR("T0")));
 						enquecommand_P((PSTR("G34")));
 						previous_state = FORM_CALIBRATION;
@@ -2490,12 +2479,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					extruder_offset[Z_AXIS][LEFT_EXTRUDER]=0.0;//It is always the reference
 					current_position[Z_AXIS]=0;//We are setting this position as Zero
 					plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-				
-					current_position[Z_AXIS]+=0.5;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],600,LEFT_EXTRUDER);
-					st_synchronize();
-					
-								
 					
 					setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
 				
@@ -2547,10 +2530,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Config_StoreSettings(); //Store changes					
 					
 					setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP);					
-					st_synchronize();			
-					
-					current_position[Z_AXIS]+=0.5;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],600,RIGHT_EXTRUDER);					
+					st_synchronize();						
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PREHEAT,0);
 					home_axis_from_code(true,true,true);	
@@ -2575,51 +2555,249 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_REDO_Z_TEST,0);
 				}
 				else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT1){
-					//z_print_test =true;
-					processing = true;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					//z_print_test =true;					
+					genie.WriteStr(STRING_AXEL,"        Z AXIS");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"        Z AXIS");
+					delay(1500);
+					
+					active_extruder = RIGHT_EXTRUDER;														
 					zprobe_zoffset+=0.05;
 					Config_StoreSettings(); //Store changes
+					
 					changeTool(1);
 					
-					enquecommand_P(PSTR("G43"));
+					/*enquecommand_P(PSTR("G43"));
+					st_synchronize();*/	
+					
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
+					
+					//changeToolSigma(LEFT_EXTRUDER);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+					
+					
+					//Wait until temperature it's okey					
+					setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
+					
+					home_axis_from_code(true,true,true);
+					//changeTool(LEFT_EXTRUDER);
+					
+					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+						
+						manage_heater();
+					}
+					
+					//MOVE EXTRUDERS
+					current_position[Z_AXIS] = 60;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, RIGHT_EXTRUDER);//move bed
 					st_synchronize();
+					current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, RIGHT_EXTRUDER);//move first extruder
+										
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO to move on to \n the next EXTRUDER");
+					flag_continue_calib = true;
 				}
 				else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT2){
-					//z_print_test =true;
-					processing = true;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);		
-					changeTool(1);					
-					enquecommand_P(PSTR("G43"));
+					genie.WriteStr(STRING_AXEL,"        Z AXIS");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"        Z AXIS");
+					delay(1500);
+					
+					active_extruder = RIGHT_EXTRUDER;
+					
+					changeTool(1);
+					
+					/*enquecommand_P(PSTR("G43"));
+					st_synchronize();*/	
+					
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
+					
+					//changeToolSigma(LEFT_EXTRUDER);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+					
+					
+					//Wait until temperature it's okey
+					setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
+					
+					home_axis_from_code(true,true,true);
+					//changeTool(LEFT_EXTRUDER);
+					
+					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+						
+						manage_heater();
+					}
+					
+					//MOVE EXTRUDERS
+					current_position[Z_AXIS] = 60;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, RIGHT_EXTRUDER);//move bed
 					st_synchronize();
+					current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, RIGHT_EXTRUDER);//move first extruder
+										
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO to move on to \n the next EXTRUDER");
+					flag_continue_calib = true;
 				
 				}
 				else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT3){
-					processing = true;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-					changeTool(1);			
+					genie.WriteStr(STRING_AXEL,"        Z AXIS");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"        Z AXIS");
+					delay(1500);
+					
+					active_extruder = RIGHT_EXTRUDER;														
 					zprobe_zoffset-=0.05;
-					Config_StoreSettings(); //Store changes		
-					enquecommand_P(PSTR("G43"));
-					st_synchronize();				
+					Config_StoreSettings(); //Store changes
+					
+					changeTool(1);
+					
+					/*enquecommand_P(PSTR("G43"));
+					st_synchronize();*/	
+					
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
+					
+					//changeToolSigma(LEFT_EXTRUDER);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+					
+					
+					//Wait until temperature it's okey
+					setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
+					
+					home_axis_from_code(true,true,true);
+					//changeTool(LEFT_EXTRUDER);
+					
+					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+						
+						manage_heater();
+					}
+					
+					//MOVE EXTRUDERS
+					current_position[Z_AXIS] = 60;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, RIGHT_EXTRUDER);//move bed
+					st_synchronize();
+					current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, RIGHT_EXTRUDER);//move first extruder
+										
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO to move on to \n the next EXTRUDER");
+					flag_continue_calib = true;			
 				}
 				else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT4){
-					processing = true;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteStr(STRING_AXEL,"        Z AXIS");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"        Z AXIS");
+					delay(1500);
+					
+					active_extruder = RIGHT_EXTRUDER;														
 					zprobe_zoffset-=0.1;
 					Config_StoreSettings(); //Store changes
+					
 					changeTool(1);
-					enquecommand_P(PSTR("G43"));
+					
+					/*enquecommand_P(PSTR("G43"));
+					st_synchronize();*/	
+					
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
+					
+					//changeToolSigma(LEFT_EXTRUDER);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+					
+					
+					//Wait until temperature it's okey
+					setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
+					
+					home_axis_from_code(true,true,true);
+					//changeTool(LEFT_EXTRUDER);
+					
+					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+						
+						manage_heater();
+					}
+					
+					//MOVE EXTRUDERS
+					current_position[Z_AXIS] = 60;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, RIGHT_EXTRUDER);//move bed
 					st_synchronize();
+					current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, RIGHT_EXTRUDER);//move first extruder
+										
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO to move on to \n the next EXTRUDER");
+					flag_continue_calib = true;
 				}
 				else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT5){
-					processing = true;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					genie.WriteStr(STRING_AXEL,"        Z AXIS");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXEL,"        Z AXIS");
+					delay(1500);
+					
+					active_extruder = RIGHT_EXTRUDER;														
 					zprobe_zoffset-=0.15;
 					Config_StoreSettings(); //Store changes
+					
 					changeTool(1);
-					enquecommand_P(PSTR("G43"));
+					
+					/*enquecommand_P(PSTR("G43"));
+					st_synchronize();*/	
+					
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
+					
+					//changeToolSigma(LEFT_EXTRUDER);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
+					
+					
+					//Wait until temperature it's okey
+					setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
+					
+					home_axis_from_code(true,true,true);
+					//changeTool(LEFT_EXTRUDER);
+					
+					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+						
+						manage_heater();
+					}
+					
+					//MOVE EXTRUDERS
+					current_position[Z_AXIS] = 60;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, RIGHT_EXTRUDER);//move bed
 					st_synchronize();
+					current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, RIGHT_EXTRUDER);//move first extruder
+										
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
+					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO to move on to \n the next EXTRUDER");
+					flag_continue_calib = true;
 				}
 				
 				else if(Event.reportObject.index == BUTTON_RECALIBRATE_Z){					
@@ -2914,7 +3092,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
 					setTargetHotend0(0);
 					setTargetHotend1(0);
-					enquecommand_P(PSTR("G28 X0 Y0"));
+					home_axis_from_code(true,true,false);
 					
 				}
 				else if (Event.reportObject.index == BACKBUTTON_INFO_NEEDFIL)
@@ -2925,7 +3103,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//Backing from INFO SCREENS
 				else if (Event.reportObject.index == BACKBUTTON_INFO_INI_XYCALIB)
 				{
-				enquecommand_P(PSTR("G28 X0 Y0"));
+				home_axis_from_code(true,true,false);
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
 				}
 				
@@ -2952,7 +3130,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//Backing from INFO SCREENS
 				else if (Event.reportObject.index == BACKBUTTON_INFO_TURN_SCREWS)
 				{
-				enquecommand_P(PSTR("G28 X0 Y0"));
+				home_axis_from_code(true,true,false);
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
 				}
 				

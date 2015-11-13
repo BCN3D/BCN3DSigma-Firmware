@@ -30,10 +30,10 @@ http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
 #include "Marlin.h"
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-#include "vector_3.h"
-#ifdef AUTO_BED_LEVELING_GRID
-#include "qr_solve.h"
-#endif
+	#include "vector_3.h"
+	#ifdef AUTO_BED_LEVELING_GRID
+	#include "qr_solve.h"
+	#endif
 #endif // ENABLE_AUTO_BED_LEVELING
 
 #include "ultralcd.h"
@@ -60,16 +60,16 @@ Genie genie;
 //-------------------------
 
 #ifdef BLINKM
-#include "BlinkM.h"
-#include "Wire.h"
+	#include "BlinkM.h"
+	#include "Wire.h"
 #endif
 
 #if NUM_SERVOS > 0
-#include "Servo.h"
+	#include "Servo.h"
 #endif
 
 #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
-#include <SPI.h>
+	#include <SPI.h>
 #endif
 
 /*GCODES
@@ -176,7 +176,7 @@ Rapduch
  M304 - Set bed PID parameters P I and D
  M350 - Set microstepping mode.
  M351 - Toggle MS1 MS2 pins directly.
- M352 - Reset quick wizard guide
+ M352 - Reset quick wizard guide //comented
  M400 - Finish all moves
  M401 - Lower z-probe if present
  M402 - Raise z-probe if present
@@ -220,59 +220,58 @@ Rapduch
 //=============================public variables=============================
 //===========================================================================
 #ifdef SDSUPPORT
-CardReader card;
-
+	CardReader card;
 #endif
 
 
 
 //Rapduch
 #ifdef SIGMA_TOUCH_SCREEN
-bool surfing_utilities = false;
-bool is_on_printing_screen = false;
-uint16_t filepointer = 0;
-String screen_status = "Printing...";
-uint8_t which_extruder=0;
-char filament_mode='O';
-bool is_changing_filament=false;
-String currentSDFileName;
-int vuitens1=0;
-int vuitens2=0;
-int vuitens3=0;
-int sentit1=0;
-int sentit2=0;
-int sentit3=0;
+	bool surfing_utilities = false;
+	bool is_on_printing_screen = false;
+	uint16_t filepointer = 0;
+	String screen_status = "Printing...";
+	uint8_t which_extruder=0;
+	char filament_mode='O';
+	bool is_changing_filament=false;
+	String currentSDFileName;
+	int vuitens1=0;
+	int vuitens2=0;
+	int vuitens3=0;
+	int sentit1=0;
+	int sentit2=0;
+	int sentit3=0;
 #endif
 
-#ifndef SIGMA_TOUCH_SCREEN
-bool firstime = true;
-void SD_firstPrint();
+#ifndef SIGMA_TOUCH_SCREEN	
+	void SD_firstPrint();
 #endif
 
 
-bool quick_guide = false;
-bool blocking_x = false;
-bool blocking_y = false;
-int quick_guide_step = 0;
-bool z_print_test = false;
+//bool quick_guide = false;
+//int quick_guide_step = 0;
 
-int insert_temp_l;
-int remove_temp_l;
-int print_temp_l;
-int bed_temp_l;
-int insert_temp_r;
-int remove_temp_r;
-int print_temp_r;
-int bed_temp_r;
+#pragma region temperatures
+//////Temperatures of current material for two extruders.//////
+	int insert_temp_l;
+	int remove_temp_l;
+	int print_temp_l;
+	int bed_temp_l;
+	int insert_temp_r;
+	int remove_temp_r;
+	int print_temp_r;
+	int bed_temp_r;
 
-int old_insert_temp_l;
-int old_remove_temp_l;
-int old_print_temp_l;
-int old_bed_temp_l;
-int old_insert_temp_r;
-int old_remove_temp_r;
-int old_print_temp_r;
-int old_bed_temp_r;
+	int old_insert_temp_l;
+	int old_remove_temp_l;
+	int old_print_temp_l;
+	int old_bed_temp_l;
+	int old_insert_temp_r;
+	int old_remove_temp_r;
+	int old_print_temp_r;
+	int old_bed_temp_r;
+///////////////////////////////////////////////////////////////////////
+#pragma endregion temperatures
 
 bool home_made = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
@@ -301,7 +300,7 @@ float	saved_position[NUM_AXIS] = {0.0,0.0,0.0,0.0}; //Xavi -> array to save the 
 
 float add_homing[3]={0,0,0};
 #ifdef DELTA
-float endstop_adj[3]={0,0,0};
+	float endstop_adj[3]={0,0,0};
 #endif
 
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
@@ -309,120 +308,121 @@ float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = {false, false, false};
 float zprobe_zoffset;
 
+//bools to control which kind of process are actually running
 bool processing = false;
 bool heatting = false;
 
 
-int bed_calibration_times = 0;
+int bed_calibration_times = 0; //To control the number of bed calibration to available the skip option
 
 // Extruder offset
 #if EXTRUDERS > 1
-#ifndef DUAL_X_CARRIAGE
-#define NUM_EXTRUDER_OFFSETS 2 // only in XY plane
-#else
-#define NUM_EXTRUDER_OFFSETS 3 // supports offsets in XYZ plane
-#endif
-float extruder_offset[NUM_EXTRUDER_OFFSETS][EXTRUDERS] = {
-	#if defined(EXTRUDER_OFFSET_X)
-	EXTRUDER_OFFSET_X
+	#ifndef DUAL_X_CARRIAGE
+		#define NUM_EXTRUDER_OFFSETS 2 // only in XY plane
 	#else
-	0
+		#define NUM_EXTRUDER_OFFSETS 3 // supports offsets in XYZ plane
 	#endif
-	,
-	#if defined(EXTRUDER_OFFSET_Y)
-	EXTRUDER_OFFSET_Y
-	#else
-	0
-	#endif
-	,
-	//Rapduch
-	#if defined(EXTRUDER_OFFSET_Z)
-	EXTRUDER_OFFSET_Z
-	#else
-	0
-	#endif
-};
+	float extruder_offset[NUM_EXTRUDER_OFFSETS][EXTRUDERS] = {
+		#if defined(EXTRUDER_OFFSET_X)
+			EXTRUDER_OFFSET_X
+		#else
+			0
+		#endif
+		,
+		#if defined(EXTRUDER_OFFSET_Y)
+			EXTRUDER_OFFSET_Y
+		#else
+			0
+		#endif
+		,
+		//Rapduch
+		#if defined(EXTRUDER_OFFSET_Z)
+			EXTRUDER_OFFSET_Z
+		#else
+			0
+		#endif
+	};
 #endif
 uint8_t active_extruder = 0;
 int fanSpeed=0;
 #ifdef SERVO_ENDSTOPS
-int servo_endstops[] = SERVO_ENDSTOPS;
-int servo_endstop_angles[] = SERVO_ENDSTOP_ANGLES;
+	int servo_endstops[] = SERVO_ENDSTOPS;
+	int servo_endstop_angles[] = SERVO_ENDSTOP_ANGLES;
 #endif
 #ifdef BARICUDA
-int ValvePressure=0;
-int EtoPPressure=0;
+	int ValvePressure=0;
+	int EtoPPressure=0;
 #endif
 
 #ifdef FWRETRACT
-bool autoretract_enabled=false;
-bool retracted[EXTRUDERS]={false
-	#if EXTRUDERS > 1
-	, false
-	#if EXTRUDERS > 2
-	, false
-	#endif
-	#endif
-};
-bool retracted_swap[EXTRUDERS]={false
-	#if EXTRUDERS > 1
-	, false
-	#if EXTRUDERS > 2
-	, false
-	#endif
-	#endif
-};
+	bool autoretract_enabled=false;
+	bool retracted[EXTRUDERS]={false
+		#if EXTRUDERS > 1
+			, false
+			#if EXTRUDERS > 2
+				, false
+			#endif
+		#endif
+	};
+	bool retracted_swap[EXTRUDERS]={false
+		#if EXTRUDERS > 1
+		, false
+		#if EXTRUDERS > 2
+		, false
+		#endif
+		#endif
+	};
 
-float retract_length = RETRACT_LENGTH;
-float retract_length_swap = RETRACT_LENGTH_SWAP;
-float retract_feedrate = RETRACT_FEEDRATE;
-float retract_zlift = RETRACT_ZLIFT;
-float retract_recover_length = RETRACT_RECOVER_LENGTH;
-float retract_recover_length_swap = RETRACT_RECOVER_LENGTH_SWAP;
-float retract_recover_feedrate = RETRACT_RECOVER_FEEDRATE;
+	float retract_length = RETRACT_LENGTH;
+	float retract_length_swap = RETRACT_LENGTH_SWAP;
+	float retract_feedrate = RETRACT_FEEDRATE;
+	float retract_zlift = RETRACT_ZLIFT;
+	float retract_recover_length = RETRACT_RECOVER_LENGTH;
+	float retract_recover_length_swap = RETRACT_RECOVER_LENGTH_SWAP;
+	float retract_recover_feedrate = RETRACT_RECOVER_FEEDRATE;
 #endif
 
 #ifdef ULTIPANEL
-#ifdef PS_DEFAULT_OFF
-bool powersupply = false;
-#else
-bool powersupply = true;
-#endif
+	#ifdef PS_DEFAULT_OFF
+		bool powersupply = false;
+	#else
+		bool powersupply = true;
+	#endif
 #endif
 
 #ifdef DELTA
-float delta[3] = {0.0, 0.0, 0.0};
-#define SIN_60 0.8660254037844386
-#define COS_60 0.5
-// these are the default values, can be overriden with M665
-float delta_radius= DELTA_RADIUS;
-float delta_tower1_x= -SIN_60*delta_radius; // front left tower
-float delta_tower1_y= -COS_60*delta_radius;
-float delta_tower2_x=  SIN_60*delta_radius; // front right tower
-float delta_tower2_y= -COS_60*delta_radius;
-float delta_tower3_x= 0.0;                  // back middle tower
-float delta_tower3_y= delta_radius;
-float delta_diagonal_rod= DELTA_DIAGONAL_ROD;
-float delta_diagonal_rod_2= sq(delta_diagonal_rod);
-float delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;
+	float delta[3] = {0.0, 0.0, 0.0};
+	#define SIN_60 0.8660254037844386
+	#define COS_60 0.5
+	// these are the default values, can be overriden with M665
+	float delta_radius= DELTA_RADIUS;
+	float delta_tower1_x= -SIN_60*delta_radius; // front left tower
+	float delta_tower1_y= -COS_60*delta_radius;
+	float delta_tower2_x=  SIN_60*delta_radius; // front right tower
+	float delta_tower2_y= -COS_60*delta_radius;
+	float delta_tower3_x= 0.0;                  // back middle tower
+	float delta_tower3_y= delta_radius;
+	float delta_diagonal_rod= DELTA_DIAGONAL_ROD;
+	float delta_diagonal_rod_2= sq(delta_diagonal_rod);
+	float delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;
 #endif
 
 #ifdef SCARA                              // Build size scaling
-float axis_scaling[3]={1,1,1};  // Build size scaling, default to 1
+	float axis_scaling[3]={1,1,1};  // Build size scaling, default to 1
 #endif
 
 bool cancel_heatup = false ;
 
 #ifdef FILAMENT_SENSOR
-//Variables for Filament Sensor input
-float filament_width_nominal=DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404
-bool filament_sensor=false;  //M405 turns on filament_sensor control, M406 turns it off
-float filament_width_meas=DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter
-signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  //ring buffer to delay measurement  store extruder factor after subtracting 100
-int delay_index1=0;  //index into ring buffer
-int delay_index2=-1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
-float delay_dist=0; //delay distance counter
-int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
+	//Variables for Filament Sensor input
+	float filament_width_nominal=DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404
+	bool filament_sensor=false;  //M405 turns on filament_sensor control, M406 turns it off
+	float filament_width_meas=DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter
+	signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  //ring buffer to delay measurement  store extruder factor after subtracting 100
+	int delay_index1=0;  //index into ring buffer
+	int delay_index2=-1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
+	float delay_dist=0; //delay distance counter
+	int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
 
 //===========================================================================
@@ -432,7 +432,7 @@ const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 
 #ifndef DELTA
-static float delta[3] = {0.0, 0.0, 0.0};
+	static float delta[3] = {0.0, 0.0, 0.0};
 #endif
 
 //Rapduch
@@ -674,7 +674,7 @@ void setup()
 				surfing_utilities=true;				
 				
 			} else {*/
-				genie.WriteStr(3,VERSION_STRING);
+				genie.WriteStr(STRING_VERSION,VERSION_STRING);
 				delay(2500);
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
@@ -819,15 +819,6 @@ void loop()
 	#ifdef SIGMA_TOUCH_SCREEN
 		touchscreen_update();
 	#endif
-	//if (processing) updateprocessing();
-	//#ifndef SIGMA_TOUCH_SCREEN //JUST PRINT FIRST GCODE ON SD
-	//if (firstime)
-	//{
-	//SD_firstPrint();
-	//firstime=false;
-	//}
-	//#endif
-	
 }
 
 void SD_firstPrint (){
@@ -3342,9 +3333,9 @@ void process_commands()
 						//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						//enquecommand_P(PSTR("G28"));
 						active_extruder = LEFT_EXTRUDER;
-						genie.WriteStr(STRING_AXEL,"        Z AXIS");
+						genie.WriteStr(STRING_AXIS,"        Z AXIS");
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
-						genie.WriteStr(STRING_AXEL,"        Z AXIS");
+						genie.WriteStr(STRING_AXIS,"        Z AXIS");
 						delay(1500);
 						
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
@@ -3377,7 +3368,7 @@ void process_commands()
 						current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
 						
-						blocking_x = true; blocking_y = true;
+						
 						
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
@@ -5779,11 +5770,11 @@ void process_commands()
 						#endif
 					}
 					break;
-					case 352:{
+					/*case 352:{
 						quick_guide = true;
 						Config_StoreSettings();
 					}
-					break;
+					break;*/
 					case 999: // M999: Restart after being stopped
 					Stopped = false;
 					lcd_reset_alert_level();
@@ -6959,7 +6950,7 @@ void process_commands()
 						
 						st_synchronize();						
 						//SELECT LINES SCREEN
-						z_print_test =false;
+						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_Z_TEST,0);
 					}
 					

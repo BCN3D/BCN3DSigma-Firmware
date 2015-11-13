@@ -667,7 +667,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define SIGMA_BED_AUTOCALIB
 
 //Quick guide control
-#define DEFAULT_QUICK_GUIDE false;
+//#define DEFAULT_QUICK_GUIDE false;
 #define DEFAULT_PRINT_TEMP  PLA_PRINT_TEMP;
 #define DEFAULT_INSERT_TEMP PLA_INSERT_TEMP;
 #define DEFAULT_REMOVE_TEMP PLA_REMOVE_TEMP;

@@ -189,6 +189,7 @@ Rapduch
  M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
  M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
  M503 - print the current settings (from memory not from EEPROM)
+ M504 - reverts to the default "factory settings" for calibration and pid, it also save in EEPROM
  M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
  M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
  M665 - set delta configurations
@@ -5505,6 +5506,11 @@ void process_commands()
 					Config_PrintSettings();
 					}
 					break;
+					case 504: //M555 Revert to default settings calibration and PID
+					{
+						Config_Reset_Calib();
+						Config_StoreSettings();
+					}
 					#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 					case 540:
 					{

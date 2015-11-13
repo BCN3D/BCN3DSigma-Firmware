@@ -395,28 +395,28 @@ void Config_ResetDefault()
 	old_remove_temp_r=DEFAULT_OLD_REMOVE_TEMP;
 	old_bed_temp_r = DEFAULT_OLD_BED_TEMP;
 	
-#ifdef DELTA
-	endstop_adj[0] = endstop_adj[1] = endstop_adj[2] = 0;
-	delta_radius= DELTA_RADIUS;
-	delta_diagonal_rod= DELTA_DIAGONAL_ROD;
-	delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;
-	recalc_delta_settings(delta_radius, delta_diagonal_rod);
-#endif
-#ifdef ULTIPANEL
-    plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP;
-    plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP;
-    plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
-    absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP;
-    absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
-    absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
-#endif
-#ifdef ENABLE_AUTO_BED_LEVELING
-    zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
-#endif
-#ifdef Z_SIGMA_HOME
-	zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
-#endif
-
+	#ifdef DELTA
+		endstop_adj[0] = endstop_adj[1] = endstop_adj[2] = 0;
+		delta_radius= DELTA_RADIUS;
+		delta_diagonal_rod= DELTA_DIAGONAL_ROD;
+		delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;
+		recalc_delta_settings(delta_radius, delta_diagonal_rod);
+	#endif
+	#ifdef ULTIPANEL
+		plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP;
+		plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP;
+		plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
+		absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP;
+		absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
+		absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
+	#endif
+	#ifdef ENABLE_AUTO_BED_LEVELING
+		zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+	#endif
+	#ifdef Z_SIGMA_HOME
+		zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
+	#endif
+/*
 	//Extruder Offset
 	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
 	extruder_offset[X_AXIS][RIGHT_EXTRUDER] = X2_MAX_POS;
@@ -434,12 +434,39 @@ void Config_ResetDefault()
     // call updatePID (similar to when we have processed M301)
     updatePID();
     
-#ifdef PID_ADD_EXTRUSION_RATE
-    Kc = DEFAULT_Kc;
-#endif//PID_ADD_EXTRUSION_RATE
-#endif//PIDTEMP
+	#ifdef PID_ADD_EXTRUSION_RATE
+		Kc = DEFAULT_Kc;
+	#endif//PID_ADD_EXTRUSION_RATE
+#endif//PIDTEMP*/
 
-SERIAL_ECHO_START;
-SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
+	#ifdef DOGLCD
+	lcd_contrast = DEFAULT_LCD_CONTRAST;
+	#endif
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
 
 }
+
+void Config_Reset_Calib(){
+		//Extruder Offset
+		//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
+		extruder_offset[X_AXIS][RIGHT_EXTRUDER] = X2_MAX_POS;
+		extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = -0.15;
+		extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = -0.1;
+
+		
+		#ifdef PIDTEMP
+		Kp = DEFAULT_Kp;
+		Ki = scalePID_i(DEFAULT_Ki);
+		Kd = scalePID_d(DEFAULT_Kd);
+		
+		// call updatePID (similar to when we have processed M301)
+		updatePID();
+		
+		#ifdef PID_ADD_EXTRUSION_RATE
+		Kc = DEFAULT_Kc;
+		#endif//PID_ADD_EXTRUSION_RATE
+		#endif//PIDTEMP
+		SERIAL_ECHO_START;
+		SERIAL_ECHOLNPGM("Hardcoded Calib and PID Default Settings Loaded");
+};

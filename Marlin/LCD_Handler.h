@@ -50,7 +50,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 	if (Event.reportObject.cmd == GENIE_REPORT_EVENT)
 	{
 		//*****Winbuttons*****
-		#pragma region Winbuttons
+	/*	#pragma region Winbuttons
 		if (Event.reportObject.object == GENIE_OBJ_WINBUTTON)                // If the Reported Message was from a winbutton
 		{
 			float modified_position;
@@ -149,7 +149,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			
 			
 		}
-		#pragma endregion Winbuttons
+		#pragma endregion Winbuttons*/
 		
 		//USERBUTTONS------------------------------------------------------
 		
@@ -1068,18 +1068,26 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if(Event.reportObject.index == BUTTON_CUSTOM_ACCEPT){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
 					if(which_extruder == 0){
-						print_temp_l = custom_print_temp;
-						insert_temp_l = custom_insert_temp;
-						remove_temp_l = custom_remove_temp;
-						bed_temp_l = custom_bed_temp;
-						setTargetHotend0(print_temp_l);
+						if (custom_print_temp <= HEATER_0_MAXTEMP) print_temp_l = custom_print_temp;
+						else print_temp_l = HEATER_0_MAXTEMP;
+						if (custom_insert_temp <= HEATER_0_MAXTEMP) insert_temp_l = custom_insert_temp;
+						else insert_temp_l = HEATER_0_MAXTEMP;
+						if (custom_remove_temp <= HEATER_0_MAXTEMP) remove_temp_l = custom_remove_temp;
+						else remove_temp_l = HEATER_0_MAXTEMP;
+						if (custom_bed_temp <= BED_MAXTEMP) bed_temp_l = custom_bed_temp;
+						else bed_temp_l = BED_MAXTEMP;
+						setTargetHotend0(insert_temp_l);
 					}
 					else{
-						print_temp_r = custom_print_temp;
-						insert_temp_r = custom_insert_temp;
-						remove_temp_r = custom_remove_temp;
-						bed_temp_r = custom_bed_temp;
-						setTargetHotend1(print_temp_l);
+						if (custom_print_temp <= HEATER_1_MAXTEMP)print_temp_r = custom_print_temp;
+						else print_temp_r = HEATER_1_MAXTEMP;
+						if (custom_insert_temp <= HEATER_1_MAXTEMP)insert_temp_r = custom_insert_temp;
+						else print_temp_r = HEATER_1_MAXTEMP;
+						if (custom_remove_temp <= HEATER_1_MAXTEMP)remove_temp_r = custom_remove_temp;
+						else remove_temp_r = HEATER_1_MAXTEMP;
+						if (custom_bed_temp <= BED_MAXTEMP)bed_temp_r = custom_bed_temp;
+						else bed_temp_r = BED_MAXTEMP;
+						setTargetHotend1(insert_temp_r);
 					}
 					Config_StoreSettings();
 				}

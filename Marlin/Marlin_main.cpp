@@ -174,6 +174,7 @@ Rapduch
  M302 - Allow cold extrudes, or set the minimum extrude S<temperature>.
  M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
  M304 - Set bed PID parameters P I and D
+ M307 - AutoPID to highest print temperature of material introduced, it also saves the values in EEPROM and shows for serial port 
  M350 - Set microstepping mode.
  M351 - Toggle MS1 MS2 pins directly.
  M352 - Reset quick wizard guide //comented
@@ -5292,6 +5293,21 @@ void process_commands()
 					PID_autotune(temp, e, c);
 					}
 					break;
+					case 307: //M307 PID AUTOTUNE SAVE
+					{
+						float temp = max((float)print_temp_l,(float)print_temp_r);
+						int e=0;
+						int c=8;
+						PID_autotune_Save(temp, e, c);
+						Config_StoreSettings();
+						SERIAL_PROTOCOL(MSG_OK);
+						SERIAL_PROTOCOL(" p:");
+						SERIAL_PROTOCOL(Kp);
+						SERIAL_PROTOCOL(" i:");
+						SERIAL_PROTOCOL(unscalePID_i(Ki));
+						SERIAL_PROTOCOL(" d:");
+						SERIAL_PROTOCOL(unscalePID_d(Kd));
+					}
 					#ifdef SCARA
 					case 360:  // M360 SCARA Theta pos1
 					SERIAL_ECHOLN(" Cal: Theta 0 ");

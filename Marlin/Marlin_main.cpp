@@ -5183,32 +5183,36 @@ void process_commands()
 					#endif // M300
 
 					#ifdef PIDTEMP
-					case 301: // M301
-					{
-					if(code_seen('P')) Kp = code_value();
-					if(code_seen('I')) Ki = scalePID_i(code_value());
-					if(code_seen('D')) Kd = scalePID_d(code_value());
+						case 301: // M301
+						{
+							int ext=0;
+							if(code_seen('E')) ext = code_value();
+							if(code_seen('P')) Kp[ext] = code_value();
+							if(code_seen('I')) Ki[ext] = scalePID_i(code_value());
+							if(code_seen('D')) Kd[ext] = scalePID_d(code_value());
 
-					#ifdef PID_ADD_EXTRUSION_RATE
-					if(code_seen('C')) Kc = code_value();
-					#endif
+							#ifdef PID_ADD_EXTRUSION_RATE
+								if(code_seen('C')) Kc[ext] = code_value();
+							#endif
 
-					updatePID();
-					SERIAL_PROTOCOL(MSG_OK);
-					SERIAL_PROTOCOL(" p:");
-					SERIAL_PROTOCOL(Kp);
-					SERIAL_PROTOCOL(" i:");
-					SERIAL_PROTOCOL(unscalePID_i(Ki));
-					SERIAL_PROTOCOL(" d:");
-					SERIAL_PROTOCOL(unscalePID_d(Kd));
-					#ifdef PID_ADD_EXTRUSION_RATE
-					SERIAL_PROTOCOL(" c:");
-					//Kc does not have scaling applied above, or in resetting defaults
-					SERIAL_PROTOCOL(Kc);
-					#endif
-					SERIAL_PROTOCOLLN("");
-					}
-					break;
+							updatePID();
+							SERIAL_PROTOCOL(MSG_OK);
+							SERIAL_PROTOCOL(" E:");
+							SERIAL_PROTOCOL(ext);
+							SERIAL_PROTOCOL(" P:");
+							SERIAL_PROTOCOL(Kp[ext]);
+							SERIAL_PROTOCOL(" I:");
+							SERIAL_PROTOCOL(unscalePID_i(Ki[ext]));
+							SERIAL_PROTOCOL(" D:");
+							SERIAL_PROTOCOL(unscalePID_d(Kd[ext]));
+							#ifdef PID_ADD_EXTRUSION_RATE
+							SERIAL_PROTOCOL(" C:");
+							//Kc does not have scaling applied above, or in resetting defaults
+							SERIAL_PROTOCOL(Kc[ext]);
+							#endif
+							SERIAL_PROTOCOLLN("");
+						}
+						break;
 					#endif //PIDTEMP
 					#ifdef PIDTEMPBED
 					case 304: // M304
@@ -5299,15 +5303,16 @@ void process_commands()
 						float temp = max((float)print_temp_l,(float)print_temp_r);
 						int e=0;
 						int c=8;
+						if (code_seen('E')) e = code_value();
 						PID_autotune_Save(temp, e, c);
 						Config_StoreSettings();
 						SERIAL_PROTOCOL(MSG_OK);
 						SERIAL_PROTOCOL(" p:");
-						SERIAL_PROTOCOL(Kp);
+						SERIAL_PROTOCOL(Kp[e]);
 						SERIAL_PROTOCOL(" i:");
-						SERIAL_PROTOCOL(unscalePID_i(Ki));
+						SERIAL_PROTOCOL(unscalePID_i(Ki[e]));
 						SERIAL_PROTOCOL(" d:");
-						SERIAL_PROTOCOL(unscalePID_d(Kd));
+						SERIAL_PROTOCOL(unscalePID_d(Kd[e]));
 					}
 					#ifdef SCARA
 					case 360:  // M360 SCARA Theta pos1
@@ -5503,14 +5508,15 @@ void process_commands()
 					break;
 					case 503: // M503 print settings currently in memory
 					{
-					Config_PrintSettings();
+						Config_PrintSettings();
 					}
 					break;
 					case 504: //M555 Revert to default settings calibration and PID
 					{
 						Config_Reset_Calib();
-						Config_StoreSettings();
+						
 					}
+					break;
 					#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 					case 540:
 					{

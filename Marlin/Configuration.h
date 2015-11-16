@@ -248,17 +248,18 @@
 // Ultimaker
 
 #if MOTHERBOARD == MEGATRONICS_V3
-#ifdef PROTO1
-	 #define  DEFAULT_Kp 21.68
-	 #define  DEFAULT_Ki 2.2
-	 #define  DEFAULT_Kd 52.84
-#endif
+	#ifdef PROTO1
+	#define  DEFAULT_Kp 15.16
+	#define  DEFAULT_Ki 1.16
+	#define  DEFAULT_Kd 49.38
+	
+	#endif
 
-#ifdef PROTO2
-	 #define  DEFAULT_Kp 23.12
-	 #define  DEFAULT_Ki 2.12
-	 //#define  DEFAULT_Kd 62.98
-#endif
+	#ifdef PROTO2
+		 #define  DEFAULT_Kp 23.12
+		 #define  DEFAULT_Ki 2.12
+		 //#define  DEFAULT_Kd 62.98
+	#endif
 #endif
 
 
@@ -271,12 +272,11 @@
 	//#define  DEFAULT_Ki 1.17
 	//#define  DEFAULT_Kd 58.05
 	#define  DEFAULT_Kp  15.16
-	#define  DEFAULT_Ki 1.16
-	#define  DEFAULT_Kd 49.38
-	
-#endif
-#endif // PIDTEMP
+	#define  DEFAULT_Ki  1.16
+	#define  DEFAULT_Kd  49.38
 
+#endif						
+#endif // PIDTEMP
 // Bed Temperature Control
 // Select PID or bang-bang with PIDTEMPBED. If bang-bang, BED_LIMIT_SWITCHING will enable hysteresis
 //

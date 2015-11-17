@@ -680,7 +680,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //Rapduch
 //Insert Filament parameters
-#define BOWDEN_LENGTH 860
+#define BOWDEN_LENGTH 875
 #define EXTRUDER_LENGTH 50
 #define INSERT_FAST_SPEED 5000	
 #define INSERT_SLOW_SPEED 150

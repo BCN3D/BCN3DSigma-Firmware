@@ -51,12 +51,12 @@ float current_temperature_bed = 0.0;
   float redundant_temperature = 0.0;
 #endif
 #ifdef PIDTEMP
-  float Kp=DEFAULT_Kp;
-  float Ki=(DEFAULT_Ki*PID_dT);
-  float Kd=(DEFAULT_Kd/PID_dT);
-  #ifdef PID_ADD_EXTRUSION_RATE
-    float Kc=DEFAULT_Kc;
-  #endif
+		float Kp[2]={DEFAULT_Kp,DEFAULT_Kp};
+		float Ki[2]={(DEFAULT_Ki*PID_dT,DEFAULT_Ki*PID_dT)};
+		float Kd[2]={(DEFAULT_Kd/PID_dT,DEFAULT_Kd/PID_dT)};	
+		#ifdef PID_ADD_EXTRUSION_RATE
+			float Kc[2]={DEFAULT_Kc,DEFAULT_Kc};
+		#endif
 #endif //PIDTEMP
 
 #ifdef PIDTEMPBED
@@ -405,14 +405,14 @@ void PID_autotune_Save(float temp, int extruder, int ncycles)
               Tu = ((float)(t_low + t_high)/1000.0);
               SERIAL_PROTOCOLPGM(" Ku: "); SERIAL_PROTOCOL(Ku);
               SERIAL_PROTOCOLPGM(" Tu: "); SERIAL_PROTOCOLLN(Tu);
-              Kp = 0.6*Ku;
-              Ki = 2*Kp/Tu;
-              Kd = Kp*Tu/8;
+              Kp[extruder] = 0.6*Ku;
+              Ki[extruder] = 2*Kp[extruder]/Tu;
+              Kd[extruder] = Kp[extruder]*Tu/8;
 			  
               SERIAL_PROTOCOLLNPGM(" Classic PID ");
-              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
-              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
-              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);
+              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp[extruder]);
+              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki[extruder]);
+              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd[extruder]);
               /*
               Kp = 0.33*Ku;
               Ki = Kp/Tu;
@@ -469,8 +469,8 @@ void PID_autotune_Save(float temp, int extruder, int ncycles)
     if(cycles > ncycles) {
       //SAVE VALUES	
 	   
-	  Ki = scalePID_i(Ki);
-	  Kd = scalePID_d(Kd);
+	  Ki[extruder] = scalePID_i(Ki[extruder]);
+	  Kd[extruder] = scalePID_d(Kd[extruder]);
 	  updatePID();
 	  SERIAL_PROTOCOLLNPGM("PID Autotune finished!");
       return;
@@ -484,14 +484,14 @@ void PID_autotune_Save(float temp, int extruder, int ncycles)
 
 void updatePID()
 {
-#ifdef PIDTEMP
-  for(int e = 0; e < EXTRUDERS; e++) { 
-     temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki;  
-  }
-#endif
-#ifdef PIDTEMPBED
-  temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;  
-#endif
+	#ifdef PIDTEMP
+		for(int e = 0; e < EXTRUDERS; e++) {
+			temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki[e];
+		}
+	#endif
+	#ifdef PIDTEMPBED
+		temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;
+	#endif
 }
   
 int getHeaterPower(int heater) {
@@ -607,14 +607,14 @@ void manage_heater()
 					temp_iState[e] = 0.0;
 					pid_reset[e] = false;
 				}
-				pTerm[e] = Kp * pid_error[e];
+				pTerm[e] = Kp[e] * pid_error[e];
 				temp_iState[e] += pid_error[e];
 				temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
-				iTerm[e] = Ki * temp_iState[e];
+				iTerm[e] = Ki[e] * temp_iState[e];
 
 				//K1 defined in Configuration.h in the PID settings
 				#define K2 (1.0-K1)
-				dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
+				dTerm[e] = (Kd[e] * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
 				pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e], 0, PID_MAX);
 			}
 			temp_dState[e] = pid_input;
@@ -940,7 +940,7 @@ void tp_init()
     maxttemp[e] = maxttemp[0];
 #ifdef PIDTEMP
     temp_iState_min[e] = 0.0;
-    temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki;
+    temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki[e];
 #endif //PIDTEMP
 #ifdef PIDTEMPBED
     temp_iState_min_bed = 0.0;

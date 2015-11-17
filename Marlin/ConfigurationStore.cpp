@@ -114,9 +114,12 @@ void Config_StoreSettings()
 
   
   #ifdef PIDTEMP
-    EEPROM_WRITE_VAR(i,Kp);
-    EEPROM_WRITE_VAR(i,Ki);
-    EEPROM_WRITE_VAR(i,Kd);
+    EEPROM_WRITE_VAR(i,Kp[0]);
+    EEPROM_WRITE_VAR(i,Ki[0]);
+    EEPROM_WRITE_VAR(i,Kd[0]);
+	EEPROM_WRITE_VAR(i,Kp[1]);
+	EEPROM_WRITE_VAR(i,Ki[1]);
+	EEPROM_WRITE_VAR(i,Kd[1]);
   #else
 		float dummy = 3000.0f;
     EEPROM_WRITE_VAR(i,dummy);
@@ -209,9 +212,12 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("PID settings:");
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("   M301 P",Kp); 
-    SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki)); 
-    SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd));
+    SERIAL_ECHOPAIR(" M301 LEFT P",Kp[0]); 
+    SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki[0])); 
+    SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd[0]));
+	SERIAL_ECHOPAIR(" - M301 RIGHT P",Kp[1]);
+	SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki[1]));
+	SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd[1]));
     SERIAL_ECHOLN(""); 
 #endif
 
@@ -316,17 +322,18 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,old_remove_temp_r);
 		EEPROM_READ_VAR(i,old_bed_temp_r);
 		//Language
-//		EEPROM_READ_VAR(i,language);
-		
-		
+//		EEPROM_READ_VAR(i,language);	
 		
         #ifndef PIDTEMP
-        float Kp,Ki,Kd;
+			//float Kp[2],Ki[2],Kd[2];
         #endif
         // do not need to scale PID values as the values in EEPROM are already scaled		
-        EEPROM_READ_VAR(i,Kp);
-        EEPROM_READ_VAR(i,Ki);
-        EEPROM_READ_VAR(i,Kd);
+			EEPROM_READ_VAR(i,Kp[0]);
+			EEPROM_READ_VAR(i,Ki[0]);
+			EEPROM_READ_VAR(i,Kd[0]);
+			EEPROM_READ_VAR(i,Kp[1]);
+			EEPROM_READ_VAR(i,Ki[1]);
+			EEPROM_READ_VAR(i,Kd[1]);
         #ifndef DOGLCD
         int lcd_contrast;
         #endif
@@ -456,16 +463,22 @@ void Config_Reset_Calib(){
 
 		
 		#ifdef PIDTEMP
-		Kp = DEFAULT_Kp;
-		Ki = scalePID_i(DEFAULT_Ki);
-		Kd = scalePID_d(DEFAULT_Kd);
+			Kp[0] = DEFAULT_Kp;
+			Ki[0] = scalePID_i(DEFAULT_Ki);
+			Kd[0] = scalePID_d(DEFAULT_Kd);
+			Kp[1] = DEFAULT_Kp;
+			Ki[1] = scalePID_i(DEFAULT_Ki);
+			Kd[1] = scalePID_d(DEFAULT_Kd);
+			
+			Serial.print("P0 ");Serial.print(Kp[0]);Serial.print(" - I0 ");Serial.print(Ki[0]);Serial.print(" - D0 ");Serial.println(Kd[0]);
+			Serial.print("P1 ");Serial.print(Kp[1]);Serial.print(" - I1 ");Serial.print(Ki[1]);Serial.print(" - D1 ");Serial.println(Kd[1]);
+			// call updatePID (similar to when we have processed M301)
+			//updatePID();
 		
-		// call updatePID (similar to when we have processed M301)
-		updatePID();
-		
-		#ifdef PID_ADD_EXTRUSION_RATE
-		Kc = DEFAULT_Kc;
-		#endif//PID_ADD_EXTRUSION_RATE
+			#ifdef PID_ADD_EXTRUSION_RATE
+				Kc[0] = DEFAULT_Kc;
+				Kc[1] = DEFAULT_Kc;
+			#endif//PID_ADD_EXTRUSION_RATE
 		#endif//PIDTEMP
 		SERIAL_ECHO_START;
 		SERIAL_ECHOLNPGM("Hardcoded Calib and PID Default Settings Loaded");

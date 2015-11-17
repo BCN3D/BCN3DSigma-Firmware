@@ -38,15 +38,15 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 
-#define EEPROM_VERSION "V10"
-#ifdef DELTA
+#define EEPROM_VERSION "V12"
+/*#ifdef DELTA
 	#undef EEPROM_VERSION
 	#define EEPROM_VERSION "V11"
 #endif
 #ifdef SCARA
 	#undef EEPROM_VERSION
 	#define EEPROM_VERSION "V12"
-#endif
+#endif*/
 
 #ifdef EEPROM_SETTINGS
 void Config_StoreSettings() 
@@ -246,8 +246,7 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOPAIR(" R_BED " ,(float)bed_temp_r);
 	 SERIAL_ECHOPAIR(" R_PRINT " ,(float)print_temp_r);
 	 SERIAL_ECHOLN("");
-	
-} 
+	} 
 #endif
 
 
@@ -258,6 +257,7 @@ void Config_RetrieveSettings()
     char stored_ver[4];
     char ver[4]=EEPROM_VERSION;
     EEPROM_READ_VAR(i,stored_ver); //read stored version
+	
     //  SERIAL_ECHOLN("Version: [" << ver << "] Stored version: [" << stored_ver << "]");
     if (strncmp(ver,stored_ver,3) == 0)
     {
@@ -348,8 +348,10 @@ void Config_RetrieveSettings()
         SERIAL_ECHOLNPGM("Stored settings retrieved");
     }
     else
-    {
+    {		
         Config_ResetDefault();
+		Config_Reset_Calib();
+		Config_StoreSettings();		
     }
     #ifdef EEPROM_CHITCHAT
       Config_PrintSettings();
@@ -469,9 +471,7 @@ void Config_Reset_Calib(){
 			Kp[1] = DEFAULT_Kp;
 			Ki[1] = scalePID_i(DEFAULT_Ki);
 			Kd[1] = scalePID_d(DEFAULT_Kd);
-			
-			Serial.print("P0 ");Serial.print(Kp[0]);Serial.print(" - I0 ");Serial.print(Ki[0]);Serial.print(" - D0 ");Serial.println(Kd[0]);
-			Serial.print("P1 ");Serial.print(Kp[1]);Serial.print(" - I1 ");Serial.print(Ki[1]);Serial.print(" - D1 ");Serial.println(Kd[1]);
+					
 			// call updatePID (similar to when we have processed M301)
 			//updatePID();
 		

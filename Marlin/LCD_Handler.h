@@ -200,7 +200,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
 					quickStop();
 					
-					home_axis_from_code(true,true,false); //Home X and Y
+					enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
 					st_synchronize();
 					enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
 					st_synchronize();

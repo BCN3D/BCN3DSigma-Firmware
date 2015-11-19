@@ -2073,8 +2073,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//We have to override z_prove_offset
 					zprobe_zoffset-=(current_position[Z_AXIS]); //We are putting more offset if needed
 					extruder_offset[Z_AXIS][LEFT_EXTRUDER]=0.0;//It is always the reference
-					current_position[Z_AXIS]=0;//We are setting this position as Zero
-					plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+					/*current_position[Z_AXIS]=0;//We are setting this position as Zero
+					plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);*/
 					
 					setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
 				
@@ -2083,15 +2083,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Config_StoreSettings(); //Store changes		
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);			
-					home_axis_from_code(true,true,true);
+					home_axis_from_code(true,false,false);
 											
 					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-10) || degBed()<(target_temperature_bed)-10){ //Waiting to heat the extruder
 						manage_heater();
-					}
-					
-					current_position[E_AXIS]+=8;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],INSERT_SLOW_SPEED,LEFT_EXTRUDER);
-					st_synchronize();
+					}				
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 					delay(6000);
@@ -2129,7 +2125,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					st_synchronize();						
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-					home_axis_from_code(true,true,true);	
+					home_axis_from_code(true,false,false);	
 									
 					while (degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-10) || degBed()<(target_temperature_bed)-10){ //Waiting to heat the extruder
 						
@@ -2137,9 +2133,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					delay(6000);
 					
-					current_position[E_AXIS]+=8;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],INSERT_SLOW_SPEED,RIGHT_EXTRUDER);
-					st_synchronize();
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 					home_axis_from_code(true,true,true);	

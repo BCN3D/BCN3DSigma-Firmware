@@ -5298,9 +5298,14 @@ void process_commands()
 					{
 						float temp = max((float)print_temp_l,(float)print_temp_r);
 						int e=0;
-						int c=8;
-						if (code_seen('E')) e = code_value();
-						PID_autotune_Save(temp, e, c);
+						int c=10;
+						if (code_seen('E')) {
+							e = code_value();
+							if(e==0) temp = float(print_temp_l);
+							else  temp = float(print_temp_r);
+						}
+						if (code_seen('S')) temp = code_value();
+						PID_autotune_Save(temp, e, c);						
 						Config_StoreSettings();
 						SERIAL_PROTOCOL(MSG_OK);
 						SERIAL_PROTOCOL(" p:");

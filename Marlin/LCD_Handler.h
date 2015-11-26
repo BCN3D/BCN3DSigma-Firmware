@@ -1383,26 +1383,29 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					is_on_printing_screen=true;
 					int count = 12;
-					char buffer[count];
-					if (String(card.longFilename).length()>count){
-						for (int i = 0; i<count ; i++)
+					char buffer[13];
+					if (String(card.longFilename).length()>12){
+						for (int i = 0; i<12 ; i++)
 						{
-							/*if (buffer[i] = '.') i = count +10;
-							else */buffer[i]=card.longFilename[i];
+							buffer[i]=card.longFilename[i];
 						}
-						buffer[count]='\0';
+						buffer[12]='\0';
 						char* buffer2 = strcat(buffer,"...\0");
+						Serial.print("Card Name: ");
+						Serial.println(card.longFilename);
+						Serial.print("Buffer1: ");
+						Serial.println(buffer);
+						Serial.print("buffer out: ");
+						Serial.println(buffer2);
 						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
 					}else{
-						/*char* str;
-						str = strtok (buffer,".");*/
 						for (int i = 0; i<=String(card.longFilename).length(); i++)
 						{
-							/*if (buffer[i] = '.') i = String(card.longFilename).length() +10;
-							else */buffer[i]=card.longFilename[i];
+							if (buffer[i] == '.') i = String(card.longFilename).length() +10;
+							else buffer[i]=card.longFilename[i];
 						}
-						buffer[count]='\0';
-						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form
+						//buffer[count]='\0';
+						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
 					}
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,1);
 				}
@@ -2820,7 +2823,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						Serial.print("buffer out: ");
 						Serial.println(buffer2);
 						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
-						}else{
+					}else{
 						for (int i = 0; i<=String(card.longFilename).length(); i++)
 						{
 							if (buffer[i] == '.') i = String(card.longFilename).length() +10;

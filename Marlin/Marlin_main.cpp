@@ -2200,7 +2200,7 @@ void process_commands()
 				mm_second_extruder[0] = i;
 				for (int count = 1; count <= NUM_LINES; count++){
 					
-					mm_second_extruder[count] =  mm_second_extruder[count-1] + 0.05;
+					mm_second_extruder[count] =  mm_second_extruder[count-1] + 0.1;
 				}
 				//float mm_second_extruder[9] = {19.6, 19.7, 19.8, 19.9, 20 ,20.1 ,20.2, 20.3, 20.4};
 
@@ -2429,7 +2429,7 @@ void process_commands()
 				mm_second_extruder[0] = i;
 				for (int count = 1; count <= NUM_LINES; count++){
 					
-					mm_second_extruder[count] =  mm_second_extruder[count-1] + 0.05;
+					mm_second_extruder[count] =  mm_second_extruder[count-1] + 0.1;
 				}
 				float mm_each_extrusion = 10;
 				float mm_left_offset = 120;				

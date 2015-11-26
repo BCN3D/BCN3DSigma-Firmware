@@ -195,9 +195,9 @@
 #define	PLA_PRINT_TEMP			215
 #define PLA_BED_TEMP			50
 
-#define	ABS_INSERT_TEMP			245
-#define	ABS_REMOVE_TEMP			220
-#define	ABS_PRINT_TEMP			245
+#define	ABS_INSERT_TEMP			265
+#define	ABS_REMOVE_TEMP			265
+#define	ABS_PRINT_TEMP			265
 #define ABS_BED_TEMP			70
 
 #define	PVA_INSERT_TEMP			200

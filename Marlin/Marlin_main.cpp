@@ -2200,7 +2200,7 @@ void process_commands()
 				mm_second_extruder[0] = i;
 				for (int count = 1; count <= NUM_LINES; count++){
 					
-					mm_second_extruder[count] =  mm_second_extruder[count-1] + 0.1;
+					mm_second_extruder[count] =  mm_second_extruder[count-1] + 0.05;
 				}
 				//float mm_second_extruder[9] = {19.6, 19.7, 19.8, 19.9, 20 ,20.1 ,20.2, 20.3, 20.4};
 
@@ -2429,7 +2429,7 @@ void process_commands()
 				mm_second_extruder[0] = i;
 				for (int count = 1; count <= NUM_LINES; count++){
 					
-					mm_second_extruder[count] =  mm_second_extruder[count-1] + 0.1;
+					mm_second_extruder[count] =  mm_second_extruder[count-1] + 0.05;
 				}
 				float mm_each_extrusion = 10;
 				float mm_left_offset = 120;				
@@ -6844,7 +6844,7 @@ void process_commands()
 						current_position[X_AXIS] = 75; 
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
 						st_synchronize();	
-						current_position[Z_AXIS]+= 0.2;
+						current_position[Z_AXIS]= 0.2;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 						
 						current_position[E_AXIS]+=3;

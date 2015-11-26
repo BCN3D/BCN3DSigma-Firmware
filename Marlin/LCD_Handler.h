@@ -1639,7 +1639,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_X_LINE_SELECT1)
 				{
 				//char buffer[30];
-				float calculus = extruder_offset[X_AXIS][1] + 0.5;
+				float calculus = extruder_offset[X_AXIS][1] + 0.25;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//sprintf(buffer, "M218 T1 X%f",calculus); //
@@ -1662,7 +1662,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_X_LINE_SELECT2)
 				{
-				float calculus = extruder_offset[X_AXIS][1] + 0.4;
+				float calculus = extruder_offset[X_AXIS][1] + 0.2;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1679,7 +1679,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_X_LINE_SELECT3)
 				{
-					float calculus = extruder_offset[X_AXIS][1] + 0.3;
+					float calculus = extruder_offset[X_AXIS][1] + 0.15;
 					Serial.print("Calculus:  ");
 					Serial.println(calculus);
 					extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1696,7 +1696,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_X_LINE_SELECT4)
 				{
-				float calculus = extruder_offset[X_AXIS][1] + 0.2;
+				float calculus = extruder_offset[X_AXIS][1] + 0.1;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1714,7 +1714,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_X_LINE_SELECT5)
 				{
-					float calculus = extruder_offset[X_AXIS][1] + 0.1;
+					float calculus = extruder_offset[X_AXIS][1] + 0.05;
 					Serial.print("Calculus:  ");
 					Serial.println(calculus);
 					extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1747,7 +1747,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_X_LINE_SELECT7)
 				{
-				float calculus = extruder_offset[X_AXIS][1] - 0.1;
+				float calculus = extruder_offset[X_AXIS][1] - 0.05;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1763,7 +1763,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_X_LINE_SELECT8)
 				{
-				float calculus = extruder_offset[X_AXIS][1] - 0.2;
+				float calculus = extruder_offset[X_AXIS][1] - 0.1;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1780,7 +1780,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_X_LINE_SELECT9)
 				{
-				float calculus = extruder_offset[X_AXIS][1] - 0.3;
+				float calculus = extruder_offset[X_AXIS][1] - 0.15;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//sprintf(buffer, "M218 T1 X%f",calculus); //
@@ -1803,7 +1803,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_X_LINE_SELECT10)
 				{
-					float calculus = extruder_offset[X_AXIS][1]-0.4;
+					float calculus = extruder_offset[X_AXIS][1]-0.2;
 					Serial.print("Calculus:  ");
 					Serial.println(calculus);
 					extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1822,7 +1822,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_REDO_LEFT_CAB)
 				{
 					redo_source = 1;
-					float calculus = extruder_offset[X_AXIS][1] + 0.5;
+					float calculus = extruder_offset[X_AXIS][1] + 0.25;
 					Serial.print("Calculus:  ");
 					Serial.println(calculus);					
 					extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;					
@@ -1833,7 +1833,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_REDO_RIGHT_CAB)
 				{
 					redo_source = 1;
-					float calculus = extruder_offset[X_AXIS][1] -0.4;
+					float calculus = extruder_offset[X_AXIS][1] -0.2;
 					Serial.print("Calculus:  ");
 					Serial.println(calculus);
 					extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1845,14 +1845,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_REDO_X_CAB)
 				{
 					redo_source = 1;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
 										
 				}
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT1)
 				{
 				//char buffer[30];
-				float calculus = extruder_offset[Y_AXIS][1] + 0.5;
+				float calculus = extruder_offset[Y_AXIS][1] + 0.25;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//sprintf(buffer, "M218 T1 X%f",calculus); //
@@ -1872,7 +1872,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT2)
 				{
 				//enquecommand_P((PSTR("M218 T1 X-0.4")));
-				float calculus = extruder_offset[Y_AXIS][1] + 0.4;
+				float calculus = extruder_offset[Y_AXIS][1] + 0.2;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1887,7 +1887,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT3)
 				{
-				float calculus = extruder_offset[Y_AXIS][1] + 0.3;
+				float calculus = extruder_offset[Y_AXIS][1] + 0.15;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//enquecommand_P((PSTR("M218 T1 X-0.3")));
@@ -1903,7 +1903,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT4)
 				{
-				float calculus = extruder_offset[Y_AXIS][1] + 0.2;
+				float calculus = extruder_offset[Y_AXIS][1] + 0.1;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//enquecommand_P((PSTR("M218 T1 X-0.2")));
@@ -1919,7 +1919,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT5)
 				{
-				float calculus = extruder_offset[Y_AXIS][1] + 0.1;
+				float calculus = extruder_offset[Y_AXIS][1] + 0.05;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1951,7 +1951,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT7)
 				{
-				float calculus = extruder_offset[X_AXIS][1] - 0.1;
+				float calculus = extruder_offset[X_AXIS][1] - 0.05;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1967,7 +1967,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT8)
 				{
-				float calculus = extruder_offset[Y_AXIS][1] - 0.2;
+				float calculus = extruder_offset[Y_AXIS][1] - 0.1;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -1983,7 +1983,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT9)
 				{
-				float calculus = extruder_offset[Y_AXIS][1] - 0.3;
+				float calculus = extruder_offset[Y_AXIS][1] - 0.15;
 				Serial.print("Calculus:  ");
 				Serial.println(calculus);
 				//enquecommand_P((PSTR("M218 T1 X-0.2")));
@@ -1999,7 +1999,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT10)
 				{
-				float calculus = extruder_offset[Y_AXIS][1] - 0.4;
+				float calculus = extruder_offset[Y_AXIS][1] - 0.2;
 				Serial.print("Calculus:  ");
 				
 				Serial.println(calculus);
@@ -2018,7 +2018,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					
 					redo_source = 2;
-					float calculus = extruder_offset[Y_AXIS][1] + 0.5;
+					float calculus = extruder_offset[Y_AXIS][1] + 0.25;
 					Serial.print("Calculus:  ");
 					Serial.println(calculus);
 					extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -2031,7 +2031,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_REDO_DOWN_CAB)
 				{
 					redo_source = 2;
-					float calculus = extruder_offset[Y_AXIS][1] -0.4;
+					float calculus = extruder_offset[Y_AXIS][1] -0.2;
 					Serial.print("Calculus:  ");
 					Serial.println(calculus);
 					extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -2076,7 +2076,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					/*current_position[Z_AXIS]=0;//We are setting this position as Zero
 					plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);*/
 					
-					setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);
+					setTargetHotend0(print_temp_l);
 				
 					Serial.print("Z1 Probe offset: ");
 					Serial.println(zprobe_zoffset);
@@ -2121,7 +2121,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.println(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
 					Config_StoreSettings(); //Store changes					
 					
-					setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP);					
+					setTargetHotend1(print_temp_r);					
 					st_synchronize();						
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);

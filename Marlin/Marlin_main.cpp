@@ -6130,8 +6130,7 @@ void process_commands()
 						bool seen[4]={false,false,false,false};
 						for(int8_t i=0; i < NUM_AXIS; i++) {
 						if(code_seen(axis_codes[i]))
-						{
-					
+						{					
 							destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
 							if(i == 0) {
 								//Serial.print("X old: ");

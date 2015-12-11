@@ -24,7 +24,7 @@
 // For a Delta printer replace the configuration files with the files in the
 // example_configurations/SCARA directory.
 //
-//This is the version declaration for Sigma, v followed by '_' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
+//This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 #define VERSION_STRING  "01-1.0.2"
 //#define DEFAULT_QUICK_GUIDE  0;
@@ -741,27 +741,27 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//2.90
 	
 	//Left extruder probe point
-	#define X_SIGMA_PROBE_1_LEFT_EXTR 59
+	#define X_SIGMA_PROBE_1_LEFT_EXTR 58
 	//#define X_SIGMA_PROBE_1_LEFT_EXTR 3
 	#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_LEFT_EXTR 59
+	#define X_SIGMA_PROBE_2_LEFT_EXTR 58
 	//#define X_SIGMA_PROBE_2_LEFT_EXTR 3
 	#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 	
-	#define X_SIGMA_PROBE_3_LEFT_EXTR 247.5
+	#define X_SIGMA_PROBE_3_LEFT_EXTR 248.5
 	//#define X_SIGMA_PROBE_3_LEFT_EXTR 204
 	#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 	
 	//Right extruder probe point
-	#define X_SIGMA_PROBE_1_RIGHT_EXTR 247.5//254.5
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 248.5//254.5
 	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_RIGHT_EXTR 247.5//255
+	#define X_SIGMA_PROBE_2_RIGHT_EXTR 248.5//255
 	//#define X_SIGMA_PROBE_2_RIGHT_EXTR 204
 	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 	
-	#define X_SIGMA_PROBE_3_RIGHT_EXTR 59
+	#define X_SIGMA_PROBE_3_RIGHT_EXTR 58
 	//#define X_SIGMA_PROBE_3_RIGHT_EXTR 3
 	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
 #endif

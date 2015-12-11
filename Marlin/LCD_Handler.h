@@ -2085,7 +2085,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.println(zprobe_zoffset);
 					Config_StoreSettings(); //Store changes		
 					
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);			
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+					
+					current_position[Z_AXIS] += 0.5;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],homing_feedrate[Z_AXIS]/60,active_extruder);
+					st_synchronize();
+					
 					home_axis_from_code(true,false,false);
 											
 					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-10) || degBed()<(target_temperature_bed)-10){ //Waiting to heat the extruder
@@ -2128,6 +2133,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					st_synchronize();						
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+					
+					current_position[Z_AXIS] += 0.5;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],homing_feedrate[Z_AXIS]/60,active_extruder);
+					st_synchronize();
+					
 					home_axis_from_code(true,false,false);	
 									
 					while (degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-10) || degBed()<(target_temperature_bed)-10){ //Waiting to heat the extruder

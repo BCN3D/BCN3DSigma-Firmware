@@ -1322,6 +1322,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
 						
+						dobloking=true;
+						
 						while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
 							
 							manage_heater();
@@ -1343,12 +1345,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (active_extruder == 0)	{	
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
-						genie.WriteStr(STRING_AXIS,"        Z AXIS");
-						
+						genie.WriteStr(STRING_AXIS,"        Z AXIS");						
 											
-						home_axis_from_code(true,false,false);										
-						dobloking = false;
-						
+						home_axis_from_code(true,false,false);						
+						dobloking=false;
 						enquecommand_P(PSTR("G43"));
 						flag_continue_calib = false;								
 						
@@ -1357,9 +1357,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 						genie.WriteStr(STRING_AXIS,"        Z AXIS");
 						
-						home_axis_from_code(true,false,false);	
-						dobloking = false;
-						
+						home_axis_from_code(true,false,false);
+						dobloking=false;
 						enquecommand_P(PSTR("G43"));
 						st_synchronize();			
 					
@@ -2189,7 +2188,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, RIGHT_EXTRUDER);//move first extruder
 										
-					dobloking = true;										
+					dobloking=true;								
 										
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
 					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
@@ -2710,6 +2709,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						st_synchronize();
 						current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
+						
+						dobloking=true;
 						
 						while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
 							

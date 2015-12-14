@@ -3138,11 +3138,13 @@ void process_commands()
 				
 				Serial.print("Zvalue after home:");
 				Serial.println(current_position[Z_AXIS]);
+				
 				dobloking= true;
 				float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
 				float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 				float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 				dobloking= false;
+				
 				//feedrate=homing_feedrate[X_AXIS];
 				feedrate = XY_TRAVEL_SPEED;
 				current_position[X_AXIS]=x_home_pos(active_extruder)+10; current_position[Z_AXIS]+= 3;
@@ -3166,8 +3168,7 @@ void process_commands()
 				float z2_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_RIGHT_EXTR,Y_SIGMA_PROBE_3_RIGHT_EXTR, Z_RAISE_BEFORE_PROBING);
 				float z2_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_RIGHT_EXTR,Y_SIGMA_PROBE_2_RIGHT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 				float z2_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
-				dobloking= false;
-				
+				dobloking= false;				
 				
 				feedrate=homing_feedrate[Z_AXIS];
 				//current_position[Z_AXIS] += 5;
@@ -3368,7 +3369,7 @@ void process_commands()
 						current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
 						
-						dobloking = true;						
+						dobloking=true;
 						
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
@@ -6482,15 +6483,16 @@ void process_commands()
 
 					void manage_inactivity()
 					{
+						if(dobloking){
+							enable_x();
+							enable_y();
+						}
 						if(buflen < (BUFSIZE-1)) get_command();
 						if( (millis() - previous_millis_cmd) >  max_inactive_time ) if(max_inactive_time) kill();
 						if(stepper_inactive_time)  {
 							if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
 							{
-								if(dobloking){
-									enable_x();
-									enable_y();
-								}
+								
 								if(blocks_queued() == false) {
 									disable_x();
 									disable_y();

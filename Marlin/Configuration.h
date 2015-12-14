@@ -26,7 +26,7 @@
 //
 //This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
-#define VERSION_STRING  "01-1.1.0"
+#define VERSION_STRING  "01-1.1.1"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
@@ -193,17 +193,17 @@
 #define	PLA_INSERT_TEMP			220
 #define	PLA_REMOVE_TEMP			170
 #define	PLA_PRINT_TEMP			215
-#define PLA_BED_TEMP			50
+#define PLA_BED_TEMP			65
 
 #define	ABS_INSERT_TEMP			265
 #define	ABS_REMOVE_TEMP			265
 #define	ABS_PRINT_TEMP			265
-#define ABS_BED_TEMP			70
+#define ABS_BED_TEMP			90
 
 #define	PVA_INSERT_TEMP			200
 #define	PVA_REMOVE_TEMP			170
 #define	PVA_PRINT_TEMP			190
-#define PVA_BED_TEMP			50
+#define PVA_BED_TEMP			65
 
 
 #define EXTRUDER_LEFT_CLEAN_TEMP 170
@@ -698,7 +698,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 #ifdef Z_SIGMA_HOME
-	#define Z_SIGMA_HOME_X_POINT 61.5
+	#define Z_SIGMA_HOME_X_POINT 58
 	//#define Z_SIGMA_HOME_X_POINT 3
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
@@ -749,15 +749,15 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	//#define X_SIGMA_PROBE_2_LEFT_EXTR 3
 	#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 	
-	#define X_SIGMA_PROBE_3_LEFT_EXTR 248.5
+	#define X_SIGMA_PROBE_3_LEFT_EXTR 251
 	//#define X_SIGMA_PROBE_3_LEFT_EXTR 204
 	#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 	
 	//Right extruder probe point
-	#define X_SIGMA_PROBE_1_RIGHT_EXTR 248.5//254.5
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 251//254.5
 	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_RIGHT_EXTR 248.5//255
+	#define X_SIGMA_PROBE_2_RIGHT_EXTR 251//255
 	//#define X_SIGMA_PROBE_2_RIGHT_EXTR 204
 	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 	

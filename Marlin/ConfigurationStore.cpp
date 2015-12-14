@@ -38,7 +38,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 
-#define EEPROM_VERSION "V12"
+#define EEPROM_VERSION "V11"
 /*#ifdef DELTA
 	#undef EEPROM_VERSION
 	#define EEPROM_VERSION "V11"
@@ -227,6 +227,7 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOPAIR(" X ",extruder_offset[X_AXIS][1] );
 	 SERIAL_ECHOPAIR(" Y " ,extruder_offset[Y_AXIS][1]  );
 	 SERIAL_ECHOPAIR(" Z " ,extruder_offset[Z_AXIS][1]  );
+	 SERIAL_ECHOPAIR(" Z probe" ,zprobe_zoffset  );
 	 SERIAL_ECHOLN("");
 	
 	 SERIAL_ECHO_START;

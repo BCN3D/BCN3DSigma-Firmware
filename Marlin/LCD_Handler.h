@@ -196,7 +196,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					is_on_printing_screen=false;
 					card.sdprinting = false;
 					card.closefile();
-					
+					dobloking =false;
 					//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
 					quickStop();
 					
@@ -445,6 +445,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if(card.cardOK)
 					{
 						
+						dobloking = true;
 						setTargetBed(0);
 						setTargetHotend0(0);
 						setTargetHotend1(0);
@@ -1343,34 +1344,21 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 						genie.WriteStr(STRING_AXIS,"        Z AXIS");
+						
 											
 						home_axis_from_code(true,false,false);										
+						dobloking = false;
 						
 						enquecommand_P(PSTR("G43"));
-						flag_continue_calib = false;						
+						flag_continue_calib = false;								
 						
-						///IT HAS TO BE DONE BY SELECT Z0 LINE
-						/*changeTool(1);
-						st_synchronize();		
-						
-						
-						current_position[Z_AXIS] = 60;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);//move second extruder, bed and Y
-						st_synchronize();
-						
-						
-						current_position[X_AXIS] = 155;
-						current_position[Y_AXIS] = 0;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);//move second extruder, bed and Y
-						st_synchronize();
-						
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);*/
 					}	
 					else {
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
 						genie.WriteStr(STRING_AXIS,"        Z AXIS");
 						
 						home_axis_from_code(true,false,false);	
+						dobloking = false;
 						
 						enquecommand_P(PSTR("G43"));
 						st_synchronize();			
@@ -1641,26 +1629,26 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region CalibrationsXYZ
 				else if (Event.reportObject.index == BUTTON_X_LINE_SELECT1)
 				{
-				//char buffer[30];
-				float calculus = extruder_offset[X_AXIS][1] + 0.5;
-				Serial.print("Calculus:  ");
-				Serial.println(calculus);
-				//sprintf(buffer, "M218 T1 X%f",calculus); //
-				//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
-				//enquecommand(buffer);
-				extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
-				//enquecommand_P((PSTR("M218 T1 X-0.5")));
-				Config_StoreSettings(); //Store data
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				if(flag_full_calib){
-				//enquecommand_P(PSTR("G28"));
-				st_synchronize();
-				enquecommand_P(PSTR("G41"));
+					//char buffer[30];
+					float calculus = extruder_offset[X_AXIS][1] + 0.5;
+					Serial.print("Calculus:  ");
+					Serial.println(calculus);
+					//sprintf(buffer, "M218 T1 X%f",calculus); //
+					//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
+					//enquecommand(buffer);
+					extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+					//enquecommand_P((PSTR("M218 T1 X-0.5")));
+					Config_StoreSettings(); //Store data
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+					if(flag_full_calib){
+					//enquecommand_P(PSTR("G28"));
+					st_synchronize();
+					enquecommand_P(PSTR("G41"));
 				
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
-				genie.WriteStr(STRING_AXIS,"Y AXIS, Heating");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+					genie.WriteStr(STRING_AXIS,"Y AXIS, Heating");
 				
-				}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+					}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_X_LINE_SELECT2)
@@ -2201,6 +2189,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, RIGHT_EXTRUDER);//move first extruder
 										
+					dobloking = true;										
+										
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
 					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
 					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO to move on to \n the next EXTRUDER");
@@ -2247,6 +2237,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					st_synchronize();
 					current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, RIGHT_EXTRUDER);//move first extruder
+								
+					dobloking = true;
 										
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
 					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
@@ -2297,7 +2289,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					st_synchronize();
 					current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, RIGHT_EXTRUDER);//move first extruder
-										
+					
+					dobloking = true;		
+								
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
 					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
 					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO to move on to \n the next EXTRUDER");
@@ -2346,7 +2340,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					st_synchronize();
 					current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, RIGHT_EXTRUDER);//move first extruder
-										
+					
+					dobloking = true;	
+									
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
 					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
 					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO to move on to \n the next EXTRUDER");
@@ -2395,7 +2391,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					st_synchronize();
 					current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, RIGHT_EXTRUDER);//move first extruder
-										
+					
+					dobloking = true;	
+									
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
 					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
 					genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the right nozzle \n and press GO to move on to \n the next EXTRUDER");

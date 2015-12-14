@@ -276,6 +276,7 @@ Rapduch
 #pragma endregion temperatures
 
 bool home_made = false;
+bool dobloking = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
@@ -927,8 +928,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,0);				
 				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,0);
 			}
-			else{
-				Serial.println("estat 1");
+			else{				
 				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,1);
 				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,1);
 				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);				
@@ -1796,7 +1796,7 @@ void process_commands()
 		{
 			case 0: // G0 -> G1
 			case 1: // G1
-			if(Stopped == false) {
+			if(Stopped == false) {				
 				get_coordinates(); // For X Y Z E F
 				#ifdef FWRETRACT
 				if(autoretract_enabled)
@@ -2169,8 +2169,8 @@ void process_commands()
 			{
 				Serial.println("Starting X Calibration Wizard");
 				//1) Set temps and wait
-				setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP-5);
-				setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP-5);
+				setTargetHotend0(print_temp_l);
+				setTargetHotend1(print_temp_r);
 				setTargetBed(max(bed_temp_l,bed_temp_r)-5);
 				
 				while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-10) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-10)&& degBed()<(PLA_PREHEAT_HPB_TEMP-10)){ //Waiting to heat the extruder
@@ -2400,8 +2400,8 @@ void process_commands()
 			{
 				Serial.println("Starting Y Calibration Wizard");
 				//1) Set temps and wait
-				setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP-5);
-				setTargetHotend1(PLA_PREHEAT_HOTEND_TEMP-5);
+				setTargetHotend0(print_temp_l);
+				setTargetHotend1(print_temp_r);
 				setTargetBed(max(bed_temp_l,bed_temp_r)-5);
 				
 				while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-10) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-10) || degBed()<(PLA_PREHEAT_HPB_TEMP-10)){ //Waiting to heat the extruder
@@ -3138,11 +3138,11 @@ void process_commands()
 				
 				Serial.print("Zvalue after home:");
 				Serial.println(current_position[Z_AXIS]);
-				
+				dobloking= true;
 				float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
 				float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 				float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
-				
+				dobloking= false;
 				//feedrate=homing_feedrate[X_AXIS];
 				feedrate = XY_TRAVEL_SPEED;
 				current_position[X_AXIS]=x_home_pos(active_extruder)+8; current_position[Z_AXIS]+= 3;
@@ -3162,10 +3162,11 @@ void process_commands()
 				
 				//Probe at 3 arbitrary points
 				//probe left extruder
+				dobloking= true;
 				float z2_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_RIGHT_EXTR,Y_SIGMA_PROBE_3_RIGHT_EXTR, Z_RAISE_BEFORE_PROBING);
 				float z2_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_RIGHT_EXTR,Y_SIGMA_PROBE_2_RIGHT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 				float z2_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
-				
+				dobloking= false;
 				
 				
 				feedrate=homing_feedrate[Z_AXIS];
@@ -3359,6 +3360,7 @@ void process_commands()
 							manage_heater();
 						}
 						
+						
 						//MOVE EXTRUDERS
 						current_position[Z_AXIS] = 60;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, LEFT_EXTRUDER);//move bed
@@ -3366,15 +3368,14 @@ void process_commands()
 						current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
 						
-						
+						dobloking = true;						
 						
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
 						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
 						genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the left nozzle \n and press GO to move on to \n the next EXTRUDER");
 						flag_continue_calib = true;							
 					}
-					else{
-						
+					else{						
 						#ifdef SIGMA_TOUCH_SCREEN
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 						#endif
@@ -5832,6 +5833,7 @@ void process_commands()
 						}
 					}
 					#if EXTRUDERS > 1
+					
 					if(tmp_extruder != active_extruder) {
 					// Save current position to return to after applying extruder offset
 					//Rapduch toolchange
@@ -5895,6 +5897,7 @@ void process_commands()
 							active_extruder_parked = true;
 							delayed_move_time = 0;
 						}
+						
 					#else
 						// Offset extruder (only by XY)
 						int i;
@@ -6484,6 +6487,10 @@ void process_commands()
 						if(stepper_inactive_time)  {
 							if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
 							{
+								if(dobloking){
+									enable_x();
+									enable_y();
+								}
 								if(blocks_queued() == false) {
 									disable_x();
 									disable_y();

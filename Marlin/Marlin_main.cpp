@@ -3106,7 +3106,7 @@ void process_commands()
 				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 				
 				//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
-				current_position[X_AXIS] += 8;//x_home_pos(LEFT_EXTRUDER)+15;
+				current_position[X_AXIS] += 10;//x_home_pos(LEFT_EXTRUDER)+15;
 				feedrate=homing_feedrate[X_AXIS];
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 				///////st_synchronize();
@@ -3116,14 +3116,14 @@ void process_commands()
 				axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the right extruder
 				Serial.println(current_position[X_AXIS]);
 				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
-				current_position[X_AXIS]-=8;
+				current_position[X_AXIS]-=10;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				
 				//*********************************************************************		
 				//Now we can proceed to probe the first 3 points with the left extruder
 				active_extruder=LEFT_EXTRUDER;
 				axis_is_at_home(X_AXIS);
-				current_position[X_AXIS]+=8;
+				current_position[X_AXIS]+=10;
 				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]); // We are now at position
 				st_synchronize();
 				
@@ -3145,7 +3145,7 @@ void process_commands()
 				dobloking= false;
 				//feedrate=homing_feedrate[X_AXIS];
 				feedrate = XY_TRAVEL_SPEED;
-				current_position[X_AXIS]=x_home_pos(active_extruder)+8; current_position[Z_AXIS]+= 3;
+				current_position[X_AXIS]=x_home_pos(active_extruder)+10; current_position[Z_AXIS]+= 3;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 				/*feedrate=homing_feedrate[Z_AXIS];
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);*/
@@ -3156,7 +3156,7 @@ void process_commands()
 				
 				active_extruder=RIGHT_EXTRUDER;				
 				axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the right extruder
-				current_position[X_AXIS]-=8;				
+				current_position[X_AXIS]-=10;				
 				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
 				
 				
@@ -3174,7 +3174,7 @@ void process_commands()
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				//feedrate=homing_feedrate[X_AXIS];
 				feedrate = XY_TRAVEL_SPEED;
-				current_position[X_AXIS]=x_home_pos(active_extruder)-8;
+				current_position[X_AXIS]=x_home_pos(active_extruder)-10;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				feedrate=homing_feedrate[Z_AXIS];
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);

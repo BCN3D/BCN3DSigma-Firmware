@@ -272,6 +272,10 @@ Rapduch
 	int old_remove_temp_r;
 	int old_print_temp_r;
 	int old_bed_temp_r;
+	
+	int preheat_E0_value;
+	int preheat_E1_value;
+	int preheat_B_value;
 ///////////////////////////////////////////////////////////////////////
 #pragma endregion temperatures
 
@@ -770,6 +774,10 @@ void setup()
 	//enquecommand(cmd);
 	//enquecommand_P(PSTR("M24"));
 	#endif
+	
+	preheat_E0_value = print_temp_l;
+	preheat_E1_value = print_temp_r;
+	preheat_B_value = max(bed_temp_l,bed_temp_r);
 }
 
 

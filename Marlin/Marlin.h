@@ -324,4 +324,7 @@ extern int old_bed_temp_r;
 extern void PID_autotune_Save(float temp, int extruder, int ncycles);
 extern void Config_Reset_Calib();
 extern bool dobloking;
+extern int preheat_E0_value;
+extern int preheat_E1_value;
+extern int preheat_B_value;
 #endif

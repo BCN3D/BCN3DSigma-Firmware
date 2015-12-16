@@ -445,12 +445,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_SD_SELECTED ||  Event.reportObject.index == STRING_NAME_FILE)
 				{
 					if(card.cardOK)
-					{
-						
+					{						
 						dobloking = true;
 						setTargetBed(0);
 						setTargetHotend0(0);
 						setTargetHotend1(0);
+						log_prints++;
+						Config_StoreSettings();
 						//enquecommand_P(PSTR("T0"));
 						st_synchronize();
 						if (!card.filenameIsDir){ //If the filename is a gcode we start printing
@@ -1492,10 +1493,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PREHEAT_SET_BACK )
 				{
 					//Cooldown				
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_TEMP_MENU,0);
-					preheat_E0_value = print_temp_l;
-					preheat_E1_value = print_temp_r;
-					preheat_B_value = max(bed_temp_l,bed_temp_r);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_TEMP_MENU,0);					
 				}
 				#pragma endregion Preheat Settings
 				

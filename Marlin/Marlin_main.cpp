@@ -322,6 +322,13 @@ bool heatting = false;
 
 int bed_calibration_times = 0; //To control the number of bed calibration to available the skip option
 
+int log_prints;
+int log_hours_print;
+int log_prints_finished;
+int log_max_temp_l;
+int log_max_temp_r;
+int log_max_bed;
+
 // Extruder offset
 #if EXTRUDERS > 1
 	#ifndef DUAL_X_CARRIAGE
@@ -685,7 +692,13 @@ void setup()
 				delay(2500);
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
-					Config_RetrieveSettings();
+				log_prints = 0;
+				log_hours_print = 0;
+				log_prints_finished = 0;
+				log_max_temp_l = 0;
+				log_max_temp_r = 0;
+				log_max_bed =0;
+				Config_RetrieveSettings();
 			//}
 			//Turn the Display on (Contrast) - (Not needed but illustrates how)
 			/*for(int i = 0;i<16;i++){				
@@ -825,6 +838,7 @@ void loop()
 	manage_heater();
 	manage_inactivity();
 	checkHitEndstops();
+	checkMaxTemps();
 	
 	//lcd_update();
 	#ifdef SIGMA_TOUCH_SCREEN
@@ -858,9 +872,11 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	//static keyword specifies that the variable retains its state between calls to the function
 	static uint32_t waitPeriod = millis();
 	static uint32_t waitPeriod_p = millis();
+	static int count5s = 0;
 	//if(card.sdprinting && is_on_printing_screen)
 	if(card.sdprinting)
 	{
+		
 		if (millis() >= waitPeriod)
 		{
 			int tHotend=int(degHotend(0));
@@ -891,6 +907,12 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			genie.WriteStr(STRINGS_PRINTING_FEED,buffer);
 			
 			waitPeriod=5000+millis();	//Every 5s
+			count5s++;
+			if (count5s == 12*60){
+				count5s=0;
+				log_hours_print++;
+				Config_StoreSettings();
+			}
 		}		 
 	}
 	

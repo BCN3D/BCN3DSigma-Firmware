@@ -38,7 +38,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 
-#define EEPROM_VERSION "V11"
+#define EEPROM_VERSION "V12"
 /*#ifdef DELTA
 	#undef EEPROM_VERSION
 	#define EEPROM_VERSION "V11"
@@ -87,7 +87,7 @@ void Config_StoreSettings()
   //Extruder Offset
   EEPROM_WRITE_VAR(i,extruder_offset[X_AXIS][RIGHT_EXTRUDER]);
   EEPROM_WRITE_VAR(i,extruder_offset[Y_AXIS][RIGHT_EXTRUDER]);
-  EEPROM_WRITE_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
+  EEPROM_WRITE_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);   
   
   //Quick Start Guide
   //EEPROM_WRITE_VAR(i,quick_guide);
@@ -109,6 +109,7 @@ void Config_StoreSettings()
    EEPROM_WRITE_VAR(i,old_remove_temp_r);
    EEPROM_WRITE_VAR(i,old_bed_temp_r);
   
+  
   //Language
 //  EEPROM_WRITE_VAR(i,language);
 
@@ -120,13 +121,20 @@ void Config_StoreSettings()
 	EEPROM_WRITE_VAR(i,Kp[1]);
 	EEPROM_WRITE_VAR(i,Ki[1]);
 	EEPROM_WRITE_VAR(i,Kd[1]);
-  #else
+  /*#else
 		float dummy = 3000.0f;
     EEPROM_WRITE_VAR(i,dummy);
 		dummy = 0.0f;
     EEPROM_WRITE_VAR(i,dummy);
-    EEPROM_WRITE_VAR(i,dummy);
+    EEPROM_WRITE_VAR(i,dummy);*/  
   #endif
+  EEPROM_WRITE_VAR(i,log_prints);
+  EEPROM_WRITE_VAR(i,log_prints_finished);
+  EEPROM_WRITE_VAR(i,log_max_temp_l);
+  EEPROM_WRITE_VAR(i,log_max_temp_r);
+  EEPROM_WRITE_VAR(i,log_hours_print);
+  EEPROM_WRITE_VAR(i,log_max_bed);
+  
   #ifndef DOGLCD
     int lcd_contrast = 32;
   #endif
@@ -247,6 +255,19 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOPAIR(" R_BED " ,(float)bed_temp_r);
 	 SERIAL_ECHOPAIR(" R_PRINT " ,(float)print_temp_r);
 	 SERIAL_ECHOLN("");
+	 
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOLNPGM("LOG:");
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOPAIR(" prints ",(float)log_prints);
+	 SERIAL_ECHOPAIR(" hours print " ,(float)log_hours_print);
+	 SERIAL_ECHOPAIR(" prints finished " ,(float)log_prints_finished);
+	 SERIAL_ECHOPAIR(" max temp L " ,(float)log_max_temp_l);
+	 SERIAL_ECHOPAIR(" max temp R " ,(float)log_max_temp_r);
+	 SERIAL_ECHOPAIR(" max temp B " ,(float)log_max_bed);
+	 SERIAL_ECHOLN("");
+	 
+	 
 	} 
 #endif
 
@@ -303,6 +324,8 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,extruder_offset[Y_AXIS][RIGHT_EXTRUDER]);
 		EEPROM_READ_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
 		
+		
+		
 		//Quick Start Guide
 		//EEPROM_READ_VAR(i,quick_guide);
 		EEPROM_READ_VAR(i,print_temp_l);
@@ -321,13 +344,12 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,old_print_temp_r);
 		EEPROM_READ_VAR(i,old_insert_temp_r);
 		EEPROM_READ_VAR(i,old_remove_temp_r);
-		EEPROM_READ_VAR(i,old_bed_temp_r);
-		//Language
-//		EEPROM_READ_VAR(i,language);	
+		EEPROM_READ_VAR(i,old_bed_temp_r);	
 		
-        #ifndef PIDTEMP
-			//float Kp[2],Ki[2],Kd[2];
-        #endif
+		//Language
+//		EEPROM_READ_VAR(i,language);
+		
+         #ifdef PIDTEMP
         // do not need to scale PID values as the values in EEPROM are already scaled		
 			EEPROM_READ_VAR(i,Kp[0]);
 			EEPROM_READ_VAR(i,Ki[0]);
@@ -335,6 +357,15 @@ void Config_RetrieveSettings()
 			EEPROM_READ_VAR(i,Kp[1]);
 			EEPROM_READ_VAR(i,Ki[1]);
 			EEPROM_READ_VAR(i,Kd[1]);
+		#endif
+		
+		EEPROM_READ_VAR(i,log_prints);
+		EEPROM_READ_VAR(i,log_prints_finished);
+		EEPROM_READ_VAR(i,log_max_temp_l);
+		EEPROM_READ_VAR(i,log_max_temp_r);
+		EEPROM_READ_VAR(i,log_hours_print);
+		EEPROM_READ_VAR(i,log_max_bed);
+		
         #ifndef DOGLCD
         int lcd_contrast;
         #endif
@@ -481,6 +512,13 @@ void Config_Reset_Calib(){
 				Kc[1] = DEFAULT_Kc;
 			#endif//PID_ADD_EXTRUSION_RATE
 		#endif//PIDTEMP
+		/*log_hours_print = 0;
+		log_max_bed = 0;
+		log_max_temp_l = 0;
+		log_max_temp_r = 0;
+		log_prints = 0;
+		log_prints_finished = 0;*/
+		
 		SERIAL_ECHO_START;
 		SERIAL_ECHOLNPGM("Hardcoded Calib and PID Default Settings Loaded");
 };

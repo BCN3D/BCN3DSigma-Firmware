@@ -572,6 +572,22 @@ void checkExtruderAutoFans()
 
 #endif // any extruder auto fan pins set
 
+void checkMaxTemps(){
+	if ((degHotend(LEFT_EXTRUDER)>log_max_temp_l+5) && (degHotend(LEFT_EXTRUDER)>=190)){
+		 log_max_temp_l = degHotend(LEFT_EXTRUDER);
+		 Config_StoreSettings();
+	}
+	if ((degHotend(LEFT_EXTRUDER)>log_max_temp_r+5) && (degHotend(LEFT_EXTRUDER)>=190)){
+		log_max_temp_r = degHotend(LEFT_EXTRUDER);
+		Config_StoreSettings();
+	}
+	if ((degBed()>log_max_bed+5) && (degBed()>=45)){
+		log_max_bed = degBed();
+		Config_StoreSettings();
+	}
+	
+}
+
 void manage_heater()
 {
   float pid_input;
@@ -581,7 +597,7 @@ void manage_heater()
     return; 
 
   updateTemperaturesFromRawValues();
-
+	
   for(int e = 0; e < EXTRUDERS; e++) 
   {
 

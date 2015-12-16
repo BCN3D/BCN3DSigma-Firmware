@@ -323,8 +323,16 @@ extern int old_print_temp_r;
 extern int old_bed_temp_r;
 extern void PID_autotune_Save(float temp, int extruder, int ncycles);
 extern void Config_Reset_Calib();
+extern void Config_StoreSettings();
 extern bool dobloking;
 extern int preheat_E0_value;
 extern int preheat_E1_value;
 extern int preheat_B_value;
+extern int log_prints;
+extern int log_hours_print;
+extern int log_prints_finished;
+extern int log_max_temp_l;
+extern int log_max_temp_r;
+extern int log_max_bed;
+extern void checkMaxTemps();
 #endif

@@ -789,7 +789,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define SECOND_EXTRUDER_Y {150.5, 149.5, 150, 149}
 		
 		
-	#define X_CALIB_STARTING_X 125
+	#define X_CALIB_STARTING_X 117.5
 	#define X_CALIB_STARTING_Y 270
 #endif
 

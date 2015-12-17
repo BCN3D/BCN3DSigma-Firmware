@@ -208,8 +208,7 @@ Rapduch
 ************* SCARA End ***************
 
  M928 - Start SD logging (M928 filename.g) - ended by M29
- M999 - Restart after being stopped by error
- M998 - LEFT PRINT
+ M999 - Restart after being stopped by error 
 */
 
 //Stepper Movement Variables
@@ -2211,8 +2210,8 @@ void process_commands()
 				 
 				delay(5000);
 				//Raise for a layer of Z=0.2
-				current_position[Z_AXIS]=0.65; //0.5 + 0.15 per ajustar una bona alçada
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60 , active_extruder);
+				current_position[Z_AXIS]=0.4;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 10 , active_extruder);
 				
 				
 				//2)Extruder one prints
@@ -2235,7 +2234,7 @@ void process_commands()
 				}
 				//float mm_second_extruder[9] = {19.6, 19.7, 19.8, 19.9, 20 ,20.1 ,20.2, 20.3, 20.4};
 
-				float mm_each_extrusion = 10;
+				float mm_each_extrusion = 8;
 				float mm_left_offset = X_CALIB_STARTING_X;
 				
 				//int times = 9;
@@ -2244,100 +2243,72 @@ void process_commands()
 					if (i == 0){
 						
 						//draw borders
-						plan_buffer_line(current_position[X_AXIS],250+11+10, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
+						current_position[Y_AXIS]=275.5;
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
 						st_synchronize();
 						
-						plan_buffer_line(mm_left_offset-10,250+11+10, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);
+						current_position[X_AXIS]=197.5;
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);
 						st_synchronize();
 						
 						current_position[Z_AXIS]=0.2; //Move X and Z
-						plan_buffer_line(mm_left_offset-10,250+11+10, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);//Retrack
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);//Retrack
 						st_synchronize();
 						
 						current_position[E_AXIS]+=2; 
-						plan_buffer_line(mm_left_offset-10,250+11+10, current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Retrack
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Retrack
 						st_synchronize();
 						
-						current_position[E_AXIS]+=((110)*0.33*current_position[Z_AXIS]*10/55.119)*2;
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*10),250+11+10, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
+						current_position[X_AXIS]=109.5; current_position[E_AXIS]+=((197.5-109.5)*0.33*current_position[Z_AXIS]*10/55.119)*2;
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
 						st_synchronize();
-						current_position[E_AXIS]+=((271-139)*0.33*current_position[Z_AXIS]*10/55.119)*2;
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*10),149-10, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
-						st_synchronize();
-						current_position[E_AXIS]+=((110)*0.33*current_position[Z_AXIS]*10/55.119)*2;
-						plan_buffer_line(mm_left_offset-10,149-10, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
-						st_synchronize();
-						current_position[E_AXIS]+=((271-139)*0.33*current_position[Z_AXIS]*10/55.119)*2;
-						plan_buffer_line(mm_left_offset-10,250+11+10, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
-						st_synchronize();
+						
+						current_position[Y_AXIS]=191.5; current_position[E_AXIS]+=((275.5-191.5)*0.33*current_position[Z_AXIS]*10/55.119)*2;
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
+						st_synchronize();					
+						
 						current_position[E_AXIS]-=2;
-						plan_buffer_line(mm_left_offset-10,250+11+10, current_position[Z_AXIS],current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
-						st_synchronize();
-						current_position[Z_AXIS]=0.2;
-						plan_buffer_line(mm_left_offset-10,250+11+10, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS]/2 , active_extruder);//Move X and Z
-						st_synchronize();
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 206, current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/ , active_extruder);						
-						st_synchronize();
-						//draw a one
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
+						st_synchronize();					
 						
-						/*plan_buffer_line(mm_left_offset+(mm_each_extrusion*i),250+11, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*i),250+5, current_position[Z_AXIS], current_position[E_AXIS]+=1, max_feedrate[X_AXIS]/2 , active_extruder);
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*i),250+5, current_position[Z_AXIS], current_position[E_AXIS]-=3, max_feedrate[X_AXIS]/2 , active_extruder);
-						st_synchronize();*/
-					}
-					/*if (i ==9){
-						//draw a one
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*i)-1, 250+11,current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*i)-1, 250+5, current_position[Z_AXIS], current_position[E_AXIS]+=1, max_feedrate[X_AXIS]/2 , active_extruder);
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*i)-1, 250+5, current_position[Z_AXIS], current_position[E_AXIS]-=3, max_feedrate[X_AXIS]/2 , active_extruder);
-						st_synchronize();
-						//draw a zero
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*i)+4,250+11, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*i)+2,250+11,current_position[Z_AXIS], current_position[E_AXIS]+=1, max_feedrate[X_AXIS]/2 , active_extruder);
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*i)+2,250+5, current_position[Z_AXIS], current_position[E_AXIS]+=1, max_feedrate[X_AXIS]/2 , active_extruder);
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*i)+4,250+5, current_position[Z_AXIS], current_position[E_AXIS]+=1, max_feedrate[X_AXIS]/2 , active_extruder);
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*i)+4,250+11, current_position[Z_AXIS], current_position[E_AXIS]+=1, max_feedrate[X_AXIS]/2 , active_extruder);
-						plan_buffer_line(mm_left_offset+(mm_each_extrusion*i)+4,250+11, current_position[Z_AXIS], current_position[E_AXIS]-=3, max_feedrate[X_AXIS]/2 , active_extruder);
-						st_synchronize();
-					}*/
-					current_position[E_AXIS]+=2; //Move the retracked space
-					plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 206, current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/ , active_extruder);					
+						/*current_position[X_AXIS]= mm_left_offset+(mm_each_extrusion*i); current_position[Y_AXIS]=271.5;
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100 , active_extruder);						
+						st_synchronize();*/		
+						current_position[X_AXIS]=mm_left_offset+(mm_each_extrusion*i);current_position[Y_AXIS]=234;  //Move the retracked space
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/ , active_extruder);
+						st_synchronize();	
+					}								
+					current_position[E_AXIS]+=2;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100, active_extruder);//Move Y and extrude
 					st_synchronize();
 					
-					current_position[E_AXIS]+=((261-206)*0.33*current_position[Z_AXIS]*10/55.119)*1.75;
-					plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 261, current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Move Y and extrude
-					
+					current_position[X_AXIS]=mm_left_offset+(mm_each_extrusion*i);current_position[Y_AXIS]=271.5;current_position[E_AXIS]+=((271.5-234)*0.33*current_position[Z_AXIS]*10/55.119)*1.75;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Move Y and extrude
+					st_synchronize();	
+								
 					current_position[E_AXIS]-=2;
-					plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 261, current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Move Y and extrude
-					
-					if (i != 9) plan_buffer_line(mm_left_offset+(mm_each_extrusion*(i+1)), 206, current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//Retrack
-					else plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 261, current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//Retrack
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Move Y and extrude
 					st_synchronize();
-				}
-				
-				current_position[X_AXIS]=mm_left_offset+(NUM_LINES-1)*mm_each_extrusion;
-				current_position[Y_AXIS]=261;				
-				current_position[E_AXIS]-=2;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//MORE Retrack
+					
+					if (i != 9) {
+						current_position[X_AXIS]=mm_left_offset+(mm_each_extrusion*(i+1));current_position[Y_AXIS]=234;
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//Retrack
+						st_synchronize();
+					}					
+				}			
 				
 				current_position[Z_AXIS]+=0.2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//MORE Retrack
 				
-				
-				
 				//2)Extruder 2 prints with corrections
-
-				
 				current_position[X_AXIS]= x_home_pos(LEFT_EXTRUDER);				
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//MORE Retrack
 				current_position[Z_AXIS]-= 0.2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//MORE Retrack
-
 				
-				changeTool(1);
-
+				//changeTool(1);
 				
-				current_position[Z_AXIS]=0.5;
+				current_position[Z_AXIS]=0.4;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1000/60 , active_extruder); //Raise for a layer of Z=0.2
 				//Purge & up
 				current_position[E_AXIS]+=15;
@@ -2348,7 +2319,8 @@ void process_commands()
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retrack
 				st_synchronize();				
 
-				plan_buffer_line(current_position[X_AXIS], 149-5, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder); //Move Y and Z
+				current_position[Y_AXIS]=275.5;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder); //Move Y and Z
 				st_synchronize();
 				
 				//Second Extruder (correcting)
@@ -2356,58 +2328,60 @@ void process_commands()
 				{
 					if (i == 0) {
 						
-						plan_buffer_line(mm_left_offset-5,149-5, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);
+						current_position[X_AXIS] = 197.5;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);
 						st_synchronize();
 						
 						current_position[Z_AXIS]=0.2;
-						plan_buffer_line(mm_left_offset-5,149-5, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS]/2 , active_extruder);
 						st_synchronize();
 						
-						current_position[E_AXIS]+=4;
-						plan_buffer_line(mm_left_offset-5,149-5, current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60 , active_extruder);
+						current_position[E_AXIS]+=2;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60 , active_extruder);
 						st_synchronize();		
 										
-						current_position[E_AXIS]+=((100)*0.33*current_position[Z_AXIS]*10/55.119)*2;
-						plan_buffer_line(mm_left_offset-5+(mm_each_extrusion*10),149-5, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
-						st_synchronize();
-						current_position[E_AXIS]+=((122)*0.33*current_position[Z_AXIS]*10/55.119)*2;
-						plan_buffer_line(mm_left_offset-5+(mm_each_extrusion*10),250+11+5, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
-						st_synchronize();
-						current_position[E_AXIS]+=((100)*0.33*current_position[Z_AXIS]*10/55.119)*2;
-						plan_buffer_line(mm_left_offset-5,250+11+5, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
-						st_synchronize();
-						current_position[E_AXIS]+=((122)*0.33*current_position[Z_AXIS]*10/55.119)*2;
-						plan_buffer_line(mm_left_offset-5,149-5, current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
-						st_synchronize();
-						current_position[E_AXIS]-=2;
-						plan_buffer_line(mm_left_offset-5,149-5, current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder); //Move X
-						st_synchronize();
-						current_position[Z_AXIS]=0.2;
-						plan_buffer_line(mm_left_offset-5,149-5, current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS]/2 , active_extruder); //Move X
+						current_position[Y_AXIS] = 191.5;current_position[E_AXIS]+=((275.5-191.5)*0.33*current_position[Z_AXIS]*10/55.119)*2;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
 						st_synchronize();
 						
-						plan_buffer_line(mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))), 204, current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/ , active_extruder); //Move the retracked space						
+						
+						current_position[X_AXIS] = 109.5;current_position[E_AXIS]+=((197.5-109.5)*0.33*current_position[Z_AXIS]*10/55.119)*2;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1500/60 , active_extruder);
+						st_synchronize();
+						
+						current_position[E_AXIS]-=2;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder); //Move X
+						st_synchronize();
+						
+						current_position[Z_AXIS]=0.2;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS]/2 , active_extruder); //Move X
+						st_synchronize();
+						
+						current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i+1))); current_position[Y_AXIS]= 233;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/ , active_extruder); //Move the retracked space						
 						st_synchronize();
 					}
+					
 					current_position[E_AXIS]+=2;
-					plan_buffer_line(mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))), 204, current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/ , active_extruder); //Move the retracked space
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/ , active_extruder); //Move the retracked space
 					st_synchronize(); 
 									
-					current_position[E_AXIS]+=((204-149)*0.33*current_position[Z_AXIS]*10/55.119)*1.75;
-					plan_buffer_line(mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))), 149, current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Move Y and extrude
+					current_position[Y_AXIS]= 195.5; current_position[X_AXIS]=mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i)));
+					current_position[E_AXIS]+=((233-195.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.75;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1500/60, active_extruder);//Move Y and extrude
+					st_synchronize();
 					
 					current_position[E_AXIS]-=2;
-					plan_buffer_line(mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))), 149, current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Move Y and extrude
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Move Y and extrude
+					st_synchronize();
 					
-					if (i != 9) plan_buffer_line(mm_left_offset+(mm_second_extruder[i+1]+(mm_each_extrusion*(i+1))), 204, current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//Retrack
-					else plan_buffer_line(mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))), 149, current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);
-					//plan_buffer_line(mm_left_offset+(mm_each_extrusion*i), 150, current_position[Z_AXIS]+5, current_position[E_AXIS], 1500/60, active_extruder);//Lift Z
-					st_synchronize();	
-				}
-				current_position[X_AXIS]=mm_left_offset+(mm_second_extruder[NUM_LINES-1]+(mm_each_extrusion*(NUM_LINES-1)));
-				current_position[Y_AXIS]=149;
-				current_position[E_AXIS]-=2;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);
+					if (i != 9){
+						current_position[Y_AXIS]= 233; current_position[X_AXIS]=mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i+1)));
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//Retrack
+						st_synchronize();
+					}					
+				}				
+				
 				current_position[Z_AXIS]+=0.2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);
 				
@@ -5837,11 +5811,7 @@ void process_commands()
 						Config_StoreSettings();
 					}
 					break;*/
-					case 998:
-					{
-						right_test_print_code();
-					}
-					break;
+					
 					case 999: // M999: Restart after being stopped
 					Stopped = false;
 					lcd_reset_alert_level();

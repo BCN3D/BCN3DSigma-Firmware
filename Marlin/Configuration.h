@@ -26,7 +26,7 @@
 //
 //This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
-#define VERSION_STRING  "01-1.1.3_c"
+#define VERSION_STRING  "01-1.1.3_d"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
@@ -790,7 +790,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		
 		
 	#define X_CALIB_STARTING_X 117.5
-	#define X_CALIB_STARTING_Y 270
+	#define X_CALIB_STARTING_Y 99.5
 #endif
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).

@@ -2159,10 +2159,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					zprobe_zoffset+=0.05;
 					Config_StoreSettings(); //Store changes
 					
-					changeTool(1);
-					
-					/*enquecommand_P(PSTR("G43"));
-					st_synchronize();*/	
+					changeTool(1);				
 					
 					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
@@ -2181,7 +2178,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					home_axis_from_code(true,true,true);
 					//changeTool(LEFT_EXTRUDER);
 					
-					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
 						
 						manage_heater();
 					}
@@ -2210,8 +2207,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					changeTool(1);
 					
-					/*enquecommand_P(PSTR("G43"));
-					st_synchronize();*/	
 					
 					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
@@ -2230,7 +2225,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					home_axis_from_code(true,true,true);
 					//changeTool(LEFT_EXTRUDER);
 					
-					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
 						
 						manage_heater();
 					}
@@ -2282,7 +2277,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					home_axis_from_code(true,true,true);
 					//changeTool(LEFT_EXTRUDER);
 					
-					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
 						
 						manage_heater();
 					}
@@ -2333,7 +2328,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					home_axis_from_code(true,true,true);
 					//changeTool(LEFT_EXTRUDER);
 					
-					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
 						
 						manage_heater();
 					}
@@ -2384,7 +2379,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					home_axis_from_code(true,true,true);
 					//changeTool(LEFT_EXTRUDER);
 					
-					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
 						
 						manage_heater();
 					}

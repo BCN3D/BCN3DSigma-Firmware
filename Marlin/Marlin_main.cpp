@@ -705,14 +705,9 @@ void setup()
 			/*for(int i = 0;i<16;i++){				
 				genie.WriteContrast(i);	
 				delay(1500);
-			}*/
-			
+			}*/			
 		#endif	
-
-
 	#endif
-
-	
 	
 	/*//Enabling RELE ( Stepper Drivers Power )
 	#if MOTHERBOARD==BCN3D_BOARD //BCNElectronics v1
@@ -735,8 +730,6 @@ void setup()
 	analogWrite(GREEN,255);
 	analogWrite(BLUE,255);
 	#endif*/
-	
-
 	tp_init();    // Initialize temperature loop
 	plan_init();  // Initialize planner;
 	watchdog_init();
@@ -3774,7 +3767,7 @@ void process_commands()
 					relative_mode = false;
 					break;
 					case 91: // G91
-					relative_mode = true;
+						relative_mode = true;
 					break;
 					case 92: // G92
 					if(!code_seen(axis_codes[E_AXIS]))
@@ -5486,17 +5479,17 @@ void process_commands()
 
 					case 500: // M500 Store settings in EEPROM
 					{
-					Config_StoreSettings();
+						Config_StoreSettings();
 					}
 					break;
 					case 501: // M501 Read settings from EEPROM
 					{
-					Config_RetrieveSettings();
+						Config_RetrieveSettings();
 					}
 					break;
 					case 502: // M502 Revert to default settings
 					{
-					Config_ResetDefault();
+						Config_ResetDefault();
 					}
 					break;
 					case 503: // M503 print settings currently in memory
@@ -5515,6 +5508,7 @@ void process_commands()
 						int input = 0;
 						if (code_seen('P')) input = code_value();
 						Config_Reset_Statistics(input);
+						Config_StoreSettings();
 					}
 					break;
 					#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
@@ -5901,9 +5895,7 @@ void process_commands()
 						// Offset extruder (only by XY)
 						int i;
 						for(i = 0; i < 2; i++) {
-							current_position[i] = current_position[i] -
-							extruder_offset[i][active_extruder] +
-							extruder_offset[i][tmp_extruder];
+							current_position[i] = current_position[i] -	extruder_offset[i][active_extruder] + extruder_offset[i][tmp_extruder];
 						}
 						// Set the new active extruder and position
 						active_extruder = tmp_extruder;

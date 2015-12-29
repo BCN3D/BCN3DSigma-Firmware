@@ -512,25 +512,20 @@ void Config_Reset_Calib(){
 				Kc[1] = DEFAULT_Kc;
 			#endif//PID_ADD_EXTRUSION_RATE
 		#endif//PIDTEMP
-		/*log_hours_print = 0;
-		log_max_bed = 0;
-		log_max_temp_l = 0;
-		log_max_temp_r = 0;
-		log_prints = 0;
-		log_prints_finished = 0;*/
 		
 		SERIAL_ECHO_START;
 		SERIAL_ECHOLNPGM("Hardcoded Calib and PID Default Settings Loaded");
 }
 
 void Config_Reset_Statistics(int data){
-	if (data == 123456){
+	
+	if (data == 1234){
 		log_hours_print = 0;
 		log_max_bed = 0;
 		log_max_temp_l = 0;
 		log_max_temp_r = 0;
 		log_prints = 0;
 		log_prints_finished = 0;
-	}
-	Serial.println("STATISTICS RESET");
+		Serial.println("STATISTICS RESET");
+	}	
 }

@@ -577,8 +577,8 @@ void checkMaxTemps(){
 		 log_max_temp_l = degHotend(LEFT_EXTRUDER);
 		 Config_StoreSettings();
 	}
-	if ((degHotend(LEFT_EXTRUDER)>log_max_temp_r+5) && (degHotend(LEFT_EXTRUDER)>=190)){
-		log_max_temp_r = degHotend(LEFT_EXTRUDER);
+	if ((degHotend(RIGHT_EXTRUDER)>log_max_temp_r+5) && (degHotend(RIGHT_EXTRUDER)>=190)){
+		log_max_temp_r = degHotend(RIGHT_EXTRUDER);
 		Config_StoreSettings();
 	}
 	if ((degBed()>log_max_bed+5) && (degBed()>=45)){

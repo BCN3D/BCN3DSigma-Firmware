@@ -10,32 +10,32 @@
 #define TOUCH_SCREEN_DEFINITIONS_H_
 #pragma region FORMS
 //Form
-//without form declared///////////////////////////////
+//without form declared
 #define BUTTON_STOP_YES						1
 #define BUTTON_COOLDOWN_OK					34
 #define BUTTON_CHANGE_EXTRUDER				63
 #define BUTTON_COOLDOWN_OK					34
 #define BUTTON_COOLDOWN_CANCEL				74
-#define STRING_VERSION								3
-/////////////////////////////////////////////////////
+#define STRING_VERSION							3
+////////////////////////////////////			/////////
 
-#define FORM_SDFILES								2
-	#define STRING_NAME_FILE				1
-	#define BUTTON_SD_SELECTED				15
-	#define BUTTON_SD_LEFT					14
-	#define BUTTON_SD_RIGHT					5	
+#define FORM_SDFILES							2
+	#define STRING_NAME_FILE							1
+	#define BUTTON_SD_SELECTED							15
+	#define BUTTON_SD_LEFT								14
+	#define BUTTON_SD_RIGHT								5	
 #define FORM_REDO_X_CAB							3
-	#define BUTTON_REDO_LEFT_CAB			27
-	#define BUTTON_REDO_RIGHT_CAB			28
-	#define BUTTON_REDO_X_CAB				29
-#define FORM_UTILITIES								4	
-#define FORM_MAIN_SCREEN							5	
-#define FORM_FILAMENT								6
+	#define BUTTON_REDO_LEFT_CAB						27
+	#define BUTTON_REDO_RIGHT_CAB						28
+	#define BUTTON_REDO_X_CAB							29
+#define FORM_UTILITIES							4	
+#define FORM_MAIN_SCREEN						5	
+#define FORM_FILAMENT							6
 	#define	BUTTON_FILAMENT_BACK			0
 	#define	BUTTON_PURGE					159
 	#define BUTTON_INSERT_FIL				2
 	#define BUTTON_REMOVE_FIL				50
-#define FORM_INFO_FIL_INSERTED						7
+#define FORM_INFO_FIL_INSERTED		7
 	#define BUTTON_INFO_FIL_INSERTED		10
 	#define BACKBUTTON_INFO_FIL_INSERTED	49
 	#define BACKBUTTON_INSERT				49
@@ -91,6 +91,7 @@
 	#define STRING_FILAMENT					11
 	#define	BUTTON_INSERT					52
 	#define	BUTTON_REMOVE					52
+	//#define BUTTON_INFO_PLACE_FIL			52
 #define FORM_INSERT_FIL								19
 #define FORM_REMOVE_FIL								19
 #define FORM_PURGE_FIL								19
@@ -132,14 +133,13 @@
 	#define STRING_PREHEAT_SET_NOZZ1		43
 	#define STRING_PREHEAT_SET_NOZZ2		44
 	#define STRING_PREHEAT_SET_BED			45
-	#define BUTTON_PREHEAT_SET_NOZZ0_UP		84
+	#define BUTTON_PREHEAT_SET_NOZZ1_UP		84
 	#define BUTTON_PREHEAT_SET_BED_UP		85
-	#define BUTTON_PREHEAT_SET_NOZZ1_UP		86
-	#define BUTTON_PREHEAT_SET_NOZZ0_DOWN	87
+	#define BUTTON_PREHEAT_SET_NOZZ2_UP		86
+	#define BUTTON_PREHEAT_SET_NOZZ1_DOWN	87
 	#define BUTTON_PREHEAT_SET_BED_DOWN		88
-	#define BUTTON_PREHEAT_SET_NOZZ1_DOWN	89
+	#define BUTTON_PREHEAT_SET_NOZZ2_DOWN	89
 	#define BUTTON_PREHEAT_SET_BACK			91
-	#define BUTTON_PREHEAT_ACCEPT			90
 #define FORM_CALIB_BED_SCREW1						30
 	#define BUTTON_BED_CALIB_SW2			93
 	#define USERIMAGE_SCREW1				3	
@@ -239,7 +239,10 @@
 	#define BUTTON_PRINT_SET_NOZZ2_DOWN		169
 	#define BUTTON_PRINT_SET_BED_UP			164
 	#define BUTTON_PRINT_SET_BED_DOWN		168
-	
+//#define FORM_WELCOME				
+//#define FORM_QUICK_MAIN			
+//#define FORM_QUICK_CALIBRATE		
+//#define FORM_QUICK_RIGHT	
 #pragma endregion FORMS
 
 

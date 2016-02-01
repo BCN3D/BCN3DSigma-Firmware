@@ -841,7 +841,7 @@ static void lcd_control_temperature_menu()
     MENU_ITEM_EDIT(float32, MSG_FACTOR, &autotemp_factor, 0.0, 1.0);
 #endif
 #ifdef PIDTEMP
-    MENU_ITEM_EDIT(float52, MSG_PID_P, &Kp, 1, 9990);
+    MENU_ITEM_EDIT(float52, MSG_PID_P, &Kp[0], 1, 9990);
     // i is typically a small value so allows values below 1
     MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I, &raw_Ki, 0.01, 9990, copy_and_scalePID_i);
     MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D, &raw_Kd, 1, 9990, copy_and_scalePID_d);
@@ -1125,7 +1125,7 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01)
     lcd_move_y();
 	}
 	static void reprapworld_keypad_move_home() {
-		enquecommand_P((PSTR("G28"))); // move all axis home
+		home_axis_from_code(true,true,true); // move all axis home
 	}
 #endif
 

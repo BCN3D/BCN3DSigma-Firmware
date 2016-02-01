@@ -208,6 +208,8 @@ void CardReader::startFileprint()
 {
   if(cardOK)
   {
+	  Serial.print("zprobe: ");
+	  Serial.println(zprobe_zoffset);
     sdprinting = true;
 	//Rapduch
 	sdispaused = false;
@@ -619,6 +621,9 @@ void CardReader::updir()
 
 void CardReader::printingHasFinished()
 {
+	dobloking=false;
+	log_prints_finished++;
+	Config_StoreSettings();
 	enquecommand_P(PSTR("M107"));	
     st_synchronize();
     if(file_subcall_ctr>0) //heading up to a parent file that called current as a procedure.

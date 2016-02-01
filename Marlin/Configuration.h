@@ -3,8 +3,8 @@
 
 
 ////////////////////////////////PROTOSIGMA///////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Which variables has been affected
-//SIGMA_Z_HOME_TRAVEL_SPEED , XY_SIGMA_TRAVEL_SPEED, HOMING_FEEDRATE, DEFAULT_AXIS_STEPS_PER_UNIT, DEFAULT_MAX_FEEDRATE, DEFAULT_MAX_ACCELERATION,   
+//Which variables has been affected in the firmware to DHUB machines
+//SIGMA_Z_HOME_TRAVEL_SPEED , XY_SIGMA_TRAVEL_SPEED, HOMING_FEEDRATE, DEFAULT_AXIS_STEPS_PER_UNIT, DEFAULT_MAX_FEEDRATE, DEFAULT_MAX_ACCELERATION, X_MAX_POS   
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // This configuration file contains the basic settings.
@@ -24,9 +24,9 @@
 // For a Delta printer replace the configuration files with the files in the
 // example_configurations/SCARA directory.
 //
-//This is the version declaration for Sigma, v followed by '_' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
+//This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
-#define VERSION_STRING  "01-1.0.0"
+#define VERSION_STRING  "01-1.1.3"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
@@ -193,17 +193,17 @@
 #define	PLA_INSERT_TEMP			220
 #define	PLA_REMOVE_TEMP			170
 #define	PLA_PRINT_TEMP			215
-#define PLA_BED_TEMP			50
+#define PLA_BED_TEMP			65
 
-#define	ABS_INSERT_TEMP			245
-#define	ABS_REMOVE_TEMP			220
-#define	ABS_PRINT_TEMP			245
-#define ABS_BED_TEMP			70
+#define	ABS_INSERT_TEMP			265
+#define	ABS_REMOVE_TEMP			265
+#define	ABS_PRINT_TEMP			265
+#define ABS_BED_TEMP			90
 
 #define	PVA_INSERT_TEMP			200
 #define	PVA_REMOVE_TEMP			170
 #define	PVA_PRINT_TEMP			190
-#define PVA_BED_TEMP			50
+#define PVA_BED_TEMP			65
 
 
 #define EXTRUDER_LEFT_CLEAN_TEMP 170
@@ -248,17 +248,18 @@
 // Ultimaker
 
 #if MOTHERBOARD == MEGATRONICS_V3
-#ifdef PROTO1
-	 #define  DEFAULT_Kp 21.68
-	 #define  DEFAULT_Ki 2.2
-	 #define  DEFAULT_Kd 52.84
-#endif
+	#ifdef PROTO1
+	#define  DEFAULT_Kp 15.16
+	#define  DEFAULT_Ki 1.16
+	#define  DEFAULT_Kd 49.38
+	
+	#endif
 
-#ifdef PROTO2
-	 #define  DEFAULT_Kp 23.12
-	 #define  DEFAULT_Ki 2.12
-	 //#define  DEFAULT_Kd 62.98
-#endif
+	#ifdef PROTO2
+		 #define  DEFAULT_Kp 23.12
+		 #define  DEFAULT_Ki 2.12
+		 //#define  DEFAULT_Kd 62.98
+	#endif
 #endif
 
 
@@ -271,12 +272,11 @@
 	//#define  DEFAULT_Ki 1.17
 	//#define  DEFAULT_Kd 58.05
 	#define  DEFAULT_Kp  15.16
-	#define  DEFAULT_Ki 1.16
-	#define  DEFAULT_Kd 49.38
-	
-#endif
-#endif // PIDTEMP
+	#define  DEFAULT_Ki  1.16
+	#define  DEFAULT_Kd  49.38
 
+#endif						
+#endif // PIDTEMP
 // Bed Temperature Control
 // Select PID or bang-bang with PIDTEMPBED. If bang-bang, BED_LIMIT_SWITCHING will enable hysteresis
 //
@@ -667,7 +667,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define SIGMA_BED_AUTOCALIB
 
 //Quick guide control
-#define DEFAULT_QUICK_GUIDE false;
+//#define DEFAULT_QUICK_GUIDE false;
 #define DEFAULT_PRINT_TEMP  PLA_PRINT_TEMP;
 #define DEFAULT_INSERT_TEMP PLA_INSERT_TEMP;
 #define DEFAULT_REMOVE_TEMP PLA_REMOVE_TEMP;
@@ -680,7 +680,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //Rapduch
 //Insert Filament parameters
-#define BOWDEN_LENGTH 860
+#define BOWDEN_LENGTH 875
 #define EXTRUDER_LENGTH 50
 #define INSERT_FAST_SPEED 5000	
 #define INSERT_SLOW_SPEED 150
@@ -698,7 +698,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 #ifdef Z_SIGMA_HOME
-	#define Z_SIGMA_HOME_X_POINT 55.5
+	#define Z_SIGMA_HOME_X_POINT 58
 	//#define Z_SIGMA_HOME_X_POINT 3
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
@@ -731,37 +731,37 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#endif
 	
 	#if MOTHERBOARD == BCN3D_BOARD
-		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  18.5//20
+		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  17//20
 		#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
 		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  2.9//2.80//3.4 //It is negative, it is compensated
 	#endif
 	
-	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-17.5
+	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-13.5
 	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
 	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//2.90
 	
 	//Left extruder probe point
-	#define X_SIGMA_PROBE_1_LEFT_EXTR 55.5
+	#define X_SIGMA_PROBE_1_LEFT_EXTR 58
 	//#define X_SIGMA_PROBE_1_LEFT_EXTR 3
 	#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_LEFT_EXTR 55.5
+	#define X_SIGMA_PROBE_2_LEFT_EXTR 58
 	//#define X_SIGMA_PROBE_2_LEFT_EXTR 3
 	#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 	
-	#define X_SIGMA_PROBE_3_LEFT_EXTR 249
+	#define X_SIGMA_PROBE_3_LEFT_EXTR 251
 	//#define X_SIGMA_PROBE_3_LEFT_EXTR 204
 	#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 	
 	//Right extruder probe point
-	#define X_SIGMA_PROBE_1_RIGHT_EXTR 249//254.5
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 251//254.5
 	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_RIGHT_EXTR 249//255
+	#define X_SIGMA_PROBE_2_RIGHT_EXTR 251//255
 	//#define X_SIGMA_PROBE_2_RIGHT_EXTR 204
 	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 	
-	#define X_SIGMA_PROBE_3_RIGHT_EXTR 55.5
+	#define X_SIGMA_PROBE_3_RIGHT_EXTR 58
 	//#define X_SIGMA_PROBE_3_RIGHT_EXTR 3
 	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
 #endif
@@ -789,8 +789,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define SECOND_EXTRUDER_Y {150.5, 149.5, 150, 149}
 		
 		
-	#define X_CALIB_STARTING_X 125
-	#define X_CALIB_STARTING_Y 270
+	#define X_CALIB_STARTING_X 117.5
+	#define X_CALIB_STARTING_Y 99.5
 #endif
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).

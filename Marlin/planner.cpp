@@ -480,10 +480,10 @@ void check_axes_activity()
       block_index = (block_index+1) & (BLOCK_BUFFER_SIZE - 1);
     }
   }
-  if((DISABLE_X) && (x_active == 0)) disable_x();
-  if((DISABLE_Y) && (y_active == 0)) disable_y();
-  if((DISABLE_Z) && (z_active == 0)) disable_z();
-  if((DISABLE_E) && (e_active == 0))
+  if((DISABLE_X) && (x_active == 0) && (!dobloking)) disable_x();
+  if((DISABLE_Y) && (y_active == 0) && (!dobloking)) disable_y();
+  if((DISABLE_Z) && (z_active == 0) && (!dobloking)) disable_z();
+  if((DISABLE_E) && (e_active == 0) && (!dobloking))
   {
     disable_e0();
     disable_e1();

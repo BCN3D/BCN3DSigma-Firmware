@@ -51,12 +51,12 @@ float current_temperature_bed = 0.0;
   float redundant_temperature = 0.0;
 #endif
 #ifdef PIDTEMP
-  float Kp=DEFAULT_Kp;
-  float Ki=(DEFAULT_Ki*PID_dT);
-  float Kd=(DEFAULT_Kd/PID_dT);
-  #ifdef PID_ADD_EXTRUSION_RATE
-    float Kc=DEFAULT_Kc;
-  #endif
+		float Kp[2]={DEFAULT_Kp,DEFAULT_Kp};
+		float Ki[2]={(DEFAULT_Ki*PID_dT,DEFAULT_Ki*PID_dT)};
+		float Kd[2]={(DEFAULT_Kd/PID_dT,DEFAULT_Kd/PID_dT)};	
+		#ifdef PID_ADD_EXTRUSION_RATE
+			float Kc[2]={DEFAULT_Kc,DEFAULT_Kc};
+		#endif
 #endif //PIDTEMP
 
 #ifdef PIDTEMPBED
@@ -324,17 +324,174 @@ void PID_autotune(float temp, int extruder, int ncycles)
 	#endif
   }
 }
+void PID_autotune_Save(float temp, int extruder, int ncycles)
+{
+  float input = 0.0;
+  int cycles=0;
+  bool heating = true;
+
+  unsigned long temp_millis = millis();
+  unsigned long t1=temp_millis;
+  unsigned long t2=temp_millis;
+  long t_high = 0;
+  long t_low = 0;
+
+  long bias, d;
+  float Ku, Tu;
+  //float Kp, Ki, Kd;
+  float max = 0, min = 10000;
+
+  if ((extruder >= EXTRUDERS)
+  #if (TEMP_BED_PIN <= -1)
+       ||(extruder < 0)
+  #endif
+       ){
+          SERIAL_ECHOLN("PID Autotune failed. Bad extruder number.");
+          return;
+        }
+	
+  SERIAL_ECHOLN("PID Autotune start");
+  
+  disable_heater(); // switch off all heaters.
+
+  if (extruder<0)
+  {
+     soft_pwm_bed = (MAX_BED_POWER)/2;
+     bias = d = (MAX_BED_POWER)/2;
+   }
+   else
+   {
+     soft_pwm[extruder] = (PID_MAX)/2;
+     bias = d = (PID_MAX)/2;
+  }
+ for(;;) {
+
+    if(temp_meas_ready == true) { // temp sample ready
+      updateTemperaturesFromRawValues();
+
+      input = (extruder<0)?current_temperature_bed:current_temperature[extruder];
+
+      max=max(max,input);
+      min=min(min,input);
+      if(heating == true && input > temp) {
+        if(millis() - t2 > 5000) { 
+          heating=false;
+          if (extruder<0)
+            soft_pwm_bed = (bias - d) >> 1;
+          else
+            soft_pwm[extruder] = (bias - d) >> 1;
+          t1=millis();
+          t_high=t1 - t2;
+          max=temp;
+        }
+      }
+      if(heating == false && input < temp) {
+        if(millis() - t1 > 5000) {
+          heating=true;
+          t2=millis();
+          t_low=t2 - t1;
+          if(cycles > 0) {
+            bias += (d*(t_high - t_low))/(t_low + t_high);
+            bias = constrain(bias, 20 ,(extruder<0?(MAX_BED_POWER):(PID_MAX))-20);
+            if(bias > (extruder<0?(MAX_BED_POWER):(PID_MAX))/2) d = (extruder<0?(MAX_BED_POWER):(PID_MAX)) - 1 - bias;
+            else d = bias;
+
+            SERIAL_PROTOCOLPGM(" bias: "); SERIAL_PROTOCOL(bias);
+            SERIAL_PROTOCOLPGM(" d: "); SERIAL_PROTOCOL(d);
+            SERIAL_PROTOCOLPGM(" min: "); SERIAL_PROTOCOL(min);
+            SERIAL_PROTOCOLPGM(" max: "); SERIAL_PROTOCOLLN(max);
+            if(cycles > 2) {
+              Ku = (4.0*d)/(3.14159*(max-min)/2.0);
+              Tu = ((float)(t_low + t_high)/1000.0);
+              SERIAL_PROTOCOLPGM(" Ku: "); SERIAL_PROTOCOL(Ku);
+              SERIAL_PROTOCOLPGM(" Tu: "); SERIAL_PROTOCOLLN(Tu);
+              Kp[extruder] = 0.6*Ku;
+              Ki[extruder] = 2*Kp[extruder]/Tu;
+              Kd[extruder] = Kp[extruder]*Tu/8;
+			  
+              SERIAL_PROTOCOLLNPGM(" Classic PID ");
+              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp[extruder]);
+              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki[extruder]);
+              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd[extruder]);
+              /*
+              Kp = 0.33*Ku;
+              Ki = Kp/Tu;
+              Kd = Kp*Tu/3;
+              SERIAL_PROTOCOLLNPGM(" Some overshoot ");
+              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
+              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
+              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);
+              Kp = 0.2*Ku;
+              Ki = 2*Kp/Tu;
+              Kd = Kp*Tu/3;
+              SERIAL_PROTOCOLLNPGM(" No overshoot ");
+              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
+              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
+              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);
+              */
+            }
+          }
+          if (extruder<0)
+            soft_pwm_bed = (bias + d) >> 1;
+          else
+            soft_pwm[extruder] = (bias + d) >> 1;
+          cycles++;
+          min=temp;
+        }
+      } 
+    }
+    if(input > (temp + 20)) {
+      SERIAL_PROTOCOLLNPGM("PID Autotune failed! Temperature too high");
+      return;
+    }
+    if(millis() - temp_millis > 2000) {
+      int p;
+      if (extruder<0){
+        p=soft_pwm_bed;       
+        SERIAL_PROTOCOLPGM("ok B:");
+      }else{
+        p=soft_pwm[extruder];       
+        SERIAL_PROTOCOLPGM("ok T:");
+      }
+			
+      SERIAL_PROTOCOL(input);   
+      SERIAL_PROTOCOLPGM(" @:");
+      SERIAL_PROTOCOLLN(p);       
+
+      temp_millis = millis();
+    }
+	
+    if(((millis() - t1) + (millis() - t2)) > (10L*60L*1000L*2L)) {
+      SERIAL_PROTOCOLLNPGM("PID Autotune failed! timeout");
+      return;
+    }
+	
+    if(cycles > ncycles) {
+      //SAVE VALUES	
+	   
+	  Ki[extruder] = scalePID_i(Ki[extruder]);
+	  Kd[extruder] = scalePID_d(Kd[extruder]);
+	  updatePID();
+	  SERIAL_PROTOCOLLNPGM("PID Autotune finished!");
+      return;
+    }
+    //lcd_update();
+	#ifdef SIGMA_TOUCH_SCREEN
+		touchscreen_update();
+	#endif
+  }
+}
 
 void updatePID()
 {
-#ifdef PIDTEMP
-  for(int e = 0; e < EXTRUDERS; e++) { 
-     temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki;  
-  }
-#endif
-#ifdef PIDTEMPBED
-  temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;  
-#endif
+	#ifdef PIDTEMP
+		for(int e = 0; e < EXTRUDERS; e++) {
+			temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki[e];
+		}
+	#endif
+	#ifdef PIDTEMPBED
+		temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;
+	#endif
 }
   
 int getHeaterPower(int heater) {
@@ -415,6 +572,22 @@ void checkExtruderAutoFans()
 
 #endif // any extruder auto fan pins set
 
+void checkMaxTemps(){
+	if ((degHotend(LEFT_EXTRUDER)>log_max_temp_l+5) && (degHotend(LEFT_EXTRUDER)>=190)){
+		 log_max_temp_l = degHotend(LEFT_EXTRUDER);
+		 Config_StoreSettings();
+	}
+	if ((degHotend(RIGHT_EXTRUDER)>log_max_temp_r+5) && (degHotend(RIGHT_EXTRUDER)>=190)){
+		log_max_temp_r = degHotend(RIGHT_EXTRUDER);
+		Config_StoreSettings();
+	}
+	if ((degBed()>log_max_bed+5) && (degBed()>=45)){
+		log_max_bed = degBed();
+		Config_StoreSettings();
+	}
+	
+}
+
 void manage_heater()
 {
   float pid_input;
@@ -424,7 +597,7 @@ void manage_heater()
     return; 
 
   updateTemperaturesFromRawValues();
-
+	
   for(int e = 0; e < EXTRUDERS; e++) 
   {
 
@@ -450,14 +623,14 @@ void manage_heater()
 					temp_iState[e] = 0.0;
 					pid_reset[e] = false;
 				}
-				pTerm[e] = Kp * pid_error[e];
+				pTerm[e] = Kp[e] * pid_error[e];
 				temp_iState[e] += pid_error[e];
 				temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
-				iTerm[e] = Ki * temp_iState[e];
+				iTerm[e] = Ki[e] * temp_iState[e];
 
 				//K1 defined in Configuration.h in the PID settings
 				#define K2 (1.0-K1)
-				dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
+				dTerm[e] = (Kd[e] * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
 				pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e], 0, PID_MAX);
 			}
 			temp_dState[e] = pid_input;
@@ -783,7 +956,7 @@ void tp_init()
     maxttemp[e] = maxttemp[0];
 #ifdef PIDTEMP
     temp_iState_min[e] = 0.0;
-    temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki;
+    temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki[e];
 #endif //PIDTEMP
 #ifdef PIDTEMPBED
     temp_iState_min_bed = 0.0;

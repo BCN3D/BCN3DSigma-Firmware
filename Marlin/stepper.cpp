@@ -1116,6 +1116,7 @@ void quickStop()
     plan_discard_current_block();
   current_block = NULL;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
+  fanSpeed = 0;
 }
 
 #ifdef BABYSTEPPING

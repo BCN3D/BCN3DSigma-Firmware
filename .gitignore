@@ -52,3 +52,6 @@ Debug/
 *.xml
 *.xml
 Marlin/__vm/Compile.vmps.xml
+Marlin/Release
+Marlin/Debug
+Marlin/__vm

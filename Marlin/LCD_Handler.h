@@ -47,6 +47,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 	genieFrame Event;
 	genie.DequeueEvent(&Event);
 	//static long waitPeriod = millis();
+	static long waitPeriod_purge = millis(); // This waitperiod avoid some spamming pressing on purging buttons which can block the machine
 	int move_mm = 10;
 	//If the cmd received is from a Reported Event (Events triggered from the Events tab of Workshop4 objects)
 	if (Event.reportObject.cmd == GENIE_REPORT_EVENT)
@@ -627,21 +628,30 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				//***MOVING
 				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK){
+					if (millis() >= waitPeriod_purge){
 					if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
 						current_position[E_AXIS]-=3;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack	
 					}
+					waitPeriod_purge=millis()+1500;
+				}
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERT){
-					if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
-						current_position[E_AXIS]+=3;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge	
+					if (millis() >= waitPeriod_purge){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+							current_position[E_AXIS]+=3;
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
+						}
+						waitPeriod_purge=millis()+1500;
 					}
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERTX3){
-					if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
-						current_position[E_AXIS]+=15;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
+					if (millis() >= waitPeriod_purge){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+							current_position[E_AXIS]+=15;
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
+						}
+						waitPeriod_purge=millis()+7500;
 					}
 				}
 				//***************************************

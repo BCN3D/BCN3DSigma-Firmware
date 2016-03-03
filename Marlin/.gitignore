@@ -47,8 +47,5 @@ Temporary Items
 *.atsuo
 Visual Micro/
 Debug/
-*.atsln
-*.cppproj
-*.xml
-*.xml
-Marlin/__vm/Compile.vmps.xml
+__vm/
+Release/

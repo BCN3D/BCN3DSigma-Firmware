@@ -473,13 +473,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						else{ //If the filename is not a gcode we open it
 							
+							card.getfilename(filepointer);
 							char path[13*2]="";
 							
 							strcat(path,"/");
-							strcat(path,card.longFilename);
+							strcat(path,card.filename);
 							//strcat(path,"/");
 							card.chdir(path);
-							
+							Serial.println(path);
+							filepointer = 0;
 							card.getfilename(filepointer);
 							
 							//card.chdir()
@@ -2841,6 +2843,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (Event.reportObject.index == FORM_SDFILES)
 				{
 					//wake_RELAY();
+					filepointer = 0;
 					Serial.println("Form 2!");
 					////Check sdcardFiles			
 					

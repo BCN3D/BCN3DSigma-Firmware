@@ -23,7 +23,8 @@
 	#define STRING_NAME_FILE				1
 	#define BUTTON_SD_SELECTED				15
 	#define BUTTON_SD_LEFT					14
-	#define BUTTON_SD_RIGHT					5	
+	#define BUTTON_SD_RIGHT					5
+	#define BUTTON_SD_FOLDER_BACK			37	
 #define FORM_REDO_X_CAB							3
 	#define BUTTON_REDO_LEFT_CAB			27
 	#define BUTTON_REDO_RIGHT_CAB			28

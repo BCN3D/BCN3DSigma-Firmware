@@ -35,7 +35,7 @@ int custom_insert_temp = 210;
 int custom_remove_temp = 210;
 int custom_print_temp = 210;
 int custom_bed_temp = 40;
-
+char *pathfolder="";
 
 
 int redo_source;
@@ -445,8 +445,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region SD Gcode Selector
 				else if (Event.reportObject.index == BUTTON_SD_SELECTED ||  Event.reportObject.index == STRING_NAME_FILE)
 				{
+					
+					
 					if(card.cardOK)
-					{						
+					{	
+											
 						dobloking = true;
 						setTargetBed(0);
 						setTargetHotend0(0);
@@ -474,13 +477,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else{ //If the filename is not a gcode we open it
 							
 							card.getfilename(filepointer);
-							char path[13*2]="";
 							
-							strcat(path,"/");
-							strcat(path,card.filename);
+							strcat(pathfolder,"/");
+							strcat(pathfolder,card.filename);
 							//strcat(path,"/");
-							card.chdir(path);
-							Serial.println(path);
+							card.chdir(pathfolder);
+							Serial.println(pathfolder);
 							filepointer = 0;
 							card.getfilename(filepointer);
 							
@@ -493,7 +495,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							//Text index starts at 0
 							card.getfilename(filepointer);
 							Serial.println(card.longFilename);
-							
+							if (card.filenameIsDir)
+							{
+								
+								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED,1);
+								}else{
+								
+								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED,0);
+							}
 							
 							//
 							
@@ -588,11 +597,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					card.getfilename(filepointer);
 					if (card.filenameIsDir)
 					{
-						//Is a folder
-						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+						
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED,1);
 						}else{
-						//Is a file
-						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+						
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED,0);
 					}
 					Serial.println(card.longFilename);
 					int line = 23;
@@ -648,6 +657,96 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.print("Image n: ");
 					Serial.println(filepointer);
 				}
+				
+				
+				else if (Event.reportObject.index == BUTTON_SD_FOLDER_BACK) //RIGHT button pressed
+				{
+					
+					
+					card.updir();
+					//pathfolder = card.getWorkDirName();
+					strcpy(pathfolder,card.getWorkDirName());
+					filepointer = 0;
+					card.getfilename(filepointer);
+					
+					//card.chdir()
+					//If the filename is not a gcode we open it
+					
+					uint16_t fileCnt = card.getnrfilenames();
+					//Declare filepointer
+					card.getWorkDirName();
+					//Text index starts at 0
+					card.getfilename(filepointer);
+					Serial.println(card.longFilename);
+					
+					
+					//
+					
+					
+					int line = 23;
+					int count = 63;
+					char buffer[count+3];
+					int x = 0;
+					memset( buffer, '\0', sizeof(char)*count );
+					
+					if (String(card.longFilename).length() > count){
+						for (int i = 0; i<count ; i++)
+						{
+							if (card.longFilename[i] == '.') i = count +10; //go out of the for
+							else if(i == 0) buffer[i]=card.longFilename[x];
+							else if (i%line == 0){
+								buffer[i] = '\n';
+								i++;
+								buffer[i]=card.longFilename[x];
+							}
+							else {
+								buffer[i]=card.longFilename[x];
+							}
+							x++;
+							Serial.print(i);
+						}
+						buffer[count]='\0';
+						char* buffer2 = strcat(buffer,"...\0");
+						genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
+					}
+					else {
+						for (int i = 0; i<String(card.longFilename).length(); i++)	{
+							if (card.longFilename[i] == '.') i = String(card.longFilename).length() +10; //go out of the for
+							else if(i == 0) buffer[i]=card.longFilename[x];
+							else if (i%line == 0){
+								buffer[i] = '\n';
+								i++;
+								buffer[i]=card.longFilename[x];
+							}
+							else {
+								buffer[i]=card.longFilename[x];
+							}
+							x++;
+							Serial.print(i);
+						}
+						//buffer[count]='\0';
+						genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
+						//Is a file
+						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+					}
+					Serial.println(buffer);
+					
+					
+				}
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 				#pragma endregion SD Gcode Selector
 
 				#pragma region PURGE
@@ -2843,6 +2942,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (Event.reportObject.index == FORM_SDFILES)
 				{
 					//wake_RELAY();
+					
 					filepointer = 0;
 					Serial.println("Form 2!");
 					////Check sdcardFiles			
@@ -2854,11 +2954,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//Text index starts at 0
 					card.getfilename(filepointer);
 					Serial.println(card.longFilename);
+					strcpy(pathfolder,card.getWorkDirName());
+					
 					if (card.filenameIsDir)
 					{
 						//Is a folder
 						//genie.WriteStr(1,card.longFilename);
-						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
 					}else{
 						
 						int line = 23;
@@ -2905,7 +3007,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							//buffer[count]='\0';
 							genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
 							//Is a file
-							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+							genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 						}
 						Serial.println(buffer);						
 					}
@@ -3054,7 +3156,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			}
 		}
 	}
-
 
 
 	char* prepareString(char* text, int len){

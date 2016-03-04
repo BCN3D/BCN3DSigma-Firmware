@@ -226,6 +226,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					//sleep_RELAY();
 					//Rapduch
+					Serial.println("STOP PRINT");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				}
 				
@@ -1455,20 +1456,28 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_ADJUST_ZUp)
 				{
+					if (millis() >= waitPeriod_purge){
 					//Adjusting the filament with a retrack Up
 					Serial.println("Adjust ZUp");
 					float modified_position=current_position[E_AXIS]-5;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
 					current_position[E_AXIS]=modified_position;
+					
+					waitPeriod_purge=millis()+2500;
+				}
+					
 				}
 				
 				else if (Event.reportObject.index == BUTTON_ADJUST_ZDown)
 				{
 					//Adjusting the filament with a purge Down
+					if (millis() >= waitPeriod_purge){
 					Serial.println("Adjust ZDown");
 					float modified_position=current_position[E_AXIS]+5;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
 					current_position[E_AXIS]=modified_position;
+					waitPeriod_purge=millis()+2500;
+				}
 				}
 				#pragma endregion AdjustFilament
 				

@@ -235,6 +235,39 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					back_home = true;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 				}
+				else if (Event.reportObject.index == BUTTON_STOP_NO )
+				{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+					
+					is_on_printing_screen=true;
+					int count = 12;
+					char buffer[13];
+					if (String(card.longFilename).length()>12){
+						for (int i = 0; i<12 ; i++)
+						{
+							buffer[i]=card.longFilename[i];
+						}
+						buffer[12]='\0';
+						char* buffer2 = strcat(buffer,"...\0");
+						Serial.print("Card Name: ");
+						Serial.println(card.longFilename);
+						Serial.print("Buffer1: ");
+						Serial.println(buffer);
+						Serial.print("buffer out: ");
+						Serial.println(buffer2);
+						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+						}else{
+						for (int i = 0; i<=String(card.longFilename).length(); i++)
+						{
+							if (buffer[i] == '.') i = String(card.longFilename).length() +10;
+							else buffer[i]=card.longFilename[i];
+						}
+						//buffer[count]='\0';
+						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
+					}
+				}
+				
+				
 				
 				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME )
 				{
@@ -350,6 +383,39 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRING_PS_BED_TEMP,buffer);
 					}
 				}
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK)
+				{
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+					
+					is_on_printing_screen=true;
+					int count = 12;
+					char buffer[13];
+					if (String(card.longFilename).length()>12){
+						for (int i = 0; i<12 ; i++)
+						{
+							buffer[i]=card.longFilename[i];
+						}
+						buffer[12]='\0';
+						char* buffer2 = strcat(buffer,"...\0");
+						Serial.print("Card Name: ");
+						Serial.println(card.longFilename);
+						Serial.print("Buffer1: ");
+						Serial.println(buffer);
+						Serial.print("buffer out: ");
+						Serial.println(buffer2);
+						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+					}else{
+						for (int i = 0; i<=String(card.longFilename).length(); i++)
+						{
+							if (buffer[i] == '.') i = String(card.longFilename).length() +10;
+							else buffer[i]=card.longFilename[i];
+						}
+						//buffer[count]='\0';
+						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
+					}
+					
+				}
 				
 				#pragma endregion Printing Settings
 				
@@ -445,6 +511,36 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//Rapduch
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				}
+				else if (Event.reportObject.index == BUTTON_STOP_NO )
+				{
+					is_on_printing_screen=false;
+					card.sdprinting = false;
+					card.closefile();
+					
+					//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
+					quickStop();
+					
+					home_axis_from_code(true,true,false); //Home X and Y
+					enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
+					enquecommand_P(PSTR("M107"));
+					st_synchronize();
+					if(SD_FINISHED_STEPPERRELEASE)
+					{
+						enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+					}
+					autotempShutdown();
+					setTargetHotend0(0);
+					setTargetHotend1(0);
+					//setTargetHotend2(0);
+					setTargetBed(0);
+					card.sdispaused = false;
+					cancel_heatup = true;
+					
+					
+					//sleep_RELAY();
+					//Rapduch
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				}
 				
 				
 				
@@ -481,8 +577,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							screen_status="Ready...";//Write the selected SD file to all strings
 						}
-						else{ //If the filename is not a gcode we open it
-							
+						else{ //UPCOMING UPDATES
+							//If the filename is not a gcode we open it
+							/*
 							card.getfilename(filepointer);
 							
 							strcat(pathfolder,"/");
@@ -564,6 +661,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							//If the filename is not a gcode we open it
 							
+							*/ // UPCOMING UPDATES
 							
 							
 							
@@ -1582,36 +1680,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}				
 						
 				}	
-				else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK )
-				{
-					is_on_printing_screen=true;
-					int count = 12;
-					char buffer[13];
-					if (String(card.longFilename).length()>12){
-						for (int i = 0; i<12 ; i++)
-						{
-							buffer[i]=card.longFilename[i];
-						}
-						buffer[12]='\0';
-						char* buffer2 = strcat(buffer,"...\0");
-						Serial.print("Card Name: ");
-						Serial.println(card.longFilename);
-						Serial.print("Buffer1: ");
-						Serial.println(buffer);
-						Serial.print("buffer out: ");
-						Serial.println(buffer2);
-						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
-					}else{
-						for (int i = 0; i<=String(card.longFilename).length(); i++)
-						{
-							if (buffer[i] == '.') i = String(card.longFilename).length() +10;
-							else buffer[i]=card.longFilename[i];
-						}
-						//buffer[count]='\0';
-						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
-					}
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,1);
-				}
+				
 				
 				//*****Preheat Settings*****
 				#pragma region Preheat Settings
@@ -2971,11 +3040,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.println(card.longFilename);
 					strcpy(pathfolder,card.getWorkDirName());
 					
-					if (card.filenameIsDir)
+					if (card.filenameIsDir) //UPCOMING UPDATES
 					{
 						//Is a folder
 						//genie.WriteStr(1,card.longFilename);
-						genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1); 
 					}else{
 						
 						int line = 23;

@@ -12,6 +12,7 @@
 //Form
 //without form declared///////////////////////////////
 #define BUTTON_STOP_YES						1
+#define BUTTON_STOP_NO						61
 #define BUTTON_COOLDOWN_OK					34
 #define BUTTON_CHANGE_EXTRUDER				63
 #define BUTTON_COOLDOWN_OK					34
@@ -231,7 +232,7 @@
 	#define STRING_PS_BED_TEMP				20
 	#define STRING_PS_RIGHT_TEMP			21	
 	#define STRING_PS_SPEED					22
-	#define BUTTON_PRINT_SET_BACK			162
+	#define BUTTON_PRINT_SET_BACK			162   // upcoming update 38
 	#define BUTTON_PRINT_SET_SPEED_UP		166
 	#define BUTTON_PRINT_SET_SPEED_DOWN		170
 	#define BUTTON_PRINT_SET_NOZZ1_UP		163

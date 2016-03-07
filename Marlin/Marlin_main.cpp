@@ -231,6 +231,7 @@ Rapduch
 //Rapduch
 #ifdef SIGMA_TOUCH_SCREEN
 	bool surfing_utilities = false;
+	
 	bool is_on_printing_screen = false;
 	uint16_t filepointer = 0;
 	String screen_status = "Printing...";
@@ -866,6 +867,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	//static keyword specifies that the variable retains its state between calls to the function
 	static uint32_t waitPeriod = millis();
 	static uint32_t waitPeriod_p = millis();
+	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
 	static int count5s = 0;
 	//if(card.sdprinting && is_on_printing_screen)
 	if(card.sdprinting)
@@ -908,6 +910,29 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				Config_StoreSettings();
 			}
 		}		 
+	}
+	else if(back_home){
+		if(home_made == false){
+			
+			if (millis() >= waitPeriod_pbackhome){
+				static int processing_state = 0;
+				genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
+				if (processing_state == 0) processing_state = (processing_state+1)%3;
+				else processing_state = (processing_state+1)%3;
+				waitPeriod_pbackhome=180+millis();
+			}
+			
+		}
+		else{
+			
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			back_home = false;
+		//form home
+		
+		
+		
+		
+		}
 	}
 	
 	else if (surfing_utilities)

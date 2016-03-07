@@ -21,6 +21,7 @@
 
 extern bool cancel_heatup;
 void myGenieEventHandler();
+bool back_home = false;
 bool flag_filament_home= false;
 bool flag_pause = false;
 bool flag_resume = false;
@@ -220,14 +221,19 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					setTargetHotend0(0);
 					setTargetHotend1(0);
 					setTargetBed(0);
-					
+					/*
+					Serial.println("STOP PRINT--- ");
+					Serial.println(check_endstops);
+					Serial.println(" ----");
+					*/
 					card.sdispaused = false;
 					cancel_heatup = true;
 					
 					//sleep_RELAY();
 					//Rapduch
 					Serial.println("STOP PRINT");
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+					back_home = true;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 				}
 				
 				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME )

@@ -22,6 +22,8 @@
 extern bool cancel_heatup;
 void myGenieEventHandler();
 bool back_home = false;
+bool print_setting_refresh = false;
+bool print_data_refresh = false;
 bool flag_filament_home= false;
 bool flag_pause = false;
 bool flag_resume = false;
@@ -164,19 +166,19 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//******PRINTING****
 				#pragma region Printing_screen
 				
-				if (Event.reportObject.index == BUTTON_PRINT_SETTINGS )
+				if (Event.reportObject.index == BUTTON_PRINT_SETTINGS)
 				{
 					//Rapduch
 					//Edit for final TouchScreen
 					Serial.println("PRINTING SETTINGS");
-					char buffer[256];
+					//char buffer[256];
 					
 					
 					is_on_printing_screen=false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
 					
 					
-					sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+					/*sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 					//Serial.println(buffer);
 					genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
 					
@@ -190,7 +192,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					sprintf(buffer, "%3d %%",feedmultiply);
 					//Serial.println(buffer);
-					genie.WriteStr(STRING_PS_SPEED,buffer);
+					genie.WriteStr(STRING_PS_SPEED,buffer);*/
+					
+					
+					print_setting_refresh = true;
 				}
 				#pragma endregion Printing_screen			
 				
@@ -3099,8 +3104,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == FORM_PRINTING)
 				{
+					
+					
+					print_data_refresh = true;
 					//Restart the preheat buttons
-					genie.WriteObject(GENIE_OBJ_USERIMAGES,BUTTON_PREHEAT_PLA,0);
+		/*			genie.WriteObject(GENIE_OBJ_USERIMAGES,BUTTON_PREHEAT_PLA,0); ///<<<<<<<<<<<<<<<<<<<
 					
 					#ifdef SIGMA_TOUCH_SCREEN
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
@@ -3131,7 +3139,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					//Serial.println((char*)prepareString(card.longFilename,12));
 					//genie.WriteStr(6,"Ready");
-					#endif
+					#endif   
+					
+					*/ //<<<<<<<<<<<<<<<<<<<<<<<
+					
 					/*enquecommand_P(PSTR("M24"));
 					int count = 12;
 					char buffer[count];

@@ -870,9 +870,73 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
 	static int count5s = 0;
 	//if(card.sdprinting && is_on_printing_screen)
+	
+	
 	if(card.sdprinting)
 	{
-		
+		if(print_setting_refresh){
+			
+			char buffer[256];
+			
+			sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
+			
+			sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
+			
+			sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PS_BED_TEMP,buffer);
+			
+			sprintf(buffer, "%3d %%",feedmultiply);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PS_SPEED,buffer);
+			
+			
+			
+			
+			print_setting_refresh = false;
+		}
+		if(print_data_refresh){
+			
+			
+			
+			#ifdef SIGMA_TOUCH_SCREEN
+			char buffer[13];
+			if (String(card.longFilename).length()>12){
+				for (int i = 0; i<12 ; i++)
+				{
+					buffer[i]=card.longFilename[i];
+				}
+				buffer[12]='\0';
+				char* buffer2 = strcat(buffer,"...\0");
+				Serial.print("Card Name: ");
+				Serial.println(card.longFilename);
+				Serial.print("Buffer1: ");
+				Serial.println(buffer);
+				Serial.print("buffer out: ");
+				Serial.println(buffer2);
+				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+				}else{
+				for (int i = 0; i<=String(card.longFilename).length(); i++)
+				{
+					if (buffer[i] == '.') i = String(card.longFilename).length() +10;
+					else buffer[i]=card.longFilename[i];
+				}
+				//buffer[count]='\0';
+				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
+			}
+			
+			//Serial.println((char*)prepareString(card.longFilename,12));
+			//genie.WriteStr(6,"Ready");
+			#endif
+			
+			
+			
+			print_data_refresh = false;
+		}
 		if (millis() >= waitPeriod)
 		{
 			int tHotend=int(degHotend(0));
@@ -934,7 +998,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		
 		}
 	}
-	
+
 	else if (surfing_utilities)
 	{
 		if (millis() >= waitPeriod)

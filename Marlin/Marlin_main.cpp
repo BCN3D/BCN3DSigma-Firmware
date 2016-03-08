@@ -5620,10 +5620,10 @@ void process_commands()
 						/*dateresetday=8;
 						dateresetmonth=3;
 						dateresetyear=2016;*/
-						sprintf(print_date, "LAST RESET DATE %d-%d-%d",dateresetday,dateresetmonth,dateresetyear);
+						//sprintf(print_date, "LAST RESET DATE %d-%d-%d",dateresetday,dateresetmonth,dateresetyear);
 						
 						Config_StoreSettings();
-						SERIAL_PROTOCOL(print_date);
+						//SERIAL_PROTOCOL(print_date);
 						
 						
 						

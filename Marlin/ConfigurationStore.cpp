@@ -3,6 +3,8 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "ConfigurationStore.h"
+#include "language.h"
+
 
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size)
 {
@@ -29,7 +31,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 
 
 
-#define EEPROM_OFFSET 100
+#define EEPROM_OFFSET 103
 
 
 // IMPORTANT:  Whenever there are changes made to the variables stored in EEPROM
@@ -142,6 +144,9 @@ void Config_StoreSettings()
   #ifdef SCARA
   EEPROM_WRITE_VAR(i,axis_scaling);        // Add scaling for SCARA
   #endif
+  EEPROM_WRITE_VAR(i,dateresetday);
+  EEPROM_WRITE_VAR(i,dateresetmonth);         //date reset
+  EEPROM_WRITE_VAR(i,dateresetyear);
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver2); // validate data
@@ -256,6 +261,14 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOPAIR(" R_PRINT " ,(float)print_temp_r);
 	 SERIAL_ECHOLN("");
 	 
+	/*
+	 char print_date[24];
+	 
+	 sprintf(print_date, "LAST RESET DATE %d-%d-%d", dateresetday,dateresetmonth,dateresetyear);
+	 
+	 SERIAL_PROTOCOL(print_date);
+	 */
+	 
 	 SERIAL_ECHO_START;
 	 SERIAL_ECHOLNPGM("LOG:");
 	 SERIAL_ECHO_START;
@@ -265,8 +278,9 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOPAIR(" max temp L " ,(float)log_max_temp_l);
 	 SERIAL_ECHOPAIR(" max temp R " ,(float)log_max_temp_r);
 	 SERIAL_ECHOPAIR(" max temp B " ,(float)log_max_bed);
-	 SERIAL_ECHOLN("");
 	 
+	 SERIAL_ECHOLN("");
+	
 	 
 	} 
 #endif
@@ -373,7 +387,9 @@ void Config_RetrieveSettings()
 		#ifdef SCARA
 		EEPROM_READ_VAR(i,axis_scaling);
 		#endif
-
+		EEPROM_READ_VAR(i,dateresetday);
+		EEPROM_READ_VAR(i,dateresetmonth);
+		EEPROM_READ_VAR(i,dateresetyear);
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
         SERIAL_ECHO_START;
@@ -517,15 +533,53 @@ void Config_Reset_Calib(){
 		SERIAL_ECHOLNPGM("Hardcoded Calib and PID Default Settings Loaded");
 }
 
-void Config_Reset_Statistics(int data){
+void Config_Reset_Statistics(int data, int day, int month, int year){
 	
 	if (data == 1234){
-		log_hours_print = 0;
+		if (day > 31 || day < 1){
+			
+			Serial.println("day error");
+		}
+		else if (month > 12 || month < 1){
+			Serial.println("month error");
+		}
+		else if (year > 2030 || year < 2015){
+			Serial.println("year error");
+		}
+		else{
+			
+		 if (month == 2 && year%4==0 && day > 29){
+			 Serial.println("FEBRUARY LEAP YEAR");
+		 }
+		 else if (month == 2 && year%4!=0 && day > 28){
+			 Serial.println("FEBRUARY NOT LEAP YEAR");
+		 }
+		 else if (month%2==0 && day > 30){
+			 Serial.println("MONTH WITH 30 DAYS");
+		 }
+		 else{
+			 
+			 log_hours_print = 0;
 		log_max_bed = 0;
 		log_max_temp_l = 0;
 		log_max_temp_r = 0;
 		log_prints = 0;
 		log_prints_finished = 0;
+		dateresetday = day;
+		dateresetmonth = month;
+		dateresetyear = year;
 		Serial.println("STATISTICS RESET");
+			 
+		 }	
+		
+		
+		
+		
+		}
+	}
+	else{
+		
+		Serial.println(MSG_WRONGDATARESETKEY);
+		
 	}	
 }

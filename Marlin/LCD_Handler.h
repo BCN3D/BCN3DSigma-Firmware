@@ -3104,7 +3104,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == FORM_PRINTING)
 				{
-					
+					Serial.print("Printing Window");
 					
 					print_data_refresh = true;
 					//Restart the preheat buttons

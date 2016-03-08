@@ -334,6 +334,10 @@ extern int log_prints_finished;
 extern int log_max_temp_l;
 extern int log_max_temp_r;
 extern int log_max_bed;
+extern int dateresetday;
+extern int dateresetmonth;
+extern int dateresetyear;
+
 extern void checkMaxTemps();
-extern void Config_Reset_Statistics(int data);
+extern void Config_Reset_Statistics(int data, int day, int month, int year);
 #endif

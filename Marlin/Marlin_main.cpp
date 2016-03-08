@@ -225,7 +225,7 @@ Rapduch
 #ifdef SDSUPPORT
 	CardReader card;
 #endif
-
+char print_date[24];
 
 
 //Rapduch
@@ -281,6 +281,8 @@ Rapduch
 ///////////////////////////////////////////////////////////////////////
 #pragma endregion temperatures
 
+
+
 bool home_made = false;
 bool dobloking = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
@@ -324,12 +326,17 @@ bool heatting = false;
 
 int bed_calibration_times = 0; //To control the number of bed calibration to available the skip option
 
+
 int log_prints;
 int log_hours_print;
 int log_prints_finished;
 int log_max_temp_l;
 int log_max_temp_r;
 int log_max_bed;
+
+int dateresetday;
+int dateresetmonth;
+int dateresetyear;
 
 // Extruder offset
 #if EXTRUDERS > 1
@@ -803,7 +810,9 @@ void loop()
 		{
 			if(strstr_P(cmdbuffer[bufindr], PSTR("M29")) == NULL)
 			{
+				Serial.println(cmdbuffer[bufindr]);
 				card.write_command(cmdbuffer[bufindr]);
+				
 				if(card.logging)
 				{
 					process_commands();
@@ -5584,6 +5593,9 @@ void process_commands()
 					case 503: // M503 print settings currently in memory
 					{
 						Config_PrintSettings();
+						sprintf(print_date, "LAST RESET DATE %d-%d-%d \n", dateresetday,dateresetmonth,dateresetyear);
+						
+						SERIAL_PROTOCOL(print_date);
 					}
 					break;
 					case 504: //M555 Revert to default settings calibration and PID
@@ -5595,9 +5607,29 @@ void process_commands()
 					case 505:
 					{
 						int input = 0;
+						int day = 0;
+						int month = 0;
+						int year=0;
 						if (code_seen('P')) input = code_value();
-						Config_Reset_Statistics(input);
+						if (code_seen('d')) day = code_value();
+						if (code_seen('m')) month = code_value();
+						if (code_seen('a')) year = code_value();
+						
+						//sprintf(print_date, "LAST RESET DATE %d-%d-%d",day,month,year);
+						Config_Reset_Statistics(input, day, month, year);
+						/*dateresetday=8;
+						dateresetmonth=3;
+						dateresetyear=2016;*/
+						sprintf(print_date, "LAST RESET DATE %d-%d-%d",dateresetday,dateresetmonth,dateresetyear);
+						
 						Config_StoreSettings();
+						SERIAL_PROTOCOL(print_date);
+						
+						
+						
+						
+						
+						
 					}
 					break;
 					#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED

@@ -191,6 +191,8 @@ Rapduch
  M503 - print the current settings (from memory not from EEPROM)
  M504 - reverts to the default "factory settings" for calibration and pid, it also save in EEPROM
  M505 - reverts to the default "factory settings" for statistics and save in EEPROM
+ M510 - Change temps left hotend config
+ M520 - Change temps right hotend config
  M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
  M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
  M665 - set delta configurations
@@ -225,7 +227,7 @@ Rapduch
 #ifdef SDSUPPORT
 	CardReader card;
 #endif
-char print_date[24];
+
 
 
 //Rapduch
@@ -5593,9 +5595,6 @@ void process_commands()
 					case 503: // M503 print settings currently in memory
 					{
 						Config_PrintSettings();
-						sprintf(print_date, "LAST RESET DATE %d-%d-%d \n", dateresetday,dateresetmonth,dateresetyear);
-						
-						SERIAL_PROTOCOL(print_date);
 					}
 					break;
 					case 504: //M555 Revert to default settings calibration and PID
@@ -5614,24 +5613,29 @@ void process_commands()
 						if (code_seen('d')) day = code_value();
 						if (code_seen('m')) month = code_value();
 						if (code_seen('a')) year = code_value();
-						
-						//sprintf(print_date, "LAST RESET DATE %d-%d-%d",day,month,year);
 						Config_Reset_Statistics(input, day, month, year);
-						/*dateresetday=8;
-						dateresetmonth=3;
-						dateresetyear=2016;*/
-						//sprintf(print_date, "LAST RESET DATE %d-%d-%d",dateresetday,dateresetmonth,dateresetyear);
-						
 						Config_StoreSettings();
-						//SERIAL_PROTOCOL(print_date);
 						
-						
-						
+					
+					}
+					break;
+					case 510:  //left hotend
+					{
 						
 						
 						
 					}
 					break;
+					case 520:  //right hotend
+					{
+						
+						
+						
+					}
+					break;
+					
+					
+					
 					#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 					case 540:
 					{

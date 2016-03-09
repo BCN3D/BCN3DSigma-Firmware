@@ -244,7 +244,7 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOLN("");
 	
 	 SERIAL_ECHO_START;
-	 SERIAL_ECHOLNPGM("Temp (ºC):");
+	 SERIAL_ECHOLNPGM("Temps Left hotend");
 	 SERIAL_ECHO_START;
 	 SERIAL_ECHOPAIR(" L_INSERT ",(float)insert_temp_l);
 	 SERIAL_ECHOPAIR(" L_REMOVE " ,(float)remove_temp_l);
@@ -253,7 +253,7 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOLN("");
 	 
 	 SERIAL_ECHO_START;
-	 SERIAL_ECHOLNPGM("Temp (ºC):");
+	 SERIAL_ECHOLNPGM("Temp right hotend");
 	 SERIAL_ECHO_START;
 	 SERIAL_ECHOPAIR(" R_INSERT ",(float)insert_temp_r);
 	 SERIAL_ECHOPAIR(" R_REMOVE " ,(float)remove_temp_r);
@@ -272,16 +272,57 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHO_START;
 	 SERIAL_ECHOLNPGM("LOG:");
 	 SERIAL_ECHO_START;
+	 
+	 
+	 SERIAL_ECHOPGM(" prints ");
+	 Serial.println(log_prints);
+	 SERIAL_ECHO_START;
+	 
+	 SERIAL_ECHOPGM(" hours print ");
+	 Serial.println(log_hours_print);
+	 SERIAL_ECHO_START;
+	 
+	 SERIAL_ECHOPGM(" prints finished ");
+	 Serial.println(log_prints_finished);
+	 SERIAL_ECHO_START;
+	 
+	 SERIAL_ECHOPGM(" max temp L ");
+	 Serial.println(log_max_temp_l);
+	 SERIAL_ECHO_START;
+	 
+	 SERIAL_ECHOPGM(" max temp R ");
+	 Serial.println(log_max_temp_r);
+	 SERIAL_ECHO_START;
+	 
+	 SERIAL_ECHOPGM(" max temp B ");
+	 Serial.println(log_max_bed);
+	 
+	 
+	 
+	 
+	 /*
 	 SERIAL_ECHOPAIR(" prints ",(float)log_prints);
-	 SERIAL_ECHOPAIR(" hours print " ,(float)log_hours_print);
-	 SERIAL_ECHOPAIR(" prints finished " ,(float)log_prints_finished);
-	 SERIAL_ECHOPAIR(" max temp L " ,(float)log_max_temp_l);
-	 SERIAL_ECHOPAIR(" max temp R " ,(float)log_max_temp_r);
-	 SERIAL_ECHOPAIR(" max temp B " ,(float)log_max_bed);
-	 
 	 SERIAL_ECHOLN("");
-	
+	 SERIAL_ECHOPAIR(" hours print " ,(float)log_hours_print);
+	 SERIAL_ECHOLN("");
+	 SERIAL_ECHOPAIR(" prints finished " ,(float)log_prints_finished);
+	 SERIAL_ECHOLN("");
+	 SERIAL_ECHOPAIR(" max temp L " ,(float)log_max_temp_l);
+	 SERIAL_ECHOLN("");
+	 SERIAL_ECHOPAIR(" max temp R " ,(float)log_max_temp_r);
+	 SERIAL_ECHOLN("");
+	 SERIAL_ECHOPAIR(" max temp B " ,(float)log_max_bed);
+	 SERIAL_ECHOLN("");*/
 	 
+	
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPGM("LAST DATE RESET ");
+	Serial.print(dateresetday);
+	SERIAL_ECHOPGM("-");	
+	Serial.print(dateresetmonth);
+	SERIAL_ECHOPGM("-");
+	Serial.print(dateresetyear);
+	SERIAL_ECHOLN("");
 	} 
 #endif
 
@@ -582,4 +623,30 @@ void Config_Reset_Statistics(int data, int day, int month, int year){
 		Serial.println(MSG_WRONGDATARESETKEY);
 		
 	}	
+	
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPGM("LAST DATE RESET ");
+	Serial.print(dateresetday);
+	SERIAL_ECHOPGM("-");
+	Serial.print(dateresetmonth);
+	SERIAL_ECHOPGM("-");
+	Serial.print(dateresetyear);
+	SERIAL_ECHOLN("");
+}
+void Change_ConfigTemp_LeftHotend(int i_temp_l, int remove_temp_l, int p_temp_r, int b_temp_l){
+	/*
+		int insert_temp_l;
+		int remove_temp_l;
+		int print_temp_l;
+		int bed_temp_l;*/
+		
+	
+	
+}
+void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int b_temp_r){
+	
+	/*insert_temp_r;
+	remove_temp_r;
+	print_temp_r;
+	bed_temp_r;*/
 }

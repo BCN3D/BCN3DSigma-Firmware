@@ -5621,16 +5621,24 @@ void process_commands()
 					break;
 					case 510:  //left hotend
 					{
-						
-						
-						
+						int i_temp_l = 0, r_temp_l = 0 , p_temp_l = 0, b_temp_l =0;
+						if (code_seen('i')) i_temp_l = code_value();
+						if (code_seen('r')) r_temp_l = code_value();
+						if (code_seen('p')) p_temp_l = code_value();
+						if (code_seen('b')) b_temp_l = code_value();
+						Change_ConfigTemp_LeftHotend(i_temp_l, r_temp_l, p_temp_l, b_temp_l);
+						Config_StoreSettings();
 					}
 					break;
 					case 520:  //right hotend
 					{
-						
-						
-						
+						int i_temp_r = 0, r_temp_r = 0 , p_temp_r = 0, b_temp_r =0;
+						if (code_seen('i')) i_temp_r = code_value();
+						if (code_seen('r')) r_temp_r = code_value();
+						if (code_seen('p')) p_temp_r = code_value();
+						if (code_seen('b')) b_temp_r = code_value();
+						Change_ConfigTemp_RightHotend(i_temp_r, r_temp_r, p_temp_r, b_temp_r);
+						Config_StoreSettings();
 					}
 					break;
 					
@@ -6635,7 +6643,8 @@ void process_commands()
 						#endif
 						#ifdef EXTRUDER_RUNOUT_PREVENT
 							if( (millis() - previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
-								if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
+								if(degHotend(active_extruder)>EXTRUDER_RUNOUT_
+								)
 								{
 									bool oldstatus=READ(E0_ENABLE_PIN);
 									enable_e0();

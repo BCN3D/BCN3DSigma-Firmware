@@ -337,7 +337,7 @@ extern int log_max_bed;
 extern int dateresetday;
 extern int dateresetmonth;
 extern int dateresetyear;
-
+extern char namefilegcode[63];
 extern void checkMaxTemps();
 extern void Config_Reset_Statistics(int data, int day, int month, int year);
 extern void Change_ConfigTemp_LeftHotend(int i_temp_l, int remove_temp_l, int p_temp_r, int b_temp_l);

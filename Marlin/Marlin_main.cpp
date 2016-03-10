@@ -5590,6 +5590,7 @@ void process_commands()
 					case 502: // M502 Revert to default settings
 					{
 						Config_ResetDefault();
+						Config_StoreSettings();
 					}
 					break;
 					case 503: // M503 print settings currently in memory
@@ -5600,6 +5601,7 @@ void process_commands()
 					case 504: //M555 Revert to default settings calibration and PID
 					{
 						Config_Reset_Calib();
+						Config_StoreSettings();
 						
 					}
 					break;

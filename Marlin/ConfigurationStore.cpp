@@ -31,7 +31,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 
 
 
-#define EEPROM_OFFSET 103
+#define EEPROM_OFFSET 100
 
 
 // IMPORTANT:  Whenever there are changes made to the variables stored in EEPROM
@@ -40,7 +40,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 
-#define EEPROM_VERSION "V12"
+#define EEPROM_VERSION "V13"
 /*#ifdef DELTA
 	#undef EEPROM_VERSION
 	#define EEPROM_VERSION "V11"
@@ -655,10 +655,10 @@ void Change_ConfigTemp_LeftHotend(int i_temp_l, int r_temp_l, int p_temp_l, int 
 	else{
 		
 		
-		insert_temp_r =i_temp_l;
-		remove_temp_r = r_temp_l;
-		print_temp_r = p_temp_l;
-		bed_temp_r = b_temp_l;
+		insert_temp_l =i_temp_l;
+		remove_temp_l = r_temp_l;
+		print_temp_l = p_temp_l;
+		bed_temp_l = b_temp_l;
 		
 		Serial.println("SUCCESS");
 		

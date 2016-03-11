@@ -883,56 +883,73 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	//if(card.sdprinting && is_on_printing_screen)
 	
 	
+	
+	
+	
+	
+	if(print_setting_refresh){
+		
+		char buffer[256];
+		//Serial.println("PRINTING SETTINGS");
+		//char buffer[256];
+		is_on_printing_screen=false;
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
+		
+		
+		sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+		//Serial.println(buffer);
+		genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
+		
+		sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+		//Serial.println(buffer);
+		genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
+		
+		sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+		//Serial.println(buffer);
+		genie.WriteStr(STRING_PS_BED_TEMP,buffer);
+		
+		sprintf(buffer, "%3d %%",feedmultiply);
+		//Serial.println(buffer);
+		genie.WriteStr(STRING_PS_SPEED,buffer);
+		
+		
+		waitPeriod=5000+millis();	//Every 5s
+		
+		print_setting_refresh = false;
+	}
+	
+	/*if(print_data_refresh){
+		
+		//Serial.println("Printing Window");
+		
+		#ifdef SIGMA_TOUCH_SCREEN
+		
+		//buffer[count]='\0';
+		genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);//Printing form//Printing form
+		
+		
+		//Serial.println((char*)prepareString(card.longFilename,12));
+		//genie.WriteStr(6,"Ready");
+		#endif
+		
+		
+		
+		print_data_refresh = false;
+	}*/
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	if(card.sdprinting)
 	{
-		if(print_setting_refresh){
-			
-			char buffer[256];
-			Serial.println("PRINTING SETTINGS");
-			//char buffer[256];
-			is_on_printing_screen=false;
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
-			
-			
-			sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
-			
-			sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
-			
-			sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PS_BED_TEMP,buffer);
-			
-			sprintf(buffer, "%3d %%",feedmultiply);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PS_SPEED,buffer);
-			
-			
-			
-			
-			print_setting_refresh = false;
-		}
-		if(print_data_refresh){
-			
-			//Serial.println("Printing Window");
-			
-			#ifdef SIGMA_TOUCH_SCREEN
-			
-				//buffer[count]='\0';
-				genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);//Printing form//Printing form
-			
-			
-			//Serial.println((char*)prepareString(card.longFilename,12));
-			//genie.WriteStr(6,"Ready");
-			#endif
-			
-			
-			
-			print_data_refresh = false;
-		}
+		
 		if (millis() >= waitPeriod)
 		{
 			int tHotend=int(degHotend(0));
@@ -961,6 +978,51 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			sprintf(buffer, "% 3d %%",feedmultiply);
 			//Serial.println(buffer);
 			genie.WriteStr(STRINGS_PRINTING_FEED,buffer);
+			
+			genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);//Printing form//Printing form
+			
+			
+			if(print_print_stop == true){
+				
+				card.sdprinting = false;
+				card.closefile();
+				dobloking =false;
+				//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
+				quickStop();
+				
+				enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
+				st_synchronize();
+				enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
+				st_synchronize();
+				
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
+				
+				if(SD_FINISHED_STEPPERRELEASE)
+				{
+					enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+				}
+				autotempShutdown();
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
+				
+				card.sdispaused = false;
+				cancel_heatup = true;
+				
+				//sleep_RELAY();
+				//Rapduch
+				Serial.println("STOP PRINT");
+				back_home = true;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+				
+				
+				print_print_stop == false;
+			}
+			
+			
+			
 			
 			waitPeriod=5000+millis();	//Every 5s
 			count5s++;

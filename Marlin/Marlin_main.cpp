@@ -950,6 +950,45 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	if(card.sdprinting)
 	{
 		
+		if(print_print_stop == true){
+			
+			card.sdprinting = false;
+			card.closefile();
+			dobloking =false;
+			//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
+			quickStop();
+			
+			enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
+			st_synchronize();
+			enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
+			st_synchronize();
+			
+			setTargetHotend0(0);
+			setTargetHotend1(0);
+			setTargetBed(0);
+			
+			if(SD_FINISHED_STEPPERRELEASE)
+			{
+				enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+			}
+			autotempShutdown();
+			setTargetHotend0(0);
+			setTargetHotend1(0);
+			setTargetBed(0);
+			
+			card.sdispaused = false;
+			cancel_heatup = true;
+			
+			//sleep_RELAY();
+			//Rapduch
+			Serial.println("STOP PRINT");
+			back_home = true;
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+			
+			
+			print_print_stop = false;
+		}
+		
 		if (millis() >= waitPeriod)
 		{
 			int tHotend=int(degHotend(0));
@@ -982,44 +1021,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);//Printing form//Printing form
 			
 			
-			if(print_print_stop == true){
-				
-				card.sdprinting = false;
-				card.closefile();
-				dobloking =false;
-				//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
-				quickStop();
-				
-				enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
-				st_synchronize();
-				enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
-				st_synchronize();
-				
-				setTargetHotend0(0);
-				setTargetHotend1(0);
-				setTargetBed(0);
-				
-				if(SD_FINISHED_STEPPERRELEASE)
-				{
-					enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-				}
-				autotempShutdown();
-				setTargetHotend0(0);
-				setTargetHotend1(0);
-				setTargetBed(0);
-				
-				card.sdispaused = false;
-				cancel_heatup = true;
-				
-				//sleep_RELAY();
-				//Rapduch
-				Serial.println("STOP PRINT");
-				back_home = true;
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-				
-				
-				print_print_stop == false;
-			}
+			
 			
 			
 			

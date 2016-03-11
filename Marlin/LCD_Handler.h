@@ -577,8 +577,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
 					}
 					autotempShutdown();
-					setTargetHotend0(0);
-					setTargetHotend1(0);
+					//setTargetHotend0(0);
+					//setTargetHotend1(0);
 					//setTargetHotend2(0);
 					setTargetBed(0);
 					card.sdispaused = false;
@@ -1661,8 +1661,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else {*/
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
 					//}
-					setTargetHotend0(0);
-					setTargetHotend1(0);
+					//setTargetHotend0(0);
+					//setTargetHotend1(0);
 					//changeTool(0);
 				}
 				

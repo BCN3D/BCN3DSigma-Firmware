@@ -1149,7 +1149,17 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			else processing_state = (processing_state+1)%3;
 			waitPeriod_p=180+millis();
 		}
-	}	
+	}
+	if(filament_accept_ok && !home_made){
+		processing=true;
+	
+	
+		
+	}
+	if(filament_accept_ok && home_made && processing){
+		processing = false;
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);	
+	}
 	
 	//waitPeriod=250+millis();
 	genie.DoEvents(); //Processes the TouchScreen Queued Events. Calls LCD_Handler.h ->myGenieEventHandler()

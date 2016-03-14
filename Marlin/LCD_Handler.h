@@ -22,6 +22,7 @@
 extern bool cancel_heatup;
 void myGenieEventHandler();
 bool back_home = false;
+bool filament_accept_ok = false;
 bool print_setting_refresh = false;
 bool print_data_refresh = false;
 bool print_print_stop = false;
@@ -1650,13 +1651,18 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				//*****AdjustFilament******
 				#pragma region AdjustFilament
-				else if (Event.reportObject.index == BUTTON_ACCEPT_ADJUST)
+				else if (Event.reportObject.index == BUTTON_ACCEPT_ADJUST && filament_accept_ok == false)
 				{
 					
 					if (millis() >= waitPeriod_purge){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);	
+					filament_accept_ok = true;
+					home_made = false;
 					home_axis_from_code(true,true,false);
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);	
 					
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+					
+					
 					
 					
 					
@@ -1673,7 +1679,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//changeTool(0);
 				}
 				
-				else if (Event.reportObject.index == BUTTON_ADJUST_ZUp)
+				else if (Event.reportObject.index == BUTTON_ADJUST_ZUp  && filament_accept_ok == false)
 				{
 					if (millis() >= waitPeriod_purge){
 					//Adjusting the filament with a retrack Up
@@ -1687,7 +1693,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				}
 				
-				else if (Event.reportObject.index == BUTTON_ADJUST_ZDown)
+				else if (Event.reportObject.index == BUTTON_ADJUST_ZDown  && filament_accept_ok == false)
 				{
 					//Adjusting the filament with a purge Down
 					if (millis() >= waitPeriod_purge){
@@ -2017,12 +2023,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_SUCCESS_FILAMENT_OK)
 				{
+					if(home_made==true){
 					//enquecommand_P((PSTR("G28 X0 Y0")));
 					enquecommand_P((PSTR("T0")));
 					Serial.println("Filament Inserted/Removed, returning to Main Menu");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
+					
+					filament_accept_ok = false;
 					/*setTargetHotend0(0);
-					setTargetHotend1(0);*/
+					setTargetHotend1(0);*/}
 				}
 				#pragma endregion SuccessScreens
 				

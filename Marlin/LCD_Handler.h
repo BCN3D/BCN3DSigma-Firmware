@@ -325,7 +325,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						////plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
 						////st_synchronize();
 						card.pauseSDPrint();
-						Serial.println("PAUSE!");
+						//Serial.println("PAUSE!");
 						flag_pause = true;
 					}
 					
@@ -477,7 +477,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]-20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
 					//st_synchronize();
 					card.startFileprint();
-					Serial.println("RESUME!");
+					//Serial.println("RESUME!");
 					flag_resume = true;
 					if(flag_resume){
 						enquecommand_P(((PSTR("G70"))));
@@ -1652,14 +1652,21 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region AdjustFilament
 				else if (Event.reportObject.index == BUTTON_ACCEPT_ADJUST)
 				{
+					
+					if (millis() >= waitPeriod_purge){
 					home_axis_from_code(true,true,false);
 					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+					
+					
+					
+					}
 					/*if (quick_guide){
 						if (quick_guide_step == 1) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_RIGHT,0);
 						else if(quick_guide_step == 2) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_CALIBRATE,0);
 					}
 					else {*/
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+						
 					//}
 					//setTargetHotend0(0);
 					//setTargetHotend1(0);
@@ -1671,11 +1678,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (millis() >= waitPeriod_purge){
 					//Adjusting the filament with a retrack Up
 					Serial.println("Adjust ZUp");
-					float modified_position=current_position[E_AXIS]-5;
+					float modified_position=current_position[E_AXIS]-6;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
 					current_position[E_AXIS]=modified_position;
 					
-					waitPeriod_purge=millis()+2500;
+					waitPeriod_purge=millis()+3000;
 				}
 					
 				}
@@ -1685,10 +1692,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//Adjusting the filament with a purge Down
 					if (millis() >= waitPeriod_purge){
 					Serial.println("Adjust ZDown");
-					float modified_position=current_position[E_AXIS]+5;
+					float modified_position=current_position[E_AXIS]+6;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
 					current_position[E_AXIS]=modified_position;
-					waitPeriod_purge=millis()+2500;
+					waitPeriod_purge=millis()+3000;
 				}
 				}
 				#pragma endregion AdjustFilament

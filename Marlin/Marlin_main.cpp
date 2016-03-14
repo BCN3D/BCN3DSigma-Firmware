@@ -1293,6 +1293,9 @@ void get_command()
 		}*/
 		
 		//*********PAUSE POSITION AND RESUME POSITION IN PROBES
+		
+		//Serial.println("pause detected");
+		
 		if (flag_pause){
 			enquecommand_P(((PSTR("G69"))));
 			flag_pause = false;

@@ -1655,7 +1655,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					
 					if (millis() >= waitPeriod_purge){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);	
+						
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);	
 					filament_accept_ok = true;
 					home_made = false;
 					home_axis_from_code(true,true,false);

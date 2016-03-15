@@ -5665,7 +5665,7 @@ void process_commands()
 						Config_PrintSettings();
 					}
 					break;
-					case 504: //M555 Revert to default settings calibration and PID
+					case 504: //M504 Revert to default settings calibration and PID
 					{
 						Config_Reset_Calib();
 						Config_StoreSettings();

@@ -325,6 +325,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						////I believe it is a really unsafe way to do it
 						////plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
 						////st_synchronize();
+						
+						processing = true;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						
+						
 						card.pauseSDPrint();
 						//Serial.println("PAUSE!");
 						flag_pause = true;
@@ -477,6 +482,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//I believe it is a really unsafe way to do it
 					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]-20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
 					//st_synchronize();
+					processing = true;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					card.startFileprint();
 					//Serial.println("RESUME!");
 					flag_resume = true;

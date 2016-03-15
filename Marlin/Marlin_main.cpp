@@ -3688,6 +3688,9 @@ void process_commands()
 					st_synchronize();
 					//*********************************//
 					flag_pause = false;
+					
+					processing = false;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 					break;
 					}
 					

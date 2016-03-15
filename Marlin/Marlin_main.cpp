@@ -1300,6 +1300,8 @@ void get_command()
 			enquecommand_P(((PSTR("G69"))));
 			flag_pause = false;
 			Serial.println("pause detected");
+			processing = true;
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 		}
 		
 		//****************************************************/

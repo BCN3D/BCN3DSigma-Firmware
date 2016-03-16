@@ -19,9 +19,9 @@ Please refer to the [wiki][8] in order to get instructions on how to upgrade the
 
 This firmware was first developed by [Jordi Calduch][1] then was [Xavier Gómez][2] and now the current developer is [Alejandro Garcia][6] at [BCN3D Technologies][3]. This firmware is a rework of the popular [Marlin][4].
 
-The code is currently still in development, release date September 2015.
+The code is currently in development, trying to improve functionalities.
 
----
+
 ## Issues, bugs and suggestions
 
 Your feedback is very important to us as it helps us improve even faster. Therefore we think github is the way to go. Feel free to make an [issue](https://github.com/BCN3D/BCN3DSigma-Firmware/issues).
@@ -29,9 +29,19 @@ Your feedback is very important to us as it helps us improve even faster. Theref
 In order to be more efficient with the feedback, we recommend to follow some guidelines:
 
 + First of all. Search for related issues.
-+ Detail the firmware version you're running. It is displayed during start-up at the right bottom corner
++ Detail the firmware version you're running. It is displayed during start-up at the right bottom corner of the splash screen.
 + Try to explain us how to reproduce the error or bug, that way we can test it properly.
 + On the title, indicate the [label](https://github.com/BCN3D/BCN3DSigma-Firmware/labels) of the issue. For example > `[enhancement]: Some changes..`
+
+## Development
+For advanced users, it's possible to contribute in firmware development. In this section we'll explain how we do it.
+
+The `master` branch is stable  and it's currently version `1.1.4`. Then we decide the next package of improvements and make a branch from the version ended with `_X` where X is a letter.
+
+So for example, the development branches `1.1.4_a` and `1.1.4_b` include a series of improvements not fully tested.
+
+
+
 
 
 [1]:https://github.com/dryrain
@@ -42,4 +52,3 @@ In order to be more efficient with the feedback, we recommend to follow some gui
 [6]:https://github.com/AlejandroGarcia92
 [7]:https://github.com/BCN3D/BCN3DSigma-Firmware/releases
 [8]:https://github.com/BCN3D/BCN3D-Cura-Windows/wiki
-[9]:

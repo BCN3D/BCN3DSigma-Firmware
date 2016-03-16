@@ -947,7 +947,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	
 	
 	
-	if(card.sdprinting)
+	if(card.sdprinting || card.sdispaused)
 	{
 		
 		if(print_print_stop == true){

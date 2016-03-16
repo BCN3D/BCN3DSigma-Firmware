@@ -3286,28 +3286,51 @@ void process_commands()
 				Serial.print("Zvalue after home:");
 				Serial.println(current_position[Z_AXIS]);
 				
+			
 				dobloking= true;
 				float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
 				float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 				float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 				dobloking= false;
 				
+		
+				
+				/*
+				
 				//feedrate=homing_feedrate[X_AXIS];
 				feedrate = XY_TRAVEL_SPEED;
 				current_position[X_AXIS]=x_home_pos(active_extruder)+10; current_position[Z_AXIS]+= 3;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
-				/*feedrate=homing_feedrate[Z_AXIS];
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);*/
-				st_synchronize();
-			
+				feedrate=homing_feedrate[Z_AXIS];
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 				
+				*/
+				
+				
+				feedrate=homing_feedrate[Z_AXIS];
+				//current_position[Z_AXIS] += 5;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+3, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+				//feedrate=homing_feedrate[X_AXIS];
+				feedrate = XY_TRAVEL_SPEED;
+				current_position[X_AXIS]=x_home_pos(active_extruder)+10;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+3, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+				
+				
+				
+				
+				
+				st_synchronize();
+				
+				
+			
+			
 				//Now the right extruder joins the party!
 				
 				active_extruder=RIGHT_EXTRUDER;				
 				axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the right extruder
 				current_position[X_AXIS]-=10;				
 				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
-				
+
 				
 				//Probe at 3 arbitrary points
 				//probe left extruder

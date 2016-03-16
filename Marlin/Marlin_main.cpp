@@ -3703,13 +3703,7 @@ void process_commands()
 					//Serial.println(current_position[Z_AXIS]);
 					//*********************************//
 					
-					//********MOVE TO ORIGINAL POSITION Z
-					//if(current_position[Z_AXIS]>=extruder_offset[Z_AXIS]) += 20;
-					current_position[Z_AXIS] = saved_position[Z_AXIS];
-					feedrate=homing_feedrate[Z_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-					st_synchronize();
-					//*********************************//
+					
 					
 					
 					////******PURGE   -->> Purge to clean the extruder, retrack to avoid the trickle
@@ -3726,6 +3720,16 @@ void process_commands()
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
 					//*********************************//
+					
+					
+					//********MOVE TO ORIGINAL POSITION Z
+					//if(current_position[Z_AXIS]>=extruder_offset[Z_AXIS]) += 20;
+					current_position[Z_AXIS] = saved_position[Z_AXIS];
+					feedrate=homing_feedrate[Z_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					st_synchronize();
+					//*********************************//
+					
 					
 					//********EXTRACK to keep ready to the new instruction
 					current_position[E_AXIS]+=0; //2

@@ -1733,7 +1733,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//home_axis_from_code(true,true,true);
 						active_extruder = LEFT_EXTRUDER;
 						genie.WriteStr(STRING_AXIS,"        Z AXIS");
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);   ////FIX
 						genie.WriteStr(STRING_AXIS,"        Z AXIS");
 						delay(1500);
 						

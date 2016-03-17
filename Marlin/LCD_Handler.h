@@ -203,42 +203,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 		//USERBUTTONS------------------------------------------------------
 		
 		if (Event.reportObject.object == GENIE_OBJ_USERBUTTON) //Userbuttons to select GCODE from SD
+		
+		
 		{
-			if (card.sdprinting || print_print_stop){
+			if (card.sdprinting || card.sdispaused){
 				
-				//******PRINTING****
-				#pragma region Printing_screen
-				
-				if (Event.reportObject.index == BUTTON_PRINT_SETTINGS)
-				{
-					//Rapduch
-					//Edit for final TouchScreen
-					is_on_printing_screen=false;
-					print_setting_refresh = true;
-					
-					/*sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
-					//Serial.println(buffer);
-					genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
-					
-					sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
-					//Serial.println(buffer);
-					genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
-					
-					sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
-					//Serial.println(buffer);
-					genie.WriteStr(STRING_PS_BED_TEMP,buffer);
-					
-					sprintf(buffer, "%3d %%",feedmultiply);
-					//Serial.println(buffer);
-					genie.WriteStr(STRING_PS_SPEED,buffer);*/
-					
-					
-					
-				}
-				#pragma endregion Printing_screen			
-				
-				
-				else if (Event.reportObject.index == BUTTON_STOP_YES )
+				if (Event.reportObject.index == BUTTON_STOP_YES )
 				{
 					is_on_printing_screen=false;
 					print_print_stop = true;
@@ -283,6 +253,45 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					
 				}
+			}
+			
+			
+			
+			if (card.sdprinting){
+				
+				//******PRINTING****
+				#pragma region Printing_screen
+				
+				if (Event.reportObject.index == BUTTON_PRINT_SETTINGS)
+				{
+					//Rapduch
+					//Edit for final TouchScreen
+					is_on_printing_screen=false;
+					print_setting_refresh = true;
+					
+					/*sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+					//Serial.println(buffer);
+					genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
+					
+					sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+					//Serial.println(buffer);
+					genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
+					
+					sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+					//Serial.println(buffer);
+					genie.WriteStr(STRING_PS_BED_TEMP,buffer);
+					
+					sprintf(buffer, "%3d %%",feedmultiply);
+					//Serial.println(buffer);
+					genie.WriteStr(STRING_PS_SPEED,buffer);*/
+					
+					
+					
+				}
+				#pragma endregion Printing_screen			
+				
+				
+				
 				else if (Event.reportObject.index == BUTTON_STOP_NO )
 				{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
@@ -326,7 +335,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						////plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
 						////st_synchronize();
 						//processing = true;
-						//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						
 						card.pauseSDPrint();
 						//Serial.println("PAUSE!");
@@ -482,6 +490,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//st_synchronize();
 					card.startFileprint();
 					//Serial.println("RESUME!");
+					flag_pause = false;
 					flag_resume = true;
 					if(flag_resume){
 						enquecommand_P(((PSTR("G70"))));

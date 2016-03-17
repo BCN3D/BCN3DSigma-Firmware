@@ -3760,7 +3760,8 @@ void process_commands()
 					
 					//********EXTRACK to keep ready to the new instruction
 					current_position[E_AXIS]+=0; //2
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
+					feedrate=20*60;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
 					//*********************************//
 					flag_resume = false;

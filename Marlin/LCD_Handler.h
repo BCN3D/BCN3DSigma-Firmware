@@ -204,7 +204,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 		
 		if (Event.reportObject.object == GENIE_OBJ_USERBUTTON) //Userbuttons to select GCODE from SD
 		{
-			if (card.sdprinting){
+			if (card.sdprinting || print_print_stop){
 				
 				//******PRINTING****
 				#pragma region Printing_screen

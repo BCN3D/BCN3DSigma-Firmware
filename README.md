@@ -34,11 +34,9 @@ In order to be more efficient with the feedback, we recommend to follow some gui
 + On the title, indicate the [label](https://github.com/BCN3D/BCN3DSigma-Firmware/labels) of the issue. For example > `[enhancement]: Some changes..`
 
 ## Development
-For advanced users, it's possible to contribute in firmware development. In this section we'll explain how we do it.
+For advanced users, it's possible to contribute in firmware development. We explain everything in the [wiki][9]. So if you are interested in contributing, folow the instructions [there][9]. 
 
-The `master` branch is stable  and it's currently version `1.1.4`. Then we decide the next package of improvements and make a branch from the version ended with `_X` where X is a letter.
-
-So for example, the development branches `1.1.4_a` and `1.1.4_b` include a series of improvements not fully tested.
+The `master` branch is stable  and it's currently on version `1.1.4`.
 
 
 
@@ -52,3 +50,4 @@ So for example, the development branches `1.1.4_a` and `1.1.4_b` include a serie
 [6]:https://github.com/AlejandroGarcia92
 [7]:https://github.com/BCN3D/BCN3DSigma-Firmware/releases
 [8]:https://github.com/BCN3D/BCN3D-Cura-Windows/wiki
+[9]:https://github.com/BCN3D/BCN3DSigma-Firmware/wiki

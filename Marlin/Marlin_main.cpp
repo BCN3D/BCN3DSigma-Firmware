@@ -2773,7 +2773,7 @@ void process_commands()
 
 			//Rapduch for RepRapBCN Sigma
 			#ifdef EXTRUDER_CALIBRATION_WIZARD
-			case 43://G43 --> Z LEFT Extruder calibration
+			case 43://G43 --> Z LEFT Extruder calibration 
 			{
 				Serial.println("Starting Z Calibration Wizard");
 				//Raise to correct
@@ -2784,9 +2784,12 @@ void process_commands()
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
 				
 				feedrate = homing_feedrate[X_AXIS];
-				current_position[X_AXIS]=X_MAX_POS/2;
 				current_position[Y_AXIS]=Y_MAX_POS/2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
+				
+				current_position[X_AXIS]=X_MAX_POS/2;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
+				
 				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 				
 				//Now we are in position to do the calibration MANUALLY with the TOUCHSCREEN

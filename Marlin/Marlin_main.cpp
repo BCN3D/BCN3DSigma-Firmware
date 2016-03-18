@@ -1297,6 +1297,7 @@ void get_command()
 		//Serial.println("pause detected");
 		
 		if (flag_pause){
+			
 			enquecommand_P(((PSTR("G69"))));
 			flag_pause = false;
 			Serial.println("pause detected");
@@ -2773,7 +2774,7 @@ void process_commands()
 
 			//Rapduch for RepRapBCN Sigma
 			#ifdef EXTRUDER_CALIBRATION_WIZARD
-			case 43://G43 --> Z LEFT Extruder calibration
+			case 43://G43 --> Z LEFT Extruder calibration 
 			{
 				Serial.println("Starting Z Calibration Wizard");
 				//Raise to correct
@@ -2784,9 +2785,12 @@ void process_commands()
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
 				
 				feedrate = homing_feedrate[X_AXIS];
-				current_position[X_AXIS]=X_MAX_POS/2;
 				current_position[Y_AXIS]=Y_MAX_POS/2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
+				
+				current_position[X_AXIS]=X_MAX_POS/2;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
+				
 				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 				
 				//Now we are in position to do the calibration MANUALLY with the TOUCHSCREEN
@@ -3309,11 +3313,11 @@ void process_commands()
 				
 				feedrate=homing_feedrate[Z_AXIS];
 				//current_position[Z_AXIS] += 5;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+3, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 				//feedrate=homing_feedrate[X_AXIS];
 				feedrate = XY_TRAVEL_SPEED;
 				current_position[X_AXIS]=x_home_pos(active_extruder)+10;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+3, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 				
 				
 				
@@ -3342,7 +3346,7 @@ void process_commands()
 				
 				feedrate=homing_feedrate[Z_AXIS];
 				//current_position[Z_AXIS] += 5;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				//feedrate=homing_feedrate[X_AXIS];
 				feedrate = XY_TRAVEL_SPEED;
 				current_position[X_AXIS]=x_home_pos(active_extruder)-10;
@@ -3756,7 +3760,8 @@ void process_commands()
 					
 					//********EXTRACK to keep ready to the new instruction
 					current_position[E_AXIS]+=0; //2
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
+					feedrate=20*60;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
 					//*********************************//
 					flag_resume = false;

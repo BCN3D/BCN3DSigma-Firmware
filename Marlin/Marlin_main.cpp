@@ -654,7 +654,8 @@ void servo_init()
 
 void setup()
 {
-	
+	int led = 0;
+	static uint32_t waitPeriod = millis(); //Processing back home
 	setup_killpin();
 	setup_powerhold();
 	
@@ -666,8 +667,22 @@ void setup()
 	
 	
 	Serial.println("BCN3D Sigma");
-	
+			pinMode(RED,OUTPUT);
+			pinMode(GREEN,OUTPUT);
+			pinMode(BLUE,OUTPUT);
+			//Setting the LEDs at full power -> WHITE
+			analogWrite(RED,0);
+			analogWrite(GREEN,0);
+			analogWrite(BLUE,0);
 	//LCD START routine
+	
+		tp_init();    // Initialize temperature loop
+		plan_init();  // Initialize planner;
+		watchdog_init();
+		st_init();    // Initialize stepper, this enables interrupts!
+		setup_photpin();
+		servo_init();
+	
 	#ifdef SIGMA_TOUCH_SCREEN
 
 			
@@ -683,8 +698,53 @@ void setup()
 			digitalWrite(RESETLINE, 0);  // Reset the Display
 			delay(100);
 			digitalWrite(RESETLINE, 1);  // unReset the Display
-	
-			delay(4500); //showing the splash screen			
+			
+			
+			
+			
+			delay(4500); //showing the splash screen
+			
+			
+			
+			
+			
+			/*
+			while(led < 256){
+				if (millis() >= waitPeriod)
+				{
+					
+					analogWrite(RED,led);
+					
+				waitPeriod=5+millis();	//Every 5s
+				led++;
+				}
+			}
+			led=0;
+			while(led < 256){
+				if (millis() >= waitPeriod)
+				{
+					
+					
+					analogWrite(GREEN,led);
+					
+					waitPeriod=5+millis();	//Every 5s
+					led++;
+				}
+			}
+			led=0;
+			while(led < 256){
+				if (millis() >= waitPeriod)
+				{
+					
+					
+					analogWrite(BLUE,led);
+					
+					waitPeriod=5+millis();	//Every 5s
+					led++;
+				}
+			}
+			*/
+						
 	
 			// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 			//Config_RetrieveSettings();
@@ -700,7 +760,19 @@ void setup()
 				
 			} else {*/
 				genie.WriteStr(STRING_VERSION,VERSION_STRING);
-				delay(2500);
+				
+				while(led < 256){
+					if (millis() >= waitPeriod)
+					{
+						analogWrite(GREEN,led);
+						analogWrite(RED,led);
+						analogWrite(BLUE,led);
+						
+						waitPeriod=10+millis();	//Every 5s
+						led++;
+					}
+				}
+				//delay(2500);
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 				log_prints = 0;
@@ -740,24 +812,26 @@ void setup()
 	analogWrite(GREEN,255);
 	analogWrite(BLUE,255);
 	#endif*/
+	/*
+	analogWrite(RED,0);
+	analogWrite(GREEN,0);
+	analogWrite(BLUE,0);
+	*/
+	/*
 	tp_init();    // Initialize temperature loop
 	plan_init();  // Initialize planner;
 	watchdog_init();
 	st_init();    // Initialize stepper, this enables interrupts!
 	setup_photpin();
 	servo_init();
-	
+	*/
 	
 	//lcd_init();
 	//Enabling RELAY ( Stepper Drivers Power )
 	#if MOTHERBOARD == BCN3D_BOARD	
-		pinMode(RED,OUTPUT);
-		pinMode(GREEN,OUTPUT);
-		pinMode(BLUE,OUTPUT);
-		//Setting the LEDs at full power -> WHITE
-		digitalWrite(RED,HIGH);
-		digitalWrite(GREEN,HIGH);
-		digitalWrite(BLUE,HIGH);
+	
+	/*
+			*/
 		
 		//enable 24V
 		pinMode(RELAY, OUTPUT);

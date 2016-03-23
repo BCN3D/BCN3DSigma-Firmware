@@ -2902,14 +2902,17 @@ void process_commands()
 				float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 				float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 				
+				
+				
 				feedrate=homing_feedrate[Z_AXIS];
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
-				feedrate = XY_TRAVEL_SPEED;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+				feedrate = XY_TRAVEL_SPEED*1.5;
 				current_position[X_AXIS]=x_home_pos(active_extruder)+15;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 				feedrate=homing_feedrate[Z_AXIS];
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 				st_synchronize();
+				
 				
 				
 				//Now the right extruder joins the party!
@@ -2933,14 +2936,14 @@ void process_commands()
 				
 				
 				feedrate=homing_feedrate[Z_AXIS];
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
-				feedrate = XY_TRAVEL_SPEED;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+				feedrate = XY_TRAVEL_SPEED*1.5; //// before XY_TRAVEL_SPEED
 				current_position[X_AXIS]=x_home_pos(active_extruder)-15;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				feedrate=homing_feedrate[Z_AXIS];
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				current_position[Y_AXIS]=Y_MAX_POS/2;
-				feedrate = XY_TRAVEL_SPEED;
+				feedrate = XY_TRAVEL_SPEED*1.5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				st_synchronize();
 				
@@ -3336,7 +3339,7 @@ void process_commands()
 				//current_position[Z_AXIS] += 5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 				//feedrate=homing_feedrate[X_AXIS];
-				feedrate = XY_TRAVEL_SPEED;
+				feedrate = XY_TRAVEL_SPEED*1.5;
 				current_position[X_AXIS]=x_home_pos(active_extruder)+10;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 				
@@ -3369,13 +3372,13 @@ void process_commands()
 				//current_position[Z_AXIS] += 5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				//feedrate=homing_feedrate[X_AXIS];
-				feedrate = XY_TRAVEL_SPEED;
+				feedrate = XY_TRAVEL_SPEED*1.5;
 				current_position[X_AXIS]=x_home_pos(active_extruder)-10;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				feedrate=homing_feedrate[Z_AXIS];
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				current_position[Y_AXIS]=Y_MAX_POS/2;
-				feedrate = XY_TRAVEL_SPEED;
+				feedrate = XY_TRAVEL_SPEED*1.5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				st_synchronize();
 				

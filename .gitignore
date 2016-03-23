@@ -60,3 +60,5 @@ Marlin/__vm/Upload.vmps.xml
 *.xml
 Marlin/__vm/Compile.vmps.xml
 *.xml
+Marlin/__vm/.Marlin.vsarduino.h
+*.xml

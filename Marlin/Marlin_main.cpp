@@ -756,42 +756,7 @@ void setup()
 	st_init();    // Initialize stepper, this enables interrupts!
 	setup_photpin();
 	servo_init();
-	/*//Enabling RELE ( Stepper Drivers Power )
-	#if MOTHERBOARD==BCN3D_BOARD //BCNElectronics v1
-	//enable 24V
-	pinMode(RELAY, OUTPUT);
-	digitalWrite(RELAY, LOW);
-	//delay(50);
-	digitalWrite(RELAY, HIGH);
-	//delay(50);
 	
-	//pinMode(RED,OUTPUT);
-	//pinMode(GREEN,OUTPUT);
-	//pinMode(BLUE,OUTPUT);
-
-	//analogWrite(RED,177);
-	//analogWrite(GREEN,177);
-	//analogWrite(BLUE,127);//Turn printer Blue rgb
-	
-	analogWrite(RED,255);
-	analogWrite(GREEN,255);
-	analogWrite(BLUE,255);
-	#endif*/
-	/*
-	analogWrite(RED,0);
-	analogWrite(GREEN,0);
-	analogWrite(BLUE,0);
-	*/
-	
-	//tp_init();    // Initialize temperature loop
-	//plan_init();  // Initialize planner;
-	//watchdog_init();
-	//st_init();    // Initialize stepper, this enables interrupts!
-	//setup_photpin();
-	//servo_init();
-	
-	//lcd_init();
-	//Enabling RELAY ( Stepper Drivers Power )
 	
 	
 	

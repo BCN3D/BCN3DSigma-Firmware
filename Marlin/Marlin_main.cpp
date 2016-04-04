@@ -320,7 +320,7 @@ float zprobe_zoffset;
 bool processing = false;
 bool heatting = false;
 bool back_home = false;
-
+char namefilegcode[13];
 int bed_calibration_times = 0; //To control the number of bed calibration to available the skip option
 
 int log_prints;
@@ -901,6 +901,31 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			//Serial.println(buffer);
 			genie.WriteStr(STRINGS_PRINTING_FEED,buffer);
 			
+			char buffer3[13];
+			if (String(card.longFilename).length()>12){
+				for (int i = 0; i<12 ; i++)
+				{
+					buffer3[i]=card.longFilename[i];
+				}
+				buffer3[12]='\0';
+				char* buffer2 = strcat(buffer3,"...\0");
+				Serial.print("Card Name: ");
+				Serial.println(card.longFilename);
+				Serial.print("Buffer1: ");
+				Serial.println(buffer3);
+				Serial.print("buffer out: ");
+				Serial.println(buffer2);
+				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+				}else{
+				for (int i = 0; i<=String(card.longFilename).length(); i++)
+				{
+					if (buffer3[i] == '.') i = String(card.longFilename).length() +10;
+					else buffer3[i]=card.longFilename[i];
+				}
+				//buffer[count]='\0';
+				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
+			}
+			
 			waitPeriod=5000+millis();	//Every 5s
 			count5s++;
 			if (count5s == 720){ //5s * 720 = 3600s = 1h
@@ -1158,10 +1183,13 @@ void get_command()
 		}*/
 		
 		//*********PAUSE POSITION AND RESUME POSITION IN PROBES
-		if (flag_pause){
+		if (flag_pause && !flag_resume){
+			
 			enquecommand_P(((PSTR("G69"))));
 			flag_pause = false;
 			Serial.println("pause detected");
+			processing = true;
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 		}
 		
 		//****************************************************/
@@ -3513,7 +3541,7 @@ void process_commands()
 					
 					case 69: //G69 pause
 					{
-					Serial.println("G69 ACTIVATED");
+						Serial.println("G69 ACTIVATED");
 					////*******SAVE ACTUIAL POSITION
 					saved_position[X_AXIS] = current_position[X_AXIS];
 					saved_position[Y_AXIS] = current_position[Y_AXIS];
@@ -3550,23 +3578,20 @@ void process_commands()
 					st_synchronize();
 					//*********************************//
 					flag_pause = false;
+					
+					processing = false;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 					break;
 					}
 					
-					case 70: //G70 resume
+					case 70:	
 					Serial.println("G70 ACTIVATED");
 					////*******LOAD ACTUIAL POSITION
 					current_position[Y_AXIS] = saved_position[Y_AXIS];
 					//Serial.println(current_position[Z_AXIS]);
 					//*********************************//
 					
-					//********MOVE TO ORIGINAL POSITION Z
-					//if(current_position[Z_AXIS]>=extruder_offset[Z_AXIS]) += 20;
-					current_position[Z_AXIS] = saved_position[Z_AXIS];
-					feedrate=homing_feedrate[Z_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-					st_synchronize();
-					//*********************************//
+					
 					
 					
 					////******PURGE   -->> Purge to clean the extruder, retrack to avoid the trickle
@@ -3584,11 +3609,23 @@ void process_commands()
 					st_synchronize();
 					//*********************************//
 					
-					//********EXTRACK to keep ready to the new instruction
-					current_position[E_AXIS]+=0; //2
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
+					
+					//********MOVE TO ORIGINAL POSITION Z
+					//if(current_position[Z_AXIS]>=extruder_offset[Z_AXIS]) += 20;
+					current_position[Z_AXIS] = saved_position[Z_AXIS];
+					feedrate=homing_feedrate[Z_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
 					//*********************************//
+					
+					
+					//********EXTRACK to keep ready to the new instruction
+					current_position[E_AXIS]+=0; //2
+					feedrate=20*60;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					st_synchronize();
+					//*********************************//
+					
 					flag_resume = false;
 					break;
 

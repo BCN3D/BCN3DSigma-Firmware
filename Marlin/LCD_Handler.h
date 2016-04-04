@@ -157,7 +157,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 		
 		if (Event.reportObject.object == GENIE_OBJ_USERBUTTON) //Userbuttons to select GCODE from SD
 		{
-			if (card.sdprinting){
+			if (card.sdprinting || card.sdispaused){
 				
 				//******PRINTING****
 				#pragma region Printing_screen
@@ -230,7 +230,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					back_home = true;
 				}
 				
-				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME )
+				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME && card.sdprinting)
 				{
 					int value = genie.GetEventData(&Event);
 					if (value == 1) // Need to pause
@@ -244,6 +244,23 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					
 				}
+				//We need to Resume/Enter Printing Settings/Stop printing
+				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME && card.sdispaused)
+				{
+					//I believe it is a really unsafe way to do it
+					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]-20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
+					//st_synchronize();
+					card.startFileprint();
+					Serial.println("RESUME!");
+					flag_pause = false;
+					flag_resume = true;
+					if(flag_resume){
+						enquecommand_P(((PSTR("G70"))));
+						flag_resume = false;
+						Serial.println("resume detected");
+					}
+				}
+				
 				
 				//*****Printing Settings*****
 				#pragma region Printing Settings
@@ -350,23 +367,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				}else{//All that has to be done out of the printing room
 				
-				//We need to Resume/Enter Printing Settings/Stop printing
-				if (Event.reportObject.index == BUTTON_PAUSE_RESUME )
-				{
-					//I believe it is a really unsafe way to do it
-					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]-20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
-					//st_synchronize();
-					card.startFileprint();
-					Serial.println("RESUME!");
-					flag_resume = true;
-					if(flag_resume){
-						enquecommand_P(((PSTR("G70"))));
-						flag_resume = false;
-						Serial.println("resume detected");
-					}
-				}
 				
-				else if (Event.reportObject.index == BUTTON_CHANGE_EXTRUDER)
+				
+				if (Event.reportObject.index == BUTTON_CHANGE_EXTRUDER)
 				{
 					int value = genie.GetEventData(&Event);
 					if (value == 1)

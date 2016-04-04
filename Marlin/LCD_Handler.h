@@ -199,6 +199,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					card.sdprinting = false;
 					card.closefile();
 					dobloking =false;
+					home_made = false;
 					//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
 					quickStop();
 					
@@ -225,7 +226,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					//sleep_RELAY();
 					//Rapduch
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					back_home = true;
 				}
 				
 				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME )

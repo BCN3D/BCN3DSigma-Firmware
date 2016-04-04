@@ -319,7 +319,7 @@ float zprobe_zoffset;
 //bools to control which kind of process are actually running
 bool processing = false;
 bool heatting = false;
-
+bool back_home = false;
 
 int bed_calibration_times = 0; //To control the number of bed calibration to available the skip option
 
@@ -866,6 +866,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	//static keyword specifies that the variable retains its state between calls to the function
 	static uint32_t waitPeriod = millis();
 	static uint32_t waitPeriod_p = millis();
+	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
 	static int count5s = 0;
 	//if(card.sdprinting && is_on_printing_screen)
 	if(card.sdprinting)
@@ -1000,6 +1001,29 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			else processing_state = (processing_state+1)%3;
 			waitPeriod_p=180+millis();
 		}
+	}
+	if(back_home){
+			if(home_made == false){
+				
+				if (millis() >= waitPeriod_pbackhome){
+					static int processing_state = 0;
+					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
+					if (processing_state == 0) processing_state = (processing_state+1)%3;
+					else processing_state = (processing_state+1)%3;
+					waitPeriod_pbackhome=180+millis();
+				}
+				
+			}
+			else{
+				
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				back_home = false;
+				//form home
+				
+				
+				
+				
+			}
 	}	
 	
 	//waitPeriod=250+millis();

@@ -3190,7 +3190,7 @@ void process_commands()
 				
 				Serial.print("Zvalue after home:");
 				Serial.println(current_position[Z_AXIS]);	
-			
+				
 				dobloking= true;
 				float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
 				float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));

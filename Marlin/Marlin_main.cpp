@@ -869,12 +869,11 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
 	static int count5s = 0;
 	//if(card.sdprinting && is_on_printing_screen)
-	if(card.sdprinting && !card.sdispaused || !card.sdprinting && card.sdispaused )
+	if(card.sdprinting)
 	{
 		
 		if (millis() >= waitPeriod)
 		{
-			if(is_on_printing_screen){
 			int tHotend=int(degHotend(0));
 			int tHotend1=int(degHotend(1));
 			int tBed=int(degBed() + 0.5);
@@ -901,7 +900,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			sprintf(buffer, "% 3d %%",feedmultiply);
 			//Serial.println(buffer);
 			genie.WriteStr(STRINGS_PRINTING_FEED,buffer);
-			/*
+			
 			char buffer3[13];
 			if (String(card.longFilename).length()>12){
 				for (int i = 0; i<12 ; i++)
@@ -910,6 +909,12 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				}
 				buffer3[12]='\0';
 				char* buffer2 = strcat(buffer3,"...\0");
+				Serial.print("Card Name: ");
+				Serial.println(card.longFilename);
+				Serial.print("Buffer1: ");
+				Serial.println(buffer3);
+				Serial.print("buffer out: ");
+				Serial.println(buffer2);
 				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
 				}else{
 				for (int i = 0; i<=String(card.longFilename).length(); i++)
@@ -919,10 +924,9 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				}
 				//buffer[count]='\0';
 				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
-			}*/
 			}
-			waitPeriod=5000+millis();	//Every 5s
 			
+			waitPeriod=5000+millis();	//Every 5s
 			count5s++;
 			if (count5s == 720){ //5s * 720 = 3600s = 1h
 				count5s=0;
@@ -1013,20 +1017,6 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			#endif //Extruders > 1
 			waitPeriod=1000+millis(); // Every Second
 		}
-	}
-	else{
-		
-		if(filament_accept_ok && !home_made){
-			processing=true;
-			
-			
-			
-		}
-		if(filament_accept_ok && home_made && processing){
-			processing = false;
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
-		}
-		
 	}	
 	if (processing){
 		if (millis() >= waitPeriod_p){
@@ -1059,8 +1049,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				
 				
 			}
-	}
-	
+	}	
 	
 	//waitPeriod=250+millis();
 	genie.DoEvents(); //Processes the TouchScreen Queued Events. Calls LCD_Handler.h ->myGenieEventHandler()
@@ -3595,7 +3584,8 @@ void process_commands()
 					break;
 					}
 					
-					case 70:	Serial.println("G70 ACTIVATED");
+					case 70:	
+					Serial.println("G70 ACTIVATED");
 					////*******LOAD ACTUIAL POSITION
 					current_position[Y_AXIS] = saved_position[Y_AXIS];
 					//Serial.println(current_position[Z_AXIS]);

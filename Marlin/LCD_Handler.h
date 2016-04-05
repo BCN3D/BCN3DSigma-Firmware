@@ -1580,12 +1580,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_REDO_BED_CALIB )
 				{
+					processing = true;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					home_axis_from_code(true,false,false);
 					enquecommand_P((PSTR("T0")));
 					enquecommand_P((PSTR("G34")));
 					previous_state = FORM_CALIBRATION;
-					processing = true;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
 					flag_bed_calib_done = true;
 				}
 				

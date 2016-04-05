@@ -323,6 +323,9 @@ extern int old_insert_temp_r;
 extern int old_remove_temp_r;
 extern int old_print_temp_r;
 extern int old_bed_temp_r;
+extern int dateresetday;
+extern int dateresetmonth;
+extern int dateresetyear;
 extern void PID_autotune_Save(float temp, int extruder, int ncycles);
 extern void Config_Reset_Calib();
 extern void Config_StoreSettings();
@@ -337,5 +340,7 @@ extern int log_max_temp_l;
 extern int log_max_temp_r;
 extern int log_max_bed;
 extern void checkMaxTemps();
-extern void Config_Reset_Statistics(int data);
+extern void Config_Reset_Statistics(int data, int day, int month, int year);
+extern void Change_ConfigTemp_LeftHotend(int i_temp_l, int remove_temp_l, int p_temp_r, int b_temp_l);
+extern void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int b_temp_r);
 #endif

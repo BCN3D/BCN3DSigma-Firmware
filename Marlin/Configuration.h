@@ -837,7 +837,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define NUM_LINES 10
 //#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
-#define HOMING_FEEDRATE {75*60, 65*60, 6*60, 0}
+#define HOMING_FEEDRATE {90*60, 90*60, 6*60, 0} ///{75*60, 65*60, 6*60, 0}  // old homing speeds (mm/min)
 
 // default settings if screen not defined
 #ifndef SIGMA_TOUCH_SCREEN

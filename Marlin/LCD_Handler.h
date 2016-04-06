@@ -21,6 +21,7 @@
 void insertmetod();
 extern bool cancel_heatup;
 void myGenieEventHandler();
+bool print_setting_refresh = false;
 bool flag_filament_home= false;
 bool filament_accept_ok = false;
 bool flag_pause = false;
@@ -168,12 +169,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					//Rapduch
 					//Edit for final TouchScreen
-					Serial.println("PRINTING SETTINGS");
+					//Serial.println("PRINTING SETTINGS");
 					char buffer[256];
 					
 					
 					is_on_printing_screen=false;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
+					/*genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
 					
 					
 					sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
@@ -191,6 +192,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					sprintf(buffer, "%3d %%",feedmultiply);
 					//Serial.println(buffer);
 					genie.WriteStr(STRING_PS_SPEED,buffer);
+					*/
+					print_setting_refresh = true;
+					
+					
 				}
 				#pragma endregion Printing_screen			
 				

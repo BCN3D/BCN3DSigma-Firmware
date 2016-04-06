@@ -869,6 +869,36 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
 	static int count5s = 0;
 	//if(card.sdprinting && is_on_printing_screen)
+	if(print_setting_refresh){
+				
+				char buffer[256];
+				SERIAL_PROTOCOLPGM("PRINT SETTINGS \n");
+				//char buffer[256];
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
+				
+				
+				sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
+				
+				sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
+				
+				sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PS_BED_TEMP,buffer);
+				
+				sprintf(buffer, "%3d %%",feedmultiply);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PS_SPEED,buffer);
+				
+				
+				waitPeriod=5000+millis();	//Every 5s
+				
+				print_setting_refresh = false;
+	}
+	
 	if(card.sdprinting && !card.sdispaused || !card.sdprinting && card.sdispaused )
 	{
 		

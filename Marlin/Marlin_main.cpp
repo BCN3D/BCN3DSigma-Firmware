@@ -2704,7 +2704,7 @@ void process_commands()
 			
 			#ifdef ENABLE_AUTO_BED_LEVELING
 
-			case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for RepRapBCN
+			case 33: // G33 Calibration Wizard by Eric Pallarés & Jordi Calduch for BCN3D Technologies
 			{
 				//WARNING: T0 (LEFT_EXTRUDER) MUST BE SELECTED!
 				if (active_extruder==RIGHT_EXTRUDER){
@@ -2712,7 +2712,7 @@ void process_commands()
 					break; //An error message should show up on screen
 				}
 				
-				//Rapduch
+				 
 				#ifdef Z_SIGMA_AUTOLEVEL
 				
 				#if Z_MIN_PIN == -1
@@ -2776,14 +2776,17 @@ void process_commands()
 				float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 				float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 				
+				
+				
 				feedrate=homing_feedrate[Z_AXIS];
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
-				feedrate = XY_TRAVEL_SPEED;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+				feedrate = XY_TRAVEL_SPEED*1.5;
 				current_position[X_AXIS]=x_home_pos(active_extruder)+15;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 				feedrate=homing_feedrate[Z_AXIS];
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 				st_synchronize();
+				
 				
 				
 				//Now the right extruder joins the party!
@@ -2807,14 +2810,14 @@ void process_commands()
 				
 				
 				feedrate=homing_feedrate[Z_AXIS];
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
-				feedrate = XY_TRAVEL_SPEED;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+				feedrate = XY_TRAVEL_SPEED*1.5; //// before XY_TRAVEL_SPEED
 				current_position[X_AXIS]=x_home_pos(active_extruder)-15;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				feedrate=homing_feedrate[Z_AXIS];
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				current_position[Y_AXIS]=Y_MAX_POS/2;
-				feedrate = XY_TRAVEL_SPEED;
+				feedrate = XY_TRAVEL_SPEED*1.5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				st_synchronize();
 				
@@ -2837,7 +2840,7 @@ void process_commands()
 				Serial.print("Probe 3: ");
 				Serial.println(z_final_probe_3);
 				
-				//Rapduch: We negated the Z points passed on this functions because the actual correction was inverted
+				// : We negated the Z points passed on this functions because the actual correction was inverted
 				//set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
 				set_bed_level_equation_3pts(-z_final_probe_1, -z_final_probe_2, -z_final_probe_3);
 				//This puts the current_posZ at z probe offset!!!
@@ -2905,7 +2908,6 @@ void process_commands()
 				#else
 				
 				//First do AUTOHOME
-				//enquecommand_P((PSTR("G28"))); //This is not working!!!!!!!!!!! cant enqueue and plan buffer!
 				
 				///////////////////////////
 				//Autohome done - Now calibration calculus
@@ -3108,7 +3110,7 @@ void process_commands()
 				break; //G33 ends
 			}
 			
-			//Rapduch
+			 
 			#ifdef SIGMA_BED_AUTOCALIB
 			case 34: // G34 Performs a BED calibration Wizard with TouchScreen Integration
 			{
@@ -3183,30 +3185,42 @@ void process_commands()
 				// probe left extruder
 				
 				Serial.print("Zvalue after home:");
-				Serial.println(current_position[Z_AXIS]);
-				
+				Serial.println(current_position[Z_AXIS]);	
+			
 				dobloking= true;
 				float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
 				float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 				float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 				dobloking= false;
 				
+				/*
+				
 				//feedrate=homing_feedrate[X_AXIS];
 				feedrate = XY_TRAVEL_SPEED;
 				current_position[X_AXIS]=x_home_pos(active_extruder)+10; current_position[Z_AXIS]+= 3;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
-				/*feedrate=homing_feedrate[Z_AXIS];
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);*/
+				feedrate=homing_feedrate[Z_AXIS];
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+				
+				*/
+				
+				
+				feedrate=homing_feedrate[Z_AXIS];
+				//current_position[Z_AXIS] += 5;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+				//feedrate=homing_feedrate[X_AXIS];
+				feedrate = XY_TRAVEL_SPEED*1.5;
+				current_position[X_AXIS]=x_home_pos(active_extruder)+10;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+				
 				st_synchronize();
 			
-				
 				//Now the right extruder joins the party!
 				
 				active_extruder=RIGHT_EXTRUDER;				
 				axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the right extruder
 				current_position[X_AXIS]-=10;				
 				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
-				
 				
 				//Probe at 3 arbitrary points
 				//probe left extruder
@@ -3218,15 +3232,15 @@ void process_commands()
 				
 				feedrate=homing_feedrate[Z_AXIS];
 				//current_position[Z_AXIS] += 5;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				//feedrate=homing_feedrate[X_AXIS];
-				feedrate = XY_TRAVEL_SPEED;
+				feedrate = XY_TRAVEL_SPEED*1.5;
 				current_position[X_AXIS]=x_home_pos(active_extruder)-10;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				feedrate=homing_feedrate[Z_AXIS];
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				current_position[Y_AXIS]=Y_MAX_POS/2;
-				feedrate = XY_TRAVEL_SPEED;
+				feedrate = XY_TRAVEL_SPEED*1.5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				st_synchronize();
 				

@@ -2675,21 +2675,17 @@ void process_commands()
 			case 43://G43 --> Z LEFT Extruder calibration
 			{
 				Serial.println("Starting Z Calibration Wizard");
-				Serial.println("The Z height will move in 0.05 mm increments");
-				//Home if needed
-				if (!home_made) home_axis_from_code(true, true, true);
-				// Z position to 1mm
+				//Raise to correct
+				
+				
 				feedrate = homing_feedrate[Z_AXIS];
-				current_position[Z_AXIS]=1;
+				current_position[Z_AXIS]=1;				
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
 				
 				feedrate = homing_feedrate[X_AXIS];
+				current_position[X_AXIS]=X_MAX_POS/2;
 				current_position[Y_AXIS]=Y_MAX_POS/2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
-				
-				current_position[X_AXIS]=X_MAX_POS/2;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
-				
 				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 				
 				//Now we are in position to do the calibration MANUALLY with the TOUCHSCREEN
@@ -2700,7 +2696,7 @@ void process_commands()
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER1,0);
 					}else{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER2,0);
-				}
+				}	
 				break;
 			}
 			#endif //EXTRUDER_CALIBRATION_WIZARD

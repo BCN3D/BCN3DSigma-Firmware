@@ -3,6 +3,8 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "ConfigurationStore.h"
+#include "language.h"
+
 
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size)
 {
@@ -38,7 +40,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 
-#define EEPROM_VERSION "V12"
+#define EEPROM_VERSION "V13"
 /*#ifdef DELTA
 	#undef EEPROM_VERSION
 	#define EEPROM_VERSION "V11"
@@ -142,6 +144,9 @@ void Config_StoreSettings()
   #ifdef SCARA
   EEPROM_WRITE_VAR(i,axis_scaling);        // Add scaling for SCARA
   #endif
+  EEPROM_WRITE_VAR(i,dateresetday);
+  EEPROM_WRITE_VAR(i,dateresetmonth);         //date reset
+  EEPROM_WRITE_VAR(i,dateresetyear);
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver2); // validate data
@@ -239,7 +244,7 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOLN("");
 	
 	 SERIAL_ECHO_START;
-	 SERIAL_ECHOLNPGM("Temp (ºC):");
+	 SERIAL_ECHOLNPGM("Temps Left hotend");
 	 SERIAL_ECHO_START;
 	 SERIAL_ECHOPAIR(" L_INSERT ",(float)insert_temp_l);
 	 SERIAL_ECHOPAIR(" L_REMOVE " ,(float)remove_temp_l);
@@ -248,7 +253,7 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOLN("");
 	 
 	 SERIAL_ECHO_START;
-	 SERIAL_ECHOLNPGM("Temp (ºC):");
+	 SERIAL_ECHOLNPGM("Temp right hotend");
 	 SERIAL_ECHO_START;
 	 SERIAL_ECHOPAIR(" R_INSERT ",(float)insert_temp_r);
 	 SERIAL_ECHOPAIR(" R_REMOVE " ,(float)remove_temp_r);
@@ -256,18 +261,68 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOPAIR(" R_PRINT " ,(float)print_temp_r);
 	 SERIAL_ECHOLN("");
 	 
+	/*
+	 char print_date[24];
+	 
+	 sprintf(print_date, "LAST RESET DATE %d-%d-%d", dateresetday,dateresetmonth,dateresetyear);
+	 
+	 SERIAL_PROTOCOL(print_date);
+	 */
+	 
 	 SERIAL_ECHO_START;
 	 SERIAL_ECHOLNPGM("LOG:");
 	 SERIAL_ECHO_START;
+	 
+	 
+	 SERIAL_ECHOPGM(" prints ");
+	 Serial.println(log_prints);
+	 SERIAL_ECHO_START;
+	 
+	 SERIAL_ECHOPGM(" hours print ");
+	 Serial.println(log_hours_print);
+	 SERIAL_ECHO_START;
+	 
+	 SERIAL_ECHOPGM(" prints finished ");
+	 Serial.println(log_prints_finished);
+	 SERIAL_ECHO_START;
+	 
+	 SERIAL_ECHOPGM(" max temp L ");
+	 Serial.println(log_max_temp_l);
+	 SERIAL_ECHO_START;
+	 
+	 SERIAL_ECHOPGM(" max temp R ");
+	 Serial.println(log_max_temp_r);
+	 SERIAL_ECHO_START;
+	 
+	 SERIAL_ECHOPGM(" max temp B ");
+	 Serial.println(log_max_bed);
+	 
+	 
+	 
+	 
+	 /*
 	 SERIAL_ECHOPAIR(" prints ",(float)log_prints);
-	 SERIAL_ECHOPAIR(" hours print " ,(float)log_hours_print);
-	 SERIAL_ECHOPAIR(" prints finished " ,(float)log_prints_finished);
-	 SERIAL_ECHOPAIR(" max temp L " ,(float)log_max_temp_l);
-	 SERIAL_ECHOPAIR(" max temp R " ,(float)log_max_temp_r);
-	 SERIAL_ECHOPAIR(" max temp B " ,(float)log_max_bed);
 	 SERIAL_ECHOLN("");
+	 SERIAL_ECHOPAIR(" hours print " ,(float)log_hours_print);
+	 SERIAL_ECHOLN("");
+	 SERIAL_ECHOPAIR(" prints finished " ,(float)log_prints_finished);
+	 SERIAL_ECHOLN("");
+	 SERIAL_ECHOPAIR(" max temp L " ,(float)log_max_temp_l);
+	 SERIAL_ECHOLN("");
+	 SERIAL_ECHOPAIR(" max temp R " ,(float)log_max_temp_r);
+	 SERIAL_ECHOLN("");
+	 SERIAL_ECHOPAIR(" max temp B " ,(float)log_max_bed);
+	 SERIAL_ECHOLN("");*/
 	 
-	 
+	
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPGM("LAST DATE RESET ");
+	Serial.print(dateresetday);
+	SERIAL_ECHOPGM("-");	
+	Serial.print(dateresetmonth);
+	SERIAL_ECHOPGM("-");
+	Serial.print(dateresetyear);
+	SERIAL_ECHOLN("");
 	} 
 #endif
 
@@ -373,7 +428,9 @@ void Config_RetrieveSettings()
 		#ifdef SCARA
 		EEPROM_READ_VAR(i,axis_scaling);
 		#endif
-
+		EEPROM_READ_VAR(i,dateresetday);
+		EEPROM_READ_VAR(i,dateresetmonth);
+		EEPROM_READ_VAR(i,dateresetyear);
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
         SERIAL_ECHO_START;
@@ -517,15 +574,128 @@ void Config_Reset_Calib(){
 		SERIAL_ECHOLNPGM("Hardcoded Calib and PID Default Settings Loaded");
 }
 
-void Config_Reset_Statistics(int data){
+void Config_Reset_Statistics(int data, int day, int month, int year){
 	
 	if (data == 1234){
-		log_hours_print = 0;
+		if (day > 31 || day < 1){
+			
+			Serial.println("day error");
+		}
+		else if (month > 12 || month < 1){
+			Serial.println("month error");
+		}
+		else if (year > 2030 || year < 2015){
+			Serial.println("year error");
+		}
+		else{
+			
+		 if (month == 2 && year%4==0 && day > 29){
+			 Serial.println("FEBRUARY LEAP YEAR");
+		 }
+		 else if (month == 2 && year%4!=0 && day > 28){
+			 Serial.println("FEBRUARY NOT LEAP YEAR");
+		 }
+		 else if (month%2==0 && day > 30){
+			 Serial.println("MONTH WITH 30 DAYS");
+		 }
+		 else{
+			 
+			 log_hours_print = 0;
 		log_max_bed = 0;
 		log_max_temp_l = 0;
 		log_max_temp_r = 0;
 		log_prints = 0;
 		log_prints_finished = 0;
+		dateresetday = day;
+		dateresetmonth = month;
+		dateresetyear = year;
 		Serial.println("STATISTICS RESET");
+			 
+		 }	
+		
+		
+		
+		
+		}
+	}
+	else{
+		
+		Serial.println(MSG_WRONGDATARESETKEY);
+		
 	}	
+	
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPGM("LAST DATE RESET ");
+	Serial.print(dateresetday);
+	SERIAL_ECHOPGM("-");
+	Serial.print(dateresetmonth);
+	SERIAL_ECHOPGM("-");
+	Serial.print(dateresetyear);
+	SERIAL_ECHOLN("");
+}
+void Change_ConfigTemp_LeftHotend(int i_temp_l, int r_temp_l, int p_temp_l, int b_temp_l){
+	/*
+		int insert_temp_l;
+		int remove_temp_l;
+		int print_temp_l;
+		int bed_temp_l;*/ //BED_MINTEMP BED_MAXTEMP
+	
+	if (i_temp_l > HEATER_0_MAXTEMP ||  i_temp_l < EXTRUDE_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else if (r_temp_l > HEATER_0_MAXTEMP ||  r_temp_l < EXTRUDE_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else if (p_temp_l > HEATER_0_MAXTEMP ||  p_temp_l < EXTRUDE_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else if (b_temp_l > BED_MAXTEMP ||  b_temp_l < BED_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else{
+		
+		
+		insert_temp_l =i_temp_l;
+		remove_temp_l = r_temp_l;
+		print_temp_l = p_temp_l;
+		bed_temp_l = b_temp_l;
+		
+		Serial.println("SUCCESS");
+		
+	}
+		
+	
+	
+}
+void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int b_temp_r){
+	
+	/*insert_temp_r;
+	remove_temp_r;
+	print_temp_r;
+	bed_temp_r;*/
+	if (i_temp_r > HEATER_0_MAXTEMP ||  i_temp_r < EXTRUDE_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else if (r_temp_r > HEATER_0_MAXTEMP ||  r_temp_r < EXTRUDE_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else if (p_temp_r > HEATER_0_MAXTEMP ||  p_temp_r < EXTRUDE_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else if (b_temp_r > BED_MAXTEMP ||  b_temp_r < BED_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else{
+		
+		
+			insert_temp_r =i_temp_r;
+			remove_temp_r = r_temp_r;
+			print_temp_r = p_temp_r;
+			bed_temp_r = b_temp_r;
+		
+		
+		
+	}
+	
+	
 }

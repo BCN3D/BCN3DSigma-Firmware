@@ -566,7 +566,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
                                         // Be sure you have this distance over your Z_MAX_POS in case
 
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
-  #define XY_TRAVEL_SPEED15 12000         // X and Y axis travel speed between probes, in mm/min *1.5
 
   #define Z_RAISE_BEFORE_PROBING 6    //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points

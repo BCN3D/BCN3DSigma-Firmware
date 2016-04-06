@@ -287,6 +287,11 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
+
+int dateresetday;
+int dateresetmonth;
+int dateresetyear;
+
 int extruder_multiply[EXTRUDERS] = {100
 	#if EXTRUDERS > 1
 	, 100
@@ -5579,6 +5584,7 @@ void process_commands()
 					case 502: // M502 Revert to default settings
 					{
 						Config_ResetDefault();
+						Config_StoreSettings();
 					}
 					break;
 					case 503: // M503 print settings currently in memory
@@ -5586,17 +5592,48 @@ void process_commands()
 						Config_PrintSettings();
 					}
 					break;
-					case 504: //M555 Revert to default settings calibration and PID
+					case 504: //M504 Revert to default settings calibration and PID
 					{
 						Config_Reset_Calib();
+						Config_StoreSettings();
 						
 					}
 					break;
 					case 505:
 					{
 						int input = 0;
+						int day = 0;
+						int month = 0;
+						int year=0;
 						if (code_seen('P')) input = code_value();
-						Config_Reset_Statistics(input);
+						if (code_seen('d')) day = code_value();
+						if (code_seen('m')) month = code_value();
+						if (code_seen('a')) year = code_value();
+						Config_Reset_Statistics(input, day, month, year);
+						Config_StoreSettings();
+						
+						
+					}
+					break;
+					case 510:  //left hotend
+					{
+						int i_temp_l = 0, r_temp_l = 0 , p_temp_l = 0, b_temp_l =0;
+						if (code_seen('i')) i_temp_l = code_value();
+						if (code_seen('r')) r_temp_l = code_value();
+						if (code_seen('p')) p_temp_l = code_value();
+						if (code_seen('b')) b_temp_l = code_value();
+						Change_ConfigTemp_LeftHotend(i_temp_l, r_temp_l, p_temp_l, b_temp_l);
+						Config_StoreSettings();
+					}
+					break;
+					case 520:  //right hotend
+					{
+						int i_temp_r = 0, r_temp_r = 0 , p_temp_r = 0, b_temp_r =0;
+						if (code_seen('i')) i_temp_r = code_value();
+						if (code_seen('r')) r_temp_r = code_value();
+						if (code_seen('p')) p_temp_r = code_value();
+						if (code_seen('b')) b_temp_r = code_value();
+						Change_ConfigTemp_RightHotend(i_temp_r, r_temp_r, p_temp_r, b_temp_r);
 						Config_StoreSettings();
 					}
 					break;

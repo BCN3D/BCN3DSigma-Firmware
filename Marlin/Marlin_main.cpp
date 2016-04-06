@@ -902,7 +902,24 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			//Serial.println(buffer);
 			genie.WriteStr(STRINGS_PRINTING_FEED,buffer);
 			
-			
+			char buffer3[13];
+			if (String(card.longFilename).length()>12){
+				for (int i = 0; i<12 ; i++)
+				{
+					buffer3[i]=card.longFilename[i];
+				}
+				buffer3[12]='\0';
+				char* buffer2 = strcat(buffer3,"...\0");
+				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
+				}else{
+				for (int i = 0; i<=String(card.longFilename).length(); i++)
+				{
+					if (buffer3[i] == '.') i = String(card.longFilename).length() +10;
+					else buffer3[i]=card.longFilename[i];
+				}
+				//buffer[count]='\0';
+				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
+			}
 			}
 			waitPeriod=5000+millis();	//Every 5s
 			

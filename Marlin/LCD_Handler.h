@@ -1291,15 +1291,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);	
 					filament_accept_ok = true;
 					home_made = false;
+					processing=true;
 					home_axis_from_code(true,true,false);
 					//genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);	
 					
 					
-					
-					
-					
-					
 					}
+					
+					
+					
+					
 					/*if (quick_guide){
 						if (quick_guide_step == 1) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_RIGHT,0);
 						else if(quick_guide_step == 2) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_CALIBRATE,0);

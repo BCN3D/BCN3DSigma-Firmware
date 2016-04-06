@@ -1,4 +1,3 @@
-/* -*- c++ -*- */
 
 /*
 Reprap firmware based on Sprinter and grbl.
@@ -320,7 +319,7 @@ float zprobe_zoffset;
 bool processing = false;
 bool heatting = false;
 bool back_home = false;
-char namefilegcode[13];
+char namefilegcode[13]="Gcodefile";
 int bed_calibration_times = 0; //To control the number of bed calibration to available the skip option
 
 int log_prints;
@@ -909,28 +908,29 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			int tHotend1=int(degHotend(1));
 			int tBed=int(degBed() + 0.5);
 			
+			genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
 			//Rapduch
 			//Edit for final TouchScreen
-			char buffer[256];
-			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
+			char buffer7[256]="";
+			sprintf(buffer7, "%3d %cC",tHotend,0x00B0);
 			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_NOZZ1,buffer);
+			genie.WriteStr(STRING_PRINTING_NOZZ1,buffer7);
 			
-			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
+			sprintf(buffer7, "%3d %cC",tHotend1,0x00B0);
 			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_NOZZ2,buffer);
+			genie.WriteStr(STRING_PRINTING_NOZZ2,buffer7);
 			
-			sprintf(buffer, "%2d %cC",tBed,0x00B0);
+			sprintf(buffer7, "%2d %cC",tBed,0x00B0);
 			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_BED,buffer);
+			genie.WriteStr(STRING_PRINTING_BED,buffer7);
 			
-			sprintf(buffer, "% 3d %%",card.percentDone());
+			sprintf(buffer7, "% 3d %%",card.percentDone());
 			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_PERCENT,buffer);
+			genie.WriteStr(STRING_PRINTING_PERCENT,buffer7);
 			
-			sprintf(buffer, "% 3d %%",feedmultiply);
+			sprintf(buffer7, "% 3d %%",feedmultiply);
 			//Serial.println(buffer);
-			genie.WriteStr(STRINGS_PRINTING_FEED,buffer);
+			genie.WriteStr(STRINGS_PRINTING_FEED,buffer7);
 			/*
 			char buffer3[13];
 			if (String(card.longFilename).length()>12){
@@ -3998,29 +3998,29 @@ void process_commands()
 						//Rapduch
 						#ifdef SIGMA_TOUCH_SCREEN
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
-						char buffer[13];
+						//char buffer[13];
 						if (String(card.longFilename).length()>12){
 							for (int i = 0; i<12 ; i++)
 							{
-								buffer[i]=card.longFilename[i];
+								namefilegcode[i]=card.longFilename[i];
 							}
-							buffer[12]='\0';
-							char* buffer2 = strcat(buffer,"...\0");
+							namefilegcode[12]='\0';
+							char* buffer2 = strcat(namefilegcode,"...\0");
 							Serial.print("Card Name: ");
 							Serial.println(card.longFilename);
 							Serial.print("Buffer1: ");
-							Serial.println(buffer);
+							Serial.println(namefilegcode);
 							Serial.print("buffer out: ");
 							Serial.println(buffer2);
 							genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
 						}else{
 							for (int i = 0; i<=String(card.longFilename).length(); i++)
 							{
-								if (buffer[i] == '.') i = String(card.longFilename).length() +10;
-								else buffer[i]=card.longFilename[i];
+								if (namefilegcode[i] == '.') i = String(card.longFilename).length() +10;
+								else namefilegcode[i]=card.longFilename[i];
 							}
 							//buffer[count]='\0';
-							genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
+							genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);//Printing form//Printing form
 						}
 					
 						//Serial.println((char*)prepareString(card.longFilename,12));

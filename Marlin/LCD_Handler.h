@@ -1691,7 +1691,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
 					//setTargetHotend0(0);
 					//setTargetHotend1(0);
-					filament_accept_ok = true;
+					filament_accept_ok = false;
 				}
 				#pragma endregion SuccessScreens
 				

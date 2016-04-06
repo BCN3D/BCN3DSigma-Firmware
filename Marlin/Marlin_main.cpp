@@ -1013,20 +1013,6 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			#endif //Extruders > 1
 			waitPeriod=1000+millis(); // Every Second
 		}
-	}
-	else{
-		
-		if(filament_accept_ok && !home_made){
-			processing=true;
-			
-			
-			
-		}
-		if(filament_accept_ok && home_made && processing){
-			processing = false;
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
-		}
-		
 	}	
 	if (processing){
 		if (millis() >= waitPeriod_p){
@@ -1037,6 +1023,17 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=180+millis();
 		}
 	}
+	if(filament_accept_ok && !home_made){
+			processing=true;
+			
+			
+			
+	}
+	if(filament_accept_ok && home_made && processing){
+		processing = false;
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+	}
+	
 	if(back_home){
 			if(home_made == false){
 				

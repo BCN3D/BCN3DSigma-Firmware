@@ -320,6 +320,9 @@ bool processing = false;
 bool heatting = false;
 bool back_home = false;
 char namefilegcode[13]="Gcodefile";
+int dateresetday;
+int dateresetmonth;
+int dateresetyear;
 int bed_calibration_times = 0; //To control the number of bed calibration to available the skip option
 
 int log_prints;
@@ -5593,6 +5596,7 @@ void process_commands()
 					case 502: // M502 Revert to default settings
 					{
 						Config_ResetDefault();
+						Config_StoreSettings();
 					}
 					break;
 					case 503: // M503 print settings currently in memory
@@ -5600,9 +5604,10 @@ void process_commands()
 						Config_PrintSettings();
 					}
 					break;
-					case 504: //M555 Revert to default settings calibration and PID
+					case 504: //M504 Revert to default settings calibration and PID
 					{
 						Config_Reset_Calib();
+						Config_StoreSettings();
 						
 					}
 					break;
@@ -5611,6 +5616,30 @@ void process_commands()
 						int input = 0;
 						if (code_seen('P')) input = code_value();
 						Config_Reset_Statistics(input);
+						Config_StoreSettings();
+						
+						
+					}
+					break;
+					case 510:  //left hotend
+					{
+						int i_temp_l = 0, r_temp_l = 0 , p_temp_l = 0, b_temp_l =0;
+						if (code_seen('i')) i_temp_l = code_value();
+						if (code_seen('r')) r_temp_l = code_value();
+						if (code_seen('p')) p_temp_l = code_value();
+						if (code_seen('b')) b_temp_l = code_value();
+						Change_ConfigTemp_LeftHotend(i_temp_l, r_temp_l, p_temp_l, b_temp_l);
+						Config_StoreSettings();
+					}
+					break;
+					case 520:  //right hotend
+					{
+						int i_temp_r = 0, r_temp_r = 0 , p_temp_r = 0, b_temp_r =0;
+						if (code_seen('i')) i_temp_r = code_value();
+						if (code_seen('r')) r_temp_r = code_value();
+						if (code_seen('p')) p_temp_r = code_value();
+						if (code_seen('b')) b_temp_r = code_value();
+						Change_ConfigTemp_RightHotend(i_temp_r, r_temp_r, p_temp_r, b_temp_r);
 						Config_StoreSettings();
 					}
 					break;

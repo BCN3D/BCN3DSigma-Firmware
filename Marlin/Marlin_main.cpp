@@ -931,6 +931,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			sprintf(buffer, "% 3d %%",feedmultiply);
 			//Serial.println(buffer);
 			genie.WriteStr(STRINGS_PRINTING_FEED,buffer);
+			
+			genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
 			/*
 			char buffer3[13];
 			if (String(card.longFilename).length()>12){
@@ -4022,7 +4024,7 @@ void process_commands()
 							//buffer[count]='\0';
 							genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
 						}
-					
+						strcpy(namefilegcode, buffer);
 						//Serial.println((char*)prepareString(card.longFilename,12));
 						//genie.WriteStr(6,"Ready");
 						#endif

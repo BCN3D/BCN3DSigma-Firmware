@@ -1571,7 +1571,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					bed_calibration_times = 0;
 					flag_full_calib = false;
-					home_axis_from_code(true,true,true);
+					home_axis_from_code(true,true,true);				
 					enquecommand_P(PSTR("T0"));
 					enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 					previous_state = FORM_CALIBRATION;
@@ -1579,8 +1579,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				
 				else if (Event.reportObject.index == BUTTON_REDO_BED_CALIB )
-				{
-					home_axis_from_code(true,false,false);
+				{			
+					home_axis_from_code(true,false,false);	
 					enquecommand_P((PSTR("T0")));
 					enquecommand_P((PSTR("G34")));
 					previous_state = FORM_CALIBRATION;
@@ -1600,7 +1600,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else{genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,0);}
 						if (sentit2>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2);} //The direction is inverted in Sigma's bed screws
 						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2+8);}
-						
+				
 					}else if (vuitens3!=0)
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
@@ -1608,8 +1608,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//genie.WriteStr(STRING_BED_SCREW3,buffer);
 						if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
 						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
-						}else{
-						home_axis_from_code(true,false,false);
+					}else{
+						home_axis_from_code(true,false,false);	
 						enquecommand_P((PSTR("T0")));
 						enquecommand_P((PSTR("G34")));
 						previous_state = FORM_CALIBRATION;
@@ -1628,8 +1628,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//genie.WriteStr(STRING_BED_SCREW3,buffer);
 						if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
 						else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
-						}else{
-						home_axis_from_code(true,false,false);
+					}else{				
+						home_axis_from_code(true,false,false);	
 						enquecommand_P((PSTR("T0")));
 						enquecommand_P((PSTR("G34")));
 						previous_state = FORM_CALIBRATION;

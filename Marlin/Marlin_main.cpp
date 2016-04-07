@@ -2415,7 +2415,7 @@ void process_commands()
 				setTargetHotend0(print_temp_l);
 				setTargetHotend1(print_temp_r);
 				setTargetBed(max(bed_temp_l,bed_temp_r)-5);
-				
+				dobloking = true;
 				while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-10) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-10)&& degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
 					
 					manage_heater();
@@ -2598,7 +2598,7 @@ void process_commands()
 				current_position[Z_AXIS]+=2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);
 				st_synchronize();
-				
+				dobloking = false;
 				home_axis_from_code(true,true,false);
 				
 				current_position[Z_AXIS]-=2;
@@ -2623,7 +2623,7 @@ void process_commands()
 				setTargetHotend0(print_temp_l);
 				setTargetHotend1(print_temp_r);
 				setTargetBed(max(bed_temp_l,bed_temp_r)-5);
-				
+				dobloking = true;
 				while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-10) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-10) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
 					
 					manage_heater();
@@ -2814,7 +2814,7 @@ void process_commands()
 				current_position[Z_AXIS]-=2;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100/*50*/, active_extruder);//MORE Retrack
 				st_synchronize();
-				
+				dobloking = false;
 				changeTool(0);	
 				
 				

@@ -278,7 +278,14 @@ Rapduch
 	int preheat_B_value;
 ///////////////////////////////////////////////////////////////////////
 #pragma endregion temperatures
-
+bool screen_change_nozz1up = false;
+bool screen_change_nozz2up = false;
+bool screen_change_bedup = false;
+bool screen_change_speedup = false;
+bool screen_change_nozz1down = false;
+bool screen_change_nozz2down = false;
+bool screen_change_beddown = false;
+bool screen_change_speeddown = false;
 bool home_made = false;
 bool dobloking = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
@@ -870,6 +877,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	static uint32_t waitPeriod_p = millis();
 	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
 	static int count5s = 0;
+	int value = 5;
 	//if(card.sdprinting && is_on_printing_screen)
 	if(print_setting_refresh){
 				
@@ -903,7 +911,103 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	
 	if(card.sdprinting && !card.sdispaused || !card.sdprinting && card.sdispaused )
 	{
+		if(screen_change_nozz1up){
+			char buffer[256];
+			
+			if (target_temperature[0] < HEATER_0_MAXTEMP)
+			{
+				target_temperature[0]+=value;
+				sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+				genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
+				
+			}
+			
+			screen_change_nozz1up = false;
+		}
+		if(screen_change_nozz2up){
+			char buffer[256];
+			if (target_temperature[1]<HEATER_1_MAXTEMP)
+			{
+				target_temperature[1]+=value;
+				sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+				genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
+				
+			}
+			
+			screen_change_nozz2up = false;
+		}
+		if(screen_change_bedup){
+			char buffer[256];
+			if (target_temperature_bed < BED_MAXTEMP)//MaxTemp
+			{
+				target_temperature_bed+=value;
+				sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+				genie.WriteStr(STRING_PS_BED_TEMP,buffer);
+				
+			}
+			
+			screen_change_bedup = false;
+		}
+		if(screen_change_speedup){
+			char buffer[256];
+			if (feedmultiply<200)
+			{
+				feedmultiply+=value;
+				sprintf(buffer, "%3d %%",feedmultiply);
+				genie.WriteStr(STRING_PS_SPEED,buffer);
+				
+			}
+			screen_change_speedup = false;
+		}
 		
+		if(screen_change_nozz1down){
+			char buffer[256];
+			if (target_temperature[0] > HEATER_0_MINTEMP)
+			{
+				target_temperature[0]-=value;
+				sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+				genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
+				
+			}
+			
+			screen_change_nozz1down = false;
+		}
+		if(screen_change_nozz2down){
+			char buffer[256];
+			if (target_temperature[1]>HEATER_1_MINTEMP)
+			{
+				target_temperature[1]-=value;
+				sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+				genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
+				
+			}
+			
+			screen_change_nozz2down = false;
+		}
+		if(screen_change_beddown){
+			char buffer[256];
+			if (target_temperature_bed> BED_MINTEMP)//Mintemp
+			{
+				target_temperature_bed-=value;
+				sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+				genie.WriteStr(STRING_PS_BED_TEMP,buffer);
+				
+			}
+			
+			screen_change_beddown = false;
+		}
+		if(screen_change_speeddown){
+			char buffer[256];
+			if (feedmultiply>50)
+			{
+				feedmultiply-=value;
+				sprintf(buffer, "%3d %%",feedmultiply);
+				genie.WriteStr(STRING_PS_SPEED,buffer);
+				
+			}
+			
+			screen_change_speeddown = false;
+		}
 		if (millis() >= waitPeriod)
 		{
 			if(is_on_printing_screen){
@@ -954,6 +1058,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer3);//Printing form//Printing form
 			}*/
 			}
+			
 			waitPeriod=5000+millis();	//Every 5s
 			
 			count5s++;

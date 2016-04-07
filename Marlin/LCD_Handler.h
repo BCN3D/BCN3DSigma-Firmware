@@ -271,102 +271,72 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				//*****Printing Settings*****
 				#pragma region Printing Settings
-				else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_UP )
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_UP)
 				{
-					char buffer[256];
-					int value=5;
-					if (feedmultiply<200)
-					{
-						feedmultiply+=value;
-						sprintf(buffer, "%3d %%",feedmultiply);
-						genie.WriteStr(STRING_PS_SPEED,buffer);
-					}
+					//char buffer[256];
+					//int value=5;
+					
+					
+					screen_change_speedup = true;
 				}
 				
-				else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_DOWN )
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_SPEED_DOWN)
 				{
-					char buffer[256];
-					int value=5;
-					if (feedmultiply>50)
-					{
-						feedmultiply-=value;
-						sprintf(buffer, "%3d %%",feedmultiply);
-						genie.WriteStr(STRING_PS_SPEED,buffer);
-					}
+					//char buffer[256];
+					//int value=5;
+					
+					screen_change_speeddown = true;
 				}
 				
-				else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ1_UP )
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ1_UP)
 				{
-					char buffer[256];
-					int value=5;
-					if (target_temperature[0] < HEATER_0_MAXTEMP)
-					{
-						target_temperature[0]+=value;
-						sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
-						genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
-					}
+					//char buffer[256];
+					//int value=5;
+					
+					screen_change_nozz1up = true;
 				}
 				
-				else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ1_DOWN )
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ1_DOWN)
 				{
-					char buffer[256];
-					int value=5;
-					if (target_temperature[0] > HEATER_0_MINTEMP)
-					{
-						target_temperature[0]-=value;
-						sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
-						genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
-					}
+					//char buffer[256];
+					//int value=5;
+					
+					screen_change_nozz1down = true;
 				}
 				
-				else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ2_UP )
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ2_UP)
 				{
-					char buffer[256];
-					int value=5;
-					if (target_temperature[1]<HEATER_1_MAXTEMP)
-					{
-						target_temperature[1]+=value;
-						sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
-						genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
-					}
+					//char buffer[256];
+					//int value=5;
+					
+					screen_change_nozz2up = true;
 				}
 				
-				else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ2_DOWN )
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_NOZZ2_DOWN)
 				{
-					char buffer[256];
-					int value=5;
-					if (target_temperature[1]>HEATER_1_MINTEMP)
-					{
-						target_temperature[1]-=value;
-						sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
-						genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
-					}
+					//char buffer[256];
+					//int value=5;
+					
+					screen_change_nozz2down = true;
 				}
 				
-				else if (Event.reportObject.index == BUTTON_PRINT_SET_BED_UP )
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_BED_UP)
 				{
-					char buffer[256];
-					int value=5;
+					//char buffer[256];
+					//int value=5;
 					//if (target_temperature_bed<BED_MAXTEMP)
-					if (target_temperature_bed < BED_MAXTEMP)//MaxTemp
-					{
-						target_temperature_bed+=value;
-						sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
-						genie.WriteStr(STRING_PS_BED_TEMP,buffer);
-					}
+					
+					screen_change_bedup = true;
 				}
 				
-				else if (Event.reportObject.index == BUTTON_PRINT_SET_BED_DOWN )
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_BED_DOWN)
 				{
-					char buffer[256];
-					int value=5;
+					//char buffer[256];
+					//int value=5;
 					//if (target_temperature_bed>BED_MINTEMP)
-					if (target_temperature_bed> BED_MINTEMP)//Mintemp
-					{
-						target_temperature_bed-=value;
-						sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
-						genie.WriteStr(STRING_PS_BED_TEMP,buffer);
-					}
+					
+					
+					screen_change_beddown = true;
 				}
 				
 				#pragma endregion Printing Settings

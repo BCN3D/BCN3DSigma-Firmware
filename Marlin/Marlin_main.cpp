@@ -1210,11 +1210,82 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				back_home = false;
 				//form home
-				
-				
-				
-				
 			}
+	}
+	if(screen_sdcard && !card.cardOK){
+		if (millis() >= waitPeriod){
+			
+			filepointer = 0;
+			card.initsd();
+			if(card.cardOK){
+			screen_sdcard = false;	
+				uint16_t fileCnt = card.getnrfilenames();
+				//Declare filepointer
+				card.getWorkDirName();
+				//Text index starts at 0
+				card.getfilename(filepointer);
+				Serial.println(card.longFilename);
+				if (card.filenameIsDir)
+				{
+					//Is a folder
+					//genie.WriteStr(1,card.longFilename);
+					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+					}else{
+					
+					int line = 23;
+					int count = 63;
+					char buffer[count+3];
+					int x = 0;
+					memset( buffer, '\0', sizeof(char)*count );
+					
+					if (String(card.longFilename).length() > count){
+						for (int i = 0; i<count ; i++)
+						{
+							if (card.longFilename[i] == '.') i = count +10; //go out of the for
+							else if(i == 0) buffer[i]=card.longFilename[x];
+							else if (i%line == 0){
+								buffer[i] = '\n';
+								i++;
+								buffer[i]=card.longFilename[x];
+							}
+							else {
+								buffer[i]=card.longFilename[x];
+							}
+							x++;
+							Serial.print(i);
+						}
+						buffer[count]='\0';
+						char* buffer2 = strcat(buffer,"...\0");
+						genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
+					}
+					else {
+						for (int i = 0; i<String(card.longFilename).length(); i++)	{
+							if (card.longFilename[i] == '.') i = String(card.longFilename).length() +10; //go out of the for
+							else if(i == 0) buffer[i]=card.longFilename[x];
+							else if (i%line == 0){
+								buffer[i] = '\n';
+								i++;
+								buffer[i]=card.longFilename[x];
+							}
+							else {
+								buffer[i]=card.longFilename[x];
+							}
+							x++;
+							Serial.print(i);
+						}
+						//buffer[count]='\0';
+						genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
+						//Is a file
+						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+					}
+					Serial.println(buffer);
+				}
+			}
+			
+			waitPeriod = 250 + millis();
+		}
+		
+		
 	}
 	
 	

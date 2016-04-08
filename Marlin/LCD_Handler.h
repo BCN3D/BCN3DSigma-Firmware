@@ -542,7 +542,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						Serial.println(filepointer);
 					}
 					else{
-						genie.WriteStr(STRING_NAME_FILE,"No such a file");//Printing form
+						genie.WriteStr(STRING_NAME_FILE,"Insert Sdcard");//Printing form
 					}
 				}
 				#pragma endregion SD Gcode Selector
@@ -2863,7 +2863,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					
 					else{
-						genie.WriteStr(STRING_NAME_FILE,"None SDcard detected");//Printing form
+						genie.WriteStr(STRING_NAME_FILE,"Insert Sdcard");//Printing form
 					}
 					
 					

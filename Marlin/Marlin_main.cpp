@@ -6942,7 +6942,7 @@ void process_commands()
 						////////////////////
 						//LEFT Z TEST PRINT/
 						////////////////////
-						
+						dobloking = true;
 						if (active_extruder != LEFT_EXTRUDER) changeTool(LEFT_EXTRUDER);
 						
 						current_position[E_AXIS]+=15;  //0.5 + 0.15 per ajustar una bona alçada
@@ -7038,12 +7038,12 @@ void process_commands()
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 						st_synchronize();					
 									
-						
+						dobloking = false;
 						//SELECT LINES SCREEN						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_Z_TEST,0);
 					}
 					void right_test_print_code(){	
-						
+						dobloking = true;
 						if (active_extruder != RIGHT_EXTRUDER) changeTool(RIGHT_EXTRUDER);
 						
 						current_position[E_AXIS]+=15; 
@@ -7139,7 +7139,7 @@ void process_commands()
 						current_position[Z_AXIS]+= 2;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 						st_synchronize();
-												
+						dobloking = false;						
 						//SELECT LINES SCREEN						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_Z_TEST,0);
 					}

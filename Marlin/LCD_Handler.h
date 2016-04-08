@@ -21,6 +21,7 @@
 void insertmetod();
 extern bool cancel_heatup;
 void myGenieEventHandler();
+bool sdscreenblocked = false;
 bool print_setting_refresh = false;
 bool flag_filament_home= false;
 bool filament_accept_ok = false;
@@ -424,7 +425,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				//*****SD Gcode Selection*****
 				#pragma region SD Gcode Selector
-				else if (Event.reportObject.index == BUTTON_SD_SELECTED ||  Event.reportObject.index == STRING_NAME_FILE)
+				else if ((Event.reportObject.index == BUTTON_SD_SELECTED ||  Event.reportObject.index == STRING_NAME_FILE) && !sdscreenblocked)
 				{
 					if(card.cardOK)
 					{						
@@ -456,7 +457,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				
 				
-				else if (Event.reportObject.index == BUTTON_SD_LEFT || Event.reportObject.index == BUTTON_SD_RIGHT) //TODO: control if SD is out
+				else if ((Event.reportObject.index == BUTTON_SD_LEFT || Event.reportObject.index == BUTTON_SD_RIGHT) && !sdscreenblocked) //TODO: control if SD is out
 				{
 					if (card.cardOK){
 						if (Event.reportObject.index == BUTTON_SD_LEFT) //LEFT button pressed
@@ -2790,6 +2791,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (Event.reportObject.index == FORM_SDFILES)
 				{
 					//wake_RELAY();
+					sdscreenblocked = true;
 					Serial.println("Form 2!");
 					////Check sdcardFiles
 					filepointer = 0;
@@ -2861,11 +2863,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else{
 						
-						genie.WriteStr(STRING_NAME_FILE,"                  Insert SD Card");//Printing form
+						genie.WriteStr(STRING_NAME_FILE,"\n                Insert SD Card");//Printing form
 						screen_sdcard = true;
 						
 					}
-					
+					sdscreenblocked=false;
 					
 				}
 			

@@ -2886,6 +2886,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == FORM_MAIN_SCREEN)
 				{
+					screen_sdcard = true;
 					surfing_utilities=false;
 					Serial.println("Surfing 0");
 				}

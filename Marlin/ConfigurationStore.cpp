@@ -595,12 +595,3 @@ void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int
 	
 	
 }
-void Change_ConfigCalibration(float Xcalib, float Ycalib, float Zcalib, float Zprobecalib){
-	
-	
-	extruder_offset[X_AXIS][1]= Xcalib;
-	extruder_offset[Y_AXIS][1]= Ycalib;
-	extruder_offset[Z_AXIS][1]= Zcalib;
-	zprobe_zoffset= Zprobecalib;
-	
-}

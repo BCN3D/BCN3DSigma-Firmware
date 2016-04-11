@@ -5839,22 +5839,6 @@ void process_commands()
 						Change_ConfigTemp_RightHotend(i_temp_r, r_temp_r, p_temp_r, b_temp_r);
 						Config_StoreSettings();
 					}
-					case 530:  //right hotend
-					{
-						
-						float Xcalib, Ycalib, Zcalib, Zprobecalib;
-						if (code_seen('X')) Xcalib = code_value();
-						else Xcalib = extruder_offset[X_AXIS][1];
-						if (code_seen('Y')) Ycalib = code_value();
-						else Ycalib = extruder_offset[Y_AXIS][1];
-						if (code_seen('Z')) Zcalib = code_value();
-						else Zcalib = extruder_offset[Z_AXIS][1]; 
-						if (code_seen('z')) Zprobecalib = code_value();
-						else Zprobecalib = zprobe_zoffset;
-						Change_ConfigCalibration(Xcalib, Ycalib, Zcalib, Zprobecalib);
-						Config_StoreSettings();
-						
-					}
 					break;
 					#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 					case 540:

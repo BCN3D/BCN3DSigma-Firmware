@@ -1029,6 +1029,66 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 			screen_change_speeddown = false;
 		}
+		if(print_print_pause){
+			////I believe it is a really unsafe way to do it
+			////plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
+			////st_synchronize();
+			card.pauseSDPrint();
+			Serial.println("PAUSE!");
+			flag_pause = true;
+			print_print_pause = false;
+		}
+		if(print_print_resume){
+			card.startFileprint();
+			Serial.println("RESUME!");
+			flag_pause = false;
+			flag_resume = true;
+			if(flag_resume){
+				enquecommand_P(((PSTR("G70"))));
+				flag_resume = false;
+				Serial.println("resume detected");
+			}
+			print_print_resume = false;
+		}
+		if(print_print_stop == true){
+			
+			card.sdprinting = false;
+			card.closefile();
+			dobloking =false;
+			//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
+			quickStop();
+			
+			enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
+			st_synchronize();
+			enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
+			st_synchronize();
+			
+			setTargetHotend0(0);
+			setTargetHotend1(0);
+			setTargetBed(0);
+			
+			if(SD_FINISHED_STEPPERRELEASE)
+			{
+				enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+			}
+			autotempShutdown();
+			setTargetHotend0(0);
+			setTargetHotend1(0);
+			setTargetBed(0);
+			
+			card.sdispaused = false;
+			cancel_heatup = true;
+			
+			//sleep_RELAY();
+			
+			Serial.println("STOP PRINT");
+			back_home = true;
+			home_made = false;
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+			
+			
+			print_print_stop = false;
+		}
 		if (millis() >= waitPeriod)
 		{
 			if(is_on_printing_screen){
@@ -3379,11 +3439,11 @@ void process_commands()
 				
 				feedrate=homing_feedrate[Z_AXIS];
 				//current_position[Z_AXIS] += 5;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				//feedrate=homing_feedrate[X_AXIS];
 				feedrate = XY_TRAVEL_SPEED;
 				current_position[X_AXIS]=x_home_pos(active_extruder)-10;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+1, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				feedrate=homing_feedrate[Z_AXIS];
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				current_position[Y_AXIS]=Y_MAX_POS/2;

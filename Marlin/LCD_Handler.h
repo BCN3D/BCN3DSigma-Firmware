@@ -25,6 +25,9 @@ bool print_setting_refresh = false;
 bool flag_filament_home= false;
 bool filament_accept_ok = false;
 bool flag_pause = false;
+bool print_print_stop = false;
+bool print_print_pause = false;
+bool print_print_resume = false;
 bool flag_resume = false;
 bool flag_full_calib = false;
 bool flag_bed_calib_done = false;
@@ -203,38 +206,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_STOP_YES )
 				{
 					is_on_printing_screen=false;
-					card.sdprinting = false;
-					card.closefile();
-					dobloking =false;
-					home_made = false;
-					//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
-					quickStop();
-					
-					enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
-					st_synchronize();
-					enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
-					st_synchronize();
-					
-					setTargetHotend0(0);
-					setTargetHotend1(0);
-					setTargetBed(0);
-					
-					if(SD_FINISHED_STEPPERRELEASE)
-					{
-						enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-					}
-					autotempShutdown();
-					setTargetHotend0(0);
-					setTargetHotend1(0);
-					setTargetBed(0);
-					
-					card.sdispaused = false;
-					cancel_heatup = true;
-					
-					//sleep_RELAY();
-					//Rapduch
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-					back_home = true;
+					print_print_stop = true;
 				}
 				
 				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME && card.sdprinting)
@@ -242,12 +214,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					int value = genie.GetEventData(&Event);
 					if (value == 1) // Need to pause
 					{
-						////I believe it is a really unsafe way to do it
-						////plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
-						////st_synchronize();
-						card.pauseSDPrint();
-						Serial.println("PAUSE!");
-						flag_pause = true;
+						print_print_pause = true;
 					}
 					
 				}
@@ -257,15 +224,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//I believe it is a really unsafe way to do it
 					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]-20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
 					//st_synchronize();
-					card.startFileprint();
-					Serial.println("RESUME!");
-					flag_pause = false;
-					flag_resume = true;
-					if(flag_resume){
-						enquecommand_P(((PSTR("G70"))));
-						flag_resume = false;
-						Serial.println("resume detected");
-					}
+					print_print_resume = true;
 				}
 				
 				
@@ -2790,7 +2749,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//wake_RELAY();
 					Serial.println("Form 2!");
 					////Check sdcardFiles			
-					
+					filepointer = 0;
 					card.initsd();
 					uint16_t fileCnt = card.getnrfilenames();
 					//Declare filepointer

@@ -37,7 +37,7 @@ int custom_insert_temp = 210;
 int custom_remove_temp = 210;
 int custom_print_temp = 210;
 int custom_bed_temp = 40;
-bool screen_sdcard = false;
+
 
 
 int redo_source;
@@ -540,6 +540,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//genie.WriteStr(2,card.longFilename);
 						Serial.print("Image n: ");
 						Serial.println(filepointer);
+					}
+					else{
+						genie.WriteStr(STRING_NAME_FILE,"Insert Sdcard");//Printing form
 					}
 				}
 				#pragma endregion SD Gcode Selector
@@ -2860,10 +2863,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					
 					else{
-						
-						genie.WriteStr(STRING_NAME_FILE,"                  Insert SD Card");//Printing form
-						screen_sdcard = true;
-						
+						genie.WriteStr(STRING_NAME_FILE,"Insert Sdcard");//Printing form
 					}
 					
 					
@@ -2932,7 +2932,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == FORM_MAIN_SCREEN)
 				{
-					screen_sdcard = false;
 					surfing_utilities=false;
 					Serial.println("Surfing 0");
 				}

@@ -902,6 +902,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	//if(card.sdprinting && is_on_printing_screen)
 	
 	if(screen_sdcard && !card.cardOK){
+		
 		if (millis() >= waitPeriod){
 			
 			filepointer = 0;
@@ -1170,39 +1171,39 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		if (millis() >= waitPeriod)
 		{
 			if(is_on_printing_screen){
-			int tHotend=int(degHotend(0));
-			int tHotend1=int(degHotend(1));
-			int tBed=int(degBed() + 0.5);
-			
-			genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
-			//Rapduch
-			//Edit for final TouchScreen
-			char buffer7[256]="";
-			sprintf(buffer7, "%3d %cC",tHotend,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_NOZZ1,buffer7);
-			
-			sprintf(buffer7, "%3d %cC",tHotend1,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_NOZZ2,buffer7);
-			
-			sprintf(buffer7, "%2d %cC",tBed,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_BED,buffer7);
-			
-			sprintf(buffer7, "% 3d %%",card.percentDone());
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_PERCENT,buffer7);
-			
-			sprintf(buffer7, "% 3d %%",feedmultiply);
-			//Serial.println(buffer);
-			genie.WriteStr(STRINGS_PRINTING_FEED,buffer7);
-			/*
-			char buffer3[13];
-			if (String(card.longFilename).length()>12){
+				int tHotend=int(degHotend(0));
+				int tHotend1=int(degHotend(1));
+				int tBed=int(degBed() + 0.5);
+				
+				genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+				//Rapduch
+				//Edit for final TouchScreen
+				char buffer7[256]="";
+				sprintf(buffer7, "%3d %cC",tHotend,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_NOZZ1,buffer7);
+				
+				sprintf(buffer7, "%3d %cC",tHotend1,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_NOZZ2,buffer7);
+				
+				sprintf(buffer7, "%2d %cC",tBed,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_BED,buffer7);
+				
+				sprintf(buffer7, "% 3d %%",card.percentDone());
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_PERCENT,buffer7);
+				
+				sprintf(buffer7, "% 3d %%",feedmultiply);
+				//Serial.println(buffer);
+				genie.WriteStr(STRINGS_PRINTING_FEED,buffer7);
+				/*
+				char buffer3[13];
+				if (String(card.longFilename).length()>12){
 				for (int i = 0; i<12 ; i++)
 				{
-					buffer3[i]=card.longFilename[i];
+				buffer3[i]=card.longFilename[i];
 				}
 				buffer3[12]='\0';
 				char* buffer2 = strcat(buffer3,"...\0");
@@ -1210,12 +1211,12 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				}else{
 				for (int i = 0; i<=String(card.longFilename).length(); i++)
 				{
-					if (buffer3[i] == '.') i = String(card.longFilename).length() +10;
-					else buffer3[i]=card.longFilename[i];
+				if (buffer3[i] == '.') i = String(card.longFilename).length() +10;
+				else buffer3[i]=card.longFilename[i];
 				}
 				//buffer[count]='\0';
 				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer3);//Printing form//Printing form
-			}*/
+				}*/
 			}
 			
 			waitPeriod=5000+millis();	//Every 5s
@@ -1226,7 +1227,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				log_hours_print++;
 				Config_StoreSettings();
 			}
-		}		 
+		}
 	}
 	
 	else if (surfing_utilities)

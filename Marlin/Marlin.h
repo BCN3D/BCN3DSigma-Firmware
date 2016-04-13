@@ -306,7 +306,7 @@ extern bool back_home;
 extern void right_test_print_code();
 extern void left_test_print_code();
 extern bool heatting;
-extern char namefilegcode[13];
+extern char namefilegcode[64];
 extern int insert_temp_l;
 extern int remove_temp_l;
 extern int print_temp_l;
@@ -351,4 +351,5 @@ extern void checkMaxTemps();
 extern void Config_Reset_Statistics(int data);
 extern void Change_ConfigTemp_LeftHotend(int i_temp_l, int remove_temp_l, int p_temp_r, int b_temp_l);
 extern void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int b_temp_r);
+extern void Change_ConfigCalibration(float Xcalib, float Ycalib, float Zcalib, float Zprobecalib);
 #endif

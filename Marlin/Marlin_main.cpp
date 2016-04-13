@@ -326,7 +326,7 @@ float zprobe_zoffset;
 bool processing = false;
 bool heatting = false;
 bool back_home = false;
-char namefilegcode[13]="Gcodefile";
+char namefilegcode[64]="";
 int dateresetday;
 int dateresetmonth;
 int dateresetyear;
@@ -900,6 +900,85 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	static int count5s = 0;
 	int value = 5;
 	//if(card.sdprinting && is_on_printing_screen)
+	
+	if(screen_sdcard && !card.cardOK){
+		
+		if (millis() >= waitPeriod){
+			
+			filepointer = 0;
+			card.initsd();
+			if(card.cardOK){
+				screen_sdcard = false;
+				uint16_t fileCnt = card.getnrfilenames();
+				//Declare filepointer
+				card.getWorkDirName();
+				//Text index starts at 0
+				card.getfilename(filepointer);
+				Serial.println(card.longFilename);
+				if (card.filenameIsDir)
+				{
+					//Is a folder
+					//genie.WriteStr(1,card.longFilename);
+					//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+					}else{
+					
+					int line = 23;
+					int count = 63;
+					char buffer[count+3];
+					int x = 0;
+					memset( buffer, '\0', sizeof(char)*count );
+					
+					if (String(card.longFilename).length() > count){
+						for (int i = 0; i<count ; i++)
+						{
+							if (card.longFilename[i] == '.') i = count +10; //go out of the for
+							else if(i == 0) buffer[i]=card.longFilename[x];
+							else if (i%line == 0){
+								buffer[i] = '\n';
+								i++;
+								buffer[i]=card.longFilename[x];
+							}
+							else {
+								buffer[i]=card.longFilename[x];
+							}
+							x++;
+							Serial.print(i);
+						}
+						buffer[count]='\0';
+						char* buffer2 = strcat(buffer,"...\0");
+						genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
+					}
+					else {
+						for (int i = 0; i<String(card.longFilename).length(); i++)	{
+							if (card.longFilename[i] == '.') i = String(card.longFilename).length() +10; //go out of the for
+							else if(i == 0) buffer[i]=card.longFilename[x];
+							else if (i%line == 0){
+								buffer[i] = '\n';
+								i++;
+								buffer[i]=card.longFilename[x];
+							}
+							else {
+								buffer[i]=card.longFilename[x];
+							}
+							x++;
+							Serial.print(i);
+						}
+						//buffer[count]='\0';
+						genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
+						//Is a file
+						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+					}
+					Serial.println(buffer);
+				}
+			}
+			
+			waitPeriod = 750 + millis();
+		}
+		
+		
+	}
+	
+	
 	if(print_setting_refresh){
 				
 				char buffer[256];
@@ -1092,39 +1171,39 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		if (millis() >= waitPeriod)
 		{
 			if(is_on_printing_screen){
-			int tHotend=int(degHotend(0));
-			int tHotend1=int(degHotend(1));
-			int tBed=int(degBed() + 0.5);
-			
-			genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
-			//Rapduch
-			//Edit for final TouchScreen
-			char buffer7[256]="";
-			sprintf(buffer7, "%3d %cC",tHotend,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_NOZZ1,buffer7);
-			
-			sprintf(buffer7, "%3d %cC",tHotend1,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_NOZZ2,buffer7);
-			
-			sprintf(buffer7, "%2d %cC",tBed,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_BED,buffer7);
-			
-			sprintf(buffer7, "% 3d %%",card.percentDone());
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_PERCENT,buffer7);
-			
-			sprintf(buffer7, "% 3d %%",feedmultiply);
-			//Serial.println(buffer);
-			genie.WriteStr(STRINGS_PRINTING_FEED,buffer7);
-			/*
-			char buffer3[13];
-			if (String(card.longFilename).length()>12){
+				int tHotend=int(degHotend(0));
+				int tHotend1=int(degHotend(1));
+				int tBed=int(degBed() + 0.5);
+				
+				genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+				//Rapduch
+				//Edit for final TouchScreen
+				char buffer7[256]="";
+				sprintf(buffer7, "%3d %cC",tHotend,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_NOZZ1,buffer7);
+				
+				sprintf(buffer7, "%3d %cC",tHotend1,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_NOZZ2,buffer7);
+				
+				sprintf(buffer7, "%2d %cC",tBed,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_BED,buffer7);
+				
+				sprintf(buffer7, "% 3d %%",card.percentDone());
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_PERCENT,buffer7);
+				
+				sprintf(buffer7, "% 3d %%",feedmultiply);
+				//Serial.println(buffer);
+				genie.WriteStr(STRINGS_PRINTING_FEED,buffer7);
+				/*
+				char buffer3[13];
+				if (String(card.longFilename).length()>12){
 				for (int i = 0; i<12 ; i++)
 				{
-					buffer3[i]=card.longFilename[i];
+				buffer3[i]=card.longFilename[i];
 				}
 				buffer3[12]='\0';
 				char* buffer2 = strcat(buffer3,"...\0");
@@ -1132,12 +1211,12 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				}else{
 				for (int i = 0; i<=String(card.longFilename).length(); i++)
 				{
-					if (buffer3[i] == '.') i = String(card.longFilename).length() +10;
-					else buffer3[i]=card.longFilename[i];
+				if (buffer3[i] == '.') i = String(card.longFilename).length() +10;
+				else buffer3[i]=card.longFilename[i];
 				}
 				//buffer[count]='\0';
 				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer3);//Printing form//Printing form
-			}*/
+				}*/
 			}
 			
 			waitPeriod=5000+millis();	//Every 5s
@@ -1148,7 +1227,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				log_hours_print++;
 				Config_StoreSettings();
 			}
-		}		 
+		}
 	}
 	
 	else if (surfing_utilities)
@@ -3411,12 +3490,12 @@ void process_commands()
 				dobloking= false;
 				
 					feedrate=homing_feedrate[Z_AXIS];
-					//current_position[Z_AXIS] += 5;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+					current_position[Z_AXIS] += 5;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 					//feedrate=homing_feedrate[X_AXIS];
 					feedrate = XY_TRAVEL_SPEED15;
 					current_position[X_AXIS]=x_home_pos(active_extruder)+10;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 					
 					st_synchronize();
 			
@@ -3438,12 +3517,12 @@ void process_commands()
 				dobloking= false;				
 				
 				feedrate=homing_feedrate[Z_AXIS];
-				//current_position[Z_AXIS] += 5;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+				current_position[Z_AXIS] += 5;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				//feedrate=homing_feedrate[X_AXIS];
 				feedrate = XY_TRAVEL_SPEED;
 				current_position[X_AXIS]=x_home_pos(active_extruder)-10;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+5, current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				feedrate=homing_feedrate[Z_AXIS];
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				current_position[Y_AXIS]=Y_MAX_POS/2;
@@ -5829,6 +5908,22 @@ void process_commands()
 						Config_StoreSettings();
 					}
 					break;
+					case 530:  //right hotend
+					{
+						
+						float Xcalib, Ycalib, Zcalib, Zprobecalib;
+						if (code_seen('X')) Xcalib = code_value();
+						else Xcalib = extruder_offset[X_AXIS][1];
+						if (code_seen('Y')) Ycalib = code_value();
+						else Ycalib = extruder_offset[Y_AXIS][1];
+						if (code_seen('Z')) Zcalib = code_value();
+						else Zcalib = extruder_offset[Z_AXIS][1];
+						if (code_seen('z')) Zprobecalib = code_value();
+						else Zprobecalib = zprobe_zoffset;
+						Change_ConfigCalibration(Xcalib, Ycalib, Zcalib, Zprobecalib);
+						Config_StoreSettings();
+						
+					}
 					#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 					case 540:
 					{

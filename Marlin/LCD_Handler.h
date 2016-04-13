@@ -31,6 +31,7 @@ bool print_print_resume = false;
 bool flag_resume = false;
 bool flag_full_calib = false;
 bool flag_bed_calib_done = false;
+bool screen_sdcard = false;
 int  print_setting_tool = 2;
 float offset_x_calib = 0;
 float offset_y_calib = 0;
@@ -417,87 +418,89 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_SD_LEFT || Event.reportObject.index == BUTTON_SD_RIGHT) //TODO: control if SD is out
 				{
-					if (Event.reportObject.index == BUTTON_SD_LEFT) //LEFT button pressed
-					{
-						if (filepointer == 0)
+					if (card.cardOK){
+						if (Event.reportObject.index == BUTTON_SD_LEFT) //LEFT button pressed
 						{
-							filepointer=card.getnrfilenames()-1; //Last SD file
-							}else{
-							filepointer--;
+							if (filepointer == 0)
+							{
+								filepointer=card.getnrfilenames()-1; //Last SD file
+								}else{
+								filepointer--;
+							}
 						}
-					}
-					else if (Event.reportObject.index == BUTTON_SD_RIGHT) //RIGHT button pressed
-					{
-						if (filepointer == card.getnrfilenames()-1)
+						else if (Event.reportObject.index == BUTTON_SD_RIGHT) //RIGHT button pressed
 						{
-							filepointer=0; //First SD file
-							}else{
-							filepointer++;
+							if (filepointer == card.getnrfilenames()-1)
+							{
+								filepointer=0; //First SD file
+								}else{
+								filepointer++;
+							}
 						}
-					}
-					
-					card.getfilename(filepointer);
-					if (card.filenameIsDir)
-					{
-						//Is a folder
-						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
-						}else{
-						//Is a file
-						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
-					}
-					Serial.println(card.longFilename);
-					int line = 23;
-					int count = 63;
-					char buffer[count+3];
-					int x = 0;
-					memset( buffer, '\0', sizeof(char)*count );
-					
-					if (String(card.longFilename).length() > count){
-						for (int i = 0; i<count ; i++)
-						{
-							if (card.longFilename[i] == '.') i = count +10;
-							else if(i == 0) buffer[i]=card.longFilename[x];
-							else if (i%line == 0){
-								buffer[i] = '\n';
-								i++;
-								buffer[i]=card.longFilename[x];
-							}
-							else {
-								buffer[i]=card.longFilename[x];
-							}
-							Serial.print(i);
-							x++;
-						}
-						buffer[count]='\0';
-						char* buffer2 = strcat(buffer,"...\0");
-						genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
-					}
-					else {
-						for (int i = 0; i<=String(card.longFilename).length() ; i++)	{
-							if (card.longFilename[i] == '.') i = count +10;
-							else if(i == 0) buffer[i]=card.longFilename[x];
-							else if (i%line == 0){
-								buffer[i] = '\n';
-								i++;
-								buffer[i]=card.longFilename[x];
-							}
-							else {
-								buffer[i]=card.longFilename[x];
-							}
-							Serial.print(i);
-							x++;
-						}
-						buffer[count]='\0';
-						genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
-						//Is a file
-						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 						
+						card.getfilename(filepointer);
+						if (card.filenameIsDir)
+						{
+							//Is a folder
+							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+							}else{
+							//Is a file
+							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+						}
+						Serial.println(card.longFilename);
+						int line = 23;
+						int count = 63;
+						char buffer[count+3];
+						int x = 0;
+						memset( buffer, '\0', sizeof(char)*count );
+						
+						if (String(card.longFilename).length() > count){
+							for (int i = 0; i<count ; i++)
+							{
+								if (card.longFilename[i] == '.') i = count +10;
+								else if(i == 0) buffer[i]=card.longFilename[x];
+								else if (i%line == 0){
+									buffer[i] = '\n';
+									i++;
+									buffer[i]=card.longFilename[x];
+								}
+								else {
+									buffer[i]=card.longFilename[x];
+								}
+								Serial.print(i);
+								x++;
+							}
+							buffer[count]='\0';
+							char* buffer2 = strcat(buffer,"...\0");
+							genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
+						}
+						else {
+							for (int i = 0; i<=String(card.longFilename).length() ; i++)	{
+								if (card.longFilename[i] == '.') i = count +10;
+								else if(i == 0) buffer[i]=card.longFilename[x];
+								else if (i%line == 0){
+									buffer[i] = '\n';
+									i++;
+									buffer[i]=card.longFilename[x];
+								}
+								else {
+									buffer[i]=card.longFilename[x];
+								}
+								Serial.print(i);
+								x++;
+							}
+							buffer[count]='\0';
+							genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
+							//Is a file
+							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+							
+						}
+						
+						//Keep in mind to control the length of the string displayed!
+						//genie.WriteStr(2,card.longFilename);
+						Serial.print("Image n: ");
+						Serial.println(filepointer);
 					}
-					
-					//Keep in mind to control the length of the string displayed!
-					//genie.WriteStr(2,card.longFilename);
-					Serial.print("Image n: ");
-					Serial.println(filepointer);
 				}
 				#pragma endregion SD Gcode Selector
 
@@ -2748,69 +2751,76 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					//wake_RELAY();
 					Serial.println("Form 2!");
-					////Check sdcardFiles			
+					////Check sdcardFiles
 					filepointer = 0;
 					card.initsd();
-					uint16_t fileCnt = card.getnrfilenames();
-					//Declare filepointer
-					card.getWorkDirName();
-					//Text index starts at 0
-					card.getfilename(filepointer);
-					Serial.println(card.longFilename);
-					if (card.filenameIsDir)
-					{
-						//Is a folder
-						//genie.WriteStr(1,card.longFilename);
-						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
-					}else{
+					if (card.cardOK){
 						
-						int line = 23;
-						int count = 63;
-						char buffer[count+3];
-						int x = 0;
-						memset( buffer, '\0', sizeof(char)*count );
-				
-						if (String(card.longFilename).length() > count){
-							for (int i = 0; i<count ; i++)
-							{
-								if (card.longFilename[i] == '.') i = count +10; //go out of the for
-								else if(i == 0) buffer[i]=card.longFilename[x];
-								else if (i%line == 0){									
-									buffer[i] = '\n';
-									i++;
-									buffer[i]=card.longFilename[x];																																		
-								} 
-								else {
-									buffer[i]=card.longFilename[x];
+						uint16_t fileCnt = card.getnrfilenames();
+						//Declare filepointer
+						card.getWorkDirName();
+						//Text index starts at 0
+						card.getfilename(filepointer);
+						Serial.println(card.longFilename);
+						if (card.filenameIsDir)
+						{
+							//Is a folder
+							//genie.WriteStr(1,card.longFilename);
+							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+							}else{
+							
+							int line = 23;
+							int count = 63;
+							char buffer[count+3];
+							int x = 0;
+							memset( buffer, '\0', sizeof(char)*count );
+							
+							if (String(card.longFilename).length() > count){
+								for (int i = 0; i<count ; i++)
+								{
+									if (card.longFilename[i] == '.') i = count +10; //go out of the for
+									else if(i == 0) buffer[i]=card.longFilename[x];
+									else if (i%line == 0){
+										buffer[i] = '\n';
+										i++;
+										buffer[i]=card.longFilename[x];
+									}
+									else {
+										buffer[i]=card.longFilename[x];
+									}
+									x++;
+									Serial.print(i);
 								}
-								x++;
-								Serial.print(i);
+								buffer[count]='\0';
+								char* buffer2 = strcat(buffer,"...\0");
+								genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
 							}
-							buffer[count]='\0';
-							char* buffer2 = strcat(buffer,"...\0");
-							genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
-						} 
-						else {
-							for (int i = 0; i<String(card.longFilename).length(); i++)	{
-								if (card.longFilename[i] == '.') i = String(card.longFilename).length() +10; //go out of the for
-								else if(i == 0) buffer[i]=card.longFilename[x];
-								else if (i%line == 0){									
-									buffer[i] = '\n';
-									i++;
-									buffer[i]=card.longFilename[x];								
+							else {
+								for (int i = 0; i<String(card.longFilename).length(); i++)	{
+									if (card.longFilename[i] == '.') i = String(card.longFilename).length() +10; //go out of the for
+									else if(i == 0) buffer[i]=card.longFilename[x];
+									else if (i%line == 0){
+										buffer[i] = '\n';
+										i++;
+										buffer[i]=card.longFilename[x];
+									}
+									else {
+										buffer[i]=card.longFilename[x];
+									}
+									x++;
+									Serial.print(i);
 								}
-								else {
-									buffer[i]=card.longFilename[x];
-								}
-								x++;
-								Serial.print(i);
+								//buffer[count]='\0';
+								genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
+								//Is a file
+								//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 							}
-							//buffer[count]='\0';
-							genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
-							//Is a file
-							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+							Serial.println(buffer);
 						}
-						Serial.println(buffer);						
+					}
+					else{
+						genie.WriteStr(STRING_NAME_FILE,"                  Insert SD Card");//Printing form
+						screen_sdcard = true;
 					}
 				}
 				else if (Event.reportObject.index == FORM_PRINTING)
@@ -2876,6 +2886,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == FORM_MAIN_SCREEN)
 				{
+					screen_sdcard = true;
 					surfing_utilities=false;
 					Serial.println("Surfing 0");
 				}

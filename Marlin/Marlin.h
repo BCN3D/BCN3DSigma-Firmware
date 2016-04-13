@@ -306,7 +306,7 @@ extern bool back_home;
 extern void right_test_print_code();
 extern void left_test_print_code();
 extern bool heatting;
-extern char namefilegcode[13];
+extern char namefilegcode[64];
 extern int insert_temp_l;
 extern int remove_temp_l;
 extern int print_temp_l;

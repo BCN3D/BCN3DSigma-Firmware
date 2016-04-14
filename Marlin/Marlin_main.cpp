@@ -5918,7 +5918,7 @@ void process_commands()
 						else Ycalib = extruder_offset[Y_AXIS][1];
 						if (code_seen('Z')) Zcalib = code_value();
 						else Zcalib = extruder_offset[Z_AXIS][1];
-						if (code_seen('z')) Zprobecalib = code_value();
+						if (code_seen('P')) Zprobecalib = code_value();
 						else Zprobecalib = zprobe_zoffset;
 						Change_ConfigCalibration(Xcalib, Ycalib, Zcalib, Zprobecalib);
 						Config_StoreSettings();

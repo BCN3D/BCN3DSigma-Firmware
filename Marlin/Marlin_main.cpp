@@ -5889,10 +5889,10 @@ void process_commands()
 					case 510:  //left hotend
 					{
 						int i_temp_l = 0, r_temp_l = 0 , p_temp_l = 0, b_temp_l =0;
-						if (code_seen('i')) i_temp_l = code_value();
-						if (code_seen('r')) r_temp_l = code_value();
-						if (code_seen('p')) p_temp_l = code_value();
-						if (code_seen('b')) b_temp_l = code_value();
+						if (code_seen('I')) i_temp_l = code_value();
+						if (code_seen('R')) r_temp_l = code_value();
+						if (code_seen('P')) p_temp_l = code_value();
+						if (code_seen('B')) b_temp_l = code_value();
 						Change_ConfigTemp_LeftHotend(i_temp_l, r_temp_l, p_temp_l, b_temp_l);
 						Config_StoreSettings();
 					}
@@ -5900,10 +5900,10 @@ void process_commands()
 					case 520:  //right hotend
 					{
 						int i_temp_r = 0, r_temp_r = 0 , p_temp_r = 0, b_temp_r =0;
-						if (code_seen('i')) i_temp_r = code_value();
-						if (code_seen('r')) r_temp_r = code_value();
-						if (code_seen('p')) p_temp_r = code_value();
-						if (code_seen('b')) b_temp_r = code_value();
+						if (code_seen('I')) i_temp_r = code_value();
+						if (code_seen('R')) r_temp_r = code_value();
+						if (code_seen('P')) p_temp_r = code_value();
+						if (code_seen('B')) b_temp_r = code_value();
 						Change_ConfigTemp_RightHotend(i_temp_r, r_temp_r, p_temp_r, b_temp_r);
 						Config_StoreSettings();
 					}

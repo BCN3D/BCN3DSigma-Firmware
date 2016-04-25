@@ -588,7 +588,7 @@ void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int
 			remove_temp_r = r_temp_r;
 			print_temp_r = p_temp_r;
 			bed_temp_r = b_temp_r;
-		
+		Serial.println("SUCCESS");
 		
 		
 	}

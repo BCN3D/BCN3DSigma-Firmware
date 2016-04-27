@@ -32,6 +32,7 @@ extern "C" void __cxa_pure_virtual() {;}
 #include <..\Marlin\DOGMbitmaps.h>
 #include <..\Marlin\Hysteresis.cpp>
 #include <..\Marlin\Hysteresis.h>
+#include <..\Marlin\LCD_Handler.cpp>
 #include <..\Marlin\LCD_Handler.h>
 #include <..\Marlin\LiquidCrystalRus.cpp>
 #include <..\Marlin\LiquidCrystalRus.h>

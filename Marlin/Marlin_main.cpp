@@ -326,7 +326,7 @@ float zprobe_zoffset;
 bool processing = false;
 bool heatting = false;
 bool back_home = false;
-char namefilegcode[64]="";
+char namefilegcode[24];
 int dateresetday;
 int dateresetmonth;
 int dateresetyear;
@@ -6543,6 +6543,13 @@ void process_commands()
 								//Serial.print("X old: ");
 								//Serial.println(destination[i]);
 								destination[i]+= 48.5;
+								//Serial.print("X new: ");
+								//Serial.println(destination[i]);
+							}
+							if(i == 1) {
+								//Serial.print("X old: ");
+								//Serial.println(destination[i]);
+								destination[i]-= 2.5;
 								//Serial.print("X new: ");
 								//Serial.println(destination[i]);
 							}

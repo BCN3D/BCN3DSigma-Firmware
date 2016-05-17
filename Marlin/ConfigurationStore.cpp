@@ -529,3 +529,78 @@ void Config_Reset_Statistics(int data){
 		Serial.println("STATISTICS RESET");
 	}	
 }
+void Change_ConfigTemp_LeftHotend(int i_temp_l, int r_temp_l, int p_temp_l, int b_temp_l){
+	/*
+		int insert_temp_l;
+		int remove_temp_l;
+		int print_temp_l;
+		int bed_temp_l;*/ //BED_MINTEMP BED_MAXTEMP
+	
+	if (i_temp_l > HEATER_0_MAXTEMP ||  i_temp_l < EXTRUDE_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else if (r_temp_l > HEATER_0_MAXTEMP ||  r_temp_l < EXTRUDE_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else if (p_temp_l > HEATER_0_MAXTEMP ||  p_temp_l < EXTRUDE_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else if (b_temp_l > BED_MAXTEMP ||  b_temp_l < BED_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else{
+		
+		
+		insert_temp_l =i_temp_l;
+		remove_temp_l = r_temp_l;
+		print_temp_l = p_temp_l;
+		bed_temp_l = b_temp_l;
+		
+		Serial.println("SUCCESS");
+		
+	}
+		
+	
+	
+}
+void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int b_temp_r){
+	
+	/*insert_temp_r;
+	remove_temp_r;
+	print_temp_r;
+	bed_temp_r;*/
+	if (i_temp_r > HEATER_0_MAXTEMP ||  i_temp_r < EXTRUDE_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else if (r_temp_r > HEATER_0_MAXTEMP ||  r_temp_r < EXTRUDE_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else if (p_temp_r > HEATER_0_MAXTEMP ||  p_temp_r < EXTRUDE_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else if (b_temp_r > BED_MAXTEMP ||  b_temp_r < BED_MINTEMP){
+		Serial.println("Values out of range");
+	}
+	else{
+		
+		
+			insert_temp_r =i_temp_r;
+			remove_temp_r = r_temp_r;
+			print_temp_r = p_temp_r;
+			bed_temp_r = b_temp_r;
+		Serial.println("SUCCESS");
+		
+		
+	}
+	
+	
+}
+void Change_ConfigCalibration(float Xcalib, float Ycalib, float Zcalib, float Zprobecalib){
+	
+	
+	extruder_offset[X_AXIS][1]= Xcalib;
+	extruder_offset[Y_AXIS][1]= Ycalib;
+	extruder_offset[Z_AXIS][1]= Zcalib;
+	zprobe_zoffset= Zprobecalib;
+	
+}

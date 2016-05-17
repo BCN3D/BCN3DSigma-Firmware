@@ -1168,7 +1168,7 @@ void setWatch()
 }
 
 #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
-void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc)
+void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, unsigned long period_seconds, int hysteresis_degc)
 {
 /*
       SERIAL_ECHO_START;
@@ -1222,7 +1222,9 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
           manage_heater();
           //lcd_update();
 		  #ifdef SIGMA_TOUCH_SCREEN
+		  genie.WriteObject(GENIE_OBJ_FORM,5,0);
 		  touchscreen_update();
+		  
 		  #endif
         }
       }

@@ -4916,10 +4916,10 @@ void process_commands()
 					touchscreen_update();
 					#endif
 					
-					if (card.sdprinting==false && !card.sdispaused) //Added ispaused from cardreader
+					/*if (card.sdprinting==false && !card.sdispaused) //Added ispaused from cardreader
 					{
 					break; //Break if we are trying to heat when the fileprinting has been stopped and is not paused
-					}
+					}*/
 					
 					#ifdef TEMP_RESIDENCY_TIME
 					/* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
@@ -4974,10 +4974,10 @@ void process_commands()
 					touchscreen_update();
 					#endif
 					
-					if (card.sdprinting==false && !card.sdispaused) //Added ispaused from cardreader
+					/*if (card.sdprinting==false && !card.sdispaused) //Added ispaused from cardreader
 					{
 					break; //Break if we are trying to heat when the fileprinting has been stopped and is not paused
-					}
+					}*/
 					}
 					Serial.println("Bed Heated");
 					LCD_MESSAGEPGM(MSG_BED_DONE);

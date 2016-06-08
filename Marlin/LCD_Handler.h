@@ -388,7 +388,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_SD_SELECTED ||  Event.reportObject.index == STRING_NAME_FILE)
 				{
 					if(card.cardOK)
-					{						
+					{	
+						if (!card.filenameIsDir){ //If the filename is a gcode we start printing					
 						dobloking = true;
 						setTargetBed(0);
 						setTargetHotend0(0);
@@ -397,7 +398,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						Config_StoreSettings();
 						//enquecommand_P(PSTR("T0"));
 						st_synchronize();
-						if (!card.filenameIsDir){ //If the filename is a gcode we start printing
+						
 							char cmd[30];
 							char* c;
 							card.getfilename(filepointer);

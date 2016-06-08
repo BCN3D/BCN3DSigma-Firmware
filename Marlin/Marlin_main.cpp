@@ -230,6 +230,7 @@ Rapduch
 //Rapduch
 #ifdef SIGMA_TOUCH_SCREEN
 	bool surfing_utilities = false;
+	bool screen_sdcard = false;
 	bool is_on_printing_screen = false;
 	uint16_t filepointer = 0;
 	String screen_status = "Printing...";
@@ -287,6 +288,7 @@ bool screen_change_nozz2down = false;
 bool screen_change_beddown = false;
 bool screen_change_speeddown = false;
 bool home_made = false;
+bool home_made_Z = false;
 bool dobloking = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
@@ -888,21 +890,374 @@ int getBuflen ()
 	return buflen;
 }
 
-
-#ifdef SIGMA_TOUCH_SCREEN
-//Rapduch
-void touchscreen_update() //Updates the Serial Communications with the screen
-{
-	//static keyword specifies that the variable retains its state between calls to the function
+void update_screen_printing(){
 	static uint32_t waitPeriod = millis();
-	static uint32_t waitPeriod_p = millis();
-	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
-	static int count5s = 0;
-	int value = 5;
-	//if(card.sdprinting && is_on_printing_screen)
 	
-	if(screen_sdcard && !card.cardOK){
+	if(print_setting_refresh){
+			char buffer[25];
+			
+			memset(buffer, '\0', sizeof(buffer) );
+			SERIAL_PROTOCOLPGM("PRINT SETTINGS \n");
+			//char buffer[256];
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
+			
+			
+			sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
+			
+			sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
+			
+			sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PS_BED_TEMP,buffer);
+			
+			sprintf(buffer, "%3d %%",feedmultiply);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PS_SPEED,buffer);
+			
+			
+			waitPeriod=5000+millis();	//Every 5s
 		
+		
+		print_setting_refresh = false;
+	}
+	
+	if(screen_change_nozz1up){
+		char buffer[25];
+		memset(buffer, '\0', sizeof(buffer) );
+		if (target_temperature[0] < HEATER_0_MAXTEMP)
+		{
+			target_temperature[0]+=5;
+			sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+			genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
+			
+		}
+		
+		screen_change_nozz1up = false;
+	}
+	if(screen_change_nozz2up){
+		char buffer[25];
+		memset(buffer, '\0', sizeof(buffer) );
+		if (target_temperature[1]<HEATER_1_MAXTEMP)
+		{
+			target_temperature[1]+=5;
+			sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+			genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
+			
+		}
+		
+		screen_change_nozz2up = false;
+	}
+	if(screen_change_bedup){
+		char buffer[25];
+		memset(buffer, '\0', sizeof(buffer) );
+		if (target_temperature_bed < BED_MAXTEMP)//MaxTemp
+		{
+			target_temperature_bed+=5;
+			sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+			genie.WriteStr(STRING_PS_BED_TEMP,buffer);
+			
+		}
+		
+		screen_change_bedup = false;
+	}
+	if(screen_change_speedup){
+		char buffer[25];
+		memset(buffer, '\0', sizeof(buffer) );
+		if (feedmultiply<200)
+		{
+			feedmultiply+=5;
+			sprintf(buffer, "%3d %%",feedmultiply);
+			genie.WriteStr(STRING_PS_SPEED,buffer);
+			
+		}
+		screen_change_speedup = false;
+	}
+	
+	if(screen_change_nozz1down){
+		char buffer[25];
+		memset(buffer, '\0', sizeof(buffer) );
+		if (target_temperature[0] > HEATER_0_MINTEMP)
+		{
+			target_temperature[0]-=5;
+			sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+			genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
+			
+		}
+		
+		screen_change_nozz1down = false;
+	}
+	if(screen_change_nozz2down){
+		char buffer[25];
+		memset(buffer, '\0', sizeof(buffer) );
+		if (target_temperature[1]>HEATER_1_MINTEMP)
+		{
+			target_temperature[1]-=5;
+			sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+			genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
+			
+		}
+		
+		screen_change_nozz2down = false;
+	}
+	if(screen_change_beddown){
+		char buffer[25];
+		memset(buffer, '\0', sizeof(buffer) );
+		if (target_temperature_bed> BED_MINTEMP)//Mintemp
+		{
+			target_temperature_bed-=5;
+			sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+			genie.WriteStr(STRING_PS_BED_TEMP,buffer);
+			
+		}
+		
+		screen_change_beddown = false;
+	}
+	if(screen_change_speeddown){
+		char buffer[25];
+		memset(buffer, '\0', sizeof(buffer) );
+		if (feedmultiply>50)
+		{
+			feedmultiply-=5;
+			sprintf(buffer, "%3d %%",feedmultiply);
+			genie.WriteStr(STRING_PS_SPEED,buffer);
+			
+		}
+		
+		screen_change_speeddown = false;
+	}
+	if(print_print_pause){
+		////I believe it is a really unsafe way to do it
+		////plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
+		////st_synchronize();
+		card.pauseSDPrint();
+		Serial.println("PAUSE!");
+		flag_pause = true;
+		print_print_pause = false;
+	}
+	if(print_print_resume){
+		card.startFileprint();
+		Serial.println("RESUME!");
+		flag_pause = false;
+		flag_resume = true;
+		if(flag_resume){
+			enquecommand_P(((PSTR("G70"))));
+			flag_resume = false;
+			Serial.println("resume detected");
+		}
+		print_print_resume = false;
+	}
+	if(print_print_stop == true){
+		
+		card.sdprinting = false;
+		card.closefile();
+		dobloking =false;
+		//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
+		quickStop();
+		
+		enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
+		st_synchronize();
+		enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
+		st_synchronize();
+		
+		setTargetHotend0(0);
+		setTargetHotend1(0);
+		setTargetBed(0);
+		
+		if(SD_FINISHED_STEPPERRELEASE)
+		{
+			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+		}
+		autotempShutdown();
+		setTargetHotend0(0);
+		setTargetHotend1(0);
+		setTargetBed(0);
+		
+		card.sdispaused = false;
+		cancel_heatup = true;
+		
+		//sleep_RELAY();
+		
+		Serial.println("STOP PRINT");
+		back_home = true;
+		home_made = false;
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+		screen_sdcard = false;
+		surfing_utilities=false;
+		
+		print_print_stop = false;
+	}
+	if(is_on_printing_screen){
+		
+		static int count5s = 0;
+		
+		if (millis() >= waitPeriod)
+		{
+			
+			static int tHotend = -1;
+			static int tHotend1 = -1;
+			static int tBed = -1;
+			static int percentDone = -1;
+			static int feedmultiply1 = -1;
+			
+			
+			//Rapduch
+			//Edit for final TouchScreen
+			char buffer7[15];
+			if (tHotend !=int(degHotend(0)) || data_refresh_flag == true ){
+				tHotend =int(degHotend(0));
+				memset(buffer7, '\0', sizeof(buffer7) );
+				sprintf(buffer7, "%3d %cC",tHotend,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_NOZZ1,buffer7);
+			}
+			if (tHotend1 !=int(degHotend(1)) || data_refresh_flag == true ){
+				tHotend1=int(degHotend(1));
+				sprintf(buffer7, "%3d %cC",tHotend1,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_NOZZ2,buffer7);
+				
+			}
+			if (tBed !=int(degBed() + 0.5) || data_refresh_flag == true ){
+				tBed=int(degBed() + 0.5);
+				sprintf(buffer7, "%2d %cC",tBed,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_BED,buffer7);
+			}
+			if (percentDone != card.percentDone() || data_refresh_flag == true ){
+				percentDone = card.percentDone();
+				sprintf(buffer7, "% 3d %%",card.percentDone());
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PRINTING_PERCENT,buffer7);
+			}
+			
+			if(feedmultiply != feedmultiply1 || data_refresh_flag == true ){
+				feedmultiply1 = feedmultiply;
+				sprintf(buffer7, "% 3d %%",feedmultiply1);
+				//Serial.println(buffer);
+				genie.WriteStr(STRINGS_PRINTING_FEED,buffer7);
+			}
+			
+			data_refresh_flag = false;
+			waitPeriod=5000+millis();	//Every 5s
+			
+			count5s++;
+			if (count5s == 720){ //5s * 720 = 3600s = 1h
+				count5s=0;
+				log_hours_print++;
+				Config_StoreSettings();
+			}
+			
+		}
+		
+		
+	}
+}
+
+void update_screen_noprinting(){
+	static uint32_t waitPeriodno = millis();
+	static int8_t processing_state = 0;
+	if (surfing_utilities)
+	{
+		//static uint32_t waitPeriod = millis();
+		if (millis() >= waitPeriodno)
+		{
+			int tHotend=int(degHotend(0));
+			int tHotend1=int(degHotend(1));
+			int tBed=int(degBed() + 0.5);
+			char buffer[256];
+			
+			//Rapduch
+			//Edit for final TouchScreen
+			
+			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_TEMP_NOZZ1,buffer);
+			
+			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_TEMP_NOZZ2,buffer);
+			
+			sprintf(buffer, "%2d %cC",tBed,0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_TEMP_BED,buffer);
+			
+			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
+			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
+			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
+			
+			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
+			
+			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
+			
+			if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10) {
+				
+				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,0);
+			}
+			else{
+				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,1);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,1);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);
+			}
+			
+			#if EXTRUDERS > 1
+			// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
+			if ((degHotend(0) >= (degTargetHotend0()-10)) && (degHotend(1) >= (degTargetHotend1()-10)) && is_changing_filament){
+				// if we want to add user setting temp, we should control if is heating
+				Serial.println("temp ok");
+				
+				Serial.println("Ready to Insert/Remove");
+				//We have preheated correctly
+				if (filament_mode =='I'){
+					heatting = false;
+					genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
+					genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
+				}
+				else if (filament_mode =='R')
+				{
+					heatting = false;
+					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
+					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
+					
+				}
+				else
+				{
+					heatting = false;
+					genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
+				}
+				is_changing_filament=false; //Reset changing filament control
+			}
+			#endif //Extruders > 1
+			waitPeriodno=1000+millis(); // Every Second
+		}
+	}
+	if(filament_accept_ok && !home_made){
+		processing=true;
+		
+	}
+	if(filament_accept_ok && home_made && processing){
+		processing = false;
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+	}
+	
+	
+}
+void update_screen_sdcard(){
+	
+	if(!card.cardOK){
+		static uint32_t waitPeriod = millis();
 		if (millis() >= waitPeriod){
 			
 			filepointer = 0;
@@ -972,346 +1327,38 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				}
 			}
 			
-			waitPeriod = 750 + millis();
 		}
-		
-		
+		waitPeriod = 750 + millis();
 	}
+}
+
+
+
+
+#ifdef SIGMA_TOUCH_SCREEN
+//Rapduch
+void touchscreen_update() //Updates the Serial Communications with the screen
+{
+	
+
+	static uint32_t waitPeriod_p = millis();
+	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
+	static int8_t processing_state = 0;
+	static int count5s = 0;
 	
 	
-	if(print_setting_refresh){
-				
-				char buffer[256];
-				SERIAL_PROTOCOLPGM("PRINT SETTINGS \n");
-				//char buffer[256];
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
-				
-				
-				sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
-				
-				sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
-				
-				sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PS_BED_TEMP,buffer);
-				
-				sprintf(buffer, "%3d %%",feedmultiply);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PS_SPEED,buffer);
-				
-				
-				waitPeriod=5000+millis();	//Every 5s
-				
-				print_setting_refresh = false;
-	}
 	
 	if(card.sdprinting && !card.sdispaused || !card.sdprinting && card.sdispaused )
 	{
-		if(screen_change_nozz1up){
-			char buffer[256];
-			
-			if (target_temperature[0] < HEATER_0_MAXTEMP)
-			{
-				target_temperature[0]+=value;
-				sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
-				genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
-				
-			}
-			
-			screen_change_nozz1up = false;
-		}
-		if(screen_change_nozz2up){
-			char buffer[256];
-			if (target_temperature[1]<HEATER_1_MAXTEMP)
-			{
-				target_temperature[1]+=value;
-				sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
-				genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
-				
-			}
-			
-			screen_change_nozz2up = false;
-		}
-		if(screen_change_bedup){
-			char buffer[256];
-			if (target_temperature_bed < BED_MAXTEMP)//MaxTemp
-			{
-				target_temperature_bed+=value;
-				sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
-				genie.WriteStr(STRING_PS_BED_TEMP,buffer);
-				
-			}
-			
-			screen_change_bedup = false;
-		}
-		if(screen_change_speedup){
-			char buffer[256];
-			if (feedmultiply<200)
-			{
-				feedmultiply+=value;
-				sprintf(buffer, "%3d %%",feedmultiply);
-				genie.WriteStr(STRING_PS_SPEED,buffer);
-				
-			}
-			screen_change_speedup = false;
-		}
-		
-		if(screen_change_nozz1down){
-			char buffer[256];
-			if (target_temperature[0] > HEATER_0_MINTEMP)
-			{
-				target_temperature[0]-=value;
-				sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
-				genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
-				
-			}
-			
-			screen_change_nozz1down = false;
-		}
-		if(screen_change_nozz2down){
-			char buffer[256];
-			if (target_temperature[1]>HEATER_1_MINTEMP)
-			{
-				target_temperature[1]-=value;
-				sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
-				genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
-				
-			}
-			
-			screen_change_nozz2down = false;
-		}
-		if(screen_change_beddown){
-			char buffer[256];
-			if (target_temperature_bed> BED_MINTEMP)//Mintemp
-			{
-				target_temperature_bed-=value;
-				sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
-				genie.WriteStr(STRING_PS_BED_TEMP,buffer);
-				
-			}
-			
-			screen_change_beddown = false;
-		}
-		if(screen_change_speeddown){
-			char buffer[256];
-			if (feedmultiply>50)
-			{
-				feedmultiply-=value;
-				sprintf(buffer, "%3d %%",feedmultiply);
-				genie.WriteStr(STRING_PS_SPEED,buffer);
-				
-			}
-			
-			screen_change_speeddown = false;
-		}
-		if(print_print_pause){
-			////I believe it is a really unsafe way to do it
-			////plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
-			////st_synchronize();
-			card.pauseSDPrint();
-			Serial.println("PAUSE!");
-			flag_pause = true;
-			print_print_pause = false;
-		}
-		if(print_print_resume){
-			card.startFileprint();
-			Serial.println("RESUME!");
-			flag_pause = false;
-			flag_resume = true;
-			if(flag_resume){
-				enquecommand_P(((PSTR("G70"))));
-				flag_resume = false;
-				Serial.println("resume detected");
-			}
-			print_print_resume = false;
-		}
-		if(print_print_stop == true){
-			
-			card.sdprinting = false;
-			card.closefile();
-			dobloking =false;
-			//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
-			quickStop();
-			
-			enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
-			st_synchronize();
-			enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
-			st_synchronize();
-			
-			setTargetHotend0(0);
-			setTargetHotend1(0);
-			setTargetBed(0);
-			
-			if(SD_FINISHED_STEPPERRELEASE)
-			{
-				enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-			}
-			autotempShutdown();
-			setTargetHotend0(0);
-			setTargetHotend1(0);
-			setTargetBed(0);
-			
-			card.sdispaused = false;
-			cancel_heatup = true;
-			
-			//sleep_RELAY();
-			
-			Serial.println("STOP PRINT");
-			back_home = true;
-			home_made = false;
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-			
-			
-			print_print_stop = false;
-		}
-		if (millis() >= waitPeriod)
-		{
-			if(is_on_printing_screen){
-				int tHotend=int(degHotend(0));
-				int tHotend1=int(degHotend(1));
-				int tBed=int(degBed() + 0.5);
-				
-				genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
-				//Rapduch
-				//Edit for final TouchScreen
-				char buffer7[256]="";
-				sprintf(buffer7, "%3d %cC",tHotend,0x00B0);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINTING_NOZZ1,buffer7);
-				
-				sprintf(buffer7, "%3d %cC",tHotend1,0x00B0);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINTING_NOZZ2,buffer7);
-				
-				sprintf(buffer7, "%2d %cC",tBed,0x00B0);
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINTING_BED,buffer7);
-				
-				sprintf(buffer7, "% 3d %%",card.percentDone());
-				//Serial.println(buffer);
-				genie.WriteStr(STRING_PRINTING_PERCENT,buffer7);
-				
-				sprintf(buffer7, "% 3d %%",feedmultiply);
-				//Serial.println(buffer);
-				genie.WriteStr(STRINGS_PRINTING_FEED,buffer7);
-				/*
-				char buffer3[13];
-				if (String(card.longFilename).length()>12){
-				for (int i = 0; i<12 ; i++)
-				{
-				buffer3[i]=card.longFilename[i];
-				}
-				buffer3[12]='\0';
-				char* buffer2 = strcat(buffer3,"...\0");
-				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
-				}else{
-				for (int i = 0; i<=String(card.longFilename).length(); i++)
-				{
-				if (buffer3[i] == '.') i = String(card.longFilename).length() +10;
-				else buffer3[i]=card.longFilename[i];
-				}
-				//buffer[count]='\0';
-				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer3);//Printing form//Printing form
-				}*/
-			}
-			
-			waitPeriod=5000+millis();	//Every 5s
-			
-			count5s++;
-			if (count5s == 720){ //5s * 720 = 3600s = 1h
-				count5s=0;
-				log_hours_print++;
-				Config_StoreSettings();
-			}
-		}
+		update_screen_printing();
+	}
+	else if(screen_sdcard){
+		update_screen_sdcard();
+	}
+	else{
+		update_screen_noprinting();
 	}
 	
-	else if (surfing_utilities)
-	{
-		if (millis() >= waitPeriod)
-		{
-			int tHotend=int(degHotend(0));
-			int tHotend1=int(degHotend(1));
-			int tBed=int(degBed() + 0.5);
-			char buffer[256];
-			
-			//Rapduch
-			//Edit for final TouchScreen
-			
-			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_TEMP_NOZZ1,buffer);
-			
-			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_TEMP_NOZZ2,buffer);
-			
-			sprintf(buffer, "%2d %cC",tBed,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_TEMP_BED,buffer);
-			
-			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
-			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
-			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
-			
-			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
-			
-			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
-			
-			if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5) {
-				
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,0);				
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,0);				
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,0);
-			}
-			else{				
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,1);
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,1);
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);				
-			}
-			
-			#if EXTRUDERS > 1
-			// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
-			if ((degHotend(0) >= (degTargetHotend0()-5)) && (degHotend(1) >= (degTargetHotend1()-5)) && is_changing_filament){
-			// if we want to add user setting temp, we should control if is heating			
-				Serial.println("temp ok");				
-				
-				Serial.println("Ready to Insert/Remove");
-				//We have preheated correctly
-				if (filament_mode =='I'){		
-					heatting = false;								
-					genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
-					genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
-				}
-				else if (filament_mode =='R')
-				{
-					heatting = false;	
-					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
-					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
-					
-				}
-				else
-				{
-					heatting = false;	
-					genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament"); 
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
-				}
-				is_changing_filament=false; //Reset changing filament control
-			}
-			#endif //Extruders > 1
-			waitPeriod=1000+millis(); // Every Second
-		}
-	}	
 	if (processing){
 		if (millis() >= waitPeriod_p){
 			static int processing_state = 0;
@@ -1321,39 +1368,30 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=180+millis();
 		}
 	}
-	if(filament_accept_ok && !home_made){
-			processing=true;
-			
-			
-			
-	}
-	if(filament_accept_ok && home_made && processing){
-		processing = false;
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
-	}
+	
 	
 	if(back_home){
-			if(home_made == false){
-				
-				if (millis() >= waitPeriod_pbackhome){
-					static int processing_state = 0;
-					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
-					if (processing_state == 0) processing_state = (processing_state+1)%3;
-					else processing_state = (processing_state+1)%3;
-					waitPeriod_pbackhome=180+millis();
-				}
-				
+		if(home_made == false){
+			
+			if (millis() >= waitPeriod_pbackhome){
+				static int processing_state = 0;
+				genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
+				if (processing_state == 0) processing_state = (processing_state+1)%3;
+				else processing_state = (processing_state+1)%3;
+				waitPeriod_pbackhome=180+millis();
 			}
-			else{
-				
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				back_home = false;
-				//form home
-				
-				
-				
-				
-			}
+			
+		}
+		else{
+			
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+			back_home = false;
+			//form home
+			
+			
+			
+			
+		}
 	}
 	
 	
@@ -1780,13 +1818,13 @@ int aprox (float voltes)
 
 static void run_z_probe() {
 	plan_bed_level_matrix.set_to_identity();
-	feedrate = homing_feedrate[Z_AXIS];
+	feedrate = next_feedrate;
 
 	// move up until you find the bed
 	float zPosition = -10;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
 	st_synchronize();
-
+	feedrate = homing_feedrate[Z_AXIS];
 	// we have to let the planner know where we are right now as it is not where we said to go.
 	zPosition = st_get_position_mm(Z_AXIS);
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS]);
@@ -2021,11 +2059,11 @@ static void homeaxis(int axis) {
 	((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
 
 	if (axis==X_AXIS ? HOMEAXIS_DO(X) :	axis==Y_AXIS ? HOMEAXIS_DO(Y) :	axis==Z_AXIS ? HOMEAXIS_DO(Z) :	0) {
-		int axis_home_dir = home_dir(axis);		
+		int axis_home_dir = home_dir(axis);
 		#ifdef DUAL_X_CARRIAGE
-			if (axis == X_AXIS) axis_home_dir = x_home_dir(active_extruder);
+		if (axis == X_AXIS) axis_home_dir = x_home_dir(active_extruder);
 		#endif
-
+		float feedrate_old;
 		current_position[axis] = 0;
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
@@ -2034,26 +2072,33 @@ static void homeaxis(int axis) {
 		feedrate = homing_feedrate[axis];
 		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
 		st_synchronize();
-
+		
+		
+		homing_feedrate[Z_AXIS] = CALIB_FEEDRATE_ZAXIS;
+		feedrate_old = feedrate;
+		feedrate = homing_feedrate[axis];
+		
 		current_position[axis] = 0;
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 		
 		destination[axis] = -home_retract_mm(axis) * axis_home_dir;  //Actual retract
-		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); //Slow
 		st_synchronize();
-
+		
 		destination[axis] = 2*home_retract_mm(axis) * axis_home_dir;
 
 		feedrate = homing_feedrate[axis]/2;
 		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); //Slow
 		st_synchronize();
-
+		
 		axis_is_at_home(axis);
 		destination[axis] = current_position[axis];
 		feedrate = 0.0;
 		endstops_hit_on_purpose();
 		axis_known_position[axis] = true;
-
+		
+		homing_feedrate[Z_AXIS] = feedrate_old;
+		
 	}
 }
 
@@ -2399,6 +2444,7 @@ void process_commands()
 					HOMEAXIS(Z);
 					
 					Serial.println("Z SIGMA Homed");
+					home_made_Z =  true;
 					//At this point our probe is homed, no offset is added.
 
 					//Now lets home with the second extruder:
@@ -3411,12 +3457,10 @@ void process_commands()
 			case 34: // G34 Performs a BED calibration Wizard with TouchScreen Integration
 			{
 				
-				
-				//WARNING: T0 (LEFT_EXTRUDER) MUST BE SELECTED!
-				if (active_extruder==RIGHT_EXTRUDER){
-					Serial.println("Error: Left Extruder MUST BE ACTIVE");
-					break; //An error message should show up on screen
-				}
+
+				saved_feedrate = homing_feedrate[Z_AXIS];
+				homing_feedrate[Z_AXIS]= CALIB_FEEDRATE_ZAXIS;			
+
 				
 				if (flag_full_calib){
 					setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
@@ -3482,9 +3526,10 @@ void process_commands()
 				
 				Serial.print("Zvalue after home:");
 				Serial.println(current_position[Z_AXIS]);
-				
+				next_feedrate = saved_feedrate;				
 				dobloking= true;
 				float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
+				next_feedrate = homing_feedrate[Z_AXIS];	
 				float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 				float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 				dobloking= false;
@@ -3507,11 +3552,12 @@ void process_commands()
 				current_position[X_AXIS]-=10;				
 				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
 				
-				
+				next_feedrate = saved_feedrate;					
 				//Probe at 3 arbitrary points
 				//probe left extruder
 				dobloking= true;
 				float z2_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_RIGHT_EXTR,Y_SIGMA_PROBE_3_RIGHT_EXTR, Z_RAISE_BEFORE_PROBING);
+				next_feedrate = homing_feedrate[Z_AXIS];
 				float z2_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_RIGHT_EXTR,Y_SIGMA_PROBE_2_RIGHT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 				float z2_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 				dobloking= false;				
@@ -3845,7 +3891,9 @@ void process_commands()
 					}
 					SERIAL_PROTOCOLPGM("\n");
 					}
-					
+					homing_feedrate[Z_AXIS]= saved_feedrate;
+	
+
 					break;
 					}
 					#endif //SIGMA_BED_AUTOCALIB
@@ -3892,6 +3940,8 @@ void process_commands()
 					
 					processing = false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+					data_refresh_flag = true;
 					break;
 					}
 					
@@ -4266,6 +4316,7 @@ void process_commands()
 						//Rapduch
 						#ifdef SIGMA_TOUCH_SCREEN
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+						data_refresh_flag = true;
 						//char buffer[13];
 						if (String(card.longFilename).length()>12){
 							for (int i = 0; i<12 ; i++)
@@ -4368,6 +4419,8 @@ void process_commands()
 					//Rapduch
 					#ifdef SIGMA_TOUCH_SCREEN
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+					data_refresh_flag = true;
 					#endif
 					}
 					
@@ -7445,6 +7498,7 @@ void process_commands()
 									HOMEAXIS(Z);
 					
 									Serial.println("Z SIGMA Homed");
+									home_made_Z =  true;
 									//At this point our probe is homed, no offset is added.
 
 									//Now lets home with the second extruder:

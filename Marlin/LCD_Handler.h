@@ -829,8 +829,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						which_extruder=1;
 					}
-					if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
-					else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
+					
 					
 					if (filament_mode == 'I') {
 						if (which_extruder == 0)	genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_MATERIAL,0);
@@ -839,6 +838,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else {
 						//*********Move the bed down and the extruders inside
+						if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
+						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						
@@ -1055,7 +1056,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				else if(Event.reportObject.index == BUTTON_CUSTOM_ACCEPT){
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					if(which_extruder == 0){
 						if (custom_print_temp <= HEATER_0_MAXTEMP) print_temp_l = custom_print_temp;
 						else print_temp_l = HEATER_0_MAXTEMP;
@@ -1079,6 +1080,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						setTargetHotend1(insert_temp_r);
 					}
 					Config_StoreSettings();
+					
+					insertmetod();
+					
+					
 				}
 				
 				//////////////////////////

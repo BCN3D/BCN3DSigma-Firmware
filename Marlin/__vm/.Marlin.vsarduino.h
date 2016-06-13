@@ -38,6 +38,8 @@ extern "C" void __cxa_pure_virtual() {;}
 #include <..\Marlin\Marlin.h>
 #include <..\Marlin\Marlin.ino>
 #include <..\Marlin\Marlin_main.cpp>
+#include <..\Marlin\SD_ListFiles.cpp>
+#include <..\Marlin\SD_ListFiles.h>
 #include <..\Marlin\Sd2Card.cpp>
 #include <..\Marlin\Sd2Card.h>
 #include <..\Marlin\Sd2PinMap.h>

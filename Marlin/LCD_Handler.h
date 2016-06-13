@@ -21,6 +21,7 @@
 void insertmetod();
 extern bool cancel_heatup;
 void myGenieEventHandler();
+bool data_refresh_flag = false;
 bool print_setting_refresh = false;
 bool flag_filament_home= false;
 bool filament_accept_ok = false;
@@ -31,7 +32,7 @@ bool print_print_resume = false;
 bool flag_resume = false;
 bool flag_full_calib = false;
 bool flag_bed_calib_done = false;
-bool screen_sdcard = false;
+
 int  print_setting_tool = 2;
 float offset_x_calib = 0;
 float offset_y_calib = 0;
@@ -348,7 +349,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//Serial.println(buffer);
 					genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
 				}*/
-				
+				/*
 				else if (Event.reportObject.index == BUTTON_STOP_YES )
 				{
 					is_on_printing_screen=false;
@@ -378,7 +379,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//sleep_RELAY();
 					//Rapduch
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				}
+				}*/
 				
 				
 				
@@ -387,7 +388,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_SD_SELECTED ||  Event.reportObject.index == STRING_NAME_FILE)
 				{
 					if(card.cardOK)
-					{						
+					{	
+						if (!card.filenameIsDir){ //If the filename is a gcode we start printing					
 						dobloking = true;
 						setTargetBed(0);
 						setTargetHotend0(0);
@@ -396,7 +398,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						Config_StoreSettings();
 						//enquecommand_P(PSTR("T0"));
 						st_synchronize();
-						if (!card.filenameIsDir){ //If the filename is a gcode we start printing
+						
 							char cmd[30];
 							char* c;
 							card.getfilename(filepointer);
@@ -572,7 +574,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//***MOVING
 				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
 							current_position[E_AXIS]-=3;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack
 						}
@@ -581,7 +583,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERT){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
 							current_position[E_AXIS]+=3;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 						}
@@ -590,7 +592,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERTX3){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
 							current_position[E_AXIS]+=15;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 						}
@@ -827,8 +829,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						which_extruder=1;
 					}
-					if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
-					else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
+					
 					
 					if (filament_mode == 'I') {
 						if (which_extruder == 0)	genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_MATERIAL,0);
@@ -837,19 +838,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else {
 						//*********Move the bed down and the extruders inside
+						if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
+						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						
-						home_axis_from_code(true,true,true);
-					
-						int feedrate;
-						if (!flag_filament_home){
-							//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
-							//current_position[X_AXIS]+=25;						
+						if (home_made_Z){
 							home_axis_from_code(true,true,false);
-							st_synchronize();
-							
-							flag_filament_home=true;
+						}
+						else{
+							home_axis_from_code(true,true,true);
 						}	
 						/*	
 					
@@ -894,6 +892,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				
 				else if (Event.reportObject.index == BUTTON_PLA_R){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					print_temp_r = PLA_PRINT_TEMP;
 					insert_temp_r = PLA_INSERT_TEMP;
 					remove_temp_r = PLA_REMOVE_TEMP;
@@ -905,6 +904,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				
 				else if (Event.reportObject.index == BUTTON_ABS_R){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					print_temp_r = ABS_PRINT_TEMP;
 					insert_temp_r = ABS_INSERT_TEMP;
 					remove_temp_r = ABS_REMOVE_TEMP;
@@ -915,6 +915,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					insertmetod();
 				}
 				else if (Event.reportObject.index == BUTTON_PVA_R){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					print_temp_r = PVA_PRINT_TEMP;
 					insert_temp_r = PVA_INSERT_TEMP;
 					remove_temp_r = PVA_REMOVE_TEMP;
@@ -925,6 +926,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					insertmetod();
 				}
 				else if (Event.reportObject.index == BUTTON_PLA_L){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					print_temp_l = PLA_PRINT_TEMP;
 					insert_temp_l = PLA_INSERT_TEMP;
 					remove_temp_l = PLA_REMOVE_TEMP;
@@ -936,6 +938,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				
 				else if (Event.reportObject.index == BUTTON_ABS_L){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					print_temp_l = ABS_PRINT_TEMP;
 					insert_temp_l = ABS_INSERT_TEMP;
 					remove_temp_l = ABS_REMOVE_TEMP;
@@ -955,6 +958,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				}
 				else if (Event.reportObject.index == BUTTON_PVA_L){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					print_temp_l = PVA_PRINT_TEMP;
 					insert_temp_l = PVA_INSERT_TEMP;
 					remove_temp_l = PVA_REMOVE_TEMP;
@@ -1052,7 +1056,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				else if(Event.reportObject.index == BUTTON_CUSTOM_ACCEPT){
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					if(which_extruder == 0){
 						if (custom_print_temp <= HEATER_0_MAXTEMP) print_temp_l = custom_print_temp;
 						else print_temp_l = HEATER_0_MAXTEMP;
@@ -1076,6 +1080,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						setTargetHotend1(insert_temp_r);
 					}
 					Config_StoreSettings();
+					
+					insertmetod();
+					
+					
 				}
 				
 				//////////////////////////
@@ -2825,74 +2833,21 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == FORM_PRINTING)
 				{
-					//Restart the preheat buttons
-					/*genie.WriteObject(GENIE_OBJ_USERIMAGES,BUTTON_PREHEAT_PLA,0);
-					
-					#ifdef SIGMA_TOUCH_SCREEN
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
-					char buffer[13];
-					if (String(card.longFilename).length()>12){
-						for (int i = 0; i<12 ; i++)
-						{
-							buffer[i]=card.longFilename[i];
-						}
-						buffer[12]='\0';
-						char* buffer2 = strcat(buffer,"...\0");
-						Serial.print("Card Name: ");
-						Serial.println(card.longFilename);
-						Serial.print("Buffer1: ");
-						Serial.println(buffer);
-						Serial.print("buffer out: ");
-						Serial.println(buffer2);
-						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
-					}else{
-						for (int i = 0; i<=String(card.longFilename).length(); i++)
-						{
-							if (buffer[i] == '.') i = String(card.longFilename).length() +10;
-							else buffer[i]=card.longFilename[i];
-						}
-						//buffer[count]='\0';
-						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
-					}
-					
-					//Serial.println((char*)prepareString(card.longFilename,12));
-					//genie.WriteStr(6,"Ready");
-					#endif*/
-					/*enquecommand_P(PSTR("M24"));
-					int count = 12;
-					char buffer[count];
-					if (String(card.longFilename).length()>count){
-						for (int i = 0; i<count ; i++)
-						{
-							buffer[i]=card.longFilename[i];
-						}
-						buffer[count]='\0';
-						char* buffer2 = strcat(buffer,"...\0");
-						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
-					}else{
-						for (int i = 0; i<=String(card.longFilename).length(); i++)
-						{
-							/*if (buffer[i] = '.') i = String(card.longFilename).length() +10;
-							else *//*buffer[i]=card.longFilename[i];
-						}
-						buffer[count]='\0';
-						genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
-					}*/
-				
-				//genie.WriteStr(2,card.longFilename);
-				//genie.WriteStr(6,"Printing...");
+				genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+				data_refresh_flag = true;	
 				is_on_printing_screen = true;
 				
 				}
 				else if (Event.reportObject.index == FORM_MAIN_SCREEN)
 				{
-					screen_sdcard = true;
+					screen_sdcard = false;
 					surfing_utilities=false;
 					Serial.println("Surfing 0");
 				}
 				
 				else if (Event.reportObject.index == FORM_UTILITIES)
 				{
+				screen_sdcard = false;
 				surfing_utilities=true;
 				Serial.println("Surfing 1");
 				}
@@ -2999,29 +2954,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 	}
 void insertmetod(){
 	processing = true;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-					if (!home_made) home_axis_from_code(true,true,true);
-					
 					int feedrate;
-					if (!flag_filament_home){
-						//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
-						//current_position[X_AXIS]+=25;
-						
-						home_axis_from_code(true,true,false);						
-						/*current_position[X_AXIS] = x_home_pos(LEFT_EXTRUDER)+25;
-						feedrate=homing_feedrate[X_AXIS];
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
-						st_synchronize();
-						//current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER);
 					
-						current_position[X_AXIS]=extruder_offset[X_AXIS][1];
-						Serial.println(current_position[X_AXIS]);
-						plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
-						//current_position[X_AXIS]-=25;
-						current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER)-25;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
-						st_synchronize();*/
-						flag_filament_home=true;
+					if (home_made_Z){
+						home_axis_from_code(true,true,false);
+					}
+					else{
+						home_axis_from_code(true,true,true);
 					}
 					
 					/*current_position[Y_AXIS]=285;

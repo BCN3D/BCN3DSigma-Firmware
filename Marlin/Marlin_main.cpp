@@ -3168,7 +3168,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state++;
 			}
 			else{
-				Serial.println(degHotend(which_extruder));
+				//Serial.println(degHotend(which_extruder));
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_TEMPS,processing_state);
@@ -5025,7 +5025,7 @@ inline void gcode_G43(){
 	current_position[Y_AXIS]=Y_MAX_POS/2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
 	
-	if(active_extruder = 0){
+	if(active_extruder == LEFT_EXTRUDER) {
 		current_position[X_AXIS] = 150;
 	}else{
 		current_position[X_AXIS] = 170;

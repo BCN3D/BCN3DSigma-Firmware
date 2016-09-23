@@ -26,7 +26,7 @@
 //
 //This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
-#define VERSION_STRING  "01-1.1.6"
+#define VERSION_STRING  "01-1.2.0"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
@@ -1120,6 +1120,51 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //defines used in the code
 #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
+
+
+#define LISTNUMSDFILES 5
+#define PURGE_TEMP_HYSTERESIS 10
+#define CHANGE_FIL_TEMP_HYSTERESIS 10
+#define NYLON_TEMP_HYSTERESIS 5
+#define SETUP_G70 0
+
+#define G69_RETRACK 4
+#define G69_XYMOVE 5
+#define G70_PURGE 10
+
+#define NYLON_TEMP_HEATUP_THRESHOLD 260
+#define NYLON_TEMP_COOLDOWN_THRESHOLD 60
+
+//String GcodePrinting
+
+#define StringGcodeLength 20
+
+///////GIFs
+#define FramerateGifs   40   /// 40ms------> 25fps
+
+#define PURGE_DISTANCE_INSERTED 30// in mm
+
+#define FramesGifSuccess   40
+#define FramesGifNylonStep3   22
+#define FramesGifPurgeLoad   35    
+#define FramesBedScrew   43     
+#define FramesZCalib   49
+#define FramesZSet   49
+#define FramesTest   36
+#define FramesProcessing   15
+#define FramesChangefilamentTemps   43
+#define FramesAdjustingTemps   44
+#define FramesNylonTemps   43
+#define FramesError   44
+#define FramesPreheat   41
+
+//#define SCREENTEST
+
+#define TIMERCOOLDOWN 10*60 // 10min
+
+//#define ErroWindowEnable
+
+
 
 
 #include "Configuration_adv.h"

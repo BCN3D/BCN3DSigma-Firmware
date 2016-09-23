@@ -62,6 +62,9 @@
 //#else
   //#define MYSERIAL MSerial
 //#endif
+#define screen_printing_pause_form0		'A'
+#define screen_printing_pause_form1		'B'
+#define screen_printing_pause_form2		'C'
 
 #define SERIAL_PROTOCOL(x) (MYSERIAL.print(x))
 #define SERIAL_PROTOCOL_F(x,y) (MYSERIAL.print(x,y))
@@ -273,14 +276,18 @@ extern void digipot_i2c_init();
 extern Genie genie;
 void touchscreen_update();
 extern uint16_t filepointer;
+extern int8_t saved_active_extruder;
 extern String screen_status;
-extern bool screen_sdcard;
+extern bool waiting_temps;
 extern bool surfing_utilities;
+extern bool screen_sdcard;
+extern bool surfing_temps;
 extern bool is_on_printing_screen;
 extern uint8_t which_extruder;
 extern char filament_mode;
 extern bool is_changing_filament;
 extern int getBuflen();
+extern void HeaterCooldownInactivity(bool switchOnOff);
 extern void homeFromMain();
 extern void changeTool(int ntool);
 extern void changeToolSigma(int tool);
@@ -296,6 +303,7 @@ extern void wake_RELAY();
 extern void home_axis_from_code(bool x_c, bool y_c, bool z_c);
 extern float saved_position[NUM_AXIS];
 extern bool flag_continue_calib;
+extern int purge_extruder_selected;
 //extern bool quick_guide;
 //extern int language;
 //extern const char idiom[50][50]; 
@@ -303,8 +311,24 @@ extern bool flag_continue_calib;
 extern float x_home_pos(int extruder);
 extern int bed_calibration_times;
 extern bool processing;
+extern uint8_t processing_z_set;
+extern bool processing_success;
+extern bool processing_bed_success;
+extern bool processing_nylon_step4;
+extern bool processing_purge_load;
+extern bool processing_nylon_step3;
+extern bool processing_change_filament_temps;
+extern bool processing_adjusting;
+extern bool processing_nylon_temps;
+extern bool processing_bed;
+extern bool processing_calib_ZL;
+extern bool processing_calib_ZR;
+extern bool processing_error;
+extern bool processing_bed_first;
+extern bool processing_test;
 extern bool back_home;
 //extern int quick_guide_step;
+//extern unsigned long previous_millis_cmd;
 extern void right_test_print_code();
 extern void left_test_print_code();
 extern bool heatting;
@@ -341,6 +365,7 @@ extern int log_max_bed;
 extern int dateresetday;
 extern int dateresetmonth;
 extern int dateresetyear;
+extern char screen_printing_pause_form;
 extern bool screen_change_nozz1up;
 extern bool screen_change_nozz2up;
 extern bool screen_change_bedup;
@@ -350,6 +375,7 @@ extern bool screen_change_nozz2down;
 extern bool screen_change_beddown;
 extern bool screen_change_speeddown;
 extern void checkMaxTemps();
+extern void gcode_T0_T1_auto(int code);
 extern void Config_Reset_Statistics(int data);
 extern void Change_ConfigTemp_LeftHotend(int i_temp_l, int remove_temp_l, int p_temp_r, int b_temp_l);
 extern void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int b_temp_r);

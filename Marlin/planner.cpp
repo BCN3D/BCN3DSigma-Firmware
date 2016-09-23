@@ -517,6 +517,7 @@ void check_axes_activity()
 		analogWrite(FAN_PIN,0);
 		analogWrite(FAN2_PIN,tail_fan_speed);
 	}
+	
 	//analogWrite(FAN_PIN,tail_fan_speed);
 	//analogWrite(FAN2_PIN,tail_fan_speed);
   #else
@@ -587,7 +588,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 	#ifdef PREVENT_DANGEROUS_EXTRUDE
 		if(target[E_AXIS]!=position[E_AXIS])
 		{
-    if(degHotend(active_extruder)<extrude_min_temp && degHotend(which_extruder)<extrude_min_temp)
+    if(degHotend(active_extruder)<extrude_min_temp && degHotend(which_extruder)<extrude_min_temp && degHotend(purge_extruder_selected)<extrude_min_temp)
     {
       position[E_AXIS]=target[E_AXIS]; //behave as if the move really took place, but ignore E part
       SERIAL_ECHO_START;

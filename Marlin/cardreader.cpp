@@ -581,19 +581,29 @@ uint16_t CardReader::getnrfilenames()
   return nrFiles;
 }
 
-void CardReader::chdir(const char * relpath)
+int CardReader::chdir(const char * relpath)
 {
   SdFile newfile;
   SdFile *parent=&root;
+  //char Workdir[256];
+  //memset(Workdir, '\0', sizeof(Workdir));
+  //strcat(Workdir,"/");
+  
   
   if(workDir.isOpen())
     parent=&workDir;
-  
+	
+  /*for (int d = workDirDepth-1; 0 != d; d--){
+	strcat(Workdir,getworkDirParentsName(d));
+	strcat(Workdir,"/");
+   }
+   strcat(Workdir, relpath);*/
   if(!newfile.open(*parent,relpath, O_READ))
   {
    SERIAL_ECHO_START;
    SERIAL_ECHOPGM(MSG_SD_CANT_ENTER_SUBDIR);
    SERIAL_ECHOLN(relpath);
+   return -1;
   }
   else
   {
@@ -606,7 +616,7 @@ void CardReader::chdir(const char * relpath)
   }
 }
 
-void CardReader::updir()
+int CardReader::updir()
 {
   if(workDirDepth > 0)
   {
@@ -615,6 +625,14 @@ void CardReader::updir()
     int d;
     for (int d = 0; d < workDirDepth; d++)
       workDirParents[d] = workDirParents[d+1];
+	  
+	if(workDirDepth == 0){
+		return 1;
+	}
+	return 0;
+  }
+  else{
+	  return -1;
   }
 }
 
@@ -643,7 +661,7 @@ void CardReader::printingHasFinished()
 	#ifdef SIGMA_TOUCH_SCREEN
 	//also we need to put the platform down and do an autohome to prevent blocking
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,1);		
-		enquecommand_P(PSTR("T0")); 
+		gcode_T0_T1_auto(0);
 		st_synchronize();		
 		enquecommand_P(PSTR("M107"));
 		st_synchronize();
@@ -651,7 +669,9 @@ void CardReader::printingHasFinished()
 		setTargetHotend1(0);
 		setTargetBed(0);
 		screen_sdcard = false;
-		surfing_utilities = false;
+		surfing_utilities=false;
+		surfing_temps = false;
+		
 		//The default states is Left Extruder active	
 	#endif	  
       if(SD_FINISHED_STEPPERRELEASE)

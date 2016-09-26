@@ -225,9 +225,9 @@ Rapduch
 	CardReader card;
 	Listfiles listsd;
 #endif
-
-
-
+int UI_SerialID0 = 0;
+long UI_SerialID1 = 0;
+int UI_SerialID2 = 0;
 //Rapduch
 #ifdef SIGMA_TOUCH_SCREEN
 	bool waiting_temps = false;
@@ -8108,6 +8108,16 @@ inline void gcode_M505(){
 	Config_Reset_Statistics(input);
 	Config_StoreSettings();
 }
+inline void gcode_M506(){
+	int input0 = 0;
+	long input1 = 0;
+	int input2 = 0;
+	if (code_seen('F')) input0 = (int)code_value();//First number
+	if (code_seen('S')) input1 = code_value_long();//Second number
+	if (code_seen('T')) input2 = (int)code_value();//Third number
+	Config_Set_UISerialNumber(input0, input1, input2);
+	Config_StoreSettings();
+}
 inline void gcode_M510(){
 	int i_temp_l = 0, r_temp_l = 0 , p_temp_l = 0, b_temp_l =0;
 	if (code_seen('I')) i_temp_l = code_value();
@@ -9104,6 +9114,10 @@ void process_commands()
 					
 			case 505:
 			gcode_M505();
+			break;
+			
+			case 506:
+			gcode_M506();
 			break;
 					
 			case 510:  //left hotend

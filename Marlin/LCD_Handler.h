@@ -4614,9 +4614,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == FORM_INFO_UI)
 				{
-					
+					char buffer[256];
 					genie.WriteStr(STRING_INFO_UI_VERSION,VERSION_STRING);
 					
+					if(UI_SerialID0 || UI_SerialID0 || UI_SerialID0){
+						sprintf(buffer, "%3d.%6ld.%4d",UI_SerialID0, UI_SerialID1, UI_SerialID0);
+						genie.WriteStr(STRING_INFO_UI_SerialID,buffer);
+					}else{
+						genie.WriteStr(STRING_INFO_UI_SerialID,UI_SerialID);
+					}
 				}
 			}
 		}

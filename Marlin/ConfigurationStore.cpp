@@ -38,7 +38,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 
-#define EEPROM_VERSION "V12"
+#define EEPROM_VERSION "V13"
 /*#ifdef DELTA
 	#undef EEPROM_VERSION
 	#define EEPROM_VERSION "V11"
@@ -142,6 +142,10 @@ void Config_StoreSettings()
   #ifdef SCARA
   EEPROM_WRITE_VAR(i,axis_scaling);        // Add scaling for SCARA
   #endif
+  EEPROM_WRITE_VAR(i,UI_SerialID0);        // Add scaling for SCARA
+  EEPROM_WRITE_VAR(i,UI_SerialID1);        // Add scaling for SCARA
+  EEPROM_WRITE_VAR(i,UI_SerialID2);        // Add scaling for SCARA
+  
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver2); // validate data
@@ -267,6 +271,13 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOPAIR(" max temp B " ,(float)log_max_bed);
 	 SERIAL_ECHOLN("");
 	 
+	  SERIAL_ECHO_START;
+	  SERIAL_ECHOLNPGM("UI Information Seria Number:");
+	  SERIAL_ECHO_START;
+	  SERIAL_ECHOPAIR(" First ID number ",(float)UI_SerialID0);
+	  SERIAL_ECHOPAIR(" Second ID number " ,(float)UI_SerialID1);
+	  SERIAL_ECHOPAIR(" Third ID number " ,(float)UI_SerialID2);
+	  SERIAL_ECHOLN("");
 	 
 	} 
 #endif
@@ -373,7 +384,9 @@ void Config_RetrieveSettings()
 		#ifdef SCARA
 		EEPROM_READ_VAR(i,axis_scaling);
 		#endif
-
+		 EEPROM_READ_VAR(i,UI_SerialID0);        
+		 EEPROM_READ_VAR(i,UI_SerialID1);        
+		 EEPROM_READ_VAR(i,UI_SerialID2);        
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
         SERIAL_ECHO_START;
@@ -457,6 +470,9 @@ void Config_ResetDefault()
 	#ifdef Z_SIGMA_HOME
 		zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
 	#endif
+	UI_SerialID0 = 0;
+	UI_SerialID1 = 0;
+	UI_SerialID2 = 0;
 /*
 	//Extruder Offset
 	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
@@ -528,6 +544,15 @@ void Config_Reset_Statistics(int data){
 		log_prints_finished = 0;
 		Serial.println("STATISTICS RESET");
 	}	
+}
+void Config_Set_UISerialNumber(int input0, long input1, int input2){
+	
+	UI_SerialID0 = input0;
+	UI_SerialID1 = input1;
+	UI_SerialID2 = input2;
+	Serial.println(UI_SerialID0);
+	Serial.println(UI_SerialID1);
+	Serial.println(UI_SerialID2);
 }
 void Change_ConfigTemp_LeftHotend(int i_temp_l, int r_temp_l, int p_temp_l, int b_temp_l){
 	/*

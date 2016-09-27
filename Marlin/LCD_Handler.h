@@ -4440,6 +4440,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						offset_calib_manu[2]=0.0;
 						offset_calib_manu[3]=0.0;
 						calib_value_selected = 0;
+						Config_StoreSettings();
 						Config_PrintSettings();
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_SAVE_NOT){
@@ -4618,7 +4619,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteStr(STRING_INFO_UI_VERSION,VERSION_STRING);
 					
 					if(UI_SerialID0 || UI_SerialID0 || UI_SerialID0){
-						sprintf(buffer, "%3d.%6ld.%4d",UI_SerialID0, UI_SerialID1, UI_SerialID0);
+						sprintf(buffer, "%03d.%03d%03d.%04d",UI_SerialID0, (int)(UI_SerialID1/1000),(int)(UI_SerialID1%1000), UI_SerialID2);
+						//sprintf(buffer, "%03d.%03d%03d.%04d",1020, 1151,1021, 10002);
 						genie.WriteStr(STRING_INFO_UI_SerialID,buffer);
 					}else{
 						genie.WriteStr(STRING_INFO_UI_SerialID,UI_SerialID);

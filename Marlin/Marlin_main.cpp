@@ -355,6 +355,7 @@ int bed_calibration_times = 0; //To control the number of bed calibration to ava
 int  purge_extruder_selected = -1;
 int log_prints;
 int log_hours_print;
+long log_min_print;
 int log_prints_finished;
 int log_max_temp_l;
 int log_max_temp_r;
@@ -768,6 +769,7 @@ void setup()
 				// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 				log_prints = 0;
 				log_hours_print = 0;
+				log_min_print = 0;
 				log_prints_finished = 0;
 				log_max_temp_l = 0;
 				log_max_temp_r = 0;
@@ -2745,6 +2747,10 @@ if(is_on_printing_screen){
 			log_hours_print++;
 			Config_StoreSettings();
 		}
+		if (count5s == 12){ //5s * 720 = 3600s = 1h
+			count5s=0;
+			log_min_print++;
+		}
 		waitPeriod=5000+millis();	//Every 5s
 		
 	}
@@ -3388,6 +3394,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				setTargetHotend0(0);
 				setTargetHotend1(0);
 				setTargetBed(0);
+				Config_StoreSettings();
 				cancel_heatup = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				

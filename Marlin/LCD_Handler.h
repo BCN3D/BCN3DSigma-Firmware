@@ -1447,6 +1447,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						setTargetHotend1(0);
 						feedmultiply = 100;
 						log_prints++;
+						log_min_print = 0;
 						Config_StoreSettings();
 						//gcode_T0_T1_auto(0);
 						//st_synchronize();

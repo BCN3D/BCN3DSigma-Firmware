@@ -140,12 +140,13 @@ void Config_StoreSettings()
   #endif
   EEPROM_WRITE_VAR(i,lcd_contrast);
   #ifdef SCARA
-  EEPROM_WRITE_VAR(i,axis_scaling);        // Add scaling for SCARA
+  EEPROM_WRITE_VAR(i,axis_scaling);        
   #endif
-  EEPROM_WRITE_VAR(i,UI_SerialID0);        // Add scaling for SCARA
-  EEPROM_WRITE_VAR(i,UI_SerialID1);        // Add scaling for SCARA
-  EEPROM_WRITE_VAR(i,UI_SerialID2);        // Add scaling for SCARA
-  
+  EEPROM_WRITE_VAR(i,UI_SerialID0);        
+  EEPROM_WRITE_VAR(i,UI_SerialID1);        
+  EEPROM_WRITE_VAR(i,UI_SerialID2);        
+  EEPROM_WRITE_VAR(i,log_minutes_lastprint);        
+  EEPROM_WRITE_VAR(i,log_hours_lastprint);        
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver2); // validate data
@@ -272,11 +273,17 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOLN("");
 	 
 	  SERIAL_ECHO_START;
-	  SERIAL_ECHOLNPGM("UI Information Seria Number:");
+	  SERIAL_ECHOLNPGM("UI Information Serial Number:");
 	  SERIAL_ECHO_START;
 	  SERIAL_ECHOPAIR(" First ID number ",(float)UI_SerialID0);
 	  SERIAL_ECHOPAIR(" Second ID number " ,(float)UI_SerialID1);
 	  SERIAL_ECHOPAIR(" Third ID number " ,(float)UI_SerialID2);
+	  SERIAL_ECHOLN("");
+	  SERIAL_ECHO_START;
+	  SERIAL_ECHOLNPGM("Last print duration");
+	  SERIAL_ECHO_START;
+	  SERIAL_ECHOPAIR(" Last print time-> Hours :",(unsigned long)log_hours_lastprint);
+	  SERIAL_ECHOPAIR(" Minutes :" ,(unsigned long)log_minutes_lastprint);
 	  SERIAL_ECHOLN("");
 	 
 	} 
@@ -386,10 +393,18 @@ void Config_RetrieveSettings()
 		#endif
 		 EEPROM_READ_VAR(i,UI_SerialID0);        
 		 EEPROM_READ_VAR(i,UI_SerialID1);        
-		 EEPROM_READ_VAR(i,UI_SerialID2);        
+		 EEPROM_READ_VAR(i,UI_SerialID2);  
+		 EEPROM_READ_VAR(i,log_minutes_lastprint);    
+		 EEPROM_READ_VAR(i,log_hours_lastprint);       
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
         SERIAL_ECHO_START;
+		if (UI_SerialID0 < 0 || UI_SerialID0 > 123 || UI_SerialID2 > 9999 || UI_SerialID1 > 999999 || UI_SerialID2 < 0 || UI_SerialID1 < 0){
+			UI_SerialID0 = 0;
+			UI_SerialID1 = 0;
+			UI_SerialID2 = 0;
+		}
+		
         SERIAL_ECHOLNPGM("Stored settings retrieved");
     }
     else
@@ -473,6 +488,8 @@ void Config_ResetDefault()
 	UI_SerialID0 = 0;
 	UI_SerialID1 = 0;
 	UI_SerialID2 = 0;
+	log_minutes_lastprint = 0;
+	log_hours_lastprint = 0;
 /*
 	//Extruder Offset
 	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};

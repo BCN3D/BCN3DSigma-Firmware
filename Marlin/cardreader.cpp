@@ -660,7 +660,7 @@ void CardReader::printingHasFinished()
 	  //Rapduch
 	#ifdef SIGMA_TOUCH_SCREEN
 	//also we need to put the platform down and do an autohome to prevent blocking
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,1);		
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);		
 		gcode_T0_T1_auto(0);
 		st_synchronize();		
 		enquecommand_P(PSTR("M107"));
@@ -671,7 +671,9 @@ void CardReader::printingHasFinished()
 		screen_sdcard = false;
 		surfing_utilities=false;
 		surfing_temps = false;
-		
+		log_hours_lastprint = (int)(log_min_print/60);
+		log_minutes_lastprint = (int)(log_min_print%60);
+		Config_StoreSettings();
 		//The default states is Left Extruder active	
 	#endif	  
       if(SD_FINISHED_STEPPERRELEASE)

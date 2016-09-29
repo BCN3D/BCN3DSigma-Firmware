@@ -34,6 +34,7 @@ void Listfiles::get_lineduration(void){
 	int posi = 0;
 	int linecomepoint=0;
 	simplify3D=-1;
+	int exit = 0;
 	while(linecomepoint < 5 && !card.isEndFile()){
 		memset(comandline, '\0', sizeof(comandline) );
 		while(comandline[0]!=';' && !card.isEndFile()){
@@ -44,9 +45,13 @@ void Listfiles::get_lineduration(void){
 				int16_t n=card.get();
 				serial_char = (char)n;
 				comandline[posi]=serial_char;
-				
+				if()
 				
 				posi++;
+			}
+			exit++;
+			if(exit>20){
+				linecomepoint = 5;
 			}
 		}
 		if(linecomepoint == 0){

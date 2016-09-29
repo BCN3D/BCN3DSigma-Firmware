@@ -362,6 +362,8 @@ extern int preheat_B_value;
 extern int log_prints;
 extern int log_hours_print;
 extern long log_min_print;
+extern int log_minutes_lastprint;
+extern int log_hours_lastprint;
 extern int log_prints_finished;
 extern int log_max_temp_l;
 extern int log_max_temp_r;

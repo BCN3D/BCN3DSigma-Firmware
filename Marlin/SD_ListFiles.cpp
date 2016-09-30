@@ -45,7 +45,6 @@ void Listfiles::get_lineduration(void){
 				int16_t n=card.get();
 				serial_char = (char)n;
 				comandline[posi]=serial_char;
-				if()
 				
 				posi++;
 			}

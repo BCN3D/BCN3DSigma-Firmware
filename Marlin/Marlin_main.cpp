@@ -2751,7 +2751,7 @@ if(is_on_printing_screen){
 			log_hours_print++;
 			Config_StoreSettings();
 		}
-		if (count5s1 == 12){ //5s * 720 = 3600s = 1h
+		if (count5s1 == 12){ //5s * 12 = 60s = 1min
 			count5s1=0;
 			log_min_print++;
 		}

@@ -399,7 +399,7 @@ void Config_RetrieveSettings()
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
         SERIAL_ECHO_START;
-		if (UI_SerialID0 < 0 || UI_SerialID0 > 123 || UI_SerialID2 > 9999 || UI_SerialID1 > 999999 || UI_SerialID2 < 0 || UI_SerialID1 < 0){
+		if (UI_SerialID0 <= 0 || UI_SerialID0 >= 123 || UI_SerialID2 >= 9999 || UI_SerialID1 >= 999999 || UI_SerialID2 <= 0 || UI_SerialID1 <= 0){
 			UI_SerialID0 = 0;
 			UI_SerialID1 = 0;
 			UI_SerialID2 = 0;
@@ -485,9 +485,11 @@ void Config_ResetDefault()
 	#ifdef Z_SIGMA_HOME
 		zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
 	#endif
-	UI_SerialID0 = 0;
-	UI_SerialID1 = 0;
-	UI_SerialID2 = 0;
+	if (UI_SerialID0 <= 0 || UI_SerialID0 >= 123 || UI_SerialID2 >= 9999 || UI_SerialID1 >= 999999 || UI_SerialID2 <= 0 || UI_SerialID1 <= 0){
+		UI_SerialID0 = 0;
+		UI_SerialID1 = 0;
+		UI_SerialID2 = 0;
+	}
 	log_minutes_lastprint = 0;
 	log_hours_lastprint = 0;
 /*
@@ -563,13 +565,14 @@ void Config_Reset_Statistics(int data){
 	}	
 }
 void Config_Set_UISerialNumber(int input0, long input1, int input2){
-	
-	UI_SerialID0 = input0;
-	UI_SerialID1 = input1;
-	UI_SerialID2 = input2;
-	Serial.println(UI_SerialID0);
-	Serial.println(UI_SerialID1);
-	Serial.println(UI_SerialID2);
+	if(input0 && input1 && input2 && !(input0 <= 0 || input0 >= 123 || input2 >= 9999 || input1 >= 999999 || input2 <= 0 || input1 <= 0)){
+		UI_SerialID0 = input0;
+		UI_SerialID1 = input1;
+		UI_SerialID2 = input2;
+		Serial.println(UI_SerialID0);
+		Serial.println(UI_SerialID1);
+		Serial.println(UI_SerialID2);
+	}
 }
 void Change_ConfigTemp_LeftHotend(int i_temp_l, int r_temp_l, int p_temp_l, int b_temp_l){
 	/*

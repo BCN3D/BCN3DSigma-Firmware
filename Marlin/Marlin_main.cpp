@@ -4604,6 +4604,8 @@ inline void gcode_G28(){
 		//clean_up_after_endstop_move();
 	}
 	#endif
+	
+	memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
 	home_made = true;
 
 }
@@ -8672,7 +8674,7 @@ void process_commands()
 	float x_tmp, y_tmp, z_tmp, real_z;
 	#endif
 	//Serial.println(cmdbuffer[bufindr]);
-	
+	Serial.println(cmdbuffer[bufindr]);
 	if(code_seen('G'))
 	{
 		switch((int)code_value())
@@ -9510,6 +9512,7 @@ void prepare_move()
 		//Rapduch: movements if whe have done a toolchange. It returns the new tool to the last printing position
 		if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE && current_position[E_AXIS]==destination[E_AXIS]) //Sigma mode and we are in a travel move after toolchange
 		{
+			
 			plan_buffer_line(current_position[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
 			plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
 			current_position[X_AXIS]=destination[X_AXIS];
@@ -9520,7 +9523,6 @@ void prepare_move()
 				destination[Z_AXIS]=z_restaurada;
 			}
 			st_synchronize();
-			
 			active_extruder_parked = false;
 		}
 		
@@ -9534,6 +9536,7 @@ void prepare_move()
 			st_synchronize();
 			extruder_duplication_enabled = true;
 			active_extruder_parked = false;
+			Serial.println("hola 2");
 		}
 		else if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE) // handle unparking of head
 		{
@@ -9555,6 +9558,7 @@ void prepare_move()
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], raised_parked_position[Z_AXIS], current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]), active_extruder);
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
 			active_extruder_parked = false;
+			Serial.println("hola 3");
 		}
 	}
 	#endif //DUAL_X_CARRIAGE
@@ -9566,9 +9570,11 @@ void prepare_move()
 	// Do not use feedmultiply for E or Z only moves
 	if((current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
 		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+		Serial.println("hola 4");
 	}
 	else {
 		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
+		Serial.println("hola 5");
 	}
 
 	for(int8_t i=0; i < NUM_AXIS; i++) {

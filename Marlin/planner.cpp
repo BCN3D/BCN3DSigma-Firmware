@@ -61,7 +61,10 @@
 //===========================================================================
 //=============================public variables ============================
 //===========================================================================
-
+unsigned long mmdone = 0;
+unsigned long ymmdone = 0;
+unsigned long zmmdone = 0;
+unsigned long emmdone = 0;
 unsigned long minsegmenttime;
 float max_feedrate[4]; // set the max speeds
 float axis_steps_per_unit[4];
@@ -1032,9 +1035,34 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 	// Move buffer head
 	block_buffer_head = next_buffer_head;
 
+	if (target[X_AXIS] < position[X_AXIS]){
+		mmdone = mmdone  + (position[0] - target[X_AXIS])/axis_steps_per_unit[X_AXIS];
+	}
+	else{
+	mmdone = mmdone + (target[0]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
+	}
+	if (target[Y_AXIS] < position[Y_AXIS]){
+		ymmdone = ymmdone  + (position[Y_AXIS] - target[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
+	}
+	else{
+		ymmdone = ymmdone + (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
+	}
+	if (target[Z_AXIS] < position[Z_AXIS]){
+		zmmdone = zmmdone  + (position[Z_AXIS] - target[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
+	}
+	else{
+		zmmdone = zmmdone + (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
+	}
+	if (target[E_AXIS] < position[E_AXIS]){
+		emmdone = emmdone  + (position[E_AXIS] - target[E_AXIS])/axis_steps_per_unit[E_AXIS];
+	}
+	else{
+		emmdone = emmdone + (target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS];
+	}
+	
 	// Update position
 	memcpy(position, target, sizeof(target)); // position[] = target[]
-
+	
 	planner_recalculate();
 
 	st_wake_up();

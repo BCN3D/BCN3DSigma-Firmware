@@ -2754,6 +2754,10 @@ if(is_on_printing_screen){
 		if (count5s1 == 12){ //5s * 12 = 60s = 1min
 			count5s1=0;
 			log_min_print++;
+			Serial.println(mmdone);
+			Serial.println(ymmdone);
+			Serial.println(zmmdone);
+			Serial.println(emmdone);
 		}
 		waitPeriod=5000+millis();	//Every 5s
 		

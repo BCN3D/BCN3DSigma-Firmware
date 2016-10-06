@@ -673,6 +673,10 @@ void CardReader::printingHasFinished()
 		surfing_temps = false;
 		log_hours_lastprint = (int)(log_min_print/60);
 		log_minutes_lastprint = (int)(log_min_print%60);
+		Serial.println(mmdone);
+		Serial.println(ymmdone);
+		Serial.println(zmmdone);
+		Serial.println(emmdone);
 		Config_StoreSettings();
 		//The default states is Left Extruder active	
 	#endif	  

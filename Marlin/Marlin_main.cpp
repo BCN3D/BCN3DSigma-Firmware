@@ -2539,7 +2539,8 @@ void update_screen_printing(){
 			////plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
 			////st_synchronize();
 			card.pauseSDPrint();
-			Serial.println("PAUSE!");
+			
+			SERIAL_PROTOCOLPGM("¡PAUSE! \n");
 			flag_pause = true;
 		
 			/*genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,1);
@@ -2555,13 +2556,13 @@ void update_screen_printing(){
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 			processing = true;
 			card.startFileprint();
-			Serial.println("RESUME!");
+			SERIAL_PROTOCOLPGM("¡RESUME! \n");
 			flag_pause = false;
 			flag_resume = true;
 			if(flag_resume){
 				enquecommand_P(((PSTR("G70"))));
 				flag_resume = false;
-				Serial.println("resume detected");
+				SERIAL_PROTOCOLPGM("Resume detected \n");
 			}
 			
 			
@@ -2585,7 +2586,7 @@ void update_screen_printing(){
 		ymmdone = 0;
 		emmdone = 0;
 		enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
-		Serial.println("STOP PRINT");
+		SERIAL_PROTOCOLPGM(" STOP PRINT \n");
 		
 	
 	
@@ -2645,9 +2646,8 @@ if (surfing_utilities)
 		// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
 		if ((degHotend(0) >= (degTargetHotend0()-10)) && (degHotend(1) >= (degTargetHotend1()-10)) && is_changing_filament){
 			// if we want to add user setting temp, we should control if is heating
-			Serial.println("temp ok");
-			
-			Serial.println("Ready to Insert/Remove");
+			SERIAL_PROTOCOLPGM("temp ok \n");
+			SERIAL_PROTOCOLPGM("Ready to Insert/Remove \n");
 			//We have preheated correctly
 			if (filament_mode =='I'){
 				heatting = false;
@@ -2964,9 +2964,8 @@ void update_screen_noprinting(){
 			if ((degHotend(0) >= (degTargetHotend0()-CHANGE_FIL_TEMP_HYSTERESIS)) && (degHotend(1) >= (degTargetHotend1()-CHANGE_FIL_TEMP_HYSTERESIS)) && is_changing_filament){
 				// if we want to add user setting temp, we should control if is heating
 				
-				Serial.println("temp ok");
-				
-				Serial.println("Ready to Insert/Remove");
+				SERIAL_PROTOCOLPGM("temp ok \n");
+				SERIAL_PROTOCOLPGM("Ready to Insert/Remove \n");
 				//We have preheated correctly
 				if (filament_mode =='I'){
 					//heatting = false;
@@ -3560,7 +3559,7 @@ void get_command()
 			
 			enquecommand_P(((PSTR("G69"))));
 			flag_pause = false;
-			Serial.println("pause detected");
+			SERIAL_PROTOCOLPGM("pause detected \n");
 			processing = true;
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 		}

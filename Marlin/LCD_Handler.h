@@ -210,7 +210,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE,0);
 					surfing_utilities = true;
 					purge_extruder_selected = -1;
-					Serial.println("Enter in purge mode");
+					SERIAL_PROTOCOLPGM("Enter in purge mode \n");
 					/*setTargetHotend0(print_temp_l);
 					setTargetHotend1(print_temp_r);*/
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
@@ -767,7 +767,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						//delay(850);
-						Serial.print("Inserting :   ");
+						SERIAL_PROTOCOLPGM("Inserting :   \n");
 						current_position[E_AXIS] += 30;//Extra extrusion at low feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  700/60, which_extruder); //850/60
 						st_synchronize();
@@ -850,7 +850,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						if (millis() >= waitPeriod_purge){
 							//Adjusting the filament with a retrack Up
-							Serial.println("Adjust ZUp");
+							SERIAL_PROTOCOLPGM("Adjust ZUp \n");
 							float modified_position=current_position[E_AXIS]-6;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
 							current_position[E_AXIS]=modified_position;
@@ -864,7 +864,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						//Adjusting the filament with a purge Down
 						if (millis() >= waitPeriod_purge){
-							Serial.println("Adjust ZDown");
+							SERIAL_PROTOCOLPGM("Adjust ZDown \n");
 							float modified_position=current_position[E_AXIS]+6;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
 							current_position[E_AXIS]=modified_position;
@@ -1046,7 +1046,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_SUCCESS_FILAMENT_OK)
 				{
 					//enquecommand_P((PSTR("G28 X0 Y0")));
-					Serial.println("HOLA SUCCESS");
+					SERIAL_PROTOCOLPGM("SUCCESS \n");
 					processing_success = false;
 					filament_accept_ok = false;
 					if (filament_mode == 'R')
@@ -1429,7 +1429,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					screen_sdcard = false;
 					surfing_utilities=false;
-					Serial.println("Surfing 0");
+					SERIAL_PROTOCOLPGM("Surfing 0 \n");
 					surfing_temps = false;
 					HeaterCooldownInactivity(true);
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
@@ -1522,7 +1522,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PREHEAT_BACK ){
 					screen_sdcard = false;
 					surfing_utilities=false;
-					Serial.println("Surfing 0");
+					SERIAL_PROTOCOLPGM("Surfing 0 \n");
 					surfing_temps = false;
 					HeaterCooldownInactivity(true);
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
@@ -1598,7 +1598,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_MAINTENANCE_BACKMENU ){
 					screen_sdcard = false;
 					surfing_utilities=false;
-					Serial.println("Surfing 0");
+					SERIAL_PROTOCOLPGM("Surfing 0 \n");
 					surfing_temps = false;
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
 					
@@ -1632,7 +1632,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_NYLON_SELECT_BACKMAINMENU ){
 					screen_sdcard = false;
 					surfing_utilities=false;
-					Serial.println("Surfing 0");
+					SERIAL_PROTOCOLPGM("Surfing 0 \n");
 					surfing_temps = false;
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_LEFT, 0);
@@ -1724,8 +1724,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						
 						
-						
-						Serial.println("Filament Removed, GOING TO CLEAN THE NOZZEL");
+						SERIAL_PROTOCOLPGM("Filament Removed, GOING TO CLEAN THE NOZZEL \n");
 						
 						if (which_extruder == 0) changeTool(0);
 						else changeTool(1);
@@ -1948,7 +1947,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE,0);
 					
 					purge_extruder_selected = -1;
-					Serial.println("Enter in purge mode");
+					SERIAL_PROTOCOLPGM("Enter in purge mode \n");
 					/*setTargetHotend0(print_temp_l);
 					setTargetHotend1(print_temp_r);*/
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
@@ -1987,7 +1986,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					screen_sdcard = false;
 					surfing_utilities=false;
 					surfing_temps = false;
-					Serial.println("Surfing 0");
+					SERIAL_PROTOCOLPGM("Surfing 0 \n");
 					HeaterCooldownInactivity(true);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				}
@@ -2213,7 +2212,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					screen_sdcard = false;
 					surfing_utilities=false;
 					surfing_temps = false;
-					Serial.println("Surfing 0");
+					SERIAL_PROTOCOLPGM("Surfing 0 \n");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 
 				}
@@ -2221,7 +2220,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					screen_sdcard = false;
 					surfing_utilities=false;
 					surfing_temps = false;
-					Serial.println("Surfing 0");
+					SERIAL_PROTOCOLPGM("Surfing 0 \n");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 
 				}
@@ -2451,7 +2450,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					screen_sdcard = false;
 					surfing_utilities=false;
 					surfing_temps = false;
-					Serial.println("Surfing 0");
+					SERIAL_PROTOCOLPGM("Surfing 0 \n");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 
 				}
@@ -2580,7 +2579,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						delay(850);
-						Serial.print("Inserting :   ");
+						SERIAL_PROTOCOLPGM("Inserting :   \n");
 						current_position[E_AXIS] += 30;//Extra extrusion at low feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  700/60, which_extruder); //850/60
 						current_position[E_AXIS] += ((BOWDEN_LENGTH-EXTRUDER_LENGTH)-15);//BOWDEN_LENGTH-300+340);
@@ -2735,7 +2734,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						touchscreen_update();
 												
 					}
-					Serial.println("60 grados");
+					SERIAL_PROTOCOLPGM("60 degrees \n");
 					fanSpeed=0;
 					if(which_extruder == 0)digitalWrite(FAN_PIN, 0);
 					else digitalWrite(FAN2_PIN, 0);
@@ -2853,7 +2852,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						if (millis() >= waitPeriod_purge){
 							//Adjusting the filament with a retrack Up
-							Serial.println("Adjust ZUp");
+							SERIAL_PROTOCOLPGM("Adjust ZUp \n");
 							float modified_position=current_position[E_AXIS]-6;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
 							current_position[E_AXIS]=modified_position;
@@ -2867,7 +2866,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						//Adjusting the filament with a purge Down
 						if (millis() >= waitPeriod_purge){
-							Serial.println("Adjust ZDown");
+							SERIAL_PROTOCOLPGM("Adjust ZDown \n");
 							float modified_position=current_position[E_AXIS]+6;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
 							current_position[E_AXIS]=modified_position;
@@ -3099,7 +3098,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,vuitens1+8);}
 						}*/
 						if (vuitens2!= 0){
-							Serial.println("Jump over screw1");
+							SERIAL_PROTOCOLPGM("Jump over screw1 \n");
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
 							sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
 							//genie.WriteStr(STRING_BED_SCREW2,buffer);
@@ -3108,7 +3107,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,vuitens2+8);}
 						}
 						else if (vuitens3!= 0){
-							Serial.println("Jump over screw1 and screw2");
+							SERIAL_PROTOCOLPGM("Jump over screw1 and screw2 \n");
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
 							sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
 							//genie.WriteStr(STRING_BED_SCREW3,buffer);
@@ -3128,7 +3127,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						home_axis_from_code(true, true, false);
 						enquecommand_P((PSTR("T0")));
 						st_synchronize();
-						Serial.println("Calibration Successful, going back to main menu");
+						SERIAL_PROTOCOLPGM("Calibration Successful, going back to main menu \n");
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
 						flag_bed_calib_done = true;
@@ -3144,14 +3143,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_success = false;
 						if(!flag_nylon_clean_metode){
 							enquecommand_P((PSTR("T0")));
-							Serial.println("Filament Inserted/Removed, returning to Main Menu");
+							SERIAL_PROTOCOLPGM("Filament Inserted/Removed, returning to Main Menu \n");
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
 							HeaterCooldownInactivity(true);
 						}
 						else{
 							setTargetHotend0(0);
 							setTargetHotend1(0);
-							Serial.println("Filament Removed, GOING TO CLEAN THE NOZZEL");
+							SERIAL_PROTOCOLPGM("Filament Removed, GOING TO CLEAN THE NOZZEL \n");
 							setTargetHotend(NYLON_TEMP_HEATUP_THRESHOLD,which_extruder);
 							if (which_extruder == 0) changeTool(0);
 							else changeTool(1);
@@ -3181,7 +3180,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_bed_success=true;
 						//char buffer[30];
 						float calculus = extruder_offset[X_AXIS][1] + 0.5;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store data
@@ -3198,7 +3197,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_bed_success=true;
 						}
 						float calculus = extruder_offset[X_AXIS][1] + 0.4;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store data
@@ -3216,7 +3215,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							processing_bed_success=true;
 						}
 						float calculus = extruder_offset[X_AXIS][1] + 0.3;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store changes
@@ -3233,7 +3232,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_bed_success=true;
 					}
 						float calculus = extruder_offset[X_AXIS][1] + 0.2;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store data
@@ -3251,7 +3250,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							processing_bed_success=true;
 						}
 						float calculus = extruder_offset[X_AXIS][1] + 0.1;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store changes
@@ -3271,7 +3270,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							processing_bed_success=true;
 						}
 						float calculus = extruder_offset[X_AXIS][1];
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store changes
@@ -3288,7 +3287,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_bed_success=true;
 					}
 						float calculus = extruder_offset[X_AXIS][1] - 0.1;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store changes
@@ -3306,7 +3305,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_bed_success=true;
 					}
 						float calculus = extruder_offset[X_AXIS][1] - 0.2;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store changes
@@ -3324,7 +3323,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 						
 						float calculus = extruder_offset[X_AXIS][1] - 0.3;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						//sprintf(buffer, "M218 T1 X%f",calculus); //
 						//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
@@ -3350,7 +3349,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							processing_bed_success=true;
 						}
 						float calculus = extruder_offset[X_AXIS][1]-0.4;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store changes
@@ -3362,7 +3361,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
 						redo_source = 1;
 						float calculus = extruder_offset[X_AXIS][1] + 0.5;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store changes
@@ -3375,7 +3374,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						redo_source = 1;
 						float calculus = extruder_offset[X_AXIS][1] -0.4;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store changes
@@ -3399,7 +3398,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						//char buffer[30];
 						float calculus = extruder_offset[Y_AXIS][1] + 0.5;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						//sprintf(buffer, "M218 T1 X%f",calculus); //
 						//sprintf_P(buffer, PSTR("M218 T1 X%s"), String(calculus));
@@ -3421,7 +3420,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_bed_success=true;
 						//enquecommand_P((PSTR("M218 T1 X-0.4")));
 						float calculus = extruder_offset[Y_AXIS][1] + 0.4;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store changes
@@ -3438,7 +3437,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1] + 0.3;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						//enquecommand_P((PSTR("M218 T1 X-0.3")));
 						extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -3456,7 +3455,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1] + 0.2;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						//enquecommand_P((PSTR("M218 T1 X-0.2")));
 						extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -3474,7 +3473,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1] + 0.1;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 						//enquecommand_P((PSTR("M218 T1 X-0.1")));
@@ -3492,7 +3491,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1];
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 						//enquecommand_P((PSTR("M218 T1 X0.1")));
@@ -3510,7 +3509,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 						processing_bed_success=true;
 						float calculus = extruder_offset[X_AXIS][1] - 0.1;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 						//enquecommand_P((PSTR("M218 T1 X0.1")));
@@ -3528,7 +3527,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1] - 0.2;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 						//enquecommand_P((PSTR("M218 T1 X0.1")));
@@ -3546,7 +3545,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1] - 0.3;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						//enquecommand_P((PSTR("M218 T1 X-0.2")));
 						extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -3564,7 +3563,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1] - 0.4;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						
 						Serial.println(calculus);
 						extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
@@ -3583,7 +3582,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
 						redo_source = 2;
 						float calculus = extruder_offset[Y_AXIS][1] + 0.5;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store changes
@@ -3597,7 +3596,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
 						redo_source = 2;
 						float calculus = extruder_offset[Y_AXIS][1] -0.4;
-						Serial.print("Calculus:  ");
+						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
 						extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 						Config_StoreSettings(); //Store changes
@@ -3618,7 +3617,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						float feedrate = homing_feedrate[Z_AXIS];
 						current_position[Z_AXIS] += 0.05;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-						Serial.print("Z position: ");
+						SERIAL_PROTOCOLPGM("Z position: ");
 						Serial.println(current_position[Z_AXIS]);
 					}
 					
@@ -3627,7 +3626,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						float feedrate = homing_feedrate[Z_AXIS];
 						if (current_position[Z_AXIS]>-1.5) current_position[Z_AXIS] -= 0.05; //Max down is Z=-0.5
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-						Serial.print("Z position: ");
+						SERIAL_PROTOCOLPGM("Z position: ");
 						Serial.println(current_position[Z_AXIS]);
 					}
 					
@@ -3635,7 +3634,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						processing_calib_ZL = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-						Serial.println("OK first Extruder!");
+						SERIAL_PROTOCOLPGM("OK first Extruder! \n");
 						//We have to override z_prove_offset
 						zprobe_zoffset-=(current_position[Z_AXIS]); //We are putting more offset if needed
 						extruder_offset[Z_AXIS][LEFT_EXTRUDER]=0.0;//It is always the reference
@@ -3644,7 +3643,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						setTargetHotend0(print_temp_l);
 						
-						Serial.print("Z1 Probe offset: ");
+						SERIAL_PROTOCOLPGM("Z1 Probe offset: ");
 						Serial.println(zprobe_zoffset);
 						Config_StoreSettings(); //Store changes
 						
@@ -3675,7 +3674,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						float feedrate = homing_feedrate[Z_AXIS];
 						current_position[Z_AXIS] += 0.05;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-						Serial.print("Z position: ");
+						SERIAL_PROTOCOLPGM("Z position: ");
 						Serial.println(current_position[Z_AXIS]);
 					}
 					
@@ -3684,7 +3683,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						float feedrate = homing_feedrate[Z_AXIS];
 						if (current_position[Z_AXIS]>-1.5) current_position[Z_AXIS] -= 0.05;  //Max down is Z=-0.5
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-						Serial.print("Z position: ");
+						SERIAL_PROTOCOLPGM("Z position: ");
 						Serial.println(current_position[Z_AXIS]);
 					}
 					
@@ -3692,9 +3691,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						processing_calib_ZR = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-						Serial.println("OK second Extruder!");
+						SERIAL_PROTOCOLLNPGM("OK second Extruder!");
 						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=(current_position[Z_AXIS]);//Add the difference to the current offset value
-						Serial.print("Z2 Offset: ");
+						SERIAL_PROTOCOLPGM("Z2 Offset: ");
 						Serial.println(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
 						Config_StoreSettings(); //Store changes
 						
@@ -4160,7 +4159,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if(Event.reportObject.index == BUTTON_CALL_FULL_SURE_OK){
 						
 						bed_calibration_times = 0;
-						Serial.print("INFO: BED CALIB - ");
+						SERIAL_PROTOCOLPGM("INFO: BED CALIB - ");
 						Serial.println(flag_bed_calib_done);
 						flag_full_calib = true;
 						
@@ -4326,7 +4325,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						screen_sdcard = false;
 						surfing_utilities=false;
 						surfing_temps = false;
-						Serial.println("Surfing 0");
+						SERIAL_PROTOCOLPGM("Surfing 0 \n");
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_OK){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_MANUAL_FINE_CALIB_SAVE,0);
@@ -4514,7 +4513,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_error = false;
 						screen_sdcard = false;
 						surfing_utilities=false;
-						Serial.println("Surfing 0");
+						SERIAL_PROTOCOLPGM("Surfing 0 \n");
 						surfing_temps = false;
 						HeaterCooldownInactivity(true);
 						genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
@@ -4554,13 +4553,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					screen_sdcard = false;
 					surfing_utilities=false;
 					surfing_temps = false;
-					Serial.println("Surfing 0");
+					SERIAL_PROTOCOLPGM("Surfing 0 \n");
 				}
 				
 				else if (Event.reportObject.index == FORM_UTILITIES)
 				{
 					surfing_utilities=true;
-					Serial.println("Surfing 1");
+					SERIAL_PROTOCOLPGM("Surfing 1 \n");
 				}
 				else if (Event.reportObject.index == FORM_TEMP_MENU){
 					surfing_temps = true;
@@ -4568,7 +4567,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == FORM_PURGE)
 				{
-					Serial.println("Enter in purge mode");
+					SERIAL_PROTOCOLPGM("Enter in purge mode \n");
 					if(purge_extruder_selected == 0) {
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
@@ -4637,7 +4636,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 
 
 char* prepareString(char* text, int len){
-	Serial.print("Text: ");
+	SERIAL_PROTOCOLPGM("Text: ");
 	Serial.println(text);
 	if (String(text).length()>12){
 		char buffer[len+1];
@@ -4646,16 +4645,16 @@ char* prepareString(char* text, int len){
 			buffer[i]=card.longFilename[i];
 		}
 		buffer[len]='\0';
-		Serial.print("Buffer temp: ");
+		SERIAL_PROTOCOLPGM("Buffer temp: ");
 		Serial.println(buffer);
 		char* buffer2 = strcat(buffer,"...\0");
-		Serial.print("Buffer returned: ");
+		SERIAL_PROTOCOLPGM("Buffer returned: ");
 		Serial.println(buffer2);
 		return buffer2;
 		//buffer2 = strcat(buffer,"...\0");
 		}else{
 		char* buffer2 = text;
-		Serial.print("Buffer returned: ");
+		SERIAL_PROTOCOLPGM("Buffer returned: ");
 		Serial.println(buffer2);
 		return buffer2;
 	}

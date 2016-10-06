@@ -104,10 +104,9 @@ void plan_set_e_position(const float &e);
 
 void check_axes_activity();
 uint8_t movesplanned(); //return the nr of buffered moves
-extern unsigned long mmdone;
-extern unsigned long ymmdone;
-extern unsigned long zmmdone;
-extern unsigned long emmdone;
+extern unsigned long long mmdone;
+extern unsigned long long ymmdone;
+extern unsigned long long emmdone;
 extern unsigned long minsegmenttime;
 extern float max_feedrate[4]; // set the max speeds
 extern float axis_steps_per_unit[4];

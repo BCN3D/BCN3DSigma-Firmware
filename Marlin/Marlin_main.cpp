@@ -362,9 +362,11 @@ int log_prints_finished;
 int log_max_temp_l;
 int log_max_temp_r;
 int log_max_bed;
-int long long log_X_mmdone;
+int long long log_X0_mmdone;
+int long long log_X1_mmdone;
 int long long log_Y_mmdone;
-int long long log_E_mmdone;
+int long long log_E0_mmdone;
+int long long log_E1_mmdone;
 
 // Extruder offset
 #if EXTRUDERS > 1
@@ -2579,12 +2581,16 @@ void update_screen_printing(){
 		dobloking =false;
 		//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
 		//quickStop();
-		log_X_mmdone += mmdone/axis_steps_per_unit[X_AXIS];
+		log_X0_mmdone += x0mmdone/axis_steps_per_unit[X_AXIS];
+		log_X1_mmdone += x1mmdone/axis_steps_per_unit[X_AXIS];
 		log_Y_mmdone += ymmdone/axis_steps_per_unit[Y_AXIS];
-		log_E_mmdone += emmdone/axis_steps_per_unit[E_AXIS];
-		mmdone = 0;
+		log_E0_mmdone += e0mmdone/axis_steps_per_unit[E_AXIS];
+		log_E1_mmdone += e1mmdone/axis_steps_per_unit[E_AXIS];
+		x0mmdone = 0;
+		x1mmdone = 0;
 		ymmdone = 0;
-		emmdone = 0;
+		e0mmdone = 0;
+		e1mmdone = 0;
 		enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
 		SERIAL_PROTOCOLPGM(" STOP PRINT \n");
 		

@@ -61,9 +61,11 @@
 //===========================================================================
 //=============================public variables ============================
 //===========================================================================
-unsigned long long mmdone = 0;
+unsigned long long x0mmdone = 0;
+unsigned long long x1mmdone = 0;
 unsigned long long ymmdone = 0;
-unsigned long long emmdone = 0;
+unsigned long long e0mmdone = 0;
+unsigned long long e1mmdone = 0;
 unsigned long minsegmenttime;
 float max_feedrate[4]; // set the max speeds
 float axis_steps_per_unit[4];
@@ -1033,25 +1035,44 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 
 	// Move buffer head
 	block_buffer_head = next_buffer_head;
-
+	if(active_extruder == LEFT_EXTRUDER){
 	if (target[X_AXIS] < position[X_AXIS]){
-		mmdone = mmdone  + (position[0] - target[X_AXIS]);
+		x0mmdone = x0mmdone  + (position[0] - target[X_AXIS]);
 	}
 	else{
-	mmdone = mmdone + (target[0]-position[X_AXIS]);
+	x0mmdone = x0mmdone + (target[0]-position[X_AXIS]);
 	}
+	
+	if (target[E_AXIS] < position[E_AXIS]){
+		e0mmdone = e0mmdone  + (position[E_AXIS] - target[E_AXIS]);
+	}
+	else{
+		e0mmdone = e0mmdone + (target[E_AXIS]-position[E_AXIS]);
+	}
+	}else if (active_extruder == RIGHT_EXTRUDER){
+		if (target[X_AXIS] < position[X_AXIS]){
+			x1mmdone = x1mmdone  + (position[0] - target[X_AXIS]);
+		}
+		else{
+			x1mmdone = x1mmdone + (target[0]-position[X_AXIS]);
+		}
+		
+		if (target[E_AXIS] < position[E_AXIS]){
+			e1mmdone = e1mmdone  + (position[E_AXIS] - target[E_AXIS]);
+		}
+		else{
+			e1mmdone = e1mmdone + (target[E_AXIS]-position[E_AXIS]);
+		}
+	}
+	
+	
 	if (target[Y_AXIS] < position[Y_AXIS]){
 		ymmdone = ymmdone  + (position[Y_AXIS] - target[Y_AXIS]);
 	}
 	else{
 		ymmdone = ymmdone + (target[Y_AXIS]-position[Y_AXIS]);
 	}
-	if (target[E_AXIS] < position[E_AXIS]){
-		emmdone = emmdone  + (position[E_AXIS] - target[E_AXIS]);
-	}
-	else{
-		emmdone = emmdone + (target[E_AXIS]-position[E_AXIS]);
-	}
+	
 	
 	// Update position
 	memcpy(position, target, sizeof(target)); // position[] = target[]

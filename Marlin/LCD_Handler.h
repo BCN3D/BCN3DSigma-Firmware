@@ -1446,9 +1446,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						setTargetHotend0(0);
 						setTargetHotend1(0);
 						feedmultiply = 100;
-						mmdone = 0;
+						x0mmdone = 0;
+						x1mmdone = 0;
 						ymmdone = 0;
-						emmdone = 0;
+						e0mmdone = 0;
+						e1mmdone = 0;
 						log_prints++;
 						log_min_print = 0;
 						Config_StoreSettings();

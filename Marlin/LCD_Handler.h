@@ -4519,6 +4519,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						surfing_temps = false;
 						HeaterCooldownInactivity(true);
 						genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
+						
 					}
 					
 					#pragma endregion Info Screens

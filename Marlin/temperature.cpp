@@ -33,7 +33,7 @@
 #include "ultralcd.h"
 #include "temperature.h"
 #include "watchdog.h"
-
+#include "Touch_Screen_Definitions.h"
 #include "Sd2PinMap.h"
 
 
@@ -155,6 +155,7 @@ static float analog2temp(int raw, uint8_t e);
 static float analog2tempBed(int raw);
 static void updateTemperaturesFromRawValues();
 
+void check_termistors_connections();
 #ifdef WATCH_TEMP_PERIOD
 int watch_start_temp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
 unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
@@ -598,6 +599,9 @@ void manage_heater()
 
   updateTemperaturesFromRawValues();
 	
+	check_termistors_connections();
+	
+	
   for(int e = 0; e < EXTRUDERS; e++) 
   {
 
@@ -911,7 +915,82 @@ static void updateTemperaturesFromRawValues()
     temp_meas_ready = false;
     CRITICAL_SECTION_END;
 }
-
+void check_termistors_connections()
+{
+	static uint32_t waitPeriod_check = millis();
+	static int times_failuret0 = 0;
+	static int times_failuret1 = 0;
+	static int times_failureb = 0;
+	
+	if (millis() >= waitPeriod_check){
+		
+		int tHotend=int(degHotend(0));
+		int tHotend1=int(degHotend(1));
+		int tBed=int(degBed());
+		static bool message_showed = false;
+		static bool message_showed1 = false;
+		static bool message_showedbed = false;
+		if(!message_showed){
+			
+			if(tHotend < 5 || tHotend > 340){
+				times_failuret0++;
+				SERIAL_PROTOCOLLNPGM("ERROR: Not T0 termistor detected ");
+			}
+			if(tHotend1 < 5 || tHotend1 > 340){
+				times_failuret1++;
+				SERIAL_PROTOCOLLNPGM("ERROR: Not T1 termistor detected ");
+			}
+			if(tBed < 5 || tBed > 340){
+				SERIAL_PROTOCOLLNPGM("ERROR: Not Bed termistor detected ");
+				times_failureb++;
+			}
+			
+			if( !message_showed && !processing_error && times_failuret0 > 3){
+				
+				 char thermal_message[50];
+				 
+				 sprintf(thermal_message, "ERROR: Not T0 termistor detected ");
+				 genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+				 genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+				  disable_heater();
+				processing_error = true;
+				message_showed = true;
+				times_failuret0 = 0;
+			}
+			else if(!message_showed1 && !processing_error && times_failuret1 > 3){
+				 char thermal_message[50];
+				 
+				 genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+				 sprintf(thermal_message, "ERROR: Not T1 termistor detected ");
+				 genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+				processing_error = true;
+				 disable_heater();
+				
+				times_failuret1 = 0;
+				message_showed1 = true;
+			}
+			else if(!message_showedbed && !processing_error && times_failureb > 3){
+				
+				 char thermal_message[50];
+				 genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+				 sprintf(thermal_message, "ERROR: Not BED termistor detected ");
+				 disable_heater();
+				 genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+				processing_error = true;
+				
+				
+				
+				
+				message_showedbed = true;
+				times_failureb = 0;
+			}
+		
+		
+		}
+		waitPeriod_check=5000+millis();
+	}
+	
+}
 
 // For converting raw Filament Width to milimeters 
 #ifdef FILAMENT_SENSOR
@@ -1182,8 +1261,8 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
       SERIAL_ECHO(temperature);
       SERIAL_ECHO(" ;  Target Temp:");
       SERIAL_ECHO(target_temperature);
-      SERIAL_ECHOLN("");    
-*/
+      SERIAL_ECHOLN("");  */  
+
   if ((target_temperature == 0) || thermal_runaway)
   {
     *state = 0;
@@ -1210,8 +1289,7 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
         SERIAL_ERRORLN((int)heater_id);
         LCD_ALERTMESSAGEPGM("THERMAL RUNAWAY");
         thermal_runaway = true;
-        while(1)
-        {
+        
           disable_heater();
           disable_x();
           disable_y();
@@ -1219,14 +1297,24 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
           disable_e0();
           disable_e1();
           disable_e2();
-          manage_heater();
+         // manage_heater();
           //lcd_update();
 		  #ifdef SIGMA_TOUCH_SCREEN
-		  genie.WriteObject(GENIE_OBJ_FORM,5,0);
-		  touchscreen_update();
+		  char thermal_message[50];
 		  
+		  sprintf(thermal_message, "ERROR: Thermal Runaway, system stopped! Heater_ID: %d \n Reset the printer",(int)heater_id);
+		  genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+		  genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+		  
+		 // touchscreen_update();
+		  processing_error = true;
+		  
+		  
+		  while(processing_error){
+			  touchscreen_update();
+		  }
 		  #endif
-        }
+        
       }
       break;
   }

@@ -23,7 +23,7 @@
 void setfilenames(int jint);
 inline void insertmetod();
 void setfoldernames(int jint);
-extern bool cancel_heatup;
+
 void myGenieEventHandler();
 bool flag_nylon_clean_metode = false;
 bool print_setting_refresh = false;
@@ -1109,6 +1109,17 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					#pragma endregion SuccessScreensPrin
 			
+				}
+				else if (Event.reportObject.index == BUTTON_ERROR_OK)
+				{
+					processing_error = false;
+					screen_sdcard = false;
+					surfing_utilities=false;
+					SERIAL_PROTOCOLPGM("Surfing 0 \n");
+					surfing_temps = false;
+					HeaterCooldownInactivity(true);
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
+					
 				}
 				}else{//All that has to be done out of the printing room
 				
@@ -4512,6 +4523,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if (Event.reportObject.index == BUTTON_ERROR_OK)
 					{
+						
+						if(printing_error_temps){
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
+							back_home = true;
+							home_made = false;
+							processing_error = false;
+							screen_sdcard = false;
+							surfing_utilities=false;
+							surfing_temps = false;
+							
+							card.sdprinting = false;
+							card.sdispaused = false;
+							
+							processing = false;
+							printing_error_temps = false;
+						}
+						else{
 						processing_error = false;
 						screen_sdcard = false;
 						surfing_utilities=false;
@@ -4519,7 +4548,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						surfing_temps = false;
 						HeaterCooldownInactivity(true);
 						genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
-						
+						}
 					}
 					
 					#pragma endregion Info Screens

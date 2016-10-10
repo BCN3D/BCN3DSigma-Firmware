@@ -35,7 +35,7 @@
 #include "watchdog.h"
 #include "Touch_Screen_Definitions.h"
 #include "Sd2PinMap.h"
-
+#include "cardreader.h"
 
 //===========================================================================
 //=============================public variables============================
@@ -944,52 +944,172 @@ void check_termistors_connections()
 				SERIAL_PROTOCOLLNPGM("ERROR: Not Bed termistor detected ");
 				times_failureb++;
 			}
+			if (card.sdprinting){
+				
+				
+				if( !processing_error && times_failuret0 > 3 && target_temperature[0]!=0){
+					
+					char thermal_message[50];
+					
+					sprintf(thermal_message, "ERROR: Not T0 termistor detected ");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+					
+					
+					card.sdprinting = false;
+					card.sdispaused = false;
+					
+					cancel_heatup = true;
+					dobloking = false;
+					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
+					processing_error = true;
+					
+					disable_heater();
+					printing_error_temps = true;
+					
+					
+					message_showed = true;
+					times_failuret0 = 0;
+				}
+				else if(!processing_error && times_failuret1 > 3 && target_temperature[1]!=0){
+					char thermal_message[50];
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+					sprintf(thermal_message, "ERROR: Not T1 termistor detected ");
+					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+					
+					card.sdprinting = false;
+					card.sdispaused = false;
+					cancel_heatup = true;
+					
+					dobloking = false;
+					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
+					processing_error = true;
+					
+					disable_heater();
+					printing_error_temps = true;
+					
+					
+					times_failuret1 = 0;
+					message_showed1 = true;
+					
+					
+				}
+				else if(!processing_error && times_failureb > 3 && target_temperature_bed!=0){
+					
+					char thermal_message[50];
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+					sprintf(thermal_message, "ERROR: Not BED termistor detected ");
+					disable_heater();
+					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+					
+					
+					card.sdprinting = false;
+					card.sdispaused = false;
+					
+					cancel_heatup = true;
+					dobloking = false;
+					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
+					processing_error = true;
+					
+					disable_heater();
+					printing_error_temps = true;
+					
+					
+					message_showedbed = true;
+					times_failureb = 0;
+				}
+				
+				
+			}
 			
-			if( !message_showed && !processing_error && times_failuret0 > 3){
+			else{
 				
-				 char thermal_message[50];
-				 
-				 sprintf(thermal_message, "ERROR: Not T0 termistor detected ");
-				 genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-				 genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-				  disable_heater();
-				processing_error = true;
-				message_showed = true;
-				times_failuret0 = 0;
+				if(times_failuret0 > 3){
+					char thermal_message[50];
+					
+					sprintf(thermal_message, "ERROR: Not T0 termistor detected ");
+					
+					if(!message_showed && !processing_error){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+						disable_heater();
+						processing_error = true;
+						message_showed = true;
+						
+						}else if(target_temperature[0]!=0 && !processing_error){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+						disable_heater();
+						processing_error = true;
+						message_showed = true;
+						}else if(target_temperature[0]!=0 && processing_error){
+						disable_heater();
+					}
+					
+					times_failuret0 = 0;
+					
+					
+				}
+				else if(times_failuret1 > 3){
+					char thermal_message[50];
+					sprintf(thermal_message, "ERROR: Not T1 termistor detected ");
+					
+					if(!message_showed1 && !processing_error){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+						disable_heater();
+						processing_error = true;
+						message_showed1 = true;
+						
+						}else if(target_temperature[1]!=0 && !processing_error){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+						disable_heater();
+						processing_error = true;
+						message_showed1 = true;
+						}else if(target_temperature[1]!=0 && processing_error){
+						disable_heater();
+					}
+					
+					
+					times_failuret1 = 0;
+				}
+				else if(times_failureb > 3){
+					
+					char thermal_message[50];
+					sprintf(thermal_message, "ERROR: Not BED termistor detected ");
+					
+					
+					if(!message_showedbed && !processing_error){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+						disable_heater();
+						processing_error = true;
+						message_showedbed = true;
+						
+						}else if(target_temperature_bed!=0 && !processing_error){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+						disable_heater();
+						processing_error = true;
+						message_showedbed = true;
+						}else if(target_temperature_bed!=0 && processing_error){
+						disable_heater();
+					}
+					
+					times_failureb = 0;
+				}
+				
+				
 			}
-			else if(!message_showed1 && !processing_error && times_failuret1 > 3){
-				 char thermal_message[50];
-				 
-				 genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-				 sprintf(thermal_message, "ERROR: Not T1 termistor detected ");
-				 genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-				processing_error = true;
-				 disable_heater();
-				
-				times_failuret1 = 0;
-				message_showed1 = true;
-			}
-			else if(!message_showedbed && !processing_error && times_failureb > 3){
-				
-				 char thermal_message[50];
-				 genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-				 sprintf(thermal_message, "ERROR: Not BED termistor detected ");
-				 disable_heater();
-				 genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-				processing_error = true;
-				
-				
-				
-				
-				message_showedbed = true;
-				times_failureb = 0;
-			}
-		
-		
+			
+			
 		}
+		
+
 		waitPeriod_check=5000+millis();
 	}
-	
+
 }
 
 // For converting raw Filament Width to milimeters 

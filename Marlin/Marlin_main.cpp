@@ -343,6 +343,7 @@ bool processing_bed = false;
 bool processing_calib_ZL = false;
 bool processing_calib_ZR = false;
 bool processing_error = false;
+bool printing_error_temps = false;
 bool processing_bed_first = false;
 bool processing_test = false;
 bool heatting = false;
@@ -464,7 +465,7 @@ int fanSpeed=0;
 	float axis_scaling[3]={1,1,1};  // Build size scaling, default to 1
 #endif
 
-bool cancel_heatup = false ;
+bool cancel_heatup = false;
 
 #ifdef FILAMENT_SENSOR
 	//Variables for Filament Sensor input

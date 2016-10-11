@@ -155,7 +155,10 @@ static float analog2temp(int raw, uint8_t e);
 static float analog2tempBed(int raw);
 static void updateTemperaturesFromRawValues();
 
-void check_termistors_connections();
+#ifdef THERMAL_LECTURE_FAILURE
+	void check_termistors_connections();
+#endif
+
 #ifdef WATCH_TEMP_PERIOD
 int watch_start_temp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
 unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
@@ -599,8 +602,11 @@ void manage_heater()
 
   updateTemperaturesFromRawValues();
 	
-	check_termistors_connections();
+	#ifdef THERMAL_LECTURE_FAILURE
 	
+	check_termistors_connections();
+
+	#endif
 	
   for(int e = 0; e < EXTRUDERS; e++) 
   {
@@ -935,14 +941,20 @@ void check_termistors_connections()
 			if(tHotend < 5 || tHotend > 340){
 				times_failuret0++;
 				SERIAL_PROTOCOLLNPGM("ERROR: Not T0 termistor detected ");
+				}else{
+				if(times_failureb > 0)times_failuret0--;
 			}
 			if(tHotend1 < 5 || tHotend1 > 340){
 				times_failuret1++;
 				SERIAL_PROTOCOLLNPGM("ERROR: Not T1 termistor detected ");
+				}else{
+				if(times_failureb > 0)times_failuret1--;
 			}
 			if(tBed < 5 || tBed > 340){
 				SERIAL_PROTOCOLLNPGM("ERROR: Not Bed termistor detected ");
 				times_failureb++;
+				}else{
+				if(times_failureb > 0)times_failureb--;
 			}
 			if (card.sdprinting){
 				
@@ -954,7 +966,7 @@ void check_termistors_connections()
 					sprintf(thermal_message, "ERROR: Not T0 termistor detected ");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-					
+					thermal_error_screen_on();
 					
 					card.sdprinting = false;
 					card.sdispaused = false;
@@ -976,7 +988,7 @@ void check_termistors_connections()
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 					sprintf(thermal_message, "ERROR: Not T1 termistor detected ");
 					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-					
+					thermal_error_screen_on();
 					card.sdprinting = false;
 					card.sdispaused = false;
 					cancel_heatup = true;
@@ -1001,7 +1013,7 @@ void check_termistors_connections()
 					sprintf(thermal_message, "ERROR: Not BED termistor detected ");
 					disable_heater();
 					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-					
+					thermal_error_screen_on();
 					
 					card.sdprinting = false;
 					card.sdispaused = false;
@@ -1033,12 +1045,14 @@ void check_termistors_connections()
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 						disable_heater();
+						thermal_error_screen_on();
 						processing_error = true;
 						message_showed = true;
 						
 						}else if(target_temperature[0]!=0 && !processing_error){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+						thermal_error_screen_on();
 						disable_heater();
 						processing_error = true;
 						message_showed = true;
@@ -1057,6 +1071,7 @@ void check_termistors_connections()
 					if(!message_showed1 && !processing_error){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+						thermal_error_screen_on();
 						disable_heater();
 						processing_error = true;
 						message_showed1 = true;
@@ -1064,6 +1079,7 @@ void check_termistors_connections()
 						}else if(target_temperature[1]!=0 && !processing_error){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+						thermal_error_screen_on();
 						disable_heater();
 						processing_error = true;
 						message_showed1 = true;
@@ -1083,6 +1099,7 @@ void check_termistors_connections()
 					if(!message_showedbed && !processing_error){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+						thermal_error_screen_on();
 						disable_heater();
 						processing_error = true;
 						message_showedbed = true;
@@ -1090,6 +1107,7 @@ void check_termistors_connections()
 						}else if(target_temperature_bed!=0 && !processing_error){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+						thermal_error_screen_on();
 						disable_heater();
 						processing_error = true;
 						message_showedbed = true;

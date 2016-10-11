@@ -346,6 +346,8 @@ bool processing_error = false;
 bool printing_error_temps = false;
 bool processing_bed_first = false;
 bool processing_test = false;
+void thermal_error_screen_on();
+bool flag_error_utilities = false;
 bool heatting = false;
 bool back_home = false;
 char namefilegcode[24];
@@ -963,7 +965,23 @@ int TimerCooldownInactivity(bool restartOrRun){ //false Restart  true Run
 	}
 	
 }
-
+void thermal_error_screen_on(){
+	processing = false;
+	processing_success = false;
+	processing_bed_success = false;
+	processing_nylon_step4 = false;
+	processing_purge_load = false;
+	processing_nylon_step3 = false;
+	processing_change_filament_temps = false;
+	processing_adjusting = false;
+	processing_nylon_temps = false;
+	processing_bed = false;
+	processing_calib_ZL = false;
+	processing_calib_ZR = false;
+	processing_bed_first = false;
+	processing_test = false;
+	is_changing_filament = false;
+}
 inline void ListFilesUpfunc(){
 	if (card.cardOK){
 		uint16_t fileCnt = card.getnrfilenames();
@@ -2656,6 +2674,7 @@ if (surfing_utilities)
 			SERIAL_PROTOCOLPGM("temp ok \n");
 			SERIAL_PROTOCOLPGM("Ready to Insert/Remove \n");
 			//We have preheated correctly
+			
 			if (filament_mode =='I'){
 				heatting = false;
 				//genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
@@ -4636,6 +4655,7 @@ inline void gcode_G40(){
 	
 		manage_heater();
 		touchscreen_update();
+		if(processing_error)return;
 	}
 
 	//delay(5000);
@@ -4824,6 +4844,7 @@ inline void gcode_G40(){
 	changeTool(0);
 	//Go to Calibration select screen
 	processing_test = false;
+	if(processing_error)return;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_X_CALIB_SELECT,0);
 
 #endif //EXTRUDER_CALIBRATION_WIZARD
@@ -4842,6 +4863,7 @@ inline void gcode_G41(){
 						
 		manage_heater();
 		touchscreen_update();
+		if(processing_error)return;
 	}
 	//delay(5000);
 					
@@ -4855,10 +4877,11 @@ inline void gcode_G41(){
 	current_position[E_AXIS]+=15;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60 , active_extruder);
 	st_synchronize();
+	if(processing_error)return;
 	current_position[E_AXIS]-=4;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retrack
 	st_synchronize();
-					
+	if(processing_error)return;				
 					
 	float mm_second_extruder[NUM_LINES];
 	float i = -0.5;
@@ -5033,6 +5056,7 @@ inline void gcode_G41(){
 					
 		processing_test = false;			
 	//Go to Calibration select screen
+	if(processing_error)return;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_Y_CALIB_SELECT,0);
 					
 					
@@ -5065,7 +5089,7 @@ inline void gcode_G43(){
 		
 	//Now we are in position to do the calibration MANUALLY with the TOUCHSCREEN
 	st_synchronize();
-		
+		if(processing_error)return;
 	//Go to Z Calibration select screen if first time!
 	if (active_extruder==LEFT_EXTRUDER) {
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER1,0);
@@ -5124,6 +5148,7 @@ float x_tmp, y_tmp, z_tmp, real_z;
 	feedrate=homing_feedrate[X_AXIS];
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 	st_synchronize();
+	if(processing_error)return;
 	//current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER);
 		
 	active_extruder=RIGHT_EXTRUDER;
@@ -5139,7 +5164,7 @@ float x_tmp, y_tmp, z_tmp, real_z;
 	current_position[X_AXIS]+=15;
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]); // We are now at position
 	st_synchronize();
-		
+	if(processing_error)return;	
 	//STARTING THE ACTUAL PROBE
 	setup_for_endstop_move();
 		
@@ -5163,7 +5188,7 @@ float x_tmp, y_tmp, z_tmp, real_z;
 	feedrate=homing_feedrate[Z_AXIS];
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 	st_synchronize();
-		
+	if(processing_error)return;	
 		
 	//Now the right extruder joins the party!
 	active_extruder=RIGHT_EXTRUDER;
@@ -5196,7 +5221,7 @@ float x_tmp, y_tmp, z_tmp, real_z;
 	feedrate = XY_TRAVEL_SPEED;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 	st_synchronize();
-		
+	if(processing_error)return;	
 		
 	clean_up_after_endstop_move();
 		
@@ -5291,6 +5316,7 @@ float x_tmp, y_tmp, z_tmp, real_z;
 	///////////////////////////
 
 	st_synchronize();
+	if(processing_error)return;
 	// make sure the bed_level_rotation_matrix is identity or the planner will get it incorrectly
 	//vector_3 corrected_position = plan_get_position_mm();
 	//corrected_position.debug("position before G29");
@@ -5548,7 +5574,7 @@ axis_is_at_home(X_AXIS);
 current_position[X_AXIS]+=10;
 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]); // We are now at position
 st_synchronize();
-				
+if(processing_error)return;				
 				
 //STARTING THE ACTUAL PROBE
 setup_for_endstop_move();
@@ -5577,7 +5603,7 @@ dobloking= false;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 					
 	st_synchronize();
-			
+	if(processing_error)return;		
 				
 //Now the right extruder joins the party!
 				
@@ -5609,7 +5635,7 @@ current_position[Y_AXIS]=Y_MAX_POS/2;
 feedrate = XY_TRAVEL_SPEED;
 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 st_synchronize();
-				
+if(processing_error)return;				
 clean_up_after_endstop_move();
 				
 				
@@ -5817,6 +5843,7 @@ if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 							
 							home_axis_from_code(true,true,false);
 							st_synchronize();
+							if(processing_error)return;
 							enquecommand_P(PSTR("T0"));
 							processing = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZL,0);
@@ -7030,6 +7057,7 @@ inline void gcode_M190(){
 			codenum = millis();
 		}
 		manage_heater();
+		if(processing_error)return;
 		manage_inactivity();
 		//lcd_update();
 		#ifdef SIGMA_TOUCH_SCREEN
@@ -7180,6 +7208,7 @@ inline void gcode_M109(){
 			codenum = millis();
 		}
 		manage_heater();
+		if(processing_error)return;
 		manage_inactivity();
 		//lcd_update();
 		#ifdef SIGMA_TOUCH_SCREEN
@@ -7231,6 +7260,7 @@ inline void gcode_M109(){
 			codenum = millis();
 		}
 		manage_heater();
+		if(processing_error)return;
 		manage_inactivity();
 		//lcd_update();
 		#ifdef SIGMA_TOUCH_SCREEN

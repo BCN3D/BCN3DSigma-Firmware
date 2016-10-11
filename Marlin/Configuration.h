@@ -1136,6 +1136,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define NYLON_TEMP_HEATUP_THRESHOLD 260
 #define NYLON_TEMP_COOLDOWN_THRESHOLD 60
 
+
+#define	THERMAL_LECTURE_FAILURE
+
 //String GcodePrinting
 
 #define StringGcodeLength 20

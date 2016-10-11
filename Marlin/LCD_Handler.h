@@ -491,7 +491,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					current_position[Y_AXIS]=10;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
 					st_synchronize();
-					
+					if(processing_error)return;
 					
 					processing = false;
 					genie.WriteStr(STRING_CHANGE_FILAMENT_TEMPS,"0%");
@@ -771,13 +771,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[E_AXIS] += 30;//Extra extrusion at low feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  700/60, which_extruder); //850/60
 						st_synchronize();
+						if(processing_error)return;
 						current_position[E_AXIS] += ((BOWDEN_LENGTH-EXTRUDER_LENGTH)-15);//BOWDEN_LENGTH-300+340);
 						Serial.println(current_position[E_AXIS]);
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
 						st_synchronize();
+						if(processing_error)return;
 						current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
 						st_synchronize();
+						if(processing_error)return;
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
 						
@@ -796,6 +799,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[E_AXIS] -= (BOWDEN_LENGTH + EXTRUDER_LENGTH + 100);//Extra extrusion at fast feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
 						st_synchronize();
+						if(processing_error)return;
 						previous_state = FORM_FILAMENT;
 						
 						processing = false;
@@ -972,6 +976,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							current_position[E_AXIS]-=5;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack
 							st_synchronize();
+							if(processing_error)return;
 							processing_purge_load = false;
 							genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
 						}
@@ -983,6 +988,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							current_position[E_AXIS]+=15;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 							st_synchronize();
+							if(processing_error)return;
 							processing_purge_load = false;
 							genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
 						}
@@ -1079,6 +1085,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[Y_AXIS] = saved_position[Y_AXIS];
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Y_AXIS]/60, active_extruder);//Purge
 						st_synchronize();
+						if(processing_error)return;
 						#if SETUP_G70 == 1
 						
 						current_position[Z_AXIS] = saved_position[Z_AXIS];
@@ -1086,6 +1093,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS],saved_active_extruder);
 						
 						st_synchronize();
+						if(processing_error)return;
 						
 						#endif
 						//home_axis_from_code(true, true, false);
@@ -1093,6 +1101,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[Z_AXIS] = saved_position[Z_AXIS] + 10;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],homing_feedrate[Z_AXIS] ,saved_active_extruder);
 						st_synchronize();
+						if(processing_error)return;
 						processing = false;
 						
 						
@@ -1592,15 +1601,18 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if(home_made_Z){
 						home_axis_from_code(true,true,false);
 						st_synchronize();
+						if(processing_error)return;
 					}
 					else{
 						home_axis_from_code(true,true,true);
 						st_synchronize();
+						if(processing_error)return;
 					}
 					HeaterCooldownInactivity(true);
 					processing = false;
 					enquecommand_P((PSTR("T0")));
 					st_synchronize();
+					if(processing_error)return;
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_ZSET, 0);
 					
 				}
@@ -1698,7 +1710,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[Y_AXIS]=10;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
 						st_synchronize();
-						
+						if(processing_error)return;
 						
 						processing = false;
 						genie.WriteStr(STRING_CHANGE_FILAMENT_TEMPS,"0%");
@@ -1728,12 +1740,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							home_axis_from_code(true,true,true);
 						}
 						st_synchronize();
+						if(processing_error)return;
 						current_position[Z_AXIS]=Z_MAX_POS-15;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
 						st_synchronize();
+						if(processing_error)return;
 						current_position[Y_AXIS]=10;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
 						st_synchronize();
+						if(processing_error)return;
 						
 						
 						
@@ -1747,6 +1762,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 						st_synchronize();
+						if(processing_error)return;
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP0,0);
 						
@@ -2201,7 +2217,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					current_position[Y_AXIS]=10;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
 					st_synchronize();
-					
+					if(processing_error)return;
 					
 					processing = false;
 					genie.WriteStr(STRING_CHANGE_FILAMENT_TEMPS,"0%");
@@ -2311,7 +2327,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[Y_AXIS]=10;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
 						st_synchronize();
-						
+						if(processing_error)return;
 						
 						processing = false;
 						
@@ -2584,6 +2600,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					current_position[X_AXIS] = 155;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 					st_synchronize();
+					if(processing_error)return;
 				}
 				else if (Event.reportObject.index == BUTTON_INSERT ){
 					
@@ -2603,6 +2620,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						
 						st_synchronize();
+						if(processing_error)return;
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
 						
@@ -2623,6 +2641,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						previous_state = FORM_FILAMENT;
 						
 						st_synchronize();
+						if(processing_error)return;
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
 						processing_success = true;
@@ -2667,6 +2686,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						manage_heater();
 						touchscreen_update();
+						if(processing_error)return;
 					}
 					processing_nylon_temps = false;
 					
@@ -2707,6 +2727,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						manage_heater();
 						touchscreen_update();
+						if(processing_error)return;
 					}
 					processing_nylon_step3 = false;
 					fanSpeed=255;
@@ -2745,6 +2766,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//previous_millis_cmd = millis();
 						manage_heater();
 						touchscreen_update();
+						if(processing_error)return;
 												
 					}
 					SERIAL_PROTOCOLPGM("60 degrees \n");
@@ -2777,6 +2799,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						manage_heater();
 						touchscreen_update();
+						if(processing_error)return;
 						
 					}
 					processing_nylon_temps = false;
@@ -2809,6 +2832,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						manage_heater();
 						touchscreen_update();
+						if(processing_error)return;
 					}
 					processing_nylon_temps = false;
 					
@@ -3137,16 +3161,18 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//enquecommand_P((PSTR("G28 X0 Y0")));
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						processing = true;
+						setTargetHotend0(0);
+						setTargetHotend1(0);
+						setTargetBed(0);
 						home_axis_from_code(true, true, false);
 						enquecommand_P((PSTR("T0")));
 						st_synchronize();
+						if(processing_error)return;
 						SERIAL_PROTOCOLPGM("Calibration Successful, going back to main menu \n");
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
 						flag_bed_calib_done = true;
-						setTargetHotend0(0);
-						setTargetHotend1(0);
-						setTargetBed(0);
+						
 						dobloking=false;
 					}
 					
@@ -3174,6 +3200,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							processing = true;
 							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 							st_synchronize();
+							if(processing_error)return;
 							processing = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP0,0);
 						}
@@ -3665,7 +3692,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[Z_AXIS] += 2;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],homing_feedrate[Z_AXIS]/60,active_extruder);
 						st_synchronize();
-						
+						if(processing_error)return;
 						home_axis_from_code(true,false,false);
 						
 						while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-10) || degBed()<(target_temperature_bed)-10){ //Waiting to heat the extruder
@@ -3673,6 +3700,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							manage_heater();
 							touchscreen_update();
+							if(processing_error)return;
 						}
 						processing_adjusting = false;
 						//delay(6000);
@@ -3712,18 +3740,20 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						setTargetHotend1(print_temp_r);
 						st_synchronize();
-						
+						if(processing_error)return;
 						
 						processing_adjusting = true;
 						current_position[Z_AXIS] += 2;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],homing_feedrate[Z_AXIS]/60,active_extruder);
 						st_synchronize();
-						
+						if(processing_error)return;
 						home_axis_from_code(true,false,false);
+						if(processing_error)return;
 						while (degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-10) || degBed()<(target_temperature_bed)-10){ //Waiting to heat the extruder
 							
 							manage_heater();
 							touchscreen_update();
+							if(processing_error)return;
 						}
 						//delay(6000);
 						
@@ -3827,8 +3857,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								current_position[E_AXIS]-=4;
 								plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,LEFT_EXTRUDER);
 								st_synchronize();
+								if(processing_error)return;
 								setTargetHotend0(170);
 								home_axis_from_code(true,true,true);
+								if(processing_error)return;
 								enquecommand_P(PSTR("G43"));
 								processing = false;
 							}
@@ -3838,8 +3870,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								current_position[E_AXIS]-=4;
 								plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,RIGHT_EXTRUDER);
 								st_synchronize();
+								if(processing_error)return;
 								setTargetHotend1(170);
 								home_axis_from_code(true,true,true);
+								if(processing_error)return;
 								enquecommand_P(PSTR("G43"));
 								processing = false;
 							}
@@ -3853,6 +3887,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							enquecommand_P(PSTR("T1"));
 							enquecommand_P(PSTR("T0"));
 							st_synchronize();
+							if(processing_error)return;
 							
 						}
 						else{
@@ -3861,6 +3896,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							enquecommand_P(PSTR("T0"));
 							enquecommand_P(PSTR("T1"));
 							st_synchronize();
+							if(processing_error)return;
 							
 						}
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
@@ -3874,6 +3910,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							enquecommand_P(PSTR("T1"));
 							enquecommand_P(PSTR("T0"));
 							st_synchronize();
+							if(processing_error)return;
 						}
 						else{
 							extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.1;
@@ -3881,6 +3918,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							enquecommand_P(PSTR("T0"));
 							enquecommand_P(PSTR("T1"));
 							st_synchronize();
+							if(processing_error)return;
 						}
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
 					}
@@ -3950,6 +3988,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								
 								manage_heater();
 								touchscreen_update();
+								if(processing_error)return;
 								
 								if (millis() >= waitPeriod_s){
 									char buffer[25];
@@ -4007,9 +4046,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[Z_AXIS] = 60;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, LEFT_EXTRUDER);//move bed
 						st_synchronize();
+						if(processing_error)return;
 						current_position[X_AXIS] = 150; current_position[Y_AXIS] = 0;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
 						st_synchronize();
+						if(processing_error)return;
 						processing = false;
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_NOZZEL_L,0);
@@ -4054,6 +4095,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								
 								manage_heater();
 								touchscreen_update();
+								if(processing_error)return;
 								
 								if (millis() >= waitPeriod_s){
 									char buffer[25];
@@ -4110,9 +4152,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[Z_AXIS] = 60;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, RIGHT_EXTRUDER);//move bed
 						st_synchronize();
+						if(processing_error)return;
 						current_position[X_AXIS] = 170; current_position[Y_AXIS] = 0;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, RIGHT_EXTRUDER);//move first extruder
 						st_synchronize();
+						if(processing_error)return;
 						processing = false;
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_NOZZEL_R,0);
@@ -4132,9 +4176,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_test = true;
 						dobloking=true;
 						home_axis_from_code(true,false,false);
+						if(processing_error)return;
 						changeTool(0);
-						enquecommand_P(PSTR("G40"));
 						st_synchronize();
+						enquecommand_P(PSTR("G40"));
+						if(processing_error)return;
 						
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_X_SKIP){
@@ -4148,6 +4194,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						changeTool(0);
 						enquecommand_P(PSTR("G41"));
 						st_synchronize();
+						if(processing_error)return;
 						
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_Y_SKIP){
@@ -4181,9 +4228,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							processing = true;
 							home_axis_from_code(true,true,true);
+							st_synchronize();
+							if(processing_error)return;
 							enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 							changeTool(0);
-							st_synchronize();
+							
+							
 						}
 						else{
 							
@@ -4197,6 +4247,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							home_axis_from_code(true,true,false);
 							st_synchronize();
+							if(processing_error)return;
 							enquecommand_P(PSTR("T0"));
 							processing = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZL,0);
@@ -4506,6 +4557,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							home_axis_from_code(true,true,false);
 							st_synchronize();
+							if(processing_error)return;
 							enquecommand_P(PSTR("T0"));
 							processing = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZL,0);
@@ -4797,6 +4849,7 @@ inline void insertmetod(){
 		feedrate=homing_feedrate[Z_AXIS];
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*2/60, active_extruder); //check speed
 		st_synchronize();
+		if(processing_error)return;
 		/****************************************************/
 	}
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FILAMENT_TOP,0);

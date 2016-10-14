@@ -367,15 +367,15 @@ your extruder heater takes 2 minutes to hit the target on heating.
 // uncomment the 2 defines below:
 
 // Parameters for all extruder heaters
-//#define THERMAL_RUNAWAY_PROTECTION_PERIOD 120 //in seconds
-//#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 20 // in degree Celsius
+#define THERMAL_RUNAWAY_PROTECTION_PERIOD 120 //in seconds
+#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 20 // in degree Celsius
 
 // If you want to enable this feature for your bed heater,
 // uncomment the 2 defines below:
 
 // Parameters for the bed heater
-//#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 600 //in seconds
-//#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 10 // in degree Celsius
+#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 600 //in seconds
+#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 10 // in degree Celsius
 //===========================================================================
 
 
@@ -1135,6 +1135,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #define NYLON_TEMP_HEATUP_THRESHOLD 260
 #define NYLON_TEMP_COOLDOWN_THRESHOLD 60
+
+
+#define	THERMAL_LECTURE_FAILURE
 
 //String GcodePrinting
 

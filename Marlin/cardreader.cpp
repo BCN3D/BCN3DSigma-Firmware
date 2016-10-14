@@ -673,6 +673,16 @@ void CardReader::printingHasFinished()
 		surfing_temps = false;
 		log_hours_lastprint = (int)(log_min_print/60);
 		log_minutes_lastprint = (int)(log_min_print%60);
+			log_X0_mmdone += x0mmdone/axis_steps_per_unit[X_AXIS];
+			log_X1_mmdone += x1mmdone/axis_steps_per_unit[X_AXIS];
+			log_Y_mmdone += ymmdone/axis_steps_per_unit[Y_AXIS];
+			log_E0_mmdone += e0mmdone/axis_steps_per_unit[E_AXIS];
+			log_E1_mmdone += e1mmdone/axis_steps_per_unit[E_AXIS];
+			x0mmdone = 0;
+			x1mmdone = 0;
+			ymmdone = 0;
+			e0mmdone = 0;
+			e1mmdone = 0;
 		Config_StoreSettings();
 		//The default states is Left Extruder active	
 	#endif	  

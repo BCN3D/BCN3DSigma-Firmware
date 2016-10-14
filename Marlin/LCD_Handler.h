@@ -3707,7 +3707,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 						processing_test = true;
 						home_axis_from_code(true,true,true);
+						if(processing_error)return;
 						left_test_print_code();
+						if(processing_error)return;
 					}
 					
 					else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_Down )
@@ -3761,8 +3763,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 						processing_test = true;
 						home_axis_from_code(true,true,true);
+						if(processing_error)return;
 						right_test_print_code();
-						
+						if(processing_error)return;
 						
 					}
 					else if((Event.reportObject.index == BUTTON_REDO_LEFT)|| (Event.reportObject.index == BUTTON_REDO_RIGHT)){
@@ -3826,13 +3829,17 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 								processing_test = true;
 								home_axis_from_code(true,true,true);
+								if(processing_error)return;
 								left_test_print_code();
+								if(processing_error)return;
 							}
 							else{
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 								processing_test = true;
 								home_axis_from_code(true,true,true);
+								if(processing_error)return;
 								right_test_print_code();
+								if(processing_error)return;
 								
 							}
 						}
@@ -4172,8 +4179,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_X,0);
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_X_GO){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
-						processing_test = true;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+						processing_adjusting =  true;
 						dobloking=true;
 						home_axis_from_code(true,false,false);
 						if(processing_error)return;
@@ -4187,8 +4194,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_Y_GO){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
-						processing_test = true;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+						processing_adjusting =  true;
+						
 						dobloking=true;
 						home_axis_from_code(true,false,false);
 						changeTool(0);
@@ -4550,8 +4558,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							active_extruder = LEFT_EXTRUDER;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							processing = true;
-							setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
-							setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
+							setTargetHotend0(print_temp_l);
+							setTargetHotend1(print_temp_r);
 							setTargetBed(max(bed_temp_l,bed_temp_r));
 							
 							
@@ -4601,6 +4609,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						HeaterCooldownInactivity(true);
 						genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
 						}
+						dobloking = false;
 					}
 					
 					#pragma endregion Info Screens

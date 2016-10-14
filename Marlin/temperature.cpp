@@ -36,7 +36,7 @@
 #include "Touch_Screen_Definitions.h"
 #include "Sd2PinMap.h"
 #include "cardreader.h"
-
+#include "language.h"
 //===========================================================================
 //=============================public variables============================
 //===========================================================================
@@ -940,18 +940,18 @@ void check_termistors_connections()
 			
 			if(tHotend < 5 || tHotend > 340){
 				times_failuret0++;
-				SERIAL_PROTOCOLLNPGM("ERROR: Not T0 termistor detected ");
+				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_81);
 				}else{
 				if(times_failureb > 0)times_failuret0--;
 			}
 			if(tHotend1 < 5 || tHotend1 > 340){
 				times_failuret1++;
-				SERIAL_PROTOCOLLNPGM("ERROR: Not T1 termistor detected ");
+				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_82);
 				}else{
 				if(times_failureb > 0)times_failuret1--;
 			}
 			if(tBed < 5 || tBed > 340){
-				SERIAL_PROTOCOLLNPGM("ERROR: Not Bed termistor detected ");
+				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_83);
 				times_failureb++;
 				}else{
 				if(times_failureb > 0)times_failureb--;
@@ -963,7 +963,7 @@ void check_termistors_connections()
 					
 					char thermal_message[50];
 					
-					sprintf(thermal_message, "ERROR: Not T0 termistor detected ");
+					sprintf(thermal_message, MSG_LCD_ERROR_81);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 					thermal_error_screen_on();
@@ -986,7 +986,7 @@ void check_termistors_connections()
 				else if(!processing_error && times_failuret1 > 3 && target_temperature[1]!=0){
 					char thermal_message[50];
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-					sprintf(thermal_message, "ERROR: Not T1 termistor detected ");
+					sprintf(thermal_message, MSG_LCD_ERROR_82);
 					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 					thermal_error_screen_on();
 					card.sdprinting = false;
@@ -1010,7 +1010,7 @@ void check_termistors_connections()
 					
 					char thermal_message[50];
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-					sprintf(thermal_message, "ERROR: Not BED termistor detected ");
+					sprintf(thermal_message, MSG_LCD_ERROR_83);
 					disable_heater();
 					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 					thermal_error_screen_on();
@@ -1039,7 +1039,7 @@ void check_termistors_connections()
 				if(times_failuret0 > 3){
 					char thermal_message[50];
 					
-					sprintf(thermal_message, "ERROR: Not T0 termistor detected ");
+					sprintf(thermal_message, MSG_LCD_ERROR_81);
 					
 					if(!message_showed && !processing_error){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
@@ -1066,7 +1066,7 @@ void check_termistors_connections()
 				}
 				else if(times_failuret1 > 3){
 					char thermal_message[50];
-					sprintf(thermal_message, "ERROR: Not T1 termistor detected ");
+					sprintf(thermal_message, MSG_LCD_ERROR_82);
 					
 					if(!message_showed1 && !processing_error){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
@@ -1093,7 +1093,7 @@ void check_termistors_connections()
 				else if(times_failureb > 3){
 					
 					char thermal_message[50];
-					sprintf(thermal_message, "ERROR: Not BED termistor detected ");
+					sprintf(thermal_message, MSG_LCD_ERROR_83);
 					
 					
 					if(!message_showedbed && !processing_error){
@@ -1440,7 +1440,7 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
 		  #ifdef SIGMA_TOUCH_SCREEN
 		  char thermal_message[50];
 		  
-		  sprintf(thermal_message, "ERROR: Thermal Runaway, system stopped! Heater_ID: %d \n Reset the printer",(int)heater_id);
+		  sprintf(thermal_message, "Error(88): Thermal runaway protection \n System stopped Heater_ID: %d",(int)heater_id);
 		  genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 		  genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 		  

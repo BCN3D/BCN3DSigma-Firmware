@@ -141,7 +141,10 @@
 #define MSG_BABYSTEPPING_Y "Babystepping Y"
 #define MSG_BABYSTEPPING_Z "Babystepping Z"
 #define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
-
+#define MSG_LCD_ERROR_81 "Error(81): Not Left termistor detected"
+#define MSG_LCD_ERROR_82 "Error(82): Not Right termistor detected"
+#define MSG_LCD_ERROR_83 "Error(83): Not bed termistor detected"
+#define MSG_LCD_ERROR_88 "Error(88): Thermal runaway protection"
 #if LANGUAGE_CHOICE == 1
 
 // LCD Menu Messages

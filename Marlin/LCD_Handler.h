@@ -3865,7 +3865,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,LEFT_EXTRUDER);
 								st_synchronize();
 								if(processing_error)return;
-								setTargetHotend0(170);
+								setTargetHotend0(print_temp_l);
 								home_axis_from_code(true,true,true);
 								if(processing_error)return;
 								enquecommand_P(PSTR("G43"));
@@ -3878,7 +3878,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,RIGHT_EXTRUDER);
 								st_synchronize();
 								if(processing_error)return;
-								setTargetHotend1(170);
+								setTargetHotend1(print_temp_r);
 								home_axis_from_code(true,true,true);
 								if(processing_error)return;
 								enquecommand_P(PSTR("G43"));

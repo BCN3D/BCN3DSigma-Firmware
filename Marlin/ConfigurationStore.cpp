@@ -275,10 +275,10 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOPAIR(", max temp L: " ,(unsigned long)log_max_temp_l);
 	 SERIAL_ECHOPAIR(" C, max temp R: " ,(unsigned long)log_max_temp_r);
 	 SERIAL_ECHOPAIR(" C, max temp B: " ,(unsigned long)log_max_bed);
-	 SERIAL_ECHOPAIR(" C,\n X0 print distance: " ,(float)log_X0_mmdone/1000);
-	 SERIAL_ECHOPAIR(" m, X1 print distance: " ,(float)log_X1_mmdone/1000);
-	 SERIAL_ECHOPAIR(" m, Y print distance: " ,(float)log_Y_mmdone/1000);
-	 SERIAL_ECHOPAIR(" m, E0 print distance: " ,(float)log_E0_mmdone/1000);
+	 SERIAL_ECHOPAIR(" C,\n X0 print distance: " ,(float)log_X0_mmdone/1000000);
+	 SERIAL_ECHOPAIR(" km, X1 print distance: " ,(float)log_X1_mmdone/1000000);
+	 SERIAL_ECHOPAIR(" km, Y print distance: " ,(float)log_Y_mmdone/1000000);
+	 SERIAL_ECHOPAIR(" km, E0 print distance: " ,(float)log_E0_mmdone/1000);
 	 SERIAL_ECHOPAIR(" m, E1 print distance: " ,(float)log_E1_mmdone/1000);
 	 SERIAL_ECHOLN(" m");
 	 

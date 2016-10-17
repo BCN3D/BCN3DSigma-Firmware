@@ -1,0 +1,12 @@
+linked : 12    main 326E
+linked : 11    DoGFXObjects 3A27
+linked : 10    UpdateObjects 3A28
+linked : 9     ActivateForm 3C9F
+linked : 8     TurnOffButtons 3DE0
+linked : 7     WriteObject 3E69
+linked : 6     ReadObject 3F8E
+linked : 5     SendReport 4022
+linked : 4     seroutOcs 4054
+linked : 3     nak0 4065
+linked : 2     seroutCS 4075
+linked : 1     PrintStrings 4088

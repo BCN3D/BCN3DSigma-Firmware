@@ -1413,7 +1413,7 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
       if (target_temperature > 0) *state = 1;
       break;
     case 1: // "First Heating" state
-      if (temperature >= (target_temperature - hysteresis_degc)) *state = 2;
+      if (temperature >= target_temperature) *state = 2;
       break;
     case 2: // "Temperature Stable" state
       if (temperature >= (target_temperature - hysteresis_degc))

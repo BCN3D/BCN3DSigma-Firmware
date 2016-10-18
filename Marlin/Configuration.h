@@ -26,7 +26,9 @@
 //
 //This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
-#define VERSION_STRING  "01-1.2.0"
+
+#define VERSION_STRING  "01-1.2.1"
+#define UI_SerialID  "XXX.XXXXXX.XXXX"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
@@ -366,15 +368,15 @@ your extruder heater takes 2 minutes to hit the target on heating.
 // uncomment the 2 defines below:
 
 // Parameters for all extruder heaters
-//#define THERMAL_RUNAWAY_PROTECTION_PERIOD 120 //in seconds
-//#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 20 // in degree Celsius
+#define THERMAL_RUNAWAY_PROTECTION_PERIOD 120 //in seconds
+#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 20 // in degree Celsius
 
 // If you want to enable this feature for your bed heater,
 // uncomment the 2 defines below:
 
 // Parameters for the bed heater
-//#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 600 //in seconds
-//#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 10 // in degree Celsius
+#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 600 //in seconds
+#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 10 // in degree Celsius
 //===========================================================================
 
 
@@ -1134,6 +1136,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #define NYLON_TEMP_HEATUP_THRESHOLD 260
 #define NYLON_TEMP_COOLDOWN_THRESHOLD 60
+
+
+#define	THERMAL_LECTURE_FAILURE
 
 //String GcodePrinting
 

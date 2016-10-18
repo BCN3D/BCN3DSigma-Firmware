@@ -140,8 +140,18 @@ void Config_StoreSettings()
   #endif
   EEPROM_WRITE_VAR(i,lcd_contrast);
   #ifdef SCARA
-  EEPROM_WRITE_VAR(i,axis_scaling);        // Add scaling for SCARA
+  EEPROM_WRITE_VAR(i,axis_scaling);        
   #endif
+  EEPROM_WRITE_VAR(i,UI_SerialID0);        
+  EEPROM_WRITE_VAR(i,UI_SerialID1);        
+  EEPROM_WRITE_VAR(i,UI_SerialID2);        
+  EEPROM_WRITE_VAR(i,log_minutes_lastprint);        
+  EEPROM_WRITE_VAR(i,log_hours_lastprint);  
+  EEPROM_WRITE_VAR(i,log_X0_mmdone);
+  EEPROM_WRITE_VAR(i,log_X1_mmdone);
+  EEPROM_WRITE_VAR(i,log_Y_mmdone);
+  EEPROM_WRITE_VAR(i,log_E0_mmdone);
+  EEPROM_WRITE_VAR(i,log_E1_mmdone);    
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver2); // validate data
@@ -239,34 +249,52 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOLN("");
 	
 	 SERIAL_ECHO_START;
-	 SERIAL_ECHOLNPGM("Temp (ºC):");
+	 SERIAL_ECHOLNPGM("Temp (C):");
 	 SERIAL_ECHO_START;
-	 SERIAL_ECHOPAIR(" L_INSERT ",(float)insert_temp_l);
-	 SERIAL_ECHOPAIR(" L_REMOVE " ,(float)remove_temp_l);
-	 SERIAL_ECHOPAIR(" L_BED " ,(float)bed_temp_l);
-	 SERIAL_ECHOPAIR(" L_PRINT " ,(float)print_temp_l);
-	 SERIAL_ECHOLN("");
+	 SERIAL_ECHOPAIR(" L_INSERT: ",(unsigned long)insert_temp_l);
+	 SERIAL_ECHOPAIR(" C, L_REMOVE: " ,(unsigned long)remove_temp_l);
+	 SERIAL_ECHOPAIR(" C, L_BED: " ,(unsigned long)bed_temp_l);
+	 SERIAL_ECHOPAIR(" C, L_PRINT: " ,(unsigned long)print_temp_l);
+	 SERIAL_ECHOLN(" C");
 	 
 	 SERIAL_ECHO_START;
-	 SERIAL_ECHOLNPGM("Temp (ºC):");
+	 SERIAL_ECHOLNPGM("Temp (C):");
 	 SERIAL_ECHO_START;
-	 SERIAL_ECHOPAIR(" R_INSERT ",(float)insert_temp_r);
-	 SERIAL_ECHOPAIR(" R_REMOVE " ,(float)remove_temp_r);
-	 SERIAL_ECHOPAIR(" R_BED " ,(float)bed_temp_r);
-	 SERIAL_ECHOPAIR(" R_PRINT " ,(float)print_temp_r);
-	 SERIAL_ECHOLN("");
+	 SERIAL_ECHOPAIR(" R_INSERT: ",(unsigned long)insert_temp_r);
+	 SERIAL_ECHOPAIR(" C, R_REMOVE: " ,(unsigned long)remove_temp_r);
+	 SERIAL_ECHOPAIR(" C, R_BED: " ,(unsigned long)bed_temp_r);
+	 SERIAL_ECHOPAIR(" C, R_PRINT: " ,(unsigned long)print_temp_r);
+	 SERIAL_ECHOLN(" C");
 	 
 	 SERIAL_ECHO_START;
-	 SERIAL_ECHOLNPGM("LOG:");
+	 SERIAL_ECHOLNPGM("STATS:");
 	 SERIAL_ECHO_START;
-	 SERIAL_ECHOPAIR(" prints ",(float)log_prints);
-	 SERIAL_ECHOPAIR(" hours print " ,(float)log_hours_print);
-	 SERIAL_ECHOPAIR(" prints finished " ,(float)log_prints_finished);
-	 SERIAL_ECHOPAIR(" max temp L " ,(float)log_max_temp_l);
-	 SERIAL_ECHOPAIR(" max temp R " ,(float)log_max_temp_r);
-	 SERIAL_ECHOPAIR(" max temp B " ,(float)log_max_bed);
-	 SERIAL_ECHOLN("");
+	 SERIAL_ECHOPAIR(" prints: ",(unsigned long)log_prints);
+	 SERIAL_ECHOPAIR(", printing time: " ,(unsigned long)log_hours_print);
+	 SERIAL_ECHOPAIR("h, prints finished: " ,(unsigned long)log_prints_finished);
+	 SERIAL_ECHOPAIR(", max temp L: " ,(unsigned long)log_max_temp_l);
+	 SERIAL_ECHOPAIR(" C, max temp R: " ,(unsigned long)log_max_temp_r);
+	 SERIAL_ECHOPAIR(" C, max temp B: " ,(unsigned long)log_max_bed);
+	 SERIAL_ECHOPAIR(" C,\n X0 print distance: " ,(float)log_X0_mmdone/1000000);
+	 SERIAL_ECHOPAIR(" km, X1 print distance: " ,(float)log_X1_mmdone/1000000);
+	 SERIAL_ECHOPAIR(" km, Y print distance: " ,(float)log_Y_mmdone/1000000);
+	 SERIAL_ECHOPAIR(" km, E0 print distance: " ,(float)log_E0_mmdone/1000);
+	 SERIAL_ECHOPAIR(" m, E1 print distance: " ,(float)log_E1_mmdone/1000);
+	 SERIAL_ECHOLN(" m");
 	 
+	  SERIAL_ECHO_START;
+	  SERIAL_ECHOLNPGM("UI Information Serial Number:");
+	  SERIAL_ECHO_START;
+	  SERIAL_ECHOPAIR(" First ID number: ",(unsigned long)UI_SerialID0);
+	  SERIAL_ECHOPAIR(", Second ID number: " ,(unsigned long)UI_SerialID1);
+	  SERIAL_ECHOPAIR(", Third ID number " ,(unsigned long)UI_SerialID2);
+	  SERIAL_ECHOLN("");
+	  SERIAL_ECHO_START;
+	  SERIAL_ECHOLNPGM("Last print duration");
+	  SERIAL_ECHO_START;
+	  SERIAL_ECHOPAIR(" Last print time-> Hours :",(unsigned long)log_hours_lastprint);
+	  SERIAL_ECHOPAIR(" Minutes :" ,(unsigned long)log_minutes_lastprint);
+	  SERIAL_ECHOLN("");
 	 
 	} 
 #endif
@@ -373,10 +401,27 @@ void Config_RetrieveSettings()
 		#ifdef SCARA
 		EEPROM_READ_VAR(i,axis_scaling);
 		#endif
-
+		 EEPROM_READ_VAR(i,UI_SerialID0);        
+		 EEPROM_READ_VAR(i,UI_SerialID1);        
+		 EEPROM_READ_VAR(i,UI_SerialID2);  
+		 EEPROM_READ_VAR(i,log_minutes_lastprint);    
+		 EEPROM_READ_VAR(i,log_hours_lastprint); 
+		 EEPROM_READ_VAR(i,log_X0_mmdone);
+		 EEPROM_READ_VAR(i,log_X1_mmdone);
+		 EEPROM_READ_VAR(i,log_Y_mmdone);
+		 EEPROM_READ_VAR(i,log_E0_mmdone);
+		 EEPROM_READ_VAR(i,log_E1_mmdone);
+		 
+		       
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
         SERIAL_ECHO_START;
+		if (UI_SerialID0 <= 0 || UI_SerialID0 >= 123 || UI_SerialID2 >= 9999 || UI_SerialID1 >= 999999 || UI_SerialID2 <= 0 || UI_SerialID1 <= 0){
+			UI_SerialID0 = 0;
+			UI_SerialID1 = 0;
+			UI_SerialID2 = 0;
+		}
+		
         SERIAL_ECHOLNPGM("Stored settings retrieved");
     }
     else
@@ -457,6 +502,16 @@ void Config_ResetDefault()
 	#ifdef Z_SIGMA_HOME
 		zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
 	#endif
+	if (UI_SerialID0 <= 0 || UI_SerialID0 >= 123 || UI_SerialID2 >= 9999 || UI_SerialID1 >= 999999 || UI_SerialID2 <= 0 || UI_SerialID1 <= 0){
+		UI_SerialID0 = 0;
+		UI_SerialID1 = 0;
+		UI_SerialID2 = 0;
+	}
+	log_minutes_lastprint = 0;
+	log_hours_lastprint = 0;
+	log_X0_mmdone = 0;
+	log_Y_mmdone = 0;
+	log_X0_mmdone = 0;
 /*
 	//Extruder Offset
 	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
@@ -526,8 +581,23 @@ void Config_Reset_Statistics(int data){
 		log_max_temp_r = 0;
 		log_prints = 0;
 		log_prints_finished = 0;
-		Serial.println("STATISTICS RESET");
+		log_X0_mmdone = 0;
+		log_X1_mmdone = 0;
+		log_Y_mmdone = 0;
+		log_E0_mmdone = 0;
+		log_E1_mmdone = 0;
+		SERIAL_PROTOCOLLNPGM("STATISTICS RESET");
 	}	
+}
+void Config_Set_UISerialNumber(int input0, long input1, int input2){
+	if(input0 && input1 && input2 && !(input0 <= 0 || input0 >= 123 || input2 >= 9999 || input1 >= 999999 || input2 <= 0 || input1 <= 0)){
+		UI_SerialID0 = input0;
+		UI_SerialID1 = input1;
+		UI_SerialID2 = input2;
+		Serial.println(UI_SerialID0);
+		Serial.println(UI_SerialID1);
+		Serial.println(UI_SerialID2);
+	}
 }
 void Change_ConfigTemp_LeftHotend(int i_temp_l, int r_temp_l, int p_temp_l, int b_temp_l){
 	/*
@@ -537,16 +607,16 @@ void Change_ConfigTemp_LeftHotend(int i_temp_l, int r_temp_l, int p_temp_l, int 
 		int bed_temp_l;*/ //BED_MINTEMP BED_MAXTEMP
 	
 	if (i_temp_l > HEATER_0_MAXTEMP ||  i_temp_l < EXTRUDE_MINTEMP){
-		Serial.println("Values out of range");
+		SERIAL_PROTOCOLLNPGM("Values out of range");
 	}
 	else if (r_temp_l > HEATER_0_MAXTEMP ||  r_temp_l < EXTRUDE_MINTEMP){
-		Serial.println("Values out of range");
+		SERIAL_PROTOCOLLNPGM("Values out of range");
 	}
 	else if (p_temp_l > HEATER_0_MAXTEMP ||  p_temp_l < EXTRUDE_MINTEMP){
-		Serial.println("Values out of range");
+		SERIAL_PROTOCOLLNPGM("Values out of range");
 	}
 	else if (b_temp_l > BED_MAXTEMP ||  b_temp_l < BED_MINTEMP){
-		Serial.println("Values out of range");
+		SERIAL_PROTOCOLLNPGM("Values out of range");
 	}
 	else{
 		
@@ -556,7 +626,7 @@ void Change_ConfigTemp_LeftHotend(int i_temp_l, int r_temp_l, int p_temp_l, int 
 		print_temp_l = p_temp_l;
 		bed_temp_l = b_temp_l;
 		
-		Serial.println("SUCCESS");
+		SERIAL_PROTOCOLLNPGM("SUCCESS");
 		
 	}
 		
@@ -570,16 +640,16 @@ void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int
 	print_temp_r;
 	bed_temp_r;*/
 	if (i_temp_r > HEATER_0_MAXTEMP ||  i_temp_r < EXTRUDE_MINTEMP){
-		Serial.println("Values out of range");
+		SERIAL_PROTOCOLLNPGM("Values out of range");
 	}
 	else if (r_temp_r > HEATER_0_MAXTEMP ||  r_temp_r < EXTRUDE_MINTEMP){
-		Serial.println("Values out of range");
+		SERIAL_PROTOCOLLNPGM("Values out of range");
 	}
 	else if (p_temp_r > HEATER_0_MAXTEMP ||  p_temp_r < EXTRUDE_MINTEMP){
-		Serial.println("Values out of range");
+		SERIAL_PROTOCOLLNPGM("Values out of range");
 	}
 	else if (b_temp_r > BED_MAXTEMP ||  b_temp_r < BED_MINTEMP){
-		Serial.println("Values out of range");
+		SERIAL_PROTOCOLLNPGM("Values out of range");
 	}
 	else{
 		
@@ -588,7 +658,7 @@ void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int
 			remove_temp_r = r_temp_r;
 			print_temp_r = p_temp_r;
 			bed_temp_r = b_temp_r;
-		Serial.println("SUCCESS");
+		SERIAL_PROTOCOLLNPGM("SUCCESS");
 		
 		
 	}

@@ -1169,7 +1169,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //#define ErroWindowEnable
 
-
+//#define RECOVERY_PRINT
 
 
 #include "Configuration_adv.h"

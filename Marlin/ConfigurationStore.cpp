@@ -151,7 +151,18 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,log_X1_mmdone);
   EEPROM_WRITE_VAR(i,log_Y_mmdone);
   EEPROM_WRITE_VAR(i,log_E0_mmdone);
-  EEPROM_WRITE_VAR(i,log_E1_mmdone);    
+  EEPROM_WRITE_VAR(i,log_E1_mmdone);
+    EEPROM_WRITE_VAR(i,saved_filepointer);
+    EEPROM_WRITE_VAR(i,saved_x_position);
+    EEPROM_WRITE_VAR(i,saved_y_position);
+    EEPROM_WRITE_VAR(i,saved_z_position);
+    EEPROM_WRITE_VAR(i,saved_tool_active);
+    EEPROM_WRITE_VAR(i,saved_e_position);
+    EEPROM_WRITE_VAR(i,saved_fileposition);
+    EEPROM_WRITE_VAR(i,saved_temp1);
+    EEPROM_WRITE_VAR(i,saved_temp0);
+    EEPROM_WRITE_VAR(i,saved_tempbed);
+   #endif 
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver2); // validate data
@@ -412,7 +423,17 @@ void Config_RetrieveSettings()
 		 EEPROM_READ_VAR(i,log_E0_mmdone);
 		 EEPROM_READ_VAR(i,log_E1_mmdone);
 		 
-		       
+		   EEPROM_READ_VAR(i,saved_filepointer);
+		   EEPROM_READ_VAR(i,saved_x_position);
+		   EEPROM_READ_VAR(i,saved_y_position);
+		   EEPROM_READ_VAR(i,saved_z_position);
+		   EEPROM_READ_VAR(i,saved_tool_active);
+		   EEPROM_READ_VAR(i,saved_e_position);
+		   EEPROM_READ_VAR(i,saved_fileposition);
+		   EEPROM_READ_VAR(i,saved_temp1);
+		   EEPROM_READ_VAR(i,saved_temp0);
+		   EEPROM_READ_VAR(i,saved_tempbed);
+		 #endif RECOVERY_PRINT      
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
         SERIAL_ECHO_START;

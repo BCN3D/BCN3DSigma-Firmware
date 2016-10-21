@@ -552,6 +552,24 @@ void CardReader::closefile(bool store_location)
   
   if(store_location)
   {
+	  
+	  
+	  #ifdef RECOVERY_PRINT
+
+	  saved_filepointer = filepointer;
+	  saved_x_position =  current_position[X_AXIS];
+	  saved_y_position =  current_position[Y_AXIS];
+	  saved_z_position =  current_position[Z_AXIS];
+	  saved_tool_active = active_extruder;
+	  saved_e_position =  current_position[E_AXIS];
+	  saved_fileposition = file.curPosition();
+	  saved_temp1 = target_temperature[0];
+	  saved_temp0 = target_temperature[1];
+	  saved_tempbed  = target_temperature_bed;
+
+	  #endif
+	  
+	  
     //future: store printer state, filename and position for continuing a stopped print
     // so one can unplug the printer and continue printing the next day.
     

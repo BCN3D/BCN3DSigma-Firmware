@@ -252,8 +252,20 @@ int UI_SerialID2 = 0;
 #ifndef SIGMA_TOUCH_SCREEN	
 	void SD_firstPrint();
 #endif
+#ifdef RECOVERY_PRINT
 
+	int saved_filepointer;
+	int saved_x_position;
+	int saved_y_position;
+	int saved_z_position;
+	int saved_tool_active;
+	int saved_e_position;
+	long saved_fileposition;
+	int saved_temp1;
+	int saved_temp0;
+	int saved_tempbed;
 
+#endif
 //bool quick_guide = false;
 //int quick_guide_step = 0;
 

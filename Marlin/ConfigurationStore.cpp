@@ -152,6 +152,7 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,log_Y_mmdone);
   EEPROM_WRITE_VAR(i,log_E0_mmdone);
   EEPROM_WRITE_VAR(i,log_E1_mmdone);
+  #ifdef RECOVERY_PRINT
     EEPROM_WRITE_VAR(i,saved_filepointer);
     EEPROM_WRITE_VAR(i,saved_x_position);
     EEPROM_WRITE_VAR(i,saved_y_position);
@@ -423,6 +424,7 @@ void Config_RetrieveSettings()
 		 EEPROM_READ_VAR(i,log_E0_mmdone);
 		 EEPROM_READ_VAR(i,log_E1_mmdone);
 		 
+		 #ifdef RECOVERY_PRINT
 		   EEPROM_READ_VAR(i,saved_filepointer);
 		   EEPROM_READ_VAR(i,saved_x_position);
 		   EEPROM_READ_VAR(i,saved_y_position);

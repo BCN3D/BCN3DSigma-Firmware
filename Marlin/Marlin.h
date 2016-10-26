@@ -364,6 +364,8 @@ extern long saved_fileposition;
 extern int saved_temp1;
 extern int saved_temp0;
 extern int saved_tempbed;
+extern int saved_feedspeed;
+extern char saved_namefilegcode[24];
 extern void PID_autotune_Save(float temp, int extruder, int ncycles);
 extern void Config_Reset_Calib();
 extern void Config_StoreSettings();

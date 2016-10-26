@@ -163,6 +163,7 @@ void Config_StoreSettings()
     EEPROM_WRITE_VAR(i,saved_temp1);
     EEPROM_WRITE_VAR(i,saved_temp0);
     EEPROM_WRITE_VAR(i,saved_tempbed);
+	EEPROM_WRITE_VAR(i,saved_namefilegcode);
    #endif 
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
@@ -435,6 +436,7 @@ void Config_RetrieveSettings()
 		   EEPROM_READ_VAR(i,saved_temp1);
 		   EEPROM_READ_VAR(i,saved_temp0);
 		   EEPROM_READ_VAR(i,saved_tempbed);
+		   EEPROM_READ_VAR(i,saved_namefilegcode);
 		 #endif RECOVERY_PRINT      
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();

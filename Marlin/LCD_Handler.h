@@ -1155,7 +1155,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								sprintf(listsd.comandline2, "");
 							}
 							else{
-								sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+								sprintf(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							}
 							setfilenames(6);
 							
@@ -1197,7 +1197,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								sprintf(listsd.comandline2, "");
 							}
 							else{
-								sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+								sprintf(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							}
 							setfilenames(6);
 							
@@ -1244,7 +1244,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								sprintf(listsd.comandline2, "");
 							}
 							else{
-								sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+								sprintf(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							}
 							setfilenames(6);
 							
@@ -1295,7 +1295,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								sprintf(listsd.comandline2, "");
 							}
 							else{
-								sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+								sprintf(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							}
 							setfilenames(6);
 							
@@ -1352,7 +1352,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								sprintf(listsd.comandline2, "");
 							}
 							else{
-								sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+								sprintf(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							}
 							setfilenames(6);
 							
@@ -1412,7 +1412,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 									sprintf(listsd.comandline2, "");
 								}
 								else{
-									sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+									sprintf(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 								}
 								setfilenames(6);
 								

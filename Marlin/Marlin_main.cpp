@@ -264,6 +264,8 @@ int UI_SerialID2 = 0;
 	int saved_temp1;
 	int saved_temp0;
 	int saved_tempbed;
+	int saved_feedspeed;
+	char saved_namefilegcode[24];
 
 #endif
 //bool quick_guide = false;
@@ -1037,7 +1039,7 @@ inline void ListFilesUpfunc(){
 						card.updir();
 						card.getWorkDirName();
 						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
+						sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 					}
 					else{
@@ -1047,10 +1049,10 @@ inline void ListFilesUpfunc(){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 					listsd.get_lineduration();
 					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
+						sprintf_P(listsd.comandline2, "");
 					}
 					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
@@ -1085,7 +1087,7 @@ inline void ListFilesUpfunc(){
 							card.updir();
 							card.getWorkDirName();
 							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
+							sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 						}
 						else{
@@ -1095,10 +1097,10 @@ inline void ListFilesUpfunc(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
+							sprintf_P(listsd.comandline2, "");
 						}
 						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
@@ -1142,7 +1144,7 @@ inline void ListFilesUpfunc(){
 							card.updir();
 							card.getWorkDirName();
 							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
+							sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 						}
 						else{
@@ -1152,10 +1154,10 @@ inline void ListFilesUpfunc(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
+							sprintf_P(listsd.comandline2, "");
 						}
 						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
@@ -1202,7 +1204,7 @@ inline void ListFilesUpfunc(){
 							card.updir();
 							card.getWorkDirName();
 							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
+							sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 						}
 						else{
@@ -1212,10 +1214,10 @@ inline void ListFilesUpfunc(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
+							sprintf_P(listsd.comandline2, "");
 						}
 						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
@@ -1264,7 +1266,7 @@ inline void ListFilesUpfunc(){
 							card.updir();
 							card.getWorkDirName();
 							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
+							sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 						}
 						else{
@@ -1274,10 +1276,10 @@ inline void ListFilesUpfunc(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
+							sprintf_P(listsd.comandline2, "");
 						}
 						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
@@ -1326,7 +1328,7 @@ inline void ListFilesUpfunc(){
 							card.updir();
 							card.getWorkDirName();
 							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
+							sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 						}
 						else{
@@ -1336,10 +1338,10 @@ inline void ListFilesUpfunc(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
+							sprintf_P(listsd.comandline2, "");
 						}
 						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
@@ -1433,7 +1435,7 @@ inline void ListFilesDownx3func(){
 						card.updir();
 						card.getWorkDirName();
 						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
+						sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 					}
 					else{
@@ -1443,10 +1445,10 @@ inline void ListFilesDownx3func(){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 					listsd.get_lineduration();
 					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
+						sprintf_P(listsd.comandline2, "");
 					}
 					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
@@ -1481,7 +1483,7 @@ inline void ListFilesDownx3func(){
 							card.updir();
 							card.getWorkDirName();
 							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
+							sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 						}
 						else{
@@ -1491,10 +1493,10 @@ inline void ListFilesDownx3func(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
+							sprintf_P(listsd.comandline2, "");
 						}
 						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
@@ -1538,7 +1540,7 @@ inline void ListFilesDownx3func(){
 							card.updir();
 							card.getWorkDirName();
 							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
+							sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 						}
 						else{
@@ -1548,10 +1550,10 @@ inline void ListFilesDownx3func(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
+							sprintf_P(listsd.comandline2, "");
 						}
 						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
@@ -1599,7 +1601,7 @@ inline void ListFilesDownx3func(){
 							card.updir();
 							card.getWorkDirName();
 							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
+							sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 						}
 						else{
@@ -1609,10 +1611,10 @@ inline void ListFilesDownx3func(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
+							sprintf_P(listsd.comandline2, "");
 						}
 						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
@@ -1661,7 +1663,7 @@ inline void ListFilesDownx3func(){
 							card.updir();
 							card.getWorkDirName();
 							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
+							sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 						}
 						else{
@@ -1671,10 +1673,10 @@ inline void ListFilesDownx3func(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
+							sprintf_P(listsd.comandline2, "");
 						}
 						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
@@ -1724,7 +1726,7 @@ inline void ListFilesDownx3func(){
 							card.updir();
 							card.getWorkDirName();
 							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
+							sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 						}
 						else{
@@ -1734,10 +1736,10 @@ inline void ListFilesDownx3func(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
+							sprintf_P(listsd.comandline2, "");
 						}
 						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
@@ -1811,7 +1813,7 @@ inline void ListFileListINITSD(){
 					card.updir();
 					card.getWorkDirName();
 					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
+					sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 				}
 				else{
@@ -1821,10 +1823,10 @@ inline void ListFileListINITSD(){
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 				listsd.get_lineduration();
 				if(listsd.get_minutes() == -1){
-					sprintf(listsd.comandline2, "");
+					sprintf_P(listsd.comandline2, "");
 				}
 				else{
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
@@ -1854,7 +1856,7 @@ inline void ListFileListINITSD(){
 						card.updir();
 						card.getWorkDirName();
 						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
+						sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 					}
 					else{
@@ -1864,10 +1866,10 @@ inline void ListFileListINITSD(){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 					listsd.get_lineduration();
 					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
+						sprintf_P(listsd.comandline2, "");
 					}
 					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
@@ -1899,7 +1901,7 @@ inline void ListFileListINITSD(){
 						card.updir();
 						card.getWorkDirName();
 						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
+						sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 					}
 					else{
@@ -1909,10 +1911,10 @@ inline void ListFileListINITSD(){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 					listsd.get_lineduration();
 					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
+						sprintf_P(listsd.comandline2, "");
 					}
 					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
@@ -1945,7 +1947,7 @@ inline void ListFileListINITSD(){
 						card.updir();
 						card.getWorkDirName();
 						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
+						sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 					}
 					else{
@@ -1955,10 +1957,10 @@ inline void ListFileListINITSD(){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 					listsd.get_lineduration();
 					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
+						sprintf_P(listsd.comandline2, "");
 					}
 					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
@@ -1989,7 +1991,7 @@ inline void ListFileListINITSD(){
 						card.updir();
 						card.getWorkDirName();
 						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
+						sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 					}
 					else{
@@ -1999,10 +2001,10 @@ inline void ListFileListINITSD(){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 					listsd.get_lineduration();
 					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
+						sprintf_P(listsd.comandline2, "");
 					}
 					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
@@ -2032,7 +2034,7 @@ inline void ListFileListINITSD(){
 						card.updir();
 						card.getWorkDirName();
 						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
+						sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 					}
 					else{
@@ -2042,10 +2044,10 @@ inline void ListFileListINITSD(){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 					listsd.get_lineduration();
 					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
+						sprintf_P(listsd.comandline2, "");
 					}
 					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
@@ -2126,7 +2128,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				card.updir();
 				card.getWorkDirName();
 				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
+				sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 			}
 			else{
@@ -2136,10 +2138,10 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 			listsd.get_lineduration();
 			if(listsd.get_minutes() == -1){
-				sprintf(listsd.comandline2, "");
+				sprintf_P(listsd.comandline2, "");
 			}
 			else{
-				sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 			}
 			//Serial.println(listsd.comandline);
 			setfilenames(jint);
@@ -2168,7 +2170,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 					card.updir();
 					card.getWorkDirName();
 					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
+					sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 				}
 				else{
@@ -2178,10 +2180,10 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 				listsd.get_lineduration();
 				if(listsd.get_minutes() == -1){
-					sprintf(listsd.comandline2, "");
+					sprintf_P(listsd.comandline2, "");
 				}
 				else{
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
@@ -2213,7 +2215,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 					card.updir();
 					card.getWorkDirName();
 					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
+					sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 				}
 				else{
@@ -2223,10 +2225,10 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 				listsd.get_lineduration();
 				if(listsd.get_minutes() == -1){
-					sprintf(listsd.comandline2, "");
+					sprintf_P(listsd.comandline2, "");
 				}
 				else{
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
@@ -2259,7 +2261,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 					card.updir();
 					card.getWorkDirName();
 					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
+					sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 				}
 				else{
@@ -2269,10 +2271,10 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 				listsd.get_lineduration();
 				if(listsd.get_minutes() == -1){
-					sprintf(listsd.comandline2, "");
+					sprintf_P(listsd.comandline2, "");
 				}
 				else{
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
@@ -2303,7 +2305,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 					card.updir();
 					card.getWorkDirName();
 					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
+					sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 				}
 				else{
@@ -2313,10 +2315,10 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 				listsd.get_lineduration();
 				if(listsd.get_minutes() == -1){
-					sprintf(listsd.comandline2, "");
+					sprintf_P(listsd.comandline2, "");
 				}
 				else{
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
@@ -2346,7 +2348,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 					card.updir();
 					card.getWorkDirName();
 					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
+					sprintf_P(Workdir, PSTR("%d items"),NUMitems);
 					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 				}
 				else{
@@ -2356,10 +2358,10 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 				listsd.get_lineduration();
 				if(listsd.get_minutes() == -1){
-					sprintf(listsd.comandline2, "");
+					sprintf_P(listsd.comandline2, "");
 				}
 				else{
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
@@ -6648,6 +6650,30 @@ inline void gcode_M32(){
 	
 	#endif //SDSUPPORT
 }
+inline void gcode_M33(){
+	#ifdef SDSUPPORT
+	char *starpos = NULL;
+	if (card.cardOK){
+		card.closefile(true);
+		
+	}
+	#endif //SDSUPPORT
+}
+inline void gcode_M34(){
+	#ifdef SDSUPPORT
+	char *starpos = NULL;
+	if (card.cardOK){
+		card.closefile();
+		starpos = (strchr(strchr_pointer + 4,'*'));
+		if(starpos != NULL){
+			char* npos = strchr(cmdbuffer[bufindr], 'N');
+			strchr_pointer = strchr(npos,' ') + 1;
+			*(starpos) = '\0';
+		}
+		card.removeFile(strchr_pointer + 4);
+	}
+	#endif //SDSUPPORT
+}
 inline void gcode_M928(){
 	#ifdef SDSUPPORT
 	char *starpos = NULL;
@@ -8907,6 +8933,14 @@ void process_commands()
 			
 			case 32: //M32 - Select file and start SD print
 			gcode_M32();
+			break;
+			
+			case 33: //M33 - Resume
+			gcode_M33();
+			break;
+			
+			case 34: //M34 - Save
+			gcode_M34();
 			break;
 			
 			case 928: //M928 - Start SD write

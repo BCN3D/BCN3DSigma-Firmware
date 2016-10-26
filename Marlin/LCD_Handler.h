@@ -122,17 +122,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				
 				
-				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_BACK )
-				{
-					
-					screen_printing_pause_form = screen_printing_pause_form1;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
-					is_on_printing_screen = true;
-					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
-					data_refresh_flag = true;
-					surfing_utilities = false;
-					
-				}
+				
 				else if (Event.reportObject.index == BUTTON_STOP_YES )
 				{
 					is_on_printing_screen=false;
@@ -160,6 +150,18 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRINGS_PRINTING_GCODE_PAUSE,namefilegcode);
 						data_refresh_flag = true;
 						surfing_utilities = false;
+					}
+				}
+				else if (Event.reportObject.index == BUTTON_STOP_SAVE )
+				{
+					if(screen_printing_pause_form == screen_printing_pause_form0){
+						
+						
+						is_on_printing_screen=false;
+						card.sdprinting = false;
+						card.sdispaused = true;
+						enquecommand_P(PSTR("M33")); //Home X and Y
+						
 					}
 				}
 				else if (Event.reportObject.index == BUTTON_STOP_SCREEN && (screen_printing_pause_form == screen_printing_pause_form0))
@@ -311,25 +313,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				#pragma endregion Printing Settings
 				
-				#pragma region Printing_UTILITIES
 				
-				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_FILAMENT){
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_REMOVE_MENU_FILAMENT,1);
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
-					
-					filament_mode = 'R';
-				}
 				
-				else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK)
-				{
-					print_setting_back = true;
-					
-				}
-				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_SETTINGS)
-				{
-					
-					print_setting_refresh = true;
-				}
+				
 				
 				#pragma region Insert_Remove_Fil
 				/*else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_PURGE)

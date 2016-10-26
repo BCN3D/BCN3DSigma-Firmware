@@ -6652,10 +6652,14 @@ inline void gcode_M32(){
 }
 inline void gcode_M33(){
 	#ifdef SDSUPPORT
-	char *starpos = NULL;
 	if (card.cardOK){
 		card.closefile(true);
-		
+		enquecommand_P(PSTR("G28 X0 Y0"));
+		genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN,0);
+		setTargetHotend0(0);
+		setTargetHotend1(0);
+		setTargetBed(0);
+		enquecommand_P(PSTR("M107"));
 	}
 	#endif //SDSUPPORT
 }

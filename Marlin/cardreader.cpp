@@ -568,6 +568,8 @@ void CardReader::closefile(bool store_location)
 	  saved_tempbed  = target_temperature_bed;
 	  memset( saved_namefilegcode, '\0', sizeof(saved_namefilegcode));
 	  sprintf_P(saved_namefilegcode, PSTR("%s"), filename);	
+	  Config_StoreSettings();
+	SERIAL_PROTOCOLLNPGM("SAVED PRINT");
 	  #endif
 	  
 	  

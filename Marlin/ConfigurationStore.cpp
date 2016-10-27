@@ -311,7 +311,30 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 
 	} 
 #endif
-
+#ifndef DISABLE_M503
+void Config_PrintSAVESettings()
+{  // Always have this function, even with EEPROM_SETTINGS disabled, the current values will be shown
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("SAVE PRINT LOG:");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR(" FILEPOINTER: ",(unsigned long)log_prints);
+	SERIAL_ECHOPAIR(", saved_x_position: " ,(float)saved_x_position);
+	SERIAL_ECHOPAIR(", saved_y_position: " ,(float)saved_y_position);
+	SERIAL_ECHOPAIR(", saved_z_position: " ,(float)saved_z_position);
+	SERIAL_ECHOPAIR(", saved_tool_active: " ,(unsigned long)saved_tool_active);
+	SERIAL_ECHOPAIR(", saved_e_position: " ,(float)saved_e_position);
+	SERIAL_ECHOPAIR(", saved_fileposition: " ,(unsigned long)saved_fileposition);
+	SERIAL_ECHOPAIR(", saved_temp1: " ,(float)saved_temp1);
+	SERIAL_ECHOPAIR(", saved_temp0: " ,(float)saved_temp0);
+	SERIAL_ECHOPAIR(", saved_tempbed: " ,(float)saved_tempbed);
+	//SERIAL_PROTOCOLLNPGM(PSTR(saved_namefilegcode));
+	SERIAL_ECHOLN("");
+	
+	
+	
+	
+}
+#endif
 
 #ifdef EEPROM_SETTINGS
 void Config_RetrieveSettings()

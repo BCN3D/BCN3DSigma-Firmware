@@ -6665,16 +6665,52 @@ inline void gcode_M33(){
 }
 inline void gcode_M34(){
 	#ifdef SDSUPPORT
-	char *starpos = NULL;
+	card.initsd();
 	if (card.cardOK){
-		card.closefile();
-		starpos = (strchr(strchr_pointer + 4,'*'));
-		if(starpos != NULL){
-			char* npos = strchr(cmdbuffer[bufindr], 'N');
-			strchr_pointer = strchr(npos,' ') + 1;
-			*(starpos) = '\0';
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+		genie.WriteStr(STRINGS_PRINTING_GCODE,saved_namefilegcode);
+		card.openFile(saved_namefilegcode,true);
+		card.setIndex(saved_fileposition);
+		setTargetBed(saved_tempbed);
+		setTargetHotend0(saved_temp0);
+		setTargetHotend1(saved_temp1);
+		card.startFileprint();
+		screen_printing_pause_form = screen_printing_pause_form0;
+		while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
+			manage_heater();
+			touchscreen_update();
 		}
-		card.removeFile(strchr_pointer + 4);
+		
+		current_position[Z_AXIS]=saved_z_position;
+		z_restaurada = current_position[Z_AXIS];
+		
+		home_axis_from_code(true, true, false);
+		current_position[Z_AXIS]=saved_z_position;
+		z_restaurada = current_position[Z_AXIS];
+		raised_parked_position[Z_AXIS]=current_position[Z_AXIS];
+		active_extruder = saved_tool_active;
+		gcode_T0_T1_auto(saved_tool_active);
+		current_position[E_AXIS]=saved_e_position;
+		feedrate = homing_feedrate[Y_AXIS];
+		current_position[Y_AXIS]=saved_y_position;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		st_synchronize();
+		
+		current_position[E_AXIS]+=G70_PURGE;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
+		st_synchronize();
+		
+		current_position[E_AXIS]-=1;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
+		st_synchronize();
+		
+		current_position[X_AXIS] = saved_x_position;
+		feedrate=200*60;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		st_synchronize();
+		
+		current_position[E_AXIS] = saved_e_position;
+		plan_set_e_position(current_position[E_AXIS]);
 	}
 	#endif //SDSUPPORT
 }
@@ -8236,6 +8272,10 @@ inline void gcode_M506(){
 	Config_Set_UISerialNumber(input0, input1, input2);
 	Config_StoreSettings();
 }
+inline void gcode_M507(){
+	Config_PrintSAVESettings();
+	Serial.print(saved_namefilegcode);
+}
 inline void gcode_M510(){
 	int i_temp_l = 0, r_temp_l = 0 , p_temp_l = 0, b_temp_l =0;
 	if (code_seen('I')) i_temp_l = code_value();
@@ -9244,6 +9284,10 @@ void process_commands()
 			
 			case 506:
 			gcode_M506();
+			break;
+			
+			case 507: // M503 print settings currently in memory
+			gcode_M507();
 			break;
 					
 			case 510:  //left hotend

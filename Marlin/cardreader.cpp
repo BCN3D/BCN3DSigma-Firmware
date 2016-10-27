@@ -563,8 +563,8 @@ void CardReader::closefile(bool store_location)
 	  saved_tool_active = active_extruder;
 	  saved_e_position =  current_position[E_AXIS];
 	  saved_fileposition = file.curPosition();
-	  saved_temp1 = target_temperature[0];
-	  saved_temp0 = target_temperature[1];
+	  saved_temp0 = target_temperature[0];
+	  saved_temp1 = target_temperature[1];
 	  saved_tempbed  = target_temperature_bed;
 	  memset( saved_namefilegcode, '\0', sizeof(saved_namefilegcode));
 	  sprintf_P(saved_namefilegcode, PSTR("%s"), filename);	

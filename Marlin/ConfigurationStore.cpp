@@ -153,7 +153,6 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,log_E0_mmdone);
   EEPROM_WRITE_VAR(i,log_E1_mmdone);
   #ifdef RECOVERY_PRINT
-    EEPROM_WRITE_VAR(i,saved_filepointer);
     EEPROM_WRITE_VAR(i,saved_x_position);
     EEPROM_WRITE_VAR(i,saved_y_position);
     EEPROM_WRITE_VAR(i,saved_z_position);
@@ -163,9 +162,18 @@ void Config_StoreSettings()
     EEPROM_WRITE_VAR(i,saved_temp1);
     EEPROM_WRITE_VAR(i,saved_temp0);
     EEPROM_WRITE_VAR(i,saved_tempbed);
-	EEPROM_WRITE_VAR(i,saved_namefilegcode);
-	EEPROM_WRITE_VAR(i,saved_timeduration);
-	EEPROM_WRITE_VAR(i,saved_fanlayer);
+    EEPROM_WRITE_VAR(i,saved_fanlayer);
+    EEPROM_WRITE_VAR(i,saved_workDir_vector_lenght);
+    EEPROM_WRITE_VAR(i,saved_workDir_vector[0]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[1]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[2]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[3]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[4]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[5]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[6]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[7]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[8]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[9]);
    #endif 
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
@@ -319,7 +327,6 @@ void Config_PrintSAVESettings()
 	SERIAL_ECHO_START;
 	SERIAL_ECHOLNPGM("SAVE PRINT LOG:");
 	SERIAL_ECHO_START;
-	SERIAL_ECHOPAIR(" FILEPOINTER: ",(unsigned long)saved_filepointer);
 	SERIAL_ECHOPAIR(", saved_x_position: " ,(float)saved_x_position);
 	SERIAL_ECHOPAIR(", saved_y_position: " ,(float)saved_y_position);
 	SERIAL_ECHOPAIR(", saved_z_position: " ,(float)saved_z_position);
@@ -331,7 +338,6 @@ void Config_PrintSAVESettings()
 	SERIAL_ECHOPAIR(", saved_tempbed: " ,(float)saved_tempbed);
 	SERIAL_ECHOPAIR(", saved_timeduration: " ,(float)saved_timeduration);
 	SERIAL_ECHOPAIR(", saved_fanlayer: " ,(float)saved_fanlayer);
-	//SERIAL_PROTOCOLLNPGM(PSTR(saved_namefilegcode));
 	SERIAL_ECHOLN("");
 	
 	
@@ -453,7 +459,7 @@ void Config_RetrieveSettings()
 		 EEPROM_READ_VAR(i,log_E1_mmdone);
 		 
 		 #ifdef RECOVERY_PRINT
-		   EEPROM_READ_VAR(i,saved_filepointer);
+		  
 		   EEPROM_READ_VAR(i,saved_x_position);
 		   EEPROM_READ_VAR(i,saved_y_position);
 		   EEPROM_READ_VAR(i,saved_z_position);
@@ -463,9 +469,18 @@ void Config_RetrieveSettings()
 		   EEPROM_READ_VAR(i,saved_temp1);
 		   EEPROM_READ_VAR(i,saved_temp0);
 		   EEPROM_READ_VAR(i,saved_tempbed);
-		   EEPROM_READ_VAR(i,saved_namefilegcode);
-		   EEPROM_READ_VAR(i,saved_timeduration);
 		   EEPROM_READ_VAR(i,saved_fanlayer);
+		   EEPROM_READ_VAR(i,saved_workDir_vector_lenght);
+		   EEPROM_READ_VAR(i,saved_workDir_vector[0]);
+		   EEPROM_READ_VAR(i,saved_workDir_vector[1]);
+		   EEPROM_READ_VAR(i,saved_workDir_vector[2]);
+		   EEPROM_READ_VAR(i,saved_workDir_vector[3]);
+		   EEPROM_READ_VAR(i,saved_workDir_vector[4]);
+		   EEPROM_READ_VAR(i,saved_workDir_vector[5]);
+		   EEPROM_READ_VAR(i,saved_workDir_vector[6]);
+		   EEPROM_READ_VAR(i,saved_workDir_vector[7]);
+		   EEPROM_READ_VAR(i,saved_workDir_vector[8]);
+		   EEPROM_READ_VAR(i,saved_workDir_vector[9]);
 		 #endif RECOVERY_PRINT      
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();

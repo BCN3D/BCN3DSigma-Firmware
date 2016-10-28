@@ -254,7 +254,6 @@ int UI_SerialID2 = 0;
 #endif
 #ifdef RECOVERY_PRINT
 
-	int saved_filepointer;
 	int saved_x_position;
 	int saved_y_position;
 	int saved_z_position;
@@ -266,12 +265,14 @@ int UI_SerialID2 = 0;
 	int saved_tempbed;
 	int saved_feedspeed;
 	int saved_timeduration;
-	int saved_fanlayer;
-	char saved_namefilegcode[24];
+	int saved_fanlayer;	
+	int saved_workDir_vector[MAX_DIR_DEPTH];
+	uint8_t saved_workDir_vector_lenght=0;
 
 #endif
-//bool quick_guide = false;
-//int quick_guide_step = 0;
+
+int workDir_vector[MAX_DIR_DEPTH];
+uint8_t workDir_vector_lenght=0;
 
 #pragma region temperatures
 //////Temperatures of current material for two extruders.//////
@@ -1788,6 +1789,7 @@ inline void ListFileListINITSD(){
 	int jint = 0;
 	char Workdir[20];
 	card.initsd();
+	workDir_vector_lenght = 0;
 	if (card.cardOK){
 		
 		uint16_t fileCnt = card.getnrfilenames();
@@ -6709,9 +6711,20 @@ inline void gcode_M34(){
 	#ifdef SDSUPPORT
 	card.initsd();
 	if (card.cardOK){
-		card.getWorkDirName();
-		filepointer = saved_filepointer;
-		card.getfilename(filepointer);
+		
+		
+		for(int i=0; i<saved_workDir_vector_lenght;i++){
+			card.getWorkDirName();
+			card.getfilename(saved_workDir_vector[i]);
+			if (!card.filenameIsDir){
+				SERIAL_PROTOCOLLNPGM("Te pille");
+			}else{
+				if (card.chdir(card.filename)!=-1){
+				}
+			}
+		}
+		
+		
 		listsd.get_lineduration();
 		card.openFile(card.filename,true);
 		
@@ -8324,7 +8337,6 @@ inline void gcode_M506(){
 }
 inline void gcode_M507(){
 	Config_PrintSAVESettings();
-	Serial.print(saved_namefilegcode);
 }
 inline void gcode_M510(){
 	int i_temp_l = 0, r_temp_l = 0 , p_temp_l = 0, b_temp_l =0;

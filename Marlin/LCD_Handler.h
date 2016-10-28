@@ -23,7 +23,7 @@
 void setfilenames(int jint);
 inline void insertmetod();
 void setfoldernames(int jint);
-
+void folder_navigation_register(bool upchdir);
 void myGenieEventHandler();
 bool flag_nylon_clean_metode = false;
 bool print_setting_refresh = false;
@@ -1148,6 +1148,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						card.getfilename(filepointer);
 						Serial.println(card.longFilename);
 						if (!card.filenameIsDir){
+							folder_navigation_register(true);
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
 							if(listsd.get_minutes() == -1){
@@ -1161,6 +1162,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						else{
 							if (card.chdir(card.filename)!=-1){
+								folder_navigation_register(true);
 								Serial.println(card.filename);
 								ListFileListENTERBACKFORLDERSDflag = true;
 								genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FOLDER_BACK,1);
@@ -1190,6 +1192,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						card.getfilename(filepointer);
 						Serial.println(card.longFilename);
 						if (!card.filenameIsDir){
+							folder_navigation_register(true);
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
 							if(listsd.get_minutes() == -1){
@@ -1203,6 +1206,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						else{
 							if (card.chdir(card.filename)!=-1){
+								folder_navigation_register(true);
 								Serial.println(card.filename);
 								ListFileListENTERBACKFORLDERSDflag = true;
 								genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FOLDER_BACK,1);
@@ -1237,6 +1241,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						card.getfilename(filepointer);
 						Serial.println(card.longFilename);
 						if (!card.filenameIsDir){
+							folder_navigation_register(true);
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
 							if(listsd.get_minutes() == -1){
@@ -1250,6 +1255,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						else{
 							if (card.chdir(card.filename)!=-1){
+								folder_navigation_register(true);
 								Serial.println(card.filename);
 								ListFileListENTERBACKFORLDERSDflag = true;
 								genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FOLDER_BACK,1);
@@ -1288,6 +1294,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						card.getfilename(filepointer);
 						Serial.println(card.longFilename);
 						if (!card.filenameIsDir){
+							folder_navigation_register(true);
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
 							if(listsd.get_minutes() == -1){
@@ -1301,6 +1308,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						else{
 							if (card.chdir(card.filename)!=-1){
+								folder_navigation_register(true);
 								Serial.println(card.filename);
 								ListFileListENTERBACKFORLDERSDflag = true;
 								genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FOLDER_BACK,1);
@@ -1345,6 +1353,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						card.getfilename(filepointer);
 						Serial.println(card.longFilename);
 						if (!card.filenameIsDir){
+							folder_navigation_register(true);
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
 							if(listsd.get_minutes() == -1){
@@ -1358,6 +1367,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						else{
 							if (card.chdir(card.filename)!=-1){
+								folder_navigation_register(true);
 								Serial.println(card.filename);
 								ListFileListENTERBACKFORLDERSDflag = true;
 								genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FOLDER_BACK,1);
@@ -1405,6 +1415,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							card.getfilename(filepointer);
 							Serial.println(card.longFilename);
 							if (!card.filenameIsDir){
+							folder_navigation_register(true);
 								genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 								listsd.get_lineduration();
 								if(listsd.get_minutes() == -1){
@@ -1418,6 +1429,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							}
 							else{
 								if (card.chdir(card.filename)!=-1){
+									folder_navigation_register(true);
 									Serial.println(card.filename);
 									ListFileListENTERBACKFORLDERSDflag = true;
 									genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FOLDER_BACK,1);
@@ -1435,12 +1447,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					int updir = card.updir();
 					
-					if (updir==0) ListFileListENTERBACKFORLDERSDflag = true;
-					
+					if (updir==0){
+						 ListFileListENTERBACKFORLDERSDflag = true;
+						 folder_navigation_register(false);
+					}
 					else if(updir==1){
 						ListFileListENTERBACKFORLDERSDflag = true;
 						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FOLDER_BACK,0);
 						genie.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_FOLDER_FILE,0);
+						folder_navigation_register(false);
 					}
 					
 				}
@@ -4863,7 +4878,17 @@ inline void insertmetod(){
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FILAMENT_TOP,0);
 	processing = false;
 }
+inline void folder_navigation_register(bool upchdir){
 
+	if(upchdir){
+		workDir_vector[workDir_vector_lenght] = filepointer;
+		workDir_vector_lenght++;
+		
+	}else{
+		workDir_vector_lenght--;
+
+	}
+}
 
 #endif /* INCLUDE */
 

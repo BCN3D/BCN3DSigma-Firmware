@@ -556,7 +556,6 @@ void CardReader::closefile(bool store_location)
 	  
 	  #ifdef RECOVERY_PRINT
 
-	  saved_filepointer = filepointer;
 	  saved_x_position =  current_position[X_AXIS];
 	  saved_y_position =  current_position[Y_AXIS];
 	  saved_z_position =  current_position[Z_AXIS];
@@ -568,11 +567,20 @@ void CardReader::closefile(bool store_location)
 	  saved_tempbed  = target_temperature_bed;
 	  saved_timeduration = listsd.get_hours()*60+listsd.get_minutes();
 	  saved_fanlayer = fanSpeed;
-	  memset( saved_namefilegcode, '\0', sizeof(saved_namefilegcode));
-	  sprintf_P(saved_namefilegcode, PSTR("%s"), filename);	
+	  saved_workDir_vector_lenght = workDir_vector_lenght;
+	  saved_workDir_vector[0] = workDir_vector[0];
+	  saved_workDir_vector[1] = workDir_vector[1];
+	  saved_workDir_vector[2] = workDir_vector[2];
+	  saved_workDir_vector[3] = workDir_vector[3];
+	  saved_workDir_vector[4] = workDir_vector[4];
+	  saved_workDir_vector[5] = workDir_vector[5];
+	  saved_workDir_vector[6] = workDir_vector[6];
+	  saved_workDir_vector[7] = workDir_vector[7];
+	  saved_workDir_vector[8] = workDir_vector[8];
+	  saved_workDir_vector[9] = workDir_vector[9];
 	  
 	  Config_StoreSettings();
-	SERIAL_PROTOCOLLNPGM("SAVED PRINT");
+		SERIAL_PROTOCOLLNPGM("SAVED PRINT");
 	  #endif
 	  
 	  

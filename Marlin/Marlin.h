@@ -20,6 +20,7 @@
 
 #include "fastio.h"
 #include "Configuration.h"
+#include "cardreader.h"
 #include "pins.h"
 
 #include "genieArduino.h"
@@ -354,7 +355,6 @@ extern int old_insert_temp_r;
 extern int old_remove_temp_r;
 extern int old_print_temp_r;
 extern int old_bed_temp_r;
-extern int saved_filepointer;
 extern int saved_x_position;
 extern int saved_y_position;
 extern int saved_z_position;
@@ -367,7 +367,10 @@ extern int saved_tempbed;
 extern int saved_feedspeed;
 extern int saved_timeduration;
 extern int saved_fanlayer;
-extern char saved_namefilegcode[24];
+extern int workDir_vector[MAX_DIR_DEPTH];
+extern uint8_t workDir_vector_lenght;
+extern int saved_workDir_vector[MAX_DIR_DEPTH];
+extern uint8_t saved_workDir_vector_lenght;
 extern void PID_autotune_Save(float temp, int extruder, int ncycles);
 extern void Config_Reset_Calib();
 extern void Config_StoreSettings();

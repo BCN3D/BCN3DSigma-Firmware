@@ -365,6 +365,8 @@ extern int saved_temp1;
 extern int saved_temp0;
 extern int saved_tempbed;
 extern int saved_feedspeed;
+extern int saved_timeduration;
+extern int saved_fanlayer;
 extern char saved_namefilegcode[24];
 extern void PID_autotune_Save(float temp, int extruder, int ncycles);
 extern void Config_Reset_Calib();

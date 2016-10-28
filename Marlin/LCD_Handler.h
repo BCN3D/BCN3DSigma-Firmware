@@ -100,6 +100,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					
 				}
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK)
+				{
+					print_setting_back = true;
+					
+				}
+				
+				
 				else if (Event.reportObject.index == BUTTON_PRINT_SETTINGS_PAUSE )
 				{
 					
@@ -157,11 +164,17 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if(screen_printing_pause_form == screen_printing_pause_form0){
 						
 						
+						
+						
+						
+						
 						is_on_printing_screen=false;
+						
 						card.sdprinting = false;
 						card.sdispaused = true;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						processing = true;
 						enquecommand_P(PSTR("M33")); //Home X and Y
-						
 					}
 				}
 				else if (Event.reportObject.index == BUTTON_STOP_SCREEN && (screen_printing_pause_form == screen_printing_pause_form0))

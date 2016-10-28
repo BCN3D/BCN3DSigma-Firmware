@@ -265,6 +265,8 @@ int UI_SerialID2 = 0;
 	int saved_temp0;
 	int saved_tempbed;
 	int saved_feedspeed;
+	int saved_timeduration;
+	int saved_fanlayer;
 	char saved_namefilegcode[24];
 
 #endif
@@ -6652,14 +6654,54 @@ inline void gcode_M32(){
 }
 inline void gcode_M33(){
 	#ifdef SDSUPPORT
+	print_print_stop = true;
+	cancel_heatup = true;
 	if (card.cardOK){
 		card.closefile(true);
-		enquecommand_P(PSTR("G28 X0 Y0"));
-		genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN,0);
-		setTargetHotend0(0);
-		setTargetHotend1(0);
-		setTargetBed(0);
-		enquecommand_P(PSTR("M107"));
+		saved_position[Z_AXIS] = current_position[Z_AXIS];
+		current_position[E_AXIS]-=G69_RETRACK;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
+		st_synchronize();
+		//*********************************//
+		feedrate=homing_feedrate[X_AXIS];
+		if (active_extruder == LEFT_EXTRUDER && current_position[X_AXIS] != 0){															//Move X axis, controlling the current_extruder
+			current_position[X_AXIS] = current_position[X_AXIS]-G69_XYMOVE;
+			current_position[Y_AXIS] = current_position[Y_AXIS]+G69_XYMOVE;
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+			}else if(active_extruder == RIGHT_EXTRUDER && current_position[X_AXIS] != extruder_offset[X_AXIS][1]){
+			current_position[X_AXIS] = current_position[X_AXIS]+G69_XYMOVE;
+			current_position[Y_AXIS] = current_position[Y_AXIS]+G69_XYMOVE;
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		}
+		st_synchronize();
+		//********MOVE TO PAUSE POSITION
+		
+		if(current_position[Z_AXIS]>=180) current_position[Z_AXIS] += 2;								//
+		else if(current_position[Z_AXIS]>=205) {}														//Move the bed, more or less in function of current_position
+		else current_position[Z_AXIS] += 10;															//
+		int feedrate=homing_feedrate[Z_AXIS];
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		st_synchronize();
+		
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, 400, active_extruder);	//Retrack
+		st_synchronize();
+		
+		feedrate=homing_feedrate[X_AXIS];
+		if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
+			current_position[X_AXIS] = 0;
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+			}else{
+			current_position[X_AXIS] = extruder_offset[X_AXIS][1];
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		}
+		st_synchronize();
+		
+		current_position[Z_AXIS] = saved_position[Z_AXIS];
+		feedrate=homing_feedrate[Z_AXIS];
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		destination[Z_AXIS] = current_position[Z_AXIS];
+		st_synchronize();
+		
 	}
 	#endif //SDSUPPORT
 }
@@ -6667,15 +6709,21 @@ inline void gcode_M34(){
 	#ifdef SDSUPPORT
 	card.initsd();
 	if (card.cardOK){
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
-		genie.WriteStr(STRINGS_PRINTING_GCODE,saved_namefilegcode);
-		card.openFile(saved_namefilegcode,true);
+		card.getWorkDirName();
+		filepointer = saved_filepointer;
+		card.getfilename(filepointer);
+		listsd.get_lineduration();
+		card.openFile(card.filename,true);
+		
+		gcode_M24();
+		
+		
 		card.setIndex(saved_fileposition);
 		setTargetBed(saved_tempbed);
 		setTargetHotend0(saved_temp0);
 		setTargetHotend1(saved_temp1);
-		card.startFileprint();
 		screen_printing_pause_form = screen_printing_pause_form0;
+		is_on_printing_screen=true;//We are entering printing screen
 		while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
 			manage_heater();
 			touchscreen_update();
@@ -6683,8 +6731,9 @@ inline void gcode_M34(){
 		
 		current_position[Z_AXIS]=saved_z_position;
 		z_restaurada = current_position[Z_AXIS];
-		
+		dobloking = true;
 		home_axis_from_code(true, true, false);
+		active_extruder_parked =false;
 		current_position[Z_AXIS]=saved_z_position;
 		z_restaurada = current_position[Z_AXIS];
 		raised_parked_position[Z_AXIS]=current_position[Z_AXIS];
@@ -6711,6 +6760,7 @@ inline void gcode_M34(){
 		
 		current_position[E_AXIS] = saved_e_position;
 		plan_set_e_position(current_position[E_AXIS]);
+		fanSpeed = saved_fanlayer;
 	}
 	#endif //SDSUPPORT
 }

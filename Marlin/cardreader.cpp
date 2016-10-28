@@ -5,7 +5,7 @@
 #include "temperature.h"
 #include "language.h"
 #include "Touch_Screen_Definitions.h"
-
+#include "SD_ListFiles.h"
 #ifdef SDSUPPORT
 
 
@@ -566,8 +566,11 @@ void CardReader::closefile(bool store_location)
 	  saved_temp0 = target_temperature[0];
 	  saved_temp1 = target_temperature[1];
 	  saved_tempbed  = target_temperature_bed;
+	  saved_timeduration = listsd.get_hours()*60+listsd.get_minutes();
+	  saved_fanlayer = fanSpeed;
 	  memset( saved_namefilegcode, '\0', sizeof(saved_namefilegcode));
 	  sprintf_P(saved_namefilegcode, PSTR("%s"), filename);	
+	  
 	  Config_StoreSettings();
 	SERIAL_PROTOCOLLNPGM("SAVED PRINT");
 	  #endif

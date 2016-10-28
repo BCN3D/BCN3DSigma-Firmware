@@ -164,6 +164,8 @@ void Config_StoreSettings()
     EEPROM_WRITE_VAR(i,saved_temp0);
     EEPROM_WRITE_VAR(i,saved_tempbed);
 	EEPROM_WRITE_VAR(i,saved_namefilegcode);
+	EEPROM_WRITE_VAR(i,saved_timeduration);
+	EEPROM_WRITE_VAR(i,saved_fanlayer);
    #endif 
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
@@ -317,7 +319,7 @@ void Config_PrintSAVESettings()
 	SERIAL_ECHO_START;
 	SERIAL_ECHOLNPGM("SAVE PRINT LOG:");
 	SERIAL_ECHO_START;
-	SERIAL_ECHOPAIR(" FILEPOINTER: ",(unsigned long)log_prints);
+	SERIAL_ECHOPAIR(" FILEPOINTER: ",(unsigned long)saved_filepointer);
 	SERIAL_ECHOPAIR(", saved_x_position: " ,(float)saved_x_position);
 	SERIAL_ECHOPAIR(", saved_y_position: " ,(float)saved_y_position);
 	SERIAL_ECHOPAIR(", saved_z_position: " ,(float)saved_z_position);
@@ -327,6 +329,8 @@ void Config_PrintSAVESettings()
 	SERIAL_ECHOPAIR(", saved_temp1: " ,(float)saved_temp1);
 	SERIAL_ECHOPAIR(", saved_temp0: " ,(float)saved_temp0);
 	SERIAL_ECHOPAIR(", saved_tempbed: " ,(float)saved_tempbed);
+	SERIAL_ECHOPAIR(", saved_timeduration: " ,(float)saved_timeduration);
+	SERIAL_ECHOPAIR(", saved_fanlayer: " ,(float)saved_fanlayer);
 	//SERIAL_PROTOCOLLNPGM(PSTR(saved_namefilegcode));
 	SERIAL_ECHOLN("");
 	
@@ -460,6 +464,8 @@ void Config_RetrieveSettings()
 		   EEPROM_READ_VAR(i,saved_temp0);
 		   EEPROM_READ_VAR(i,saved_tempbed);
 		   EEPROM_READ_VAR(i,saved_namefilegcode);
+		   EEPROM_READ_VAR(i,saved_timeduration);
+		   EEPROM_READ_VAR(i,saved_fanlayer);
 		 #endif RECOVERY_PRINT      
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();

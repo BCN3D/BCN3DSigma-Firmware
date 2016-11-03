@@ -254,21 +254,20 @@ int UI_SerialID2 = 0;
 #endif
 #ifdef RECOVERY_PRINT
 
-	int saved_x_position;
-	int saved_y_position;
-	int saved_z_position;
+	float saved_x_position;
+	float saved_y_position;
+	float saved_z_position;
 	int saved_tool_active;
-	int saved_e_position;
+	float saved_e_position;
 	long saved_fileposition;
 	int saved_temp1;
 	int saved_temp0;
 	int saved_tempbed;
 	int saved_feedspeed;
-	int saved_timeduration;
 	int saved_fanlayer;	
 	int saved_workDir_vector[MAX_DIR_DEPTH];
 	uint8_t saved_workDir_vector_lenght=0;
-
+	bool saved_print_flag=false;	
 #endif
 
 int workDir_vector[MAX_DIR_DEPTH];
@@ -6706,8 +6705,11 @@ inline void gcode_M33(){
 		
 	}
 	#endif //SDSUPPORT
+	//Config_StoreSettings();
+	saved_print_flag =  true;
 }
 inline void gcode_M34(){
+	if(saved_print_flag){
 	#ifdef SDSUPPORT
 	card.initsd();
 	if (card.cardOK){
@@ -6737,6 +6739,7 @@ inline void gcode_M34(){
 		setTargetHotend1(saved_temp1);
 		screen_printing_pause_form = screen_printing_pause_form0;
 		is_on_printing_screen=true;//We are entering printing screen
+		
 		while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
 			manage_heater();
 			touchscreen_update();
@@ -6750,9 +6753,8 @@ inline void gcode_M34(){
 		current_position[Z_AXIS]=saved_z_position;
 		z_restaurada = current_position[Z_AXIS];
 		raised_parked_position[Z_AXIS]=current_position[Z_AXIS];
-		active_extruder = saved_tool_active;
+		//active_extruder = saved_tool_active;
 		gcode_T0_T1_auto(saved_tool_active);
-		current_position[E_AXIS]=saved_e_position;
 		feedrate = homing_feedrate[Y_AXIS];
 		current_position[Y_AXIS]=saved_y_position;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
@@ -6766,6 +6768,18 @@ inline void gcode_M34(){
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
 		st_synchronize();
 		
+		if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
+			current_position[X_AXIS] = saved_x_position;
+			feedrate=200*60;
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+			st_synchronize();
+			}else{
+			current_position[X_AXIS] = extruder_offset[X_AXIS][1];
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		}
+		st_synchronize();
+		
+		
 		current_position[X_AXIS] = saved_x_position;
 		feedrate=200*60;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
@@ -6776,6 +6790,8 @@ inline void gcode_M34(){
 		fanSpeed = saved_fanlayer;
 	}
 	#endif //SDSUPPORT
+	}
+	saved_print_flag =  false;
 }
 inline void gcode_M928(){
 	#ifdef SDSUPPORT
@@ -8336,7 +8352,12 @@ inline void gcode_M506(){
 	Config_StoreSettings();
 }
 inline void gcode_M507(){
-	Config_PrintSAVESettings();
+	if(saved_print_flag){
+		SERIAL_PROTOCOLLNPGM("Print recovery up");
+		Config_PrintSAVESettings();
+	}else{
+		SERIAL_PROTOCOLLNPGM("Not print recovery up");
+	}
 }
 inline void gcode_M510(){
 	int i_temp_l = 0, r_temp_l = 0 , p_temp_l = 0, b_temp_l =0;

@@ -1487,6 +1487,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						e1mmdone = 0;
 						log_prints++;
 						log_min_print = 0;
+						saved_print_flag = false;
 						Config_StoreSettings();
 						//gcode_T0_T1_auto(0);
 						//st_synchronize();
@@ -1610,6 +1611,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region Maintenance
 				
 				else if (Event.reportObject.index == Z_ADJUST){
+					if(saved_print_flag){
+						saved_print_flag=false;
+						Config_StoreSettings();
+					}
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					processing = true;
 					if(home_made_Z){
@@ -1701,7 +1706,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_SELECT_GO ){
-					
+					if(saved_print_flag){
+						saved_print_flag = false;
+						Config_StoreSettings();
+					}
 					if(which_extruder != 255){
 						
 						if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
@@ -1740,7 +1748,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_SELECT_SKIP ){
-					
+					if(saved_print_flag){
+						saved_print_flag = false;
+						Config_StoreSettings();
+					}
 					if(which_extruder != 255){
 						
 						setTargetHotend(NYLON_TEMP_HEATUP_THRESHOLD,which_extruder);
@@ -2369,6 +2380,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				else if (Event.reportObject.index == BUTTON_PLA){
+					saved_print_flag = false;
 					if (which_extruder == 1) // Need to pause
 					{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);	
@@ -2396,9 +2408,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						insertmetod();
 					}
 					
+					
 				}
 				
 				else if (Event.reportObject.index == BUTTON_ABS){
+					saved_print_flag = false;
 					if (which_extruder == 1) // Need to pause
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -2429,6 +2443,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				}
 				else if (Event.reportObject.index == BUTTON_PVA){
+					saved_print_flag = false;
 					if (which_extruder == 1) // Need to pause
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -2563,6 +2578,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_CUSTOM_ACCEPT){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					saved_print_flag=false;
 					if(which_extruder == 0){
 						if (custom_print_temp <= HEATER_0_MAXTEMP) print_temp_l = custom_print_temp;
 						else print_temp_l = HEATER_0_MAXTEMP;
@@ -3090,6 +3106,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					#pragma region Bed Calibration
 					else if (Event.reportObject.index == BUTTON_Z_CAL_WIZARD)
 					{
+						if(saved_print_flag){
+							saved_print_flag = false;
+							Config_StoreSettings();
+						}
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						bed_calibration_times = 0;
@@ -4241,6 +4261,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if(Event.reportObject.index == BUTTON_CALL_FULL_SURE_OK){
 						
 						bed_calibration_times = 0;
+						if(saved_print_flag){
+							saved_print_flag = false;
+							Config_StoreSettings();	
+						}
+						
 						SERIAL_PROTOCOLPGM("INFO: BED CALIB - ");
 						Serial.println(flag_bed_calib_done);
 						flag_full_calib = true;

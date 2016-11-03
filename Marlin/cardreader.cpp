@@ -565,7 +565,6 @@ void CardReader::closefile(bool store_location)
 	  saved_temp0 = target_temperature[0];
 	  saved_temp1 = target_temperature[1];
 	  saved_tempbed  = target_temperature_bed;
-	  saved_timeduration = listsd.get_hours()*60+listsd.get_minutes();
 	  saved_fanlayer = fanSpeed;
 	  saved_workDir_vector_lenght = workDir_vector_lenght;
 	  saved_workDir_vector[0] = workDir_vector[0];
@@ -579,7 +578,7 @@ void CardReader::closefile(bool store_location)
 	  saved_workDir_vector[8] = workDir_vector[8];
 	  saved_workDir_vector[9] = workDir_vector[9];
 	  
-	  Config_StoreSettings();
+	  
 		SERIAL_PROTOCOLLNPGM("SAVED PRINT");
 	  #endif
 	  

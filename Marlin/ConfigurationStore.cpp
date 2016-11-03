@@ -153,6 +153,7 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,log_E0_mmdone);
   EEPROM_WRITE_VAR(i,log_E1_mmdone);
   #ifdef RECOVERY_PRINT
+	EEPROM_WRITE_VAR(i,saved_print_flag);
     EEPROM_WRITE_VAR(i,saved_x_position);
     EEPROM_WRITE_VAR(i,saved_y_position);
     EEPROM_WRITE_VAR(i,saved_z_position);
@@ -336,7 +337,6 @@ void Config_PrintSAVESettings()
 	SERIAL_ECHOPAIR(", saved_temp1: " ,(float)saved_temp1);
 	SERIAL_ECHOPAIR(", saved_temp0: " ,(float)saved_temp0);
 	SERIAL_ECHOPAIR(", saved_tempbed: " ,(float)saved_tempbed);
-	SERIAL_ECHOPAIR(", saved_timeduration: " ,(float)saved_timeduration);
 	SERIAL_ECHOPAIR(", saved_fanlayer: " ,(float)saved_fanlayer);
 	SERIAL_ECHOLN("");
 	
@@ -459,7 +459,7 @@ void Config_RetrieveSettings()
 		 EEPROM_READ_VAR(i,log_E1_mmdone);
 		 
 		 #ifdef RECOVERY_PRINT
-		  
+			EEPROM_READ_VAR(i,saved_print_flag);
 		   EEPROM_READ_VAR(i,saved_x_position);
 		   EEPROM_READ_VAR(i,saved_y_position);
 		   EEPROM_READ_VAR(i,saved_z_position);

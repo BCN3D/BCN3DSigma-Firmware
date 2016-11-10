@@ -938,19 +938,19 @@ void check_termistors_connections()
 		static bool message_showedbed = false;
 		if(!message_showed){
 			
-			if(tHotend < 5 || tHotend > 340){
+			if(tHotend < 5 || tHotend > HEATER_0_MAXTEMP + 15){
 				times_failuret0++;
 				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_81);
 				}else{
 				if(times_failureb > 0)times_failuret0--;
 			}
-			if(tHotend1 < 5 || tHotend1 > 340){
+			if(tHotend1 < 5 || tHotend1 > HEATER_1_MAXTEMP + 15){
 				times_failuret1++;
 				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_82);
 				}else{
 				if(times_failureb > 0)times_failuret1--;
 			}
-			if(tBed < 5 || tBed > 340){
+			if(tBed < 5 || tBed > BED_MAXTEMP + 15){
 				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_83);
 				times_failureb++;
 				}else{

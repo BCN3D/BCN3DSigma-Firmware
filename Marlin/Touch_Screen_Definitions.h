@@ -44,7 +44,7 @@
 	#define BUTTON_SD_SELECTED3				56
 	#define BUTTON_SD_SELECTED4				86
 	#define BUTTON_SD_SELECTED5				847
-	#define BUTTON_SD_LEFTx3				37
+	#define BUTTON_SD_LEFT					37
 	#define BUTTON_SD_RIGHT					5
 	#define BUTTON_FOLDER_BACK				55
 	#define USERIMAGE_FOLDER_FILE           1

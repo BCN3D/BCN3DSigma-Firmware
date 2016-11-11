@@ -41,6 +41,7 @@ http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
 #include "temperature.h"
 #include "motion_control.h"
 #include "cardreader.h"
+#include "SD_ListFiles.h"
 #include "watchdog.h"
 #include "ConfigurationStore.h"
 #include "language.h"
@@ -345,6 +346,8 @@ bool axis_known_position[3] = {false, false, false};
 float zprobe_zoffset;
 
 //bools to control which kind of process are actually running
+
+/////// Processing Gifs			/////////
 bool processing = false;
 uint8_t processing_z_set = 255;
 bool processing_success = false;
@@ -362,6 +365,9 @@ bool processing_error = false;
 bool printing_error_temps = false;
 bool processing_bed_first = false;
 bool processing_test = false;
+
+//////// end Processing Gifs   //////////
+
 void thermal_error_screen_on();
 bool flag_error_utilities = false;
 bool heatting = false;
@@ -2055,9 +2061,9 @@ void update_screen_sdcard(){
 		FLAG_ListFilesDownfunc();
 		FLAG_ListFilesUp = false;
 	}
-	if(FLAG_ListFilesDownx3){
+	if(FLAG_ListFilesDown){
 		FLAG_ListFilesUpfunc();
-		FLAG_ListFilesDownx3 = false;
+		FLAG_ListFilesDown = false;
 	}
 	if(FLAG_ListFilesInit){
 		ListFileListINITSD();

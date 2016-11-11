@@ -4,7 +4,7 @@
 * Created: 12/12/2014 12:48:04
 * Author: Jordi Calduch (Dryrain)
 */
-#include "SD_ListFiles.h"
+
 #ifdef SIGMA_TOUCH_SCREEN
 
 #ifndef LCD_HANDLER_H_
@@ -17,7 +17,7 @@
 #include "Configuration.h"
 #include "stepper.h"
 #include "temperature.h"
-
+#include "SD_ListFiles.h"
 
 //#include "ultralcd.h"
 void setfilenames(int jint);
@@ -43,7 +43,6 @@ bool FLAG_CalibBedDone = false;
 bool FLAG_FilesUpDown = true;
 bool FLAG_ListFilesDown = false;
 bool FLAG_ListFilesUp = false;
-bool FLAG_ListFilesDownx3 = false;
 bool FLAG_ListFilesInit = false;
 bool FLAG_ListFileEnterBackFolder = false;
 bool FLAG_ZAdjust50Up = false;
@@ -1513,7 +1512,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				
-				else if (Event.reportObject.index == BUTTON_SD_RIGHT || Event.reportObject.index == BUTTON_SD_LEFTx3 )
+				else if (Event.reportObject.index == BUTTON_SD_RIGHT || Event.reportObject.index == BUTTON_SD_LEFT )
 				{
 					
 					/*if (Event.reportObject.index == BUTTON_SD_LEFT) //LEFT button pressed
@@ -1524,9 +1523,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						FLAG_ListFilesUp = true;
 					}
-					else if (Event.reportObject.index == BUTTON_SD_LEFTx3) //LEFT button pressed
+					else if (Event.reportObject.index == BUTTON_SD_LEFT) //LEFT button pressed
 					{
-						FLAG_ListFilesDownx3 = true;
+						FLAG_ListFilesDown = true;
 					}
 					
 					

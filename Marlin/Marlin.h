@@ -345,6 +345,9 @@ extern void right_test_print_code();
 extern void left_test_print_code();
 extern bool heatting;
 extern char namefilegcode[24];
+
+////// Temperatures of current material for two extruders //////
+
 extern int insert_temp_l;
 extern int remove_temp_l;
 extern int print_temp_l;
@@ -361,6 +364,11 @@ extern int old_insert_temp_r;
 extern int old_remove_temp_r;
 extern int old_print_temp_r;
 extern int old_bed_temp_r;
+
+////// end Temperatures of current material for two extruders //////
+
+/////// Print Recovery	/////////
+
 extern float saved_x_position;
 extern float saved_y_position;
 extern float saved_z_position;
@@ -377,6 +385,9 @@ extern int workDir_vector[MAX_DIR_DEPTH];
 extern uint8_t workDir_vector_lenght;
 extern int saved_workDir_vector[MAX_DIR_DEPTH];
 extern uint8_t saved_workDir_vector_lenght;
+
+/////// end Print Recovery	/////////
+
 extern void PID_autotune_Save(float temp, int extruder, int ncycles);
 extern void Config_Reset_Calib();
 extern void Config_StoreSettings();

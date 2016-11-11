@@ -253,6 +253,9 @@ int UI_SerialID2 = 0;
 #ifndef SIGMA_TOUCH_SCREEN	
 	void SD_firstPrint();
 #endif
+
+/////// Print Recovery	/////////
+
 #ifdef RECOVERY_PRINT
 
 	float saved_x_position;
@@ -270,12 +273,15 @@ int UI_SerialID2 = 0;
 	uint8_t saved_workDir_vector_lenght=0;
 	bool saved_print_flag=false;	
 #endif
-
 int workDir_vector[MAX_DIR_DEPTH];
 uint8_t workDir_vector_lenght=0;
 
+/////// end Print Recovery	/////////
+
+
+////// Temperatures of current material for two extruders //////
 #pragma region temperatures
-//////Temperatures of current material for two extruders.//////
+
 	int insert_temp_l;
 	int remove_temp_l;
 	int print_temp_l;
@@ -297,8 +303,11 @@ uint8_t workDir_vector_lenght=0;
 	int preheat_E0_value;
 	int preheat_E1_value;
 	int preheat_B_value;
-///////////////////////////////////////////////////////////////////////
+
 #pragma endregion temperatures
+
+////// end Temperatures of current material for two extruders //////
+
 bool screen_change_nozz1up = false;
 bool screen_change_nozz2up = false;
 bool screen_change_bedup = false;

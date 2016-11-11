@@ -5094,12 +5094,18 @@ unsigned long codenum;
 }
 inline void gcode_M17(){
 	LCD_MESSAGEPGM(MSG_NO_MOVE);
+	/*
 	enable_x();
-	enable_y();
+	enable_y();*/
 	enable_z();
+	
 	enable_e0();
 	enable_e1();
-	enable_e2();	
+	enable_e2();
+	
+	disable_x();
+	disable_y();	
+	delay(500);
 }
 inline void gcode_M20(){
 	#ifdef SDSUPPORT

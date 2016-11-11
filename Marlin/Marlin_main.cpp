@@ -1004,7 +1004,7 @@ void thermal_error_screen_on(){
 	processing_test = false;
 	is_changing_filament = false;
 }
-inline void FLAG_ListFilesUpfunc(){
+inline void ListFilesUpfunc(){
 	
 	
 	int vecto = 0;
@@ -1092,7 +1092,7 @@ inline void FLAG_ListFilesUpfunc(){
 	
 	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
 }
-inline void FLAG_ListFilesDownfunc(){
+inline void ListFilesDownfunc(){
 	
 	
 	int vecto = 0;
@@ -2058,11 +2058,11 @@ void update_screen_noprinting(){
 void update_screen_sdcard(){
 	
 	if(FLAG_ListFilesUp){
-		FLAG_ListFilesDownfunc();
+		ListFilesDownfunc();
 		FLAG_ListFilesUp = false;
 	}
 	if(FLAG_ListFilesDown){
-		FLAG_ListFilesUpfunc();
+		ListFilesUpfunc();
 		FLAG_ListFilesDown = false;
 	}
 	if(FLAG_ListFilesInit){

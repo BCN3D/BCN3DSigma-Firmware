@@ -406,6 +406,7 @@ extern int log_hours_lastprint;
 extern int log_prints_finished;
 extern int log_max_temp_l;
 extern int log_max_temp_r;
+extern int log_max_bed;
 extern int long long log_X0_mmdone;
 extern int long long log_X1_mmdone;
 extern int long long log_Y_mmdone;

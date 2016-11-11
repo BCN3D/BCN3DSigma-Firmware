@@ -22,6 +22,10 @@
 //#include "ultralcd.h"
 void setfilenames(int jint);
 inline void insertmetod();
+void ListFilesUpfunc();
+void ListFilesDownfunc();
+void ListFileListINITSD();
+void ListFileListENTERBACKFORLDERSD();
 void setfoldernames(int jint);
 void folder_navigation_register(bool upchdir);
 void myGenieEventHandler();
@@ -1515,10 +1519,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_SD_RIGHT || Event.reportObject.index == BUTTON_SD_LEFT )
 				{
 					
-					/*if (Event.reportObject.index == BUTTON_SD_LEFT) //LEFT button pressed
-					{
-						FLAG_ListFilesDown = true;
-					}*/
+					
 					 if (Event.reportObject.index == BUTTON_SD_RIGHT) //RIGHT button pressed
 					{
 						FLAG_ListFilesUp = true;
@@ -4830,6 +4831,346 @@ inline void setfilenames(int jint){
 		//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 	}
 	Serial.println(buffer);
+	
+	
+}
+inline void ListFilesUpfunc(){
+	
+	
+	int vecto = 0;
+	int jint = 0;
+	char Workdir[20];
+	
+	if (card.cardOK){
+		uint16_t fileCnt = card.getnrfilenames();
+		//Declare filepointer
+		card.getWorkDirName();
+		
+		if(fileCnt > SDFILES_LIST_NUM){
+			if (filepointer == ((fileCnt-1)/SDFILES_LIST_NUM)*SDFILES_LIST_NUM )
+			{
+				filepointer=0; //First SD file
+			}
+			else
+			{
+				filepointer+=SDFILES_LIST_NUM;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/(((fileCnt-1)/SDFILES_LIST_NUM)*SDFILES_LIST_NUM));
+			
+			
+			
+			
+			while(jint < SDFILES_LIST_NUM){
+				
+				if(fileCnt > filepointer +  jint){
+					
+					
+					vecto = filepointer + jint;
+					
+					
+					
+					card.getfilename(vecto);
+					Serial.println(card.longFilename);
+					if (card.filenameIsDir)
+					{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],1);
+						setfoldernames(jint);
+						
+						if(card.chdir(card.filename)!= -1){
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf_P(Workdir, PSTR("%d items"),NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+						}
+						else{
+							genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+						}
+					}
+					else{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
+						listsd.get_lineduration();
+						if(listsd.get_minutes() == -1){
+							sprintf_P(listsd.comandline2, PSTR(""));
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
+						//Serial.println(listsd.comandline);
+						setfilenames(jint);
+						
+					}
+					
+				}
+				else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
+					genie.WriteStr(stringfilename[jint],PSTR("        "));//Printing form
+					genie.WriteStr(stringfiledur[jint],PSTR("           "));//Printing form
+					
+				}
+				jint++;
+			}
+			
+		}
+		
+		
+	}
+	
+	
+	FLAG_FilesUpDown= true;
+	
+	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
+}
+inline void ListFilesDownfunc(){
+	
+	
+	int vecto = 0;
+	int jint = 0;
+	char Workdir[20];
+	
+	if (card.cardOK){
+		uint16_t fileCnt = card.getnrfilenames();
+		//Declare filepointer
+		card.getWorkDirName();
+		
+		if(fileCnt > SDFILES_LIST_NUM){
+			if (filepointer == 0)
+			{
+				filepointer=((fileCnt-1)/SDFILES_LIST_NUM)*SDFILES_LIST_NUM;
+			}
+			else{
+				filepointer-=SDFILES_LIST_NUM;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/(((fileCnt-1)/SDFILES_LIST_NUM)*SDFILES_LIST_NUM));
+			
+			
+			
+			
+			while(jint < SDFILES_LIST_NUM){
+				
+				if(fileCnt > filepointer +  jint){
+					
+					
+					vecto = filepointer + jint;
+					
+					
+					
+					card.getfilename(vecto);
+					Serial.println(card.longFilename);
+					if (card.filenameIsDir)
+					{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],1);
+						setfoldernames(jint);
+						
+						if(card.chdir(card.filename)!= -1){
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf_P(Workdir, PSTR("%d items"),NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+						}
+						else{
+							genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+						}
+					}
+					else{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
+						listsd.get_lineduration();
+						if(listsd.get_minutes() == -1){
+							sprintf_P(listsd.comandline2, PSTR(""));
+						}
+						else{
+							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
+						//Serial.println(listsd.comandline);
+						setfilenames(jint);
+						
+					}
+					
+				}
+				else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
+					genie.WriteStr(stringfilename[jint],PSTR("        "));//Printing form
+					genie.WriteStr(stringfiledur[jint],PSTR("           "));//Printing form
+					
+				}
+				jint++;
+			}
+			
+		}
+		
+	}
+	FLAG_FilesUpDown= true;
+
+	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
+}
+inline void ListFileListINITSD(){
+	genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,0);
+	Serial.println("Form 2!");
+	////Check sdcardFiles
+	filepointer = 0;
+	int vecto = 0;
+	int jint = 0;
+	char Workdir[20];
+	card.initsd();
+	workDir_vector_lenght = 0;
+	if (card.cardOK){
+		
+		uint16_t fileCnt = card.getnrfilenames();
+		//Declare filepointer
+		card.getWorkDirName();
+		
+		while(jint < SDFILES_LIST_NUM){
+			
+			if(jint < fileCnt){
+				
+				
+				vecto = filepointer + jint;
+				card.getfilename(vecto);
+				Serial.println(card.longFilename);
+				if (card.filenameIsDir)
+				{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],1);
+					setfoldernames(jint);
+					
+					if(card.chdir(card.filename)!= -1){
+						uint16_t NUMitems = card.getnrfilenames();
+						card.updir();
+						card.getWorkDirName();
+						memset(Workdir, '\0', sizeof(Workdir));
+						sprintf_P(Workdir, PSTR("%d items"),NUMitems);
+						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+					}
+					else{
+						genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+					}
+				}
+				else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
+					listsd.get_lineduration();
+					if(listsd.get_minutes() == -1){
+						sprintf_P(listsd.comandline2, PSTR(""));
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
+					//Serial.println(listsd.comandline);
+					setfilenames(jint);
+					
+				}
+				
+			}
+			else{
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
+				genie.WriteStr(stringfilename[jint],PSTR("        "));//Printing form
+				genie.WriteStr(stringfiledur[jint],PSTR("           "));//Printing form
+				
+			}
+			jint++;
+		}
+		
+		
+	}
+	else{
+		#ifndef ErroWindowEnable
+		genie.WriteObject(GENIE_OBJ_FORM, FORM_INSERT_SD_CARD, 0);
+		screen_sdcard = true;
+		#else
+		genie.WriteObject(GENIE_OBJ_FORM, FORM_ERROR_SCREEN, 0);
+		genie.WriteStr(STRING_ERROR_MESSAGE,"ERROR: INSERT SDCARD");//Printing form
+		processing_error =  true;
+		screen_sdcard = true;
+		#endif
+	}
+	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
+
+}
+inline void ListFileListENTERBACKFORLDERSD(){
+	genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,0);
+	filepointer = 0;
+	int vecto = 0;
+	int jint = 0;
+	char Workdir[20];
+	uint16_t fileCnt = card.getnrfilenames();
+	//Declare filepointer
+	card.getWorkDirName();
+	//Text index starts at 0
+	//for(jint = 0; jint < 4; jint++){//
+	//genie.WriteStr(STRING_FOLDER_NAME,card.getWorkDirName());//Printing form
+	
+	
+	if (card.cardOK){
+		
+		uint16_t fileCnt = card.getnrfilenames();
+		//Declare filepointer
+		card.getWorkDirName();
+		
+		while(jint < SDFILES_LIST_NUM){
+			
+			if(jint < fileCnt){
+				
+				
+				vecto = filepointer + jint;
+				card.getfilename(vecto);
+				Serial.println(card.longFilename);
+				if (card.filenameIsDir)
+				{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],1);
+					setfoldernames(jint);
+					
+					if(card.chdir(card.filename)!= -1){
+						uint16_t NUMitems = card.getnrfilenames();
+						card.updir();
+						card.getWorkDirName();
+						memset(Workdir, '\0', sizeof(Workdir));
+						sprintf_P(Workdir, PSTR("%d items"),NUMitems);
+						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+					}
+					else{
+						genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+					}
+				}
+				else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
+					listsd.get_lineduration();
+					if(listsd.get_minutes() == -1){
+						sprintf_P(listsd.comandline2, PSTR(""));
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
+					//Serial.println(listsd.comandline);
+					setfilenames(jint);
+					
+				}
+				
+			}
+			else{
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
+				genie.WriteStr(stringfilename[jint],PSTR("        "));//Printing form
+				genie.WriteStr(stringfiledur[jint],PSTR("           "));//Printing form
+				
+			}
+			jint++;
+		}
+		
+		
+	}
+	else{
+		#ifndef ErroWindowEnable
+		genie.WriteObject(GENIE_OBJ_FORM, FORM_INSERT_SD_CARD, 0);
+		screen_sdcard = true;
+		#else
+		genie.WriteObject(GENIE_OBJ_FORM, FORM_ERROR_SCREEN, 0);
+		genie.WriteStr(STRING_ERROR_MESSAGE,"ERROR: INSERT SDCARD");//Printing form
+		processing_error =  true;
+		screen_sdcard = true;
+		#endif
+	}
+	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
+	
 	
 	
 }

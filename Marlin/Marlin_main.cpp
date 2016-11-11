@@ -347,7 +347,8 @@ float zprobe_zoffset;
 
 //bools to control which kind of process are actually running
 
-/////// Processing Gifs			/////////
+/////// Processing Gifs	/////////
+
 bool processing = false;
 uint8_t processing_z_set = 255;
 bool processing_success = false;
@@ -362,22 +363,21 @@ bool processing_bed = false;
 bool processing_calib_ZL = false;
 bool processing_calib_ZR = false;
 bool processing_error = false;
-bool printing_error_temps = false;
 bool processing_bed_first = false;
 bool processing_test = false;
 
 //////// end Processing Gifs   //////////
-
+bool printing_error_temps = false;
 void thermal_error_screen_on();
 bool flag_error_utilities = false;
 bool heatting = false;
 bool back_home = false;
 char namefilegcode[24];
-int dateresetday;
-int dateresetmonth;
-int dateresetyear;
 int bed_calibration_times = 0; //To control the number of bed calibration to available the skip option
-int  purge_extruder_selected = -1;
+int purge_extruder_selected = -1;
+
+//////// PRINT STATS ////////
+
 int log_prints;
 int log_hours_print;
 long log_min_print = 0;
@@ -392,6 +392,8 @@ int long long log_X1_mmdone;
 int long long log_Y_mmdone;
 int long long log_E0_mmdone;
 int long long log_E1_mmdone;
+
+//////// end PRINT STATS ////////
 
 // Extruder offset
 #if EXTRUDERS > 1

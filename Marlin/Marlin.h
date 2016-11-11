@@ -314,6 +314,9 @@ extern int purge_extruder_selected;
 //extern void updateLanguage();
 extern float x_home_pos(int extruder);
 extern int bed_calibration_times;
+
+/////// Processing Gifs	/////////
+
 extern bool processing;
 extern uint8_t processing_z_set;
 extern bool processing_success;
@@ -331,6 +334,9 @@ extern bool printing_error_temps;
 extern bool processing_error;
 extern bool processing_bed_first;
 extern bool processing_test;
+
+/////// end Processing Gifs	/////////
+
 extern bool back_home;
 extern bool cancel_heatup;
 //extern int quick_guide_step;
@@ -378,6 +384,9 @@ extern bool dobloking;
 extern int preheat_E0_value;
 extern int preheat_E1_value;
 extern int preheat_B_value;
+
+//////// PRINT STATS ////////
+
 extern int log_prints;
 extern int log_hours_print;
 extern long log_min_print;
@@ -391,10 +400,9 @@ extern int long long log_X1_mmdone;
 extern int long long log_Y_mmdone;
 extern int long long log_E0_mmdone;
 extern int long long log_E1_mmdone;
-extern int log_max_bed;
-extern int dateresetday;
-extern int dateresetmonth;
-extern int dateresetyear;
+
+//////// end PRINT STATS ////////
+
 extern char screen_printing_pause_form;
 extern bool screen_change_nozz1up;
 extern bool screen_change_nozz2up;

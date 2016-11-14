@@ -1479,7 +1479,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if(card.cardOK)
 					{
 						Serial.println(card.getFileSize());
-						dobloking = true;
+						//dobloking = true;
 						setTargetBed(0);
 						setTargetHotend0(0);
 						setTargetHotend1(0);

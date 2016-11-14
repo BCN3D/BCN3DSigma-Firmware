@@ -2973,14 +2973,15 @@ inline void gcode_G11(){
 	#endif //FWRETRACT
 }
 inline void gcode_G28(){
+
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 	#endif //ENABLE_AUTO_BED_LEVELING
 
 	#ifdef Z_SIGMA_HOME
 	int saved_active_extruder = active_extruder;
-	Serial.print("Extruder active: ");
-	Serial.println(saved_active_extruder);
+	SERIAL_PROTOCOLPGM("Extruder active: ");
+	SERIAL_PROTOCOLLN(saved_active_extruder);
 	#endif
 	
 	saved_feedrate = feedrate;
@@ -3482,6 +3483,7 @@ if(processing_error)return;
 	changeTool(0);
 	//Go to Calibration select screen
 	processing_test = false;
+	dobloking = false;	
 	if(processing_error)return;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_X_CALIB_SELECT,0);
 
@@ -3698,11 +3700,12 @@ if(processing_error)return;
 	if(processing_error)return;
 	changeTool(0);
 					
-		processing_test = false;			
+		processing_test = false;	
+		dobloking = false;		
 	//Go to Calibration select screen
 	if(processing_error)return;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_Y_CALIB_SELECT,0);
-					
+				
 					
 					
 #endif //EXTRUDER_CALIBRATION_WIZARD
@@ -4679,7 +4682,7 @@ inline void gcode_G69(){
 					st_synchronize();
 					//*********************************//
 					FLAG_PausePause = false;
-					
+					dobloking = true;
 					processing = false;
 					/*genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
@@ -4696,6 +4699,7 @@ inline void gcode_G70(){
 					
 					//Serial.println(current_position[Z_AXIS]);
 					//*********************************//
+					dobloking = true;
 					active_extruder = saved_active_extruder;
 					
 					#if PAUSE_G70_SETUP == 0
@@ -5096,16 +5100,15 @@ inline void gcode_M17(){
 	LCD_MESSAGEPGM(MSG_NO_MOVE);
 	/*
 	enable_x();
-	enable_y();*/
+	enable_y();
 	enable_z();
 	
 	enable_e0();
 	enable_e1();
 	enable_e2();
-	
-	disable_x();
-	disable_y();	
-	delay(500);
+	*/
+	if(dobloking)dobloking = false;
+	else dobloking = true;
 }
 inline void gcode_M20(){
 	#ifdef SDSUPPORT

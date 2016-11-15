@@ -3741,9 +3741,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//delay(6000);
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 						processing_test = true;
-						home_axis_from_code(true,true,true);
+						home_axis_from_code(false,true,true);
 						if(processing_error)return;
 						left_test_print_code();
+						enquecommand_P(PSTR("M84"));
 						if(processing_error)return;
 					}
 					
@@ -3797,9 +3798,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_adjusting = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 						processing_test = true;
-						home_axis_from_code(true,true,true);
+						home_axis_from_code(false,true,true);
 						if(processing_error)return;
 						right_test_print_code();
+						enquecommand_P(PSTR("M84"));
 						if(processing_error)return;
 						
 					}
@@ -3866,6 +3868,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								home_axis_from_code(true,true,true);
 								if(processing_error)return;
 								left_test_print_code();
+								enquecommand_P(PSTR("M84"));
 								if(processing_error)return;
 							}
 							else{
@@ -3874,6 +3877,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								home_axis_from_code(true,true,true);
 								if(processing_error)return;
 								right_test_print_code();
+								enquecommand_P(PSTR("M84"));
 								if(processing_error)return;
 								
 							}
@@ -3883,14 +3887,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							processing_test = true;
 							current_position[Z_AXIS] = 0.2;
 							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-							enquecommand_P((PSTR("G40")));
+							enquecommand_P(PSTR("G40"));
+							enquecommand_P(PSTR("M84"));
 						}
 						else if(redo_source == 2){ //redo y test print
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 							processing_test = true;
 							current_position[Z_AXIS] = 0.3;
 							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-							enquecommand_P((PSTR("G41")));
+							enquecommand_P(PSTR("G41"));
+							enquecommand_P(PSTR("M84"));
 						}
 						else if(redo_source == 3){	//recalibrate
 							if (active_extruder == 0){
@@ -4217,11 +4223,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 						processing_adjusting =  true;
 						dobloking=true;
-						home_axis_from_code(true,false,false);
+						home_axis_from_code(true,true,false);
 						if(processing_error)return;
 						changeTool(0);
 						st_synchronize();
 						enquecommand_P(PSTR("G40"));
+						enquecommand_P(PSTR("M84"));
 						if(processing_error)return;
 						
 					}
@@ -4233,9 +4240,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_adjusting =  true;
 						
 						dobloking=true;
-						home_axis_from_code(true,false,false);
+						home_axis_from_code(true,true,false);
 						changeTool(0);
 						enquecommand_P(PSTR("G41"));
+						enquecommand_P(PSTR("M84"));
 						st_synchronize();
 						if(processing_error)return;
 						

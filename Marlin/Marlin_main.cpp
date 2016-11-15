@@ -5098,7 +5098,6 @@ unsigned long codenum;
 }
 inline void gcode_M17(){
 	LCD_MESSAGEPGM(MSG_NO_MOVE);
-	/*
 	enable_x();
 	enable_y();
 	enable_z();
@@ -5106,9 +5105,6 @@ inline void gcode_M17(){
 	enable_e0();
 	enable_e1();
 	enable_e2();
-	*/
-	if(dobloking)dobloking = false;
-	else dobloking = true;
 }
 inline void gcode_M20(){
 	#ifdef SDSUPPORT
@@ -8625,8 +8621,10 @@ void manage_inactivity()
 		{
 			
 			if(blocks_queued() == false) {
-				disable_x();
-				disable_y();
+				if(!dobloking){
+					disable_x();
+					disable_y();
+				}
 				disable_z();
 				disable_e0();
 				disable_e1();
@@ -8943,7 +8941,7 @@ void left_test_print_code(){
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 	st_synchronize();
 	if(processing_error)return;
-	
+	dobloking = false;
 	//SELECT LINES SCREEN
 	processing_test = false;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_Z_TEST,0);
@@ -9048,6 +9046,7 @@ void right_test_print_code(){
 	st_synchronize();
 	if(processing_error)return;
 	//SELECT LINES SCREEN
+	dobloking = false;
 	processing_test = false;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_Z_TEST,0);
 }

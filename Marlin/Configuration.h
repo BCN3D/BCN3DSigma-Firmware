@@ -1124,52 +1124,73 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
 
 
-#define LISTNUMSDFILES 5
-#define PURGE_TEMP_HYSTERESIS 10
-#define CHANGE_FIL_TEMP_HYSTERESIS 10
-#define NYLON_TEMP_HYSTERESIS 5
-#define SETUP_G70 0
+/////////////////////////////////BCN3D SIGMA  CONFIG////////////////////////////////////////////////////////////////////
 
-#define G69_RETRACK 4
-#define G69_XYMOVE 5
-#define G70_PURGE 10
+//////	SDFILES LISTING
 
-#define NYLON_TEMP_HEATUP_THRESHOLD 260
-#define NYLON_TEMP_COOLDOWN_THRESHOLD 60
+#define SDFILES_LIST_NUM				 5
+#define SDFILES_LIST_GCODE_LENGHT		 20		//String GcodePrinting
 
+//////	PURGE
+
+#define PURGE_TEMP_HYSTERESIS		 10			//(mm)
+#define PURGE_DISTANCE_INSERTED		 30			//(mm)
+
+//////	CHANGE FILAMENT
+
+#define CHANGE_FIL_TEMP_HYSTERESIS		 10				//(ºC)
+
+//////	NYLON CLEANING
+
+#define NYLON_TEMP_HYSTERESIS				 5			//(ºC)
+#define NYLON_TEMP_HEATUP_THRESHOLD			 260		//(ºC)
+#define NYLON_TEMP_COOLDOWN_THRESHOLD		 60			//(ºC)
+
+//////	PAUSE PRINT
+
+#define PAUSE_G70_SETUP			 0				//(mm)
+#define PAUSE_G69_RETRACK		 4				//(mm)
+#define PAUSE_G69_XYMOVE		 5				//(mm)
+#define PAUSE_G70_PURGE			 10				//(mm)
+
+//////	THERMISTOR LECTURE PROTECTION 
 
 #define	THERMAL_LECTURE_FAILURE
 
-//String GcodePrinting
-
-#define StringGcodeLength 20
-
-///////GIFs
-#define FramerateGifs   40   /// 40ms------> 25fps
-
-#define PURGE_DISTANCE_INSERTED 30// in mm
-
-#define FramesGifSuccess   40
-#define FramesGifNylonStep3   22
-#define FramesGifPurgeLoad   35    
-#define FramesBedScrew   43     
-#define FramesZCalib   49
-#define FramesZSet   49
-#define FramesTest   36
-#define FramesProcessing   15
-#define FramesChangefilamentTemps   43
-#define FramesAdjustingTemps   44
-#define FramesNylonTemps   43
-#define FramesError   44
-#define FramesPreheat   41
-
-//#define SCREENTEST
+//////	INACTIVITY SHUTDOWN HEATING
 
 #define TIMERCOOLDOWN 10*60 // 10min
 
-//#define ErroWindowEnable
+////// PRINTING RECOVERY
 
-//#define RECOVERY_PRINT
+#define RECOVERY_PRINT
+
+///////	GIFs SETUP 
+
+//	FRAME RATE
+
+#define GIF_FRAMERATE				40   /// 40ms------> 25fps
+
+//NUMBER OF FRAMES PER GIF
+
+#define GIF_FRAMES_SUCCESS				40
+#define GIF_FRAMES_NYLONSTEP3			22
+#define GIF_FRAMES_PURGELOAD			35    
+#define GIF_FRAMES_BEDSCREW				43     
+#define GIF_FRAMES_ZCALIB				49
+#define GIF_FRAMES_ZSET					49
+#define GIF_FRAMES_CALIBTEST			36
+#define GIF_FRAMES_PROCESSING			15
+#define GIF_FRAMES_CHANGEFILAMENTTEMP   43
+#define GIF_FRAMES_ADJUSTINGTEMPS		44
+#define GIF_FRAMES_NYLONTEMPS			43
+#define GIF_FRAMES_ERROR				44
+#define GIF_FRAMES_PREHEAT				41
+
+
+//#define SCREENTEST
+
+//#define ErroWindowEnable
 
 
 #include "Configuration_adv.h"

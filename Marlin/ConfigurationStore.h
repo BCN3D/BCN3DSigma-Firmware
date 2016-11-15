@@ -10,7 +10,7 @@ void Config_PrintSettings();
 #else
 FORCE_INLINE void Config_PrintSettings() {}
 #endif
-
+void Config_PrintSAVESettings();
 #ifdef EEPROM_SETTINGS
 void Config_StoreSettings();
 void Config_RetrieveSettings();

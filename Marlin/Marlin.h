@@ -20,6 +20,7 @@
 
 #include "fastio.h"
 #include "Configuration.h"
+#include "cardreader.h"
 #include "pins.h"
 
 #include "genieArduino.h"
@@ -313,6 +314,9 @@ extern int purge_extruder_selected;
 //extern void updateLanguage();
 extern float x_home_pos(int extruder);
 extern int bed_calibration_times;
+
+/////// Processing Gifs	/////////
+
 extern bool processing;
 extern uint8_t processing_z_set;
 extern bool processing_success;
@@ -330,6 +334,9 @@ extern bool printing_error_temps;
 extern bool processing_error;
 extern bool processing_bed_first;
 extern bool processing_test;
+
+/////// end Processing Gifs	/////////
+
 extern bool back_home;
 extern bool cancel_heatup;
 //extern int quick_guide_step;
@@ -338,6 +345,9 @@ extern void right_test_print_code();
 extern void left_test_print_code();
 extern bool heatting;
 extern char namefilegcode[24];
+
+////// Temperatures of current material for two extruders //////
+
 extern int insert_temp_l;
 extern int remove_temp_l;
 extern int print_temp_l;
@@ -354,16 +364,30 @@ extern int old_insert_temp_r;
 extern int old_remove_temp_r;
 extern int old_print_temp_r;
 extern int old_bed_temp_r;
-extern int saved_filepointer;
-extern int saved_x_position;
-extern int saved_y_position;
-extern int saved_z_position;
+
+////// end Temperatures of current material for two extruders //////
+
+/////// Print Recovery	/////////
+
+extern float saved_x_position;
+extern float saved_y_position;
+extern float saved_z_position;
 extern int saved_tool_active;
-extern int saved_e_position;
+extern float saved_e_position;
 extern long saved_fileposition;
 extern int saved_temp1;
 extern int saved_temp0;
 extern int saved_tempbed;
+extern int saved_feedspeed;
+extern int saved_fanlayer;
+extern bool saved_print_flag;	
+extern int workDir_vector[MAX_DIR_DEPTH];
+extern uint8_t workDir_vector_lenght;
+extern int saved_workDir_vector[MAX_DIR_DEPTH];
+extern uint8_t saved_workDir_vector_lenght;
+
+/////// end Print Recovery	/////////
+
 extern void PID_autotune_Save(float temp, int extruder, int ncycles);
 extern void Config_Reset_Calib();
 extern void Config_StoreSettings();
@@ -371,6 +395,9 @@ extern bool dobloking;
 extern int preheat_E0_value;
 extern int preheat_E1_value;
 extern int preheat_B_value;
+
+//////// PRINT STATS ////////
+
 extern int log_prints;
 extern int log_hours_print;
 extern long log_min_print;
@@ -379,15 +406,15 @@ extern int log_hours_lastprint;
 extern int log_prints_finished;
 extern int log_max_temp_l;
 extern int log_max_temp_r;
+extern int log_max_bed;
 extern int long long log_X0_mmdone;
 extern int long long log_X1_mmdone;
 extern int long long log_Y_mmdone;
 extern int long long log_E0_mmdone;
 extern int long long log_E1_mmdone;
-extern int log_max_bed;
-extern int dateresetday;
-extern int dateresetmonth;
-extern int dateresetyear;
+
+//////// end PRINT STATS ////////
+
 extern char screen_printing_pause_form;
 extern bool screen_change_nozz1up;
 extern bool screen_change_nozz2up;

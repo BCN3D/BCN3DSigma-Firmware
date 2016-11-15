@@ -41,6 +41,7 @@ http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
 #include "temperature.h"
 #include "motion_control.h"
 #include "cardreader.h"
+#include "SD_ListFiles.h"
 #include "watchdog.h"
 #include "ConfigurationStore.h"
 #include "language.h"
@@ -252,25 +253,35 @@ int UI_SerialID2 = 0;
 #ifndef SIGMA_TOUCH_SCREEN	
 	void SD_firstPrint();
 #endif
+
+/////// Print Recovery	/////////
+
 #ifdef RECOVERY_PRINT
 
-	int saved_filepointer;
-	int saved_x_position;
-	int saved_y_position;
-	int saved_z_position;
+	float saved_x_position;
+	float saved_y_position;
+	float saved_z_position;
 	int saved_tool_active;
-	int saved_e_position;
+	float saved_e_position;
 	long saved_fileposition;
 	int saved_temp1;
 	int saved_temp0;
 	int saved_tempbed;
-
+	int saved_feedspeed;
+	int saved_fanlayer;	
+	int saved_workDir_vector[MAX_DIR_DEPTH];
+	uint8_t saved_workDir_vector_lenght=0;
+	bool saved_print_flag=false;	
 #endif
-//bool quick_guide = false;
-//int quick_guide_step = 0;
+int workDir_vector[MAX_DIR_DEPTH];
+uint8_t workDir_vector_lenght=0;
 
+/////// end Print Recovery	/////////
+
+
+////// Temperatures of current material for two extruders //////
 #pragma region temperatures
-//////Temperatures of current material for two extruders.//////
+
 	int insert_temp_l;
 	int remove_temp_l;
 	int print_temp_l;
@@ -292,8 +303,11 @@ int UI_SerialID2 = 0;
 	int preheat_E0_value;
 	int preheat_E1_value;
 	int preheat_B_value;
-///////////////////////////////////////////////////////////////////////
+
 #pragma endregion temperatures
+
+////// end Temperatures of current material for two extruders //////
+
 bool screen_change_nozz1up = false;
 bool screen_change_nozz2up = false;
 bool screen_change_bedup = false;
@@ -341,6 +355,9 @@ bool axis_known_position[3] = {false, false, false};
 float zprobe_zoffset;
 
 //bools to control which kind of process are actually running
+
+/////// Processing Gifs	/////////
+
 bool processing = false;
 uint8_t processing_z_set = 255;
 bool processing_success = false;
@@ -355,19 +372,21 @@ bool processing_bed = false;
 bool processing_calib_ZL = false;
 bool processing_calib_ZR = false;
 bool processing_error = false;
-bool printing_error_temps = false;
 bool processing_bed_first = false;
 bool processing_test = false;
+
+//////// end Processing Gifs   //////////
+bool printing_error_temps = false;
 void thermal_error_screen_on();
 bool flag_error_utilities = false;
 bool heatting = false;
 bool back_home = false;
 char namefilegcode[24];
-int dateresetday;
-int dateresetmonth;
-int dateresetyear;
 int bed_calibration_times = 0; //To control the number of bed calibration to available the skip option
-int  purge_extruder_selected = -1;
+int purge_extruder_selected = -1;
+
+//////// PRINT STATS ////////
+
 int log_prints;
 int log_hours_print;
 long log_min_print = 0;
@@ -382,6 +401,8 @@ int long long log_X1_mmdone;
 int long long log_Y_mmdone;
 int long long log_E0_mmdone;
 int long long log_E1_mmdone;
+
+//////// end PRINT STATS ////////
 
 // Extruder offset
 #if EXTRUDERS > 1
@@ -563,7 +584,6 @@ boolean chdkActive = false;
 int TimerCooldownInactivity(bool restartOrRun);
 void get_arc_coordinates();
 bool setTargetedHotend(int code);
-
 void serial_echopair_P(const char *s_P, float v)
 { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_P(const char *s_P, double v)
@@ -994,1412 +1014,12 @@ void thermal_error_screen_on(){
 	processing_test = false;
 	is_changing_filament = false;
 }
-inline void ListFilesUpfunc(){
-	if (card.cardOK){
-		uint16_t fileCnt = card.getnrfilenames();
-		if(fileCnt > LISTNUMSDFILES){
-			if (filepointer == ((fileCnt-1)/LISTNUMSDFILES)*LISTNUMSDFILES )
-			{
-				filepointer=0; //First SD file
-			}
-			else
-			{
-				filepointer+=LISTNUMSDFILES;
-			}
-			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/(((fileCnt-1)/LISTNUMSDFILES)*LISTNUMSDFILES));
-			
-			
-			int vecto = 0;
-			int jint = 0;
-			char Workdir[20];
-			
-			
-			
-			//Declare filepointer
-			card.getWorkDirName();
-			//Text index starts at 0
-			//for(jint = 0; jint < 4; jint++){//
-			if (fileCnt != 0){
-				
-				
-				
-				vecto = filepointer + jint;
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_SD_SELECTED0,1);
-					
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
-					listsd.get_lineduration();
-					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
-					}
-					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-					}
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-				
-				
-				#if LISTNUMSDFILES > 1
-				
-				jint++;
-				
-				if(fileCnt >filepointer +  1){
-					
-					if(filepointer == (fileCnt - 1)){
-						vecto = 0;
-					}
-					else
-					{
-						vecto = filepointer + jint;
-					}
-					
-					
-					card.getfilename(vecto);
-					Serial.println(card.longFilename);
-					if (card.filenameIsDir)
-					{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,1);
-						setfoldernames(jint);
-						
-						if(card.chdir(card.filename)!= -1){
-							uint16_t NUMitems = card.getnrfilenames();
-							card.updir();
-							card.getWorkDirName();
-							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
-							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-						}
-						else{
-							genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-						}
-						}else{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
-						listsd.get_lineduration();
-						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
-						}
-						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-						}
-						//Serial.println(listsd.comandline);
-						setfilenames(jint);
-						
-					}
-				}
-				else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
-					genie.WriteStr(stringfilename[jint],"        ");//Printing form
-					genie.WriteStr(stringfiledur[jint],"           ");//Printing form
-					
-				}
-				#endif
-				#if LISTNUMSDFILES > 2
-				jint++;
-				
-				if(fileCnt >filepointer +  2){
-					
-					
-					if(filepointer == (fileCnt - 2)){
-						vecto = 0;
-					}
-					else if(filepointer == (fileCnt - 1)){
-						vecto = 1;
-					}
-					else
-					{
-						vecto = filepointer + jint;
-					}
-					
-					
-					card.getfilename(vecto);
-					Serial.println(card.longFilename);
-					if (card.filenameIsDir)
-					{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,1);
-						setfoldernames(jint);
-						
-						if(card.chdir(card.filename)!= -1){
-							uint16_t NUMitems = card.getnrfilenames();
-							card.updir();
-							card.getWorkDirName();
-							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
-							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-						}
-						else{
-							genie.WriteStr(stringfiledur[jint],"           ");//Printing form
-						}
-						}else{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
-						listsd.get_lineduration();
-						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
-						}
-						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-						}
-						//Serial.println(listsd.comandline);
-						setfilenames(jint);
-						
-					}
-					
-				}
-				else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
-					genie.WriteStr(stringfilename[jint],"            ");//Printing form
-					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-					
-				}
-				#endif
-				#if LISTNUMSDFILES > 3
-				jint++;
-				
-				if(fileCnt > filepointer + 3){
-					
-					if(filepointer == (fileCnt - 3)){
-						vecto = 0;
-					}
-					else if(filepointer == (fileCnt - 2)){
-						vecto = 1;
-					}
-					else if(filepointer == (fileCnt - 1)){
-						vecto = 2;
-					}
-					else
-					{
-						vecto = filepointer + jint;
-					}
-					
-					
-					card.getfilename(vecto);
-					Serial.println(card.longFilename);
-					if (card.filenameIsDir)
-					{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,1);
-						setfoldernames(jint);
-						
-						if(card.chdir(card.filename)!= -1){
-							uint16_t NUMitems = card.getnrfilenames();
-							card.updir();
-							card.getWorkDirName();
-							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
-							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-						}
-						else{
-							genie.WriteStr(stringfiledur[jint],"          ");//Printing form
-						}
-						}else{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
-						listsd.get_lineduration();
-						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
-						}
-						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-						}
-						//Serial.println(listsd.comandline);
-						setfilenames(jint);
-						
-					}
-					
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
-					genie.WriteStr(stringfilename[jint],"          ");//Printing form
-					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-				}
-				
-				#endif
-				#if LISTNUMSDFILES > 4
-				jint++;
-				
-				if(fileCnt >filepointer +  4){
-					
-					
-					if(filepointer == (fileCnt - 4)){
-						vecto = 0;
-					}
-					else if(filepointer == (fileCnt - 3)){
-						vecto = 1;
-					}
-					else if(filepointer == (fileCnt - 2)){
-						vecto = 2;
-					}
-					else if(filepointer == (fileCnt - 1)){
-						vecto = 3;
-					}
-					else
-					{
-						vecto = filepointer + jint;
-					}
-					
-					card.getfilename(vecto);
-					Serial.println(card.longFilename);
-					if (card.filenameIsDir)
-					{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,1);
-						setfoldernames(jint);
-						
-						if(card.chdir(card.filename)!= -1){
-							uint16_t NUMitems = card.getnrfilenames();
-							card.updir();
-							card.getWorkDirName();
-							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
-							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-						}
-						else{
-							genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-						}
-						}else{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
-						listsd.get_lineduration();
-						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
-						}
-						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-						}
-						//Serial.println(listsd.comandline);
-						setfilenames(jint);
-						
-					}
-					
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
-					genie.WriteStr(stringfilename[jint],"            ");//Printing form
-					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
-				}
-				#endif
-				#if LISTNUMSDFILES > 5
-				jint++;
-				
-				if(fileCnt > filepointer + 5){
-					if(filepointer == (fileCnt - 5)){
-						vecto = 0;
-					}
-					else if(filepointer == (fileCnt - 4)){
-						vecto = 1;
-					}
-					else if(filepointer == (fileCnt - 3)){
-						vecto = 2;
-					}
-					else if(filepointer == (fileCnt - 2)){
-						vecto = 3;
-					}
-					else if(filepointer == (fileCnt - 1)){
-						vecto = 4;
-					}
-					else
-					{
-						vecto = filepointer + jint;
-					}
-					
-					card.getfilename(vecto);
-					Serial.println(card.longFilename);
-					if (card.filenameIsDir)
-					{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,1);
-						setfoldernames(jint);
-						
-						if(card.chdir(card.filename)!= -1){
-							uint16_t NUMitems = card.getnrfilenames();
-							card.updir();
-							card.getWorkDirName();
-							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
-							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-						}
-						else{
-							genie.WriteStr(stringfiledur[jint],"          ");//Printing form
-						}
-						}else{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
-						listsd.get_lineduration();
-						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
-						}
-						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-						}
-						//Serial.println(listsd.comandline);
-						setfilenames(jint);
-						
-					}
-					
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
-					genie.WriteStr(stringfilename[jint],"                  ");//Printing form
-					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
-				}
-				#endif
-				
-				
-				
-			}
-			
-			
-			
-			
-			
-		}
-		else{
-			/*
-			if (filepointer == card.getnrfilenames()-1)
-			{
-			filepointer=0; //Last SD file
-			}else{
-			filepointer++;
-			}*/
-			
-		}
-		
-		
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	updownsdfilesflag= true;
-	
-	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
-}
-inline void ListFilesDownx3func(){
-	if (card.cardOK){
-		uint16_t fileCnt = card.getnrfilenames();
-		
-		if(fileCnt > LISTNUMSDFILES){
-			if (filepointer == 0)
-			{
-				filepointer=((fileCnt-1)/LISTNUMSDFILES)*LISTNUMSDFILES; 
-			}
-			else{
-				filepointer-=LISTNUMSDFILES;
-			}
-			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/(((fileCnt-1)/LISTNUMSDFILES)*LISTNUMSDFILES));
-			
-			
-			
-			int vecto = 0;
-			int jint = 0;
-			char Workdir[20];
-			
-			
-			
-			//Declare filepointer
-			card.getWorkDirName();
-			//Text index starts at 0
-			//for(jint = 0; jint < 4; jint++){//
-			
-			
-			if (fileCnt != 0){
-				
-				
-				
-				vecto = filepointer + jint;
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_SD_SELECTED0,1);
-					
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
-					listsd.get_lineduration();
-					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
-					}
-					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-					}
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-				
-				
 
-				#if LISTNUMSDFILES > 1
-				jint++;
-				
-				if(fileCnt > filepointer + 1){
-					
-					if(filepointer == (fileCnt - 1)){
-						vecto = 0;
-					}
-					else
-					{
-						vecto = filepointer + jint;
-					}
-					
-					
-					card.getfilename(vecto);
-					Serial.println(card.longFilename);
-					if (card.filenameIsDir)
-					{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,1);
-						setfoldernames(jint);
-						
-						if(card.chdir(card.filename)!= -1){
-							uint16_t NUMitems = card.getnrfilenames();
-							card.updir();
-							card.getWorkDirName();
-							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
-							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-						}
-						else{
-							genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-						}
-						}else{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
-						listsd.get_lineduration();
-						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
-						}
-						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-						}
-						//Serial.println(listsd.comandline);
-						setfilenames(jint);
-						
-					}
-				}
-				else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
-					genie.WriteStr(stringfilename[jint],"        ");//Printing form
-					genie.WriteStr(stringfiledur[jint],"           ");//Printing form
-					
-				}
-				#endif
-				#if LISTNUMSDFILES > 2
-				jint++;
-				
-				if(fileCnt > filepointer + 2){
-					
-					
-					if(filepointer == (fileCnt - 2)){
-						vecto = 0;
-					}
-					else if(filepointer == (fileCnt - 1)){
-						vecto = 1;
-					}
-					else
-					{
-						vecto = filepointer + jint;
-					}
-					
-					
-					card.getfilename(vecto);
-					Serial.println(card.longFilename);
-					if (card.filenameIsDir)
-					{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,1);
-						setfoldernames(jint);
-						
-						if(card.chdir(card.filename)!= -1){
-							uint16_t NUMitems = card.getnrfilenames();
-							card.updir();
-							card.getWorkDirName();
-							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
-							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-						}
-						else{
-							genie.WriteStr(stringfiledur[jint],"           ");//Printing form
-						}
-						}else{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
-						listsd.get_lineduration();
-						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
-						}
-						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-						}
-						//Serial.println(listsd.comandline);
-						setfilenames(jint);
-						
-					}
-					
-				}
-				else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
-					genie.WriteStr(stringfilename[jint],"            ");//Printing form
-					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-					
-				}
-				
-				#endif
-				#if LISTNUMSDFILES > 3
-				jint++;
-				
-				if(fileCnt > filepointer + 3){
-					
-					if(filepointer == (fileCnt - 3)){
-						vecto = 0;
-					}
-					else if(filepointer == (fileCnt - 2)){
-						vecto = 1;
-					}
-					else if(filepointer == (fileCnt - 1)){
-						vecto = 2;
-					}
-					else
-					{
-						vecto = filepointer + jint;
-					}
-					
-					
-					card.getfilename(vecto);
-					Serial.println(card.longFilename);
-					if (card.filenameIsDir)
-					{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,1);
-						setfoldernames(jint);
-						
-						if(card.chdir(card.filename)!= -1){
-							uint16_t NUMitems = card.getnrfilenames();
-							card.updir();
-							card.getWorkDirName();
-							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
-							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-						}
-						else{
-							genie.WriteStr(stringfiledur[jint],"          ");//Printing form
-						}
-						}else{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
-						listsd.get_lineduration();
-						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
-						}
-						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-						}
-						//Serial.println(listsd.comandline);
-						setfilenames(jint);
-						
-					}
-					
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
-					genie.WriteStr(stringfilename[jint],"          ");//Printing form
-					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-				}
-				
-				#endif
-				#if LISTNUMSDFILES > 4
-				jint++;
-				
-				if(fileCnt > filepointer +  4){
-					
-					
-					if(filepointer == (fileCnt - 4)){
-						vecto = 0;
-					}
-					else if(filepointer == (fileCnt - 3)){
-						vecto = 1;
-					}
-					else if(filepointer == (fileCnt - 2)){
-						vecto = 2;
-					}
-					else if(filepointer == (fileCnt - 1)){
-						vecto = 3;
-					}
-					else
-					{
-						vecto = filepointer + jint;
-					}
-					
-					card.getfilename(vecto);
-					Serial.println(card.longFilename);
-					if (card.filenameIsDir)
-					{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,1);
-						setfoldernames(jint);
-						
-						if(card.chdir(card.filename)!= -1){
-							uint16_t NUMitems = card.getnrfilenames();
-							card.updir();
-							card.getWorkDirName();
-							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
-							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-						}
-						else{
-							genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-						}
-						}else{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
-						listsd.get_lineduration();
-						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
-						}
-						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-						}
-						//Serial.println(listsd.comandline);
-						setfilenames(jint);
-						
-					}
-					
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
-					genie.WriteStr(stringfilename[jint],"            ");//Printing form
-					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
-				}
-				
-				#endif
-				#if LISTNUMSDFILES > 5
-				jint++;
-				
-				if(fileCnt > filepointer + 5){
-					if(filepointer == (fileCnt - 5)){
-						vecto = 0;
-					}
-					else if(filepointer == (fileCnt - 4)){
-						vecto = 1;
-					}
-					else if(filepointer == (fileCnt - 3)){
-						vecto = 2;
-					}
-					else if(filepointer == (fileCnt - 2)){
-						vecto = 3;
-					}
-					else if(filepointer == (fileCnt - 1)){
-						vecto = 4;
-					}
-					else
-					{
-						vecto = filepointer + jint;
-					}
-					
-					card.getfilename(vecto);
-					Serial.println(card.longFilename);
-					if (card.filenameIsDir)
-					{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,1);
-						setfoldernames(jint);
-						
-						if(card.chdir(card.filename)!= -1){
-							uint16_t NUMitems = card.getnrfilenames();
-							card.updir();
-							card.getWorkDirName();
-							memset(Workdir, '\0', sizeof(Workdir));
-							sprintf(Workdir, "%d items",NUMitems);
-							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-						}
-						else{
-							genie.WriteStr(stringfiledur[jint],"          ");//Printing form
-						}
-						}else{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
-						listsd.get_lineduration();
-						if(listsd.get_minutes() == -1){
-							sprintf(listsd.comandline2, "");
-						}
-						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-						}
-						//Serial.println(listsd.comandline);
-						setfilenames(jint);
-						
-					}
-					
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
-					genie.WriteStr(stringfilename[jint],"                  ");//Printing form
-					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
-				}
-				#endif
-				
-			}
-			
-			
-			
-			
-			
-		}
-		else{
-			/*if (filepointer == 0)
-			{
-				filepointer=card.getnrfilenames()-1; //Last SD file
-				}else{
-				filepointer--;
-			}*/
-		}
-		
-		
-		
-		
-		
-		updownsdfilesflag= true;
-	}
-	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
-}
-inline void ListFileListINITSD(){
-	genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,0);
-	Serial.println("Form 2!");
-	////Check sdcardFiles
-	filepointer = 0;
-	int vecto = 0;
-	int jint = 0;
-	char Workdir[20];
-	card.initsd();
-	if (card.cardOK){
-		
-		uint16_t fileCnt = card.getnrfilenames();
-		//Declare filepointer
-		card.getWorkDirName();
-		//genie.WriteStr(STRING_FOLDER_NAME,card.getWorkDirName());//Printing form
-		//Text index starts at 0
-		//for(jint = 0; jint < 4; jint++){//
-			
-		if (fileCnt != 0){
-			
-			
-			
-			vecto = filepointer + jint;
-			card.getfilename(vecto);
-			Serial.println(card.longFilename);
-			if (card.filenameIsDir)
-			{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_SD_SELECTED0,1);
-				
-				setfoldernames(jint);
-				
-				if(card.chdir(card.filename)!= -1){
-					uint16_t NUMitems = card.getnrfilenames();
-					card.updir();
-					card.getWorkDirName();
-					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
-					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-				}
-				else{
-					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-				}
-				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
-				listsd.get_lineduration();
-				if(listsd.get_minutes() == -1){
-					sprintf(listsd.comandline2, "");
-				}
-				else{
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-				}
-				//Serial.println(listsd.comandline);
-				setfilenames(jint);
-				
-			}
-			
-			
-			#if LISTNUMSDFILES > 1
-			jint++;
-			
-			
-			if(fileCnt > 1){
-				
-				
-				vecto = filepointer + jint;
-				
-				
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
-					listsd.get_lineduration();
-					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
-					}
-					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-					}
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-			}
-			else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
-				genie.WriteStr(stringfilename[jint],"        ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"           ");//Printing form
-				
-			}
-			#endif
-			#if LISTNUMSDFILES > 2
-			jint++;
-			
-			if(fileCnt > 2){
-				
-				vecto = filepointer + jint;
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"           ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
-					listsd.get_lineduration();
-					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
-					}
-					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-					}
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-				
-			}
-			else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
-				genie.WriteStr(stringfilename[jint],"            ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-				
-			}
-			#endif
-			#if LISTNUMSDFILES > 3
-			jint++;
-			
-			if(fileCnt > 3){
-				
-				vecto = filepointer + jint;
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"          ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
-					listsd.get_lineduration();
-					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
-					}
-					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-					}
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-				
-				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
-				genie.WriteStr(stringfilename[jint],"          ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-			}
-			#endif
-			#if LISTNUMSDFILES > 4
-			jint++;
-			
-			if(fileCnt > 4){
-				
-				vecto = filepointer + jint;
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
-					listsd.get_lineduration();
-					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
-					}
-					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-					}
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-				
-				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
-				genie.WriteStr(stringfilename[jint],"            ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"        ");//Printing form
-			}
-			#endif
-			#if LISTNUMSDFILES > 5
-			jint++;
-			if(fileCnt > 5){
-				
-				vecto = filepointer + jint;
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"          ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
-					listsd.get_lineduration();
-					if(listsd.get_minutes() == -1){
-						sprintf(listsd.comandline2, "");
-					}
-					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-					}
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-				
-				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
-				genie.WriteStr(stringfilename[jint],"                  ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"        ");//Printing form
-			}
-			#endif
-			
-			
-		}
-		else{
-			
-			
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
-			for(int f = 0;f<5;f++){
-				genie.WriteStr(stringfilename[f],"        ");//Printing form
-				genie.WriteStr(stringfiledur[f],"           ");//Printing form
-			}
-			
-		}
-		
-		
-		
-		
-		
-		//	}//
-		
-	}
-	else{
-		#ifndef ErroWindowEnable
-		genie.WriteObject(GENIE_OBJ_FORM, FORM_INSERT_SD_CARD, 0);
-		screen_sdcard = true;
-		#else
-		genie.WriteObject(GENIE_OBJ_FORM, FORM_ERROR_SCREEN, 0);
-		genie.WriteStr(STRING_ERROR_MESSAGE,"ERROR: INSERT SDCARD");//Printing form
-		processing_error =  true;
-		screen_sdcard = true;
-		#endif
-	}
-	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
-
-}		
-inline void ListFileListENTERBACKFORLDERSD(){
-	genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,0);
-	filepointer = 0;
-	int vecto = 0;
-	int jint = 0;
-	char Workdir[20];
-	uint16_t fileCnt = card.getnrfilenames();
-	//Declare filepointer
-	card.getWorkDirName();
-	//Text index starts at 0
-	//for(jint = 0; jint < 4; jint++){//
-	//genie.WriteStr(STRING_FOLDER_NAME,card.getWorkDirName());//Printing form
-	
-	if (fileCnt != 0){
-		
-		vecto = filepointer + jint;
-		card.getfilename(vecto);
-		Serial.println(card.longFilename);
-		if (card.filenameIsDir)
-		{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_SD_SELECTED0,1);
-			
-			setfoldernames(jint);
-			
-			if(card.chdir(card.filename)!= -1){
-				uint16_t NUMitems = card.getnrfilenames();
-				card.updir();
-				card.getWorkDirName();
-				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
-				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-			}
-			else{
-				genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-			}
-			}else{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
-			listsd.get_lineduration();
-			if(listsd.get_minutes() == -1){
-				sprintf(listsd.comandline2, "");
-			}
-			else{
-				sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-			}
-			//Serial.println(listsd.comandline);
-			setfilenames(jint);
-			
-		}
-		
-		
-		#if LISTNUMSDFILES > 1
-		jint++;
-		
-		if(fileCnt > 1){
-			
-			
-			vecto = filepointer + jint;
-			
-			
-			card.getfilename(vecto);
-			Serial.println(card.longFilename);
-			if (card.filenameIsDir)
-			{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,1);
-				setfoldernames(jint);
-				
-				if(card.chdir(card.filename)!= -1){
-					uint16_t NUMitems = card.getnrfilenames();
-					card.updir();
-					card.getWorkDirName();
-					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
-					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-				}
-				else{
-					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-				}
-				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
-				listsd.get_lineduration();
-				if(listsd.get_minutes() == -1){
-					sprintf(listsd.comandline2, "");
-				}
-				else{
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-				}
-				//Serial.println(listsd.comandline);
-				setfilenames(jint);
-				
-			}
-		}
-		else{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
-			genie.WriteStr(stringfilename[jint],"        ");//Printing form
-			genie.WriteStr(stringfiledur[jint],"           ");//Printing form
-			
-		}
-		#endif
-		#if LISTNUMSDFILES > 2
-		jint++;
-		
-		if(fileCnt > 2){
-			
-			vecto = filepointer + jint;
-			card.getfilename(vecto);
-			Serial.println(card.longFilename);
-			if (card.filenameIsDir)
-			{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,1);
-				setfoldernames(jint);
-				
-				if(card.chdir(card.filename)!= -1){
-					uint16_t NUMitems = card.getnrfilenames();
-					card.updir();
-					card.getWorkDirName();
-					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
-					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-				}
-				else{
-					genie.WriteStr(stringfiledur[jint],"           ");//Printing form
-				}
-				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
-				listsd.get_lineduration();
-				if(listsd.get_minutes() == -1){
-					sprintf(listsd.comandline2, "");
-				}
-				else{
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-				}
-				//Serial.println(listsd.comandline);
-				setfilenames(jint);
-				
-			}
-			
-		}
-		else{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
-			genie.WriteStr(stringfilename[jint],"            ");//Printing form
-			genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-			
-		}
-		#endif
-		#if LISTNUMSDFILES > 3
-		jint++;
-		
-		if(fileCnt > 3){
-			
-			vecto = filepointer + jint;
-			card.getfilename(vecto);
-			Serial.println(card.longFilename);
-			if (card.filenameIsDir)
-			{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,1);
-				setfoldernames(jint);
-				
-				if(card.chdir(card.filename)!= -1){
-					uint16_t NUMitems = card.getnrfilenames();
-					card.updir();
-					card.getWorkDirName();
-					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
-					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-				}
-				else{
-					genie.WriteStr(stringfiledur[jint],"          ");//Printing form
-				}
-				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
-				listsd.get_lineduration();
-				if(listsd.get_minutes() == -1){
-					sprintf(listsd.comandline2, "");
-				}
-				else{
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-				}
-				//Serial.println(listsd.comandline);
-				setfilenames(jint);
-				
-			}
-			
-			}else{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
-			genie.WriteStr(stringfilename[jint],"          ");//Printing form
-			genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-		}
-		#endif
-		#if LISTNUMSDFILES > 4
-		jint++;
-		
-		if(fileCnt > 4){
-			
-			vecto = filepointer + jint;
-			card.getfilename(vecto);
-			Serial.println(card.longFilename);
-			if (card.filenameIsDir)
-			{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,1);
-				setfoldernames(jint);
-				
-				if(card.chdir(card.filename)!= -1){
-					uint16_t NUMitems = card.getnrfilenames();
-					card.updir();
-					card.getWorkDirName();
-					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
-					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-				}
-				else{
-					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-				}
-				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
-				listsd.get_lineduration();
-				if(listsd.get_minutes() == -1){
-					sprintf(listsd.comandline2, "");
-				}
-				else{
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-				}
-				//Serial.println(listsd.comandline);
-				setfilenames(jint);
-				
-			}
-			
-			}else{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
-			genie.WriteStr(stringfilename[jint],"            ");//Printing form
-			genie.WriteStr(stringfiledur[jint],"        ");//Printing form
-		}
-		#endif
-		#if LISTNUMSDFILES > 5
-		jint++;
-		if(fileCnt > 5){
-			
-			vecto = filepointer + jint;
-			card.getfilename(vecto);
-			Serial.println(card.longFilename);
-			if (card.filenameIsDir)
-			{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,1);
-				setfoldernames(jint);
-				
-				if(card.chdir(card.filename)!= -1){
-					uint16_t NUMitems = card.getnrfilenames();
-					card.updir();
-					card.getWorkDirName();
-					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
-					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-				}
-				else{
-					genie.WriteStr(stringfiledur[jint],"          ");//Printing form
-				}
-				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
-				listsd.get_lineduration();
-				if(listsd.get_minutes() == -1){
-					sprintf(listsd.comandline2, "");
-				}
-				else{
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
-				}
-				//Serial.println(listsd.comandline);
-				setfilenames(jint);
-				
-			}
-			
-			}else{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
-			genie.WriteStr(stringfilename[jint],"                  ");//Printing form
-			genie.WriteStr(stringfiledur[jint],"        ");//Printing form
-		}
-		#endif
-		
-	}
-	else{
-		
-		
-		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
-		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
-		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
-		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
-		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
-		for(int f = 0;f<5;f++){
-			genie.WriteStr(stringfilename[f],"        ");//Printing form
-			genie.WriteStr(stringfiledur[f],"           ");//Printing form
-		}
-		
-	}
-	
-	
-	
-	
-	
-	
-}
 
 void update_screen_printing(){
 	static uint32_t waitPeriod = millis();
 	
-	if(print_setting_refresh){
+	if(FLAG_PrintSettingRefresh){
 		
 		if(card.sdispaused && (screen_printing_pause_form == screen_printing_pause_form1)){
 			
@@ -2418,15 +1038,15 @@ void update_screen_printing(){
 			SERIAL_PROTOCOLPGM("PRINT SETTINGS \n");
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
 			
-			sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+			sprintf_P(buffer, PSTR("%3d %cC"),target_temperature[0],0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
 			
-			sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+			sprintf_P(buffer, PSTR("%3d %cC"),target_temperature[1],0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
 			
-			sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+			sprintf_P(buffer, PSTR("%3d %cC"),target_temperature_bed,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PS_BED_TEMP,buffer);
 			
@@ -2441,25 +1061,25 @@ void update_screen_printing(){
 		
 		
 		
-		print_setting_refresh = false;
+		FLAG_PrintSettingRefresh = false;
 	}
-	if (print_setting_back){
+	if (FLAG_PrintSettingBack){
 		if (screen_printing_pause_form != screen_printing_pause_form2){
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 			is_on_printing_screen = true;
 			surfing_utilities = false;
 			genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
-			data_refresh_flag = true;
+			FLAG_DataRefresh = true;
 		}
 		else{
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
 			is_on_printing_screen = true;
 			surfing_utilities = false;
 			genie.WriteStr(STRINGS_PRINTING_GCODE_PAUSE,namefilegcode);
-			data_refresh_flag = true;
+			FLAG_DataRefresh = true;
 		}
 		waitPeriod=5000+millis();	//Every 5s
-		print_setting_back = false;
+		FLAG_PrintSettingBack = false;
 		
 	}
 	if(screen_change_nozz1up){
@@ -2468,7 +1088,7 @@ void update_screen_printing(){
 		if (target_temperature[0] < HEATER_0_MAXTEMP)
 		{
 			target_temperature[0]+=5;
-			sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+			sprintf_P(buffer, PSTR("%3d %cC"),target_temperature[0],0x00B0);
 			genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
 			
 		}
@@ -2481,7 +1101,7 @@ void update_screen_printing(){
 		if (target_temperature[1]<HEATER_1_MAXTEMP)
 		{
 			target_temperature[1]+=5;
-			sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+			sprintf_P(buffer, PSTR("%3d %cC"),target_temperature[1],0x00B0);
 			genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
 			
 		}
@@ -2494,7 +1114,7 @@ void update_screen_printing(){
 		if (target_temperature_bed < BED_MAXTEMP)//MaxTemp
 		{
 			target_temperature_bed+=5;
-			sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+			sprintf_P(buffer, PSTR("%3d %cC"),target_temperature_bed,0x00B0);
 			genie.WriteStr(STRING_PS_BED_TEMP,buffer);
 			
 		}
@@ -2520,7 +1140,7 @@ void update_screen_printing(){
 		if (target_temperature[0] > HEATER_0_MINTEMP)
 		{
 			target_temperature[0]-=5;
-			sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+			sprintf_P(buffer, PSTR("%3d %cC"),target_temperature[0],0x00B0);
 			genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
 			
 		}
@@ -2533,7 +1153,7 @@ void update_screen_printing(){
 		if (target_temperature[1]>HEATER_1_MINTEMP)
 		{
 			target_temperature[1]-=5;
-			sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+			sprintf_P(buffer, PSTR("%3d %cC"),target_temperature[1],0x00B0);
 			genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
 			
 		}
@@ -2546,7 +1166,7 @@ void update_screen_printing(){
 		if (target_temperature_bed> BED_MINTEMP)//Mintemp
 		{
 			target_temperature_bed-=5;
-			sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+			sprintf_P(buffer, PSTR("%3d %cC"),target_temperature_bed,0x00B0);
 			genie.WriteStr(STRING_PS_BED_TEMP,buffer);
 			
 		}
@@ -2566,7 +1186,7 @@ void update_screen_printing(){
 		
 		screen_change_speeddown = false;
 	}
-	if(print_print_pause){
+	if(FLAG_PrintPrintPause){
 		if(!waiting_temps){
 			////I believe it is a really unsafe way to do it
 			////plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
@@ -2574,36 +1194,36 @@ void update_screen_printing(){
 			card.pauseSDPrint();
 			
 			SERIAL_PROTOCOLPGM("¡PAUSE! \n");
-			flag_pause = true;
+			FLAG_PausePause = true;
 		
 			/*genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,1);
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,1);*/
 			
 		}
-		print_print_pause = false;
+		FLAG_PrintPrintPause = false;
 		
 	}
-	if(print_print_resume){
+	if(FLAG_PrintPrintResume){
 		if(!waiting_temps){
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 			processing = true;
 			card.startFileprint();
 			SERIAL_PROTOCOLPGM("¡RESUME! \n");
-			flag_pause = false;
-			flag_resume = true;
-			if(flag_resume){
+			FLAG_PausePause = false;
+			FLAG_PauseResume = true;
+			if(FLAG_PauseResume){
 				enquecommand_P(((PSTR("G70"))));
-				flag_resume = false;
+				FLAG_PauseResume = false;
 				SERIAL_PROTOCOLPGM("Resume detected \n");
 			}
 			
 			
 		}
-		print_print_resume = false;
+		FLAG_PrintPrintResume = false;
 	}
-	if(print_print_stop == true){
-		print_print_stop = false;
+	if(FLAG_PrintPrintStop == true){
+		FLAG_PrintPrintStop = false;
 		
 		bufindw = (bufindr + 1)%BUFSIZE;
 		buflen = 1;
@@ -2654,11 +1274,11 @@ if (surfing_utilities)
 		char buffer[25];
 		memset(buffer, '\0', sizeof(buffer) );
 		if(!is_changing_filament){
-			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
+			sprintf_P(buffer, PSTR("%3d %cC"),tHotend,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 			
-			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
+			sprintf_P(buffer, PSTR("%3d %cC"),tHotend1,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 		}
@@ -2715,11 +1335,11 @@ if (surfing_utilities)
 		waitPeriod=2000+millis(); // Every Second
 	}
 }
-if(filament_accept_ok && !home_made){
+if(FLAG_FilamentAcceptOk && !home_made){
 	processing=true;
 	
 }
-if(filament_accept_ok && home_made && processing){
+if(FLAG_FilamentAcceptOk && home_made && processing){
 	processing = false;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
 	processing_success = true;
@@ -2742,51 +1362,51 @@ if(is_on_printing_screen){
 		//Edit for final TouchScreen
 		char buffer7[25];
 		
-		if (tHotend !=int(degHotend(0)) || data_refresh_flag == true ){
+		if (tHotend !=int(degHotend(0)) || FLAG_DataRefresh == true ){
 			tHotend =int(degHotend(0));
 			memset(buffer7, '\0', sizeof(buffer7) );
-			sprintf(buffer7, "%3d %cC",tHotend,0x00B0);
+			sprintf_P(buffer7, PSTR("%3d %cC"),tHotend,0x00B0);
 			//Serial.println(buffer);
 			if(!card.sdispaused)genie.WriteStr(STRING_PRINTING_NOZZ1,buffer7);
 			else genie.WriteStr(STRING_PRINTING_NOZZ1_PAUSE,buffer7);
 		}
-		if (tHotend1 !=int(degHotend(1)) || data_refresh_flag == true ){
+		if (tHotend1 !=int(degHotend(1)) || FLAG_DataRefresh == true ){
 			tHotend1=int(degHotend(1));
-			sprintf(buffer7, "%3d %cC",tHotend1,0x00B0);
+			sprintf_P(buffer7, PSTR("%3d %cC"),tHotend1,0x00B0);
 			//Serial.println(buffer);
 			if(!card.sdispaused)genie.WriteStr(STRING_PRINTING_NOZZ2,buffer7);
 			else genie.WriteStr(STRING_PRINTING_NOZZ2_PAUSE,buffer7);
 		}
-		if (tBed !=int(degBed() + 0.5) || data_refresh_flag == true ){
+		if (tBed !=int(degBed() + 0.5) || FLAG_DataRefresh == true ){
 			tBed=int(degBed() + 0.5);
-			sprintf(buffer7, "%2d %cC",tBed,0x00B0);
+			sprintf_P(buffer7, PSTR("%2d %cC"),tBed,0x00B0);
 			//Serial.println(buffer);
 			if(!card.sdispaused)genie.WriteStr(STRING_PRINTING_BED,buffer7);
 			else genie.WriteStr(STRING_PRINTING_BED_PAUSE,buffer7);
 		}
-		if (percentDone != card.percentDone() || data_refresh_flag == true ){
+		if (percentDone != card.percentDone() || FLAG_DataRefresh == true ){
 			percentDone = card.percentDone();
-			sprintf(buffer7, "% 3d %%",card.percentDone());
+			sprintf_P(buffer7, PSTR("% 3d %%"),card.percentDone());
 			//Serial.println(buffer);
 			if(!card.sdispaused)genie.WriteStr(STRING_PRINTING_PERCENT,buffer7);
 			else genie.WriteStr(STRING_PRINTING_PERCENT_PAUSE,buffer7);
 		}
-		if ( minuteremaning != listsd.get_minutesremanig() || data_refresh_flag == true ){
+		if ( minuteremaning != listsd.get_minutesremanig() || FLAG_DataRefresh == true ){
 			minuteremaning = listsd.get_minutesremanig();
-			sprintf(buffer7, "%d h %d m",listsd.get_hoursremaning(), listsd.get_minutesremanig());
+			sprintf_P(buffer7, PSTR("%d h %d m"),listsd.get_hoursremaning(), listsd.get_minutesremanig());
 			if(!card.sdispaused)genie.WriteStr(STRING_PRINTING_TIMEREMANING,buffer7);
 			else genie.WriteStr(STRING_PRINTING_TIMEREMANING_PAUSE,buffer7);
 		}
 		
-		if(feedmultiply != feedmultiply1 || data_refresh_flag == true ){
+		if(feedmultiply != feedmultiply1 || FLAG_DataRefresh == true ){
 			feedmultiply1 = feedmultiply;
-			sprintf(buffer7, "% 3d %%",feedmultiply1);
+			sprintf_P(buffer7, PSTR("% 3d %%"),feedmultiply1);
 			//Serial.println(buffer);
 			if(!card.sdispaused)genie.WriteStr(STRINGS_PRINTING_FEED,buffer7);
 			else genie.WriteStr(STRINGS_PRINTING_FEED_PAUSE,buffer7);
 		}
 		
-		data_refresh_flag = false;
+		FLAG_DataRefresh = false;
 		
 		
 		
@@ -2824,15 +1444,15 @@ void update_screen_noprinting(){
 			//Rapduch
 			//Edit for final TouchScreen
 			
-			sprintf(buffer, "%3d%cC / %3d%cC",tHotend,0x00B0,(int)degTargetHotend0(),0x00B0);
+			sprintf_P(buffer, PSTR("%3d%cC / %3d%cC"),tHotend,0x00B0,(int)degTargetHotend0(),0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_NOZZ1,buffer);
 			
-			sprintf(buffer, "%3d%cC / %3d%cC",tHotend1,0x00B0,(int)degTargetHotend1(),0x00B0);
+			sprintf_P(buffer, PSTR("%3d%cC / %3d%cC"),tHotend1,0x00B0,(int)degTargetHotend1(),0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_NOZZ2,buffer);
 			
-			sprintf(buffer, "%3d%cC / %3d%cC",tBed,0x00B0,(int)degTargetBed(),0x00B0);
+			sprintf_P(buffer, PSTR("%3d%cC / %3d%cC"),tBed,0x00B0,(int)degTargetBed(),0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_BED,buffer);
 			
@@ -2848,82 +1468,82 @@ void update_screen_noprinting(){
 			int tBed=(int)degBed();
 			
 			if ((tHotend <= target_temperature[0]-10 || tHotend >= target_temperature[0]+10) && target_temperature[0]!=0) {
-				gifhotent0_flag = true;
+				FLAG_GifHotent0 = true;
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);//<GIFF
 				
 			}
 			else if(target_temperature[0]!=0){
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_LEXTR,FramesPreheat+1);
-				gifhotent0_flag = false;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_LEXTR,GIF_FRAMES_PREHEAT+1);
+				FLAG_GifHotent0 = false;
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1);//<GIFF
 			}
 			else{
-				gifhotent0_flag = false;
+				FLAG_GifHotent0 = false;
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_LEXTR,0);
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);//<GIFF
 			}
 			if ((tHotend1 <= target_temperature[1]-10 || tHotend1 >= target_temperature[1]+10) && target_temperature[1]!=0)  {
-				gifhotent1_flag = true;//<GIFF
+				FLAG_GifHotent1 = true;//<GIFF
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);//<GIFF
 				
 			}
 			else if(target_temperature[1]!=0){
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_REXTR,FramesPreheat+1);
-				gifhotent1_flag = false;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_REXTR,GIF_FRAMES_PREHEAT+1);
+				FLAG_GifHotent1 = false;
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1); //<GIFF
 			}
 			else{
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_REXTR,0);
-				gifhotent1_flag = false;
+				FLAG_GifHotent1 = false;
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);//<GIFF
 			}
 			if (( tBed <= target_temperature_bed-10 ||  tBed >= target_temperature_bed+10) && target_temperature_bed!=0)  {
-				gifbed_flag = true;
+				FLAG_GifBed = true;
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);//<GIFF
 				
 			}
 			else if(target_temperature_bed!=0){
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,FramesPreheat+2);
-				gifbed_flag = false;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,GIF_FRAMES_PREHEAT+2);
+				FLAG_GifBed = false;
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1);//<GIFF
 			}
 			else{
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,0);
-				gifbed_flag = false;
+				FLAG_GifBed = false;
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);//<GIFF
 			}
 			
-			if(gifhotent0_flag || gifhotent1_flag || gifbed_flag ){
+			if(FLAG_GifHotent0 || FLAG_GifHotent1 || FLAG_GifBed ){
 				
 				
-				if(processing_state<FramesPreheat){
+				if(processing_state<GIF_FRAMES_PREHEAT){
 					processing_state++;
 				}
 				else{
 					processing_state=3;
 				}
 				
-				if(gifhotent0_flag){
+				if(FLAG_GifHotent0){
 					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_LEXTR,processing_state);
 				}
-				if(gifhotent1_flag){
+				if(FLAG_GifHotent1){
 					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_REXTR,processing_state);
 				}
-				if(gifbed_flag){
+				if(FLAG_GifBed){
 					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,processing_state);
 				}
 			}
 			
 			
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	
 	if (surfing_utilities)
 	{
 		//static uint32_t waitPeriod = millis();
-		if(purge_select_flag){
-			purge_select_flag = false;
+		if(FLAG_PurgeSelect0){
+			FLAG_PurgeSelect0 = false;
 			if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 				processing_purge_load = true;
 				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
@@ -2933,8 +1553,8 @@ void update_screen_noprinting(){
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
 			}
 		}
-		if(purge_select_flag1){
-			purge_select_flag1 = false;
+		if(FLAG_PurgeSelect1){
+			FLAG_PurgeSelect1 = false;
 			if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 				processing_purge_load = true;
 				current_position[E_AXIS]-=5;
@@ -2952,11 +1572,11 @@ void update_screen_noprinting(){
 			memset(buffer, '\0', sizeof(buffer) );
 			
 			if(!is_changing_filament){
-				sprintf(buffer, "%3d %cC",tHotend,0x00B0);
+				sprintf_P(buffer, PSTR("%3d %cC"),tHotend,0x00B0);
 				//Serial.println(buffer);
 				genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 			
-				sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
+				sprintf_P(buffer, PSTR("%3d %cC"),tHotend1,0x00B0);
 				//Serial.println(buffer);
 				genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 				
@@ -2992,7 +1612,7 @@ void update_screen_noprinting(){
 				}
 				percentage = Tfinal1-Tref1;
 				percentage = 100*(Tinstant-Tref1)/percentage;
-				sprintf(buffer, "%d%%", percentage);
+				sprintf_P(buffer, PSTR("%d%%"), percentage);
 				genie.WriteStr(STRING_CHANGE_FILAMENT_TEMPS,buffer);
 			}
 			
@@ -3033,9 +1653,9 @@ void update_screen_noprinting(){
 			waitPeriodno=2000+millis(); // Every Second
 		}
 	}
-	if(z_adjust_10up && !blocks_queued()){
+	if(FLAG_ZAdjust10Up && !blocks_queued()){
 		processing_z_set = 0;
-		z_adjust_10up = false;
+		FLAG_ZAdjust10Up = false;
 		current_position[Z_AXIS]-=10;
 		
 		if (home_made_Z){
@@ -3049,12 +1669,12 @@ void update_screen_noprinting(){
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
 		st_synchronize();
 		processing_z_set = 255;
-		z_adjust_10up = false;
+		FLAG_ZAdjust10Up = false;
 	}
-	if(z_adjust_50up && !blocks_queued()){
+	if(FLAG_ZAdjust50Up && !blocks_queued()){
 		processing_z_set = 0;
 		current_position[Z_AXIS]-=50;
-		z_adjust_50up= false;
+		FLAG_ZAdjust50Up= false;
 		if (home_made_Z){
 			if(current_position[Z_AXIS]< Z_MIN_POS){
 				current_position[Z_AXIS]= Z_MIN_POS;
@@ -3065,10 +1685,10 @@ void update_screen_noprinting(){
 		processing_z_set = 255;
 		
 	}
-	if(z_adjust_10down && !blocks_queued()){
+	if(FLAG_ZAdjust10Down && !blocks_queued()){
 		processing_z_set = 1;
 		current_position[Z_AXIS]+=10;
-		z_adjust_10down = false;
+		FLAG_ZAdjust10Down = false;
 		if (home_made_Z){
 			if(current_position[Z_AXIS] > Z_MAX_POS-15){
 				current_position[Z_AXIS] = Z_MAX_POS-15;
@@ -3079,10 +1699,10 @@ void update_screen_noprinting(){
 		processing_z_set = 255;
 		
 	}
-	if(z_adjust_50down && !blocks_queued()){
+	if(FLAG_ZAdjust50Down && !blocks_queued()){
 		processing_z_set = 1;
 		current_position[Z_AXIS]+=50;
-		z_adjust_50down = false;
+		FLAG_ZAdjust50Down = false;
 		if (home_made_Z){
 			
 			if(current_position[Z_AXIS] > Z_MAX_POS-15){
@@ -3094,11 +1714,11 @@ void update_screen_noprinting(){
 		processing_z_set = 255;
 		
 	}
-	if(filament_accept_ok && !home_made){
+	if(FLAG_FilamentAcceptOk && !home_made){
 		processing=true;
 		
 	}
-	if(filament_accept_ok && home_made && processing){
+	if(FLAG_FilamentAcceptOk && home_made && processing){
 		processing = false;
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
 		processing_success = true;
@@ -3107,26 +1727,22 @@ void update_screen_noprinting(){
 	
 }
 void update_screen_sdcard(){
-	/*if(ListFilesDown){
-		
+	
+	if(FLAG_ListFilesUp){
 		ListFilesDownfunc();
-		ListFilesDown = false;
-	}*/
-	if(ListFilesUp){
-		ListFilesDownx3func();
-		ListFilesUp = false;
+		FLAG_ListFilesUp = false;
 	}
-	if(ListFilesDownx3){
+	if(FLAG_ListFilesDown){
 		ListFilesUpfunc();
-		ListFilesDownx3 = false;
+		FLAG_ListFilesDown = false;
 	}
-	if(ListFilesINITflag){
+	if(FLAG_ListFilesInit){
 		ListFileListINITSD();
-		ListFilesINITflag = false;
+		FLAG_ListFilesInit = false;
 	}
-	if(ListFileListENTERBACKFORLDERSDflag){
+	if(FLAG_ListFileEnterBackFolder){
 		ListFileListENTERBACKFORLDERSD();
-		ListFileListENTERBACKFORLDERSDflag = false;
+		FLAG_ListFileEnterBackFolder = false;
 	}
 	
 }
@@ -3178,14 +1794,14 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 			
 			
-			if(processing_state<FramesProcessing){
+			if(processing_state<GIF_FRAMES_PROCESSING){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_change_filament_temps){
@@ -3193,33 +1809,33 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 			
 			
-			if(processing_state<FramesChangefilamentTemps){
+			if(processing_state<GIF_FRAMES_CHANGEFILAMENTTEMP){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_CHANGE_FILAMENT_TEMPS,processing_state);
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_adjusting){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<FramesAdjustingTemps){
+			if(processing_state<GIF_FRAMES_ADJUSTINGTEMPS){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_state);
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_nylon_temps){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<FramesNylonTemps){
+			if(processing_state<GIF_FRAMES_NYLONTEMPS){
 				processing_state++;
 			}
 			else{
@@ -3227,40 +1843,40 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_TEMPS,processing_state);
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 		
 	}
 	else if (processing_test){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<36){
+			if(processing_state<GIF_FRAMES_CALIBTEST){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PRINTING_TEST,processing_state);
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_bed_first){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<FramesBedScrew){
+			if(processing_state<GIF_FRAMES_BEDSCREW){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS_FIRST,processing_state);
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_success){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<FramesGifSuccess){
+			if(processing_state<GIF_FRAMES_SUCCESS){
 				processing_state++;
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
 			}
@@ -3270,13 +1886,13 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_success = false;
 			}
 			
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_z_set == 0 || processing_z_set == 1){
 		if (millis() >= waitPeriod_p){
 			if (processing_z_set == 0){
-				if(processing_state_z<FramesZSet){
+				if(processing_state_z<GIF_FRAMES_ZSET){
 					processing_state_z++;
 				}
 				else{
@@ -3288,11 +1904,11 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 					processing_state_z--;
 				}
 				else{
-					processing_state_z=FramesZSet-1;
+					processing_state_z=GIF_FRAMES_ZSET-1;
 				}
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_SET,processing_state_z);
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_nylon_step3){
@@ -3300,14 +1916,14 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		if (millis() >= waitPeriod_p){
 			
 			
-			if(processing_state<FramesGifNylonStep3){
+			if(processing_state<GIF_FRAMES_NYLONSTEP3){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP3,processing_state);
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_purge_load){
@@ -3315,14 +1931,14 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		if (millis() >= waitPeriod_p){
 			
 			
-			if(processing_state<FramesGifPurgeLoad){
+			if(processing_state<GIF_FRAMES_PURGELOAD){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,processing_state);
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_nylon_step4){
@@ -3330,7 +1946,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		if (millis() >= waitPeriod_p){
 			
 						
-			if(processing_state<FramesGifSuccess){
+			if(processing_state<GIF_FRAMES_SUCCESS){
 				processing_state++;
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP4,processing_state);
 			}
@@ -3342,13 +1958,13 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 			
 			
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_bed_success){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<FramesGifSuccess){
+			if(processing_state<GIF_FRAMES_SUCCESS){
 				processing_state++;
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_BED_CALIB_SUCCESS,processing_state);
 			}
@@ -3358,59 +1974,59 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_bed_success = false;
 			}
 			
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_bed){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<FramesBedScrew){
+			if(processing_state<GIF_FRAMES_BEDSCREW){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS,processing_state);
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_calib_ZL){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<FramesZCalib){
+			if(processing_state<GIF_FRAMES_ZCALIB){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_LEFT,processing_state);
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_calib_ZR){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<FramesZCalib){
+			if(processing_state<GIF_FRAMES_ZCALIB){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_RIGHT,processing_state);
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
 	else if (processing_error){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<FramesError){
+			if(processing_state<GIF_FRAMES_ERROR){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ERROR,processing_state);
-			waitPeriod_p=FramerateGifs+millis();
+			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 		
 	}
@@ -3419,14 +2035,14 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			cancel_heatup = true;	
 			
 				if (millis() >= waitPeriod_pbackhome){
-					if(processing_state<FramesProcessing){
+					if(processing_state<GIF_FRAMES_PROCESSING){
 						processing_state++;
 					}
 					else{
 						processing_state=0;
 					}
 					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
-					waitPeriod_pbackhome=FramerateGifs+millis();
+					waitPeriod_pbackhome=GIF_FRAMERATE+millis();
 				}
 				
 			}
@@ -3593,10 +2209,10 @@ void get_command()
 		}*/
 		
 		//*********PAUSE POSITION AND RESUME POSITION IN PROBES
-		if (flag_pause && !flag_resume){
+		if (FLAG_PausePause && !FLAG_PauseResume){
 			
 			enquecommand_P(((PSTR("G69"))));
-			flag_pause = false;
+			FLAG_PausePause = false;
 			SERIAL_PROTOCOLPGM("pause detected \n");
 			processing = true;
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -4357,14 +2973,15 @@ inline void gcode_G11(){
 	#endif //FWRETRACT
 }
 inline void gcode_G28(){
+
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 	#endif //ENABLE_AUTO_BED_LEVELING
 
 	#ifdef Z_SIGMA_HOME
 	int saved_active_extruder = active_extruder;
-	Serial.print("Extruder active: ");
-	Serial.println(saved_active_extruder);
+	SERIAL_PROTOCOLPGM("Extruder active: ");
+	SERIAL_PROTOCOLLN(saved_active_extruder);
 	#endif
 	
 	saved_feedrate = feedrate;
@@ -4866,6 +3483,7 @@ if(processing_error)return;
 	changeTool(0);
 	//Go to Calibration select screen
 	processing_test = false;
+	dobloking = false;	
 	if(processing_error)return;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_X_CALIB_SELECT,0);
 
@@ -5082,11 +3700,12 @@ if(processing_error)return;
 	if(processing_error)return;
 	changeTool(0);
 					
-		processing_test = false;			
+		processing_test = false;	
+		dobloking = false;		
 	//Go to Calibration select screen
 	if(processing_error)return;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_Y_CALIB_SELECT,0);
-					
+				
 					
 					
 #endif //EXTRUDER_CALIBRATION_WIZARD
@@ -5550,7 +4169,7 @@ saved_feedrate = homing_feedrate[Z_AXIS];
 homing_feedrate[Z_AXIS]= CALIB_FEEDRATE_ZAXIS;			
 
 				
-if (flag_full_calib){
+if (FLAG_CalibFull){
 	setTargetHotend0(print_temp_l);
 	setTargetHotend1(print_temp_r);
 	setTargetBed(max(bed_temp_l,bed_temp_r)-5);					
@@ -5807,7 +4426,7 @@ Serial.println("");
 if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 {
 	
-	if (flag_full_calib){						
+	if (FLAG_CalibFull){						
 						
 						
 		//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -6025,18 +4644,18 @@ inline void gcode_G69(){
 					//*********************************//
 					saved_active_extruder = active_extruder;
 					//********RETRACK
-					current_position[E_AXIS]-=G69_RETRACK;
+					current_position[E_AXIS]-=PAUSE_G69_RETRACK;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 					st_synchronize();
 					//*********************************//
 					feedrate=homing_feedrate[X_AXIS];
 					if (active_extruder == LEFT_EXTRUDER && current_position[X_AXIS] != 0){															//Move X axis, controlling the current_extruder
-						current_position[X_AXIS] = current_position[X_AXIS]-G69_XYMOVE;
-						current_position[Y_AXIS] = current_position[Y_AXIS]+G69_XYMOVE;
+						current_position[X_AXIS] = current_position[X_AXIS]-PAUSE_G69_XYMOVE;
+						current_position[Y_AXIS] = current_position[Y_AXIS]+PAUSE_G69_XYMOVE;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 						}else if(active_extruder == RIGHT_EXTRUDER && current_position[X_AXIS] != extruder_offset[X_AXIS][1]){
-						current_position[X_AXIS] = current_position[X_AXIS]+G69_XYMOVE;
-						current_position[Y_AXIS] = current_position[Y_AXIS]+G69_XYMOVE;
+						current_position[X_AXIS] = current_position[X_AXIS]+PAUSE_G69_XYMOVE;
+						current_position[Y_AXIS] = current_position[Y_AXIS]+PAUSE_G69_XYMOVE;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					}
 					st_synchronize();
@@ -6062,8 +4681,8 @@ inline void gcode_G69(){
 					}
 					st_synchronize();
 					//*********************************//
-					flag_pause = false;
-					
+					FLAG_PausePause = false;
+					dobloking = true;
 					processing = false;
 					/*genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
@@ -6071,7 +4690,7 @@ inline void gcode_G69(){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
 					screen_printing_pause_form = screen_printing_pause_form1;
 					genie.WriteStr(STRINGS_PRINTING_GCODE_PAUSE,namefilegcode);
-					data_refresh_flag = true;
+					FLAG_DataRefresh = true;
 #endif //ENABLE_AUTO_BED_LEVELING					
 }
 inline void gcode_G70(){
@@ -6080,9 +4699,10 @@ inline void gcode_G70(){
 					
 					//Serial.println(current_position[Z_AXIS]);
 					//*********************************//
+					dobloking = true;
 					active_extruder = saved_active_extruder;
 					
-					#if SETUP_G70 == 0
+					#if PAUSE_G70_SETUP == 0
 					
 					current_position[Z_AXIS] = saved_position[Z_AXIS]+0.05;
 					feedrate=homing_feedrate[Z_AXIS];
@@ -6095,7 +4715,7 @@ inline void gcode_G70(){
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);//Purge
 					st_synchronize();
 					
-					current_position[E_AXIS]+=G70_PURGE;
+					current_position[E_AXIS]+=PAUSE_G70_PURGE;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
 					st_synchronize();
 					current_position[E_AXIS]-=1;
@@ -6105,7 +4725,7 @@ inline void gcode_G70(){
 					
 					
 					
-					#if SETUP_G70 == 1
+					#if PAUSE_G70_SETUP == 1
 					
 					
 					if (!active_extruder){
@@ -6149,7 +4769,7 @@ inline void gcode_G70(){
 					current_position[E_AXIS] = saved_position[E_AXIS];
 					plan_set_e_position(current_position[E_AXIS]);
 					
-					#if SETUP_G70 == 1
+					#if PAUSE_G70_SETUP == 1
 					current_position[Z_AXIS] = saved_position[Z_AXIS];
 					feedrate=homing_feedrate[Z_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
@@ -6180,8 +4800,8 @@ inline void gcode_G70(){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,0);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
-					data_refresh_flag = true;
-					flag_resume = false;
+					FLAG_DataRefresh = true;
+					FLAG_PauseResume = false;
 	
 #endif //ENABLE_AUTO_BED_LEVELING
  	
@@ -6481,9 +5101,10 @@ inline void gcode_M17(){
 	enable_x();
 	enable_y();
 	enable_z();
+	
 	enable_e0();
 	enable_e1();
-	enable_e2();	
+	enable_e2();
 }
 inline void gcode_M20(){
 	#ifdef SDSUPPORT
@@ -6519,7 +5140,7 @@ inline void gcode_M24(){
 	#ifdef SIGMA_TOUCH_SCREEN
 	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,0);
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
-	data_refresh_flag = true;
+	FLAG_DataRefresh = true;
 	//char buffer[13];
 	memset(namefilegcode, '\0', sizeof(namefilegcode) );
 	if (String(card.longFilename).length()>12){
@@ -6641,12 +5262,153 @@ inline void gcode_M32(){
 		#ifdef SIGMA_TOUCH_SCREEN
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 		genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
-		data_refresh_flag = true;
+		FLAG_DataRefresh = true;
 		#endif
 	}
 	
 	
 	#endif //SDSUPPORT
+}
+inline void gcode_M33(){
+	#ifdef SDSUPPORT
+	FLAG_PrintPrintStop = true;
+	cancel_heatup = true;
+	if (card.cardOK){
+		card.closefile(true);
+		saved_position[Z_AXIS] = current_position[Z_AXIS];
+		current_position[E_AXIS]-=PAUSE_G69_RETRACK;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
+		st_synchronize();
+		//*********************************//
+		feedrate=homing_feedrate[X_AXIS];
+		if (active_extruder == LEFT_EXTRUDER && current_position[X_AXIS] != 0){															//Move X axis, controlling the current_extruder
+			current_position[X_AXIS] = current_position[X_AXIS]-PAUSE_G69_XYMOVE;
+			current_position[Y_AXIS] = current_position[Y_AXIS]+PAUSE_G69_XYMOVE;
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+			}else if(active_extruder == RIGHT_EXTRUDER && current_position[X_AXIS] != extruder_offset[X_AXIS][1]){
+			current_position[X_AXIS] = current_position[X_AXIS]+PAUSE_G69_XYMOVE;
+			current_position[Y_AXIS] = current_position[Y_AXIS]+PAUSE_G69_XYMOVE;
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		}
+		st_synchronize();
+		//********MOVE TO PAUSE POSITION
+		
+		if(current_position[Z_AXIS]>=180) current_position[Z_AXIS] += 2;								//
+		else if(current_position[Z_AXIS]>=205) {}														//Move the bed, more or less in function of current_position
+		else current_position[Z_AXIS] += 10;															//
+		int feedrate=homing_feedrate[Z_AXIS];
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		st_synchronize();
+		
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, 400, active_extruder);	//Retrack
+		st_synchronize();
+		
+		feedrate=homing_feedrate[X_AXIS];
+		if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
+			current_position[X_AXIS] = 0;
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+			}else{
+			current_position[X_AXIS] = extruder_offset[X_AXIS][1];
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		}
+		st_synchronize();
+		
+		current_position[Z_AXIS] = saved_position[Z_AXIS];
+		feedrate=homing_feedrate[Z_AXIS];
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		destination[Z_AXIS] = current_position[Z_AXIS];
+		st_synchronize();
+		
+	}
+	#endif //SDSUPPORT
+	//Config_StoreSettings();
+	saved_print_flag =  true;
+}
+inline void gcode_M34(){
+	if(saved_print_flag){
+	#ifdef SDSUPPORT
+	card.initsd();
+	if (card.cardOK){
+		
+		workDir_vector_lenght=saved_workDir_vector_lenght;
+		for(int i=0; i<saved_workDir_vector_lenght;i++){
+			card.getWorkDirName();
+			card.getfilename(saved_workDir_vector[i]);
+			workDir_vector[i]=saved_workDir_vector[i];
+			if (!card.filenameIsDir){
+				SERIAL_PROTOCOLLNPGM("Te pille");
+			}else{
+				if (card.chdir(card.filename)!=-1){
+				}
+			}
+		}
+		
+		
+		listsd.get_lineduration();
+		card.openFile(card.filename,true);
+		
+		gcode_M24();
+		
+		
+		card.setIndex(saved_fileposition);
+		setTargetBed(saved_tempbed);
+		setTargetHotend0(saved_temp0);
+		setTargetHotend1(saved_temp1);
+		screen_printing_pause_form = screen_printing_pause_form0;
+		is_on_printing_screen=true;//We are entering printing screen
+		
+		while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
+			manage_heater();
+			touchscreen_update();
+		}
+		
+		current_position[Z_AXIS]=saved_z_position;
+		z_restaurada = current_position[Z_AXIS];
+		dobloking = true;
+		home_axis_from_code(true, true, false);
+		active_extruder_parked =false;
+		current_position[Z_AXIS]=saved_z_position;
+		z_restaurada = current_position[Z_AXIS];
+		raised_parked_position[Z_AXIS]=current_position[Z_AXIS];
+		//active_extruder = saved_tool_active;
+		gcode_T0_T1_auto(saved_tool_active);
+		feedrate = homing_feedrate[Y_AXIS];
+		current_position[Y_AXIS]=saved_y_position;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		st_synchronize();
+		
+		current_position[E_AXIS]+=PAUSE_G70_PURGE;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
+		st_synchronize();
+		
+		current_position[E_AXIS]-=1;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
+		st_synchronize();
+		
+		if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
+			current_position[X_AXIS] = saved_x_position;
+			feedrate=200*60;
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+			st_synchronize();
+			}else{
+			current_position[X_AXIS] = extruder_offset[X_AXIS][1];
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		}
+		st_synchronize();
+		
+		
+		current_position[X_AXIS] = saved_x_position;
+		feedrate=200*60;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		st_synchronize();
+		
+		current_position[E_AXIS] = saved_e_position;
+		plan_set_e_position(current_position[E_AXIS]);
+		fanSpeed = saved_fanlayer;
+	}
+	#endif //SDSUPPORT
+	}
+	saved_print_flag =  false;
 }
 inline void gcode_M928(){
 	#ifdef SDSUPPORT
@@ -8206,6 +6968,14 @@ inline void gcode_M506(){
 	Config_Set_UISerialNumber(input0, input1, input2);
 	Config_StoreSettings();
 }
+inline void gcode_M507(){
+	if(saved_print_flag){
+		SERIAL_PROTOCOLLNPGM("Print recovery up");
+		Config_PrintSAVESettings();
+	}else{
+		SERIAL_PROTOCOLLNPGM("Not print recovery up");
+	}
+}
 inline void gcode_M510(){
 	int i_temp_l = 0, r_temp_l = 0 , p_temp_l = 0, b_temp_l =0;
 	if (code_seen('I')) i_temp_l = code_value();
@@ -8909,6 +7679,14 @@ void process_commands()
 			gcode_M32();
 			break;
 			
+			case 33: //M33 - Resume
+			gcode_M33();
+			break;
+			
+			case 34: //M34 - Save
+			gcode_M34();
+			break;
+			
 			case 928: //M928 - Start SD write
 			gcode_M928();
 			break;
@@ -9206,6 +7984,10 @@ void process_commands()
 			
 			case 506:
 			gcode_M506();
+			break;
+			
+			case 507: // M503 print settings currently in memory
+			gcode_M507();
 			break;
 					
 			case 510:  //left hotend
@@ -9839,8 +8621,10 @@ void manage_inactivity()
 		{
 			
 			if(blocks_queued() == false) {
-				disable_x();
-				disable_y();
+				if(!dobloking){
+					disable_x();
+					disable_y();
+				}
 				disable_z();
 				disable_e0();
 				disable_e1();
@@ -10157,7 +8941,7 @@ void left_test_print_code(){
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 	st_synchronize();
 	if(processing_error)return;
-	
+	dobloking = false;
 	//SELECT LINES SCREEN
 	processing_test = false;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_Z_TEST,0);
@@ -10262,6 +9046,7 @@ void right_test_print_code(){
 	st_synchronize();
 	if(processing_error)return;
 	//SELECT LINES SCREEN
+	dobloking = false;
 	processing_test = false;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_Z_TEST,0);
 }

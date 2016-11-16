@@ -8254,14 +8254,14 @@ void get_coordinates()
 		if(code_seen(axis_codes[i]))
 		{
 			destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
-			if(i == 0) {
+			if(i == 0 && !relative_mode) {
 				//Serial.print("X old: ");
 				//Serial.println(destination[i]);
 				destination[i]+= 48.5;
 				//Serial.print("X new: ");
 				//Serial.println(destination[i]);
 			}
-			if(i == 1) {
+			if(i == 1 && !relative_mode) {
 				//Serial.print("X old: ");
 				//Serial.println(destination[i]);
 				destination[i]-= 2.5;
@@ -8271,6 +8271,9 @@ void get_coordinates()
 			seen[i]=true;
 		}
 		else destination[i] = current_position[i]; //Are these else lines really needed?
+		
+		
+		
 	}
 	if(code_seen('F')) {
 		next_feedrate = code_value();

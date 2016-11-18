@@ -257,7 +257,7 @@ int UI_SerialID2 = 0;
 /////// Print Recovery	/////////
 
 #ifdef RECOVERY_PRINT
-
+	float getfeedrate();
 	float saved_x_position;
 	float saved_y_position;
 	float saved_z_position;
@@ -268,7 +268,8 @@ int UI_SerialID2 = 0;
 	int saved_temp0;
 	int saved_tempbed;
 	int saved_feedspeed;
-	int saved_fanlayer;	
+	int saved_fanlayer;
+	float saved_feedrate1;
 	int saved_workDir_vector[MAX_DIR_DEPTH];
 	uint8_t saved_workDir_vector_lenght=0;
 	bool saved_print_flag=false;	
@@ -965,6 +966,9 @@ void SD_firstPrint (){
 int getBuflen()
 {
 	return buflen;
+}
+float getfeedrate(){
+	
 }
 
 void HeaterCooldownInactivity(bool switchOnOff){
@@ -4641,6 +4645,7 @@ inline void gcode_G69(){
 					saved_position[Y_AXIS] = current_position[Y_AXIS];
 					saved_position[Z_AXIS] = current_position[Z_AXIS];
 					saved_position[E_AXIS] = current_position[E_AXIS];
+					saved_feedrate = feedrate;
 					//*********************************//
 					saved_active_extruder = active_extruder;
 					//********RETRACK
@@ -4793,6 +4798,9 @@ inline void gcode_G70(){
 					
 					
 					//*********************************//
+					
+					feedrate = saved_feedrate;
+					
 					processing = false;
 					screen_printing_pause_form = screen_printing_pause_form0;
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,0);
@@ -5405,6 +5413,7 @@ inline void gcode_M34(){
 		current_position[E_AXIS] = saved_e_position;
 		plan_set_e_position(current_position[E_AXIS]);
 		fanSpeed = saved_fanlayer;
+		feedrate = saved_feedrate;
 	}
 	#endif //SDSUPPORT
 	}

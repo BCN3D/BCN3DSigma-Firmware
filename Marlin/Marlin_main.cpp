@@ -279,6 +279,14 @@ uint8_t workDir_vector_lenght=0;
 
 /////// end Print Recovery	/////////
 
+/////// First Start Wizard	/////////
+#ifdef FIRST_START_WIZARD
+
+	bool FLAG_First_Start_Wizard = false;
+	int Step_First_Start_Wizard = 0;
+
+#endif
+/////// end First Start Wizard	/////////
 
 ////// Temperatures of current material for two extruders //////
 #pragma region temperatures

@@ -1165,6 +1165,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #define RECOVERY_PRINT
 
+////// FIRST RUN WIZARD
+
+#define FIRST_START_WIZARD
+
 ///////	GIFs SETUP 
 
 //	FRAME RATE

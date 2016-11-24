@@ -328,6 +328,7 @@ bool screen_change_speeddown = false;
 bool home_made = false;
 bool home_made_Z = false;
 bool dobloking = false;
+bool saved_dobloking = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
@@ -2985,7 +2986,8 @@ inline void gcode_G11(){
 	#endif //FWRETRACT
 }
 inline void gcode_G28(){
-
+	saved_dobloking = dobloking;
+	dobloking = true;
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 	#endif //ENABLE_AUTO_BED_LEVELING
@@ -3278,7 +3280,7 @@ inline void gcode_G28(){
 		//clean_up_after_endstop_move();
 	}
 	#endif
-	
+	dobloking = saved_dobloking;
 	memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
 	home_made = true;
 
@@ -9075,7 +9077,8 @@ void right_test_print_code(){
 
 void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 {
-	
+	saved_dobloking = dobloking;
+	dobloking = true;
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 	#endif //ENABLE_AUTO_BED_LEVELING
@@ -9350,6 +9353,7 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 		//clean_up_after_endstop_move();
 	}
 	#endif
+	dobloking = saved_dobloking;
 	home_made = true;
 }
 

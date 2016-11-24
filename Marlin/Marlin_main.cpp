@@ -257,7 +257,7 @@ int UI_SerialID2 = 0;
 /////// Print Recovery	/////////
 
 #ifdef RECOVERY_PRINT
-
+	float getfeedrate();
 	float saved_x_position;
 	float saved_y_position;
 	float saved_z_position;
@@ -268,7 +268,8 @@ int UI_SerialID2 = 0;
 	int saved_temp0;
 	int saved_tempbed;
 	int saved_feedspeed;
-	int saved_fanlayer;	
+	int saved_fanlayer;
+	float saved_feedrate1;
 	int saved_workDir_vector[MAX_DIR_DEPTH];
 	uint8_t saved_workDir_vector_lenght=0;
 	bool saved_print_flag=false;	
@@ -278,6 +279,14 @@ uint8_t workDir_vector_lenght=0;
 
 /////// end Print Recovery	/////////
 
+/////// First Start Wizard	/////////
+#ifdef FIRST_START_WIZARD
+
+	bool FLAG_First_Start_Wizard = false;
+	int Step_First_Start_Wizard = 0;
+
+#endif
+/////// end First Start Wizard	/////////
 
 ////// Temperatures of current material for two extruders //////
 #pragma region temperatures
@@ -319,6 +328,7 @@ bool screen_change_speeddown = false;
 bool home_made = false;
 bool home_made_Z = false;
 bool dobloking = false;
+bool saved_dobloking = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
@@ -965,6 +975,9 @@ void SD_firstPrint (){
 int getBuflen()
 {
 	return buflen;
+}
+float getfeedrate(){
+	
 }
 
 void HeaterCooldownInactivity(bool switchOnOff){
@@ -2973,7 +2986,8 @@ inline void gcode_G11(){
 	#endif //FWRETRACT
 }
 inline void gcode_G28(){
-
+	saved_dobloking = dobloking;
+	dobloking = true;
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 	#endif //ENABLE_AUTO_BED_LEVELING
@@ -3266,7 +3280,7 @@ inline void gcode_G28(){
 		//clean_up_after_endstop_move();
 	}
 	#endif
-	
+	dobloking = saved_dobloking;
 	memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
 	home_made = true;
 
@@ -4641,6 +4655,7 @@ inline void gcode_G69(){
 					saved_position[Y_AXIS] = current_position[Y_AXIS];
 					saved_position[Z_AXIS] = current_position[Z_AXIS];
 					saved_position[E_AXIS] = current_position[E_AXIS];
+					saved_feedrate = feedrate;
 					//*********************************//
 					saved_active_extruder = active_extruder;
 					//********RETRACK
@@ -4793,6 +4808,9 @@ inline void gcode_G70(){
 					
 					
 					//*********************************//
+					
+					feedrate = saved_feedrate;
+					
 					processing = false;
 					screen_printing_pause_form = screen_printing_pause_form0;
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,0);
@@ -5405,6 +5423,7 @@ inline void gcode_M34(){
 		current_position[E_AXIS] = saved_e_position;
 		plan_set_e_position(current_position[E_AXIS]);
 		fanSpeed = saved_fanlayer;
+		feedrate = saved_feedrate;
 	}
 	#endif //SDSUPPORT
 	}
@@ -9058,7 +9077,8 @@ void right_test_print_code(){
 
 void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 {
-	
+	saved_dobloking = dobloking;
+	dobloking = true;
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 	#endif //ENABLE_AUTO_BED_LEVELING
@@ -9333,6 +9353,7 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 		//clean_up_after_endstop_move();
 	}
 	#endif
+	dobloking = saved_dobloking;
 	home_made = true;
 }
 

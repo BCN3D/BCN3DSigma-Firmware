@@ -565,6 +565,7 @@ void CardReader::closefile(bool store_location)
 	  saved_temp0 = target_temperature[0];
 	  saved_temp1 = target_temperature[1];
 	  saved_tempbed  = target_temperature_bed;
+	  saved_feedrate1 = getfeedrate();
 	  saved_fanlayer = fanSpeed;
 	  saved_workDir_vector_lenght = workDir_vector_lenght;
 	  saved_workDir_vector[0] = workDir_vector[0];

@@ -817,7 +817,7 @@ void setup()
 				}
 			}
 			
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				
 				// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 				log_prints = 0;
 				log_hours_print = 0;
@@ -828,6 +828,14 @@ void setup()
 				log_max_temp_r = 0;
 				log_max_bed =0;
 				Config_RetrieveSettings();
+				if(saved_print_flag){
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
+				
+				}else{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				}
+				
 			//}
 			//Turn the Display on (Contrast) - (Not needed but illustrates how)
 			/*for(int i = 0;i<16;i++){				
@@ -5375,22 +5383,27 @@ inline void gcode_M34(){
 		screen_printing_pause_form = screen_printing_pause_form0;
 		is_on_printing_screen=true;//We are entering printing screen
 		
+		gcode_T0_T1_auto(saved_tool_active);
+		
 		while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
 			manage_heater();
 			touchscreen_update();
 		}
-		
 		current_position[Z_AXIS]=saved_z_position;
 		z_restaurada = current_position[Z_AXIS];
+		
 		dobloking = true;
 		home_axis_from_code(true, true, false);
-		active_extruder_parked =false;
+		
+		
+		
+		//active_extruder_parked =false;
 		current_position[Z_AXIS]=saved_z_position;
 		z_restaurada = current_position[Z_AXIS];
 		raised_parked_position[Z_AXIS]=current_position[Z_AXIS];
 		//active_extruder = saved_tool_active;
-		gcode_T0_T1_auto(saved_tool_active);
 		feedrate = homing_feedrate[Y_AXIS];
+				
 		current_position[Y_AXIS]=saved_y_position;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 		st_synchronize();

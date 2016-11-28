@@ -1606,6 +1606,22 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				#pragma endregion PREHEAT
 				
+				#pragma region RecoveyPrint
+				
+				else if (Event.reportObject.index == BUTTON_RECOVERY_PRINT_ASK_ACCEPT){
+					
+					enquecommand_P(PSTR("M34");
+					
+				}
+				else if (Event.reportObject.index == BUTTON_RECOVERY_PRINT_ASK_CANCEL){
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+					saved_print_flag = false;
+					
+				}
+				
+				
+				#pragma endregion RecoveyPrint
 				
 				
 				

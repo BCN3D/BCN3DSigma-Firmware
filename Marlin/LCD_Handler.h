@@ -1610,7 +1610,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if (Event.reportObject.index == BUTTON_RECOVERY_PRINT_ASK_ACCEPT){
 					
-					enquecommand_P(PSTR("M34");
+					enquecommand_P(PSTR("M34"));
 					
 				}
 				else if (Event.reportObject.index == BUTTON_RECOVERY_PRINT_ASK_CANCEL){

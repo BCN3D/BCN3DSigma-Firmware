@@ -69,7 +69,7 @@ int custom_remove_temp = 210;
 int custom_print_temp = 210;
 int custom_bed_temp = 40;
 unsigned int buttonsdselected[6] = {BUTTON_SD_SELECTED0, BUTTON_SD_SELECTED1, BUTTON_SD_SELECTED2, BUTTON_SD_SELECTED3, BUTTON_SD_SELECTED4, BUTTON_SD_SELECTED5};
-unsigned int stringfilename[7] = {STRING_NAME_FILE0, STRING_NAME_FILE1, STRING_NAME_FILE2, STRING_NAME_FILE3, STRING_NAME_FILE4, STRING_NAME_FILE5,STRING_NAME_FILE6};
+unsigned int stringfilename[8] = {STRING_NAME_FILE0, STRING_NAME_FILE1, STRING_NAME_FILE2, STRING_NAME_FILE3, STRING_NAME_FILE4, STRING_NAME_FILE5,STRING_NAME_FILE6,STRING_RECOVERY_PRINT_ASK};
 unsigned int stringfiledur[7] = {STRING_NAME_FILE_DUR0, STRING_NAME_FILE_DUR1, STRING_NAME_FILE_DUR2, STRING_NAME_FILE_DUR3, STRING_NAME_FILE_DUR4,STRING_NAME_FILE_DUR5, STRING_NAME_FILE_DUR6};
 
 
@@ -1615,11 +1615,37 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BUTTON_RECOVERY_PRINT_ASK_CANCEL){
 					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_TOBELOST,0);
+										
+				}
+				else if (Event.reportObject.index == BUTTON_RECOVERY_TOBELOST_ACCEPT){
+					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 					saved_print_flag = false;
 					
 				}
-				
+				else if (Event.reportObject.index == BUTTON_RECOVERY_TOBELOST_BACK){
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
+					card.initsd();
+					if (card.cardOK){
+						
+						workDir_vector_lenght=saved_workDir_vector_lenght;
+						for(int i=0; i<saved_workDir_vector_lenght;i++){
+							card.getWorkDirName();
+							card.getfilename(saved_workDir_vector[i]);
+							workDir_vector[i]=saved_workDir_vector[i];
+							if (!card.filenameIsDir){
+								SERIAL_PROTOCOLLNPGM("Te pille");
+								}else{
+								if (card.chdir(card.filename)!=-1){
+								}
+							}
+						}
+						setfilenames(7);
+					}
+					
+				}
 				
 				#pragma endregion RecoveyPrint
 				

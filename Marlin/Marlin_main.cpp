@@ -372,6 +372,7 @@ bool processing = false;
 uint8_t processing_z_set = 255;
 bool processing_success = false;
 bool processing_bed_success = false;
+bool processing_saveprint_success = false;
 bool processing_nylon_step4 = false;
 bool processing_purge_load = false;
 bool processing_nylon_step3 = false;
@@ -831,7 +832,24 @@ void setup()
 				if(saved_print_flag){
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
-				
+					card.initsd();
+					if (card.cardOK){
+						
+						workDir_vector_lenght=saved_workDir_vector_lenght;
+						for(int i=0; i<saved_workDir_vector_lenght;i++){
+							card.getWorkDirName();
+							card.getfilename(saved_workDir_vector[i]);
+							workDir_vector[i]=saved_workDir_vector[i];
+							if (!card.filenameIsDir){
+								SERIAL_PROTOCOLLNPGM("Te pille");
+								}else{
+								if (card.chdir(card.filename)!=-1){
+								}
+							}
+						}
+						setfilenames(7);
+					}
+					
 				}else{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				}
@@ -1022,6 +1040,7 @@ void thermal_error_screen_on(){
 	processing = false;
 	processing_success = false;
 	processing_bed_success = false;
+	processing_saveprint_success = false;
 	processing_nylon_step4 = false;
 	processing_purge_load = false;
 	processing_nylon_step3 = false;
@@ -1910,6 +1929,25 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
 	}
+	else if (processing_saveprint_success){
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<GIF_FRAMES_SUCCESS){
+				processing_state++;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SAVEJOB_SUCCESS,processing_state);
+			}
+			else{
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SAVEJOB_SUCCESS,processing_state);
+				processing_state=0;
+				processing_saveprint_success = false;
+				delay(7000);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_SAVEJOB_SHUTDOWN,0);
+				
+			}
+			
+			waitPeriod_p=GIF_FRAMERATE+millis();
+		}
+	}
 	else if (processing_z_set == 0 || processing_z_set == 1){
 		if (millis() >= waitPeriod_p){
 			if (processing_z_set == 0){
@@ -2084,7 +2122,16 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				log_minutes_lastprint = (int)(log_min_print%60);
 				Config_StoreSettings();
 				cancel_heatup = false;
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				if(saved_print_flag){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_SAVEJOB_SUCCESS,0);
+					processing_saveprint_success= true;
+					processing_state = 0;
+					
+				}else{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+				}
+				
+				
 				
 				//form home
 				
@@ -5353,21 +5400,8 @@ inline void gcode_M33(){
 inline void gcode_M34(){
 	if(saved_print_flag){
 		#ifdef SDSUPPORT
-		card.initsd();
+		
 		if (card.cardOK){
-			
-			workDir_vector_lenght=saved_workDir_vector_lenght;
-			for(int i=0; i<saved_workDir_vector_lenght;i++){
-				card.getWorkDirName();
-				card.getfilename(saved_workDir_vector[i]);
-				workDir_vector[i]=saved_workDir_vector[i];
-				if (!card.filenameIsDir){
-					SERIAL_PROTOCOLLNPGM("Te pille");
-					}else{
-					if (card.chdir(card.filename)!=-1){
-					}
-				}
-			}
 			
 			
 			listsd.get_lineduration();

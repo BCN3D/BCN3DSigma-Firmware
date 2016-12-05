@@ -1622,6 +1622,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 					saved_print_flag = false;
+					Config_StoreSettings();
 					
 				}
 				else if (Event.reportObject.index == BUTTON_RECOVERY_TOBELOST_BACK){
@@ -4897,6 +4898,7 @@ inline void ListFilesUpfunc(){
 		card.getWorkDirName();
 		
 		if(fileCnt > SDFILES_LIST_NUM){
+			
 			if (filepointer == ((fileCnt-1)/SDFILES_LIST_NUM)*SDFILES_LIST_NUM )
 			{
 				filepointer=0; //First SD file
@@ -4959,6 +4961,7 @@ inline void ListFilesUpfunc(){
 					genie.WriteStr(stringfiledur[jint],PSTR("           "));//Printing form
 					
 				}
+				Serial.println("HOLA DOWN");
 				jint++;
 			}
 			
@@ -5034,7 +5037,7 @@ inline void ListFilesDownfunc(){
 						else{
 							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 						}
-						//Serial.println(listsd.comandline);
+						
 						setfilenames(jint);
 						
 					}
@@ -5046,6 +5049,7 @@ inline void ListFilesDownfunc(){
 					genie.WriteStr(stringfiledur[jint],PSTR("           "));//Printing form
 					
 				}
+				Serial.println("HOLA UP");
 				jint++;
 			}
 			

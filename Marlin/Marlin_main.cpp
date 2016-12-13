@@ -282,7 +282,7 @@ uint8_t workDir_vector_lenght=0;
 /////// First Start Wizard	/////////
 #ifdef FIRST_START_WIZARD
 
-	bool FLAG_First_Start_Wizard = false;
+	bool FLAG_First_Start_Wizard = true;
 	int Step_First_Start_Wizard = 0; // State
 
 #endif
@@ -371,6 +371,7 @@ float zprobe_zoffset;
 bool processing = false;
 uint8_t processing_z_set = 255;
 bool processing_success = false;
+bool processing_success_first_run = false;
 bool processing_bed_success = false;
 bool processing_saveprint_success = false;
 bool processing_nylon_step4 = false;
@@ -850,6 +851,10 @@ void setup()
 						setfilenames(7);
 					}
 					
+				}else if (FLAG_First_Start_Wizard){
+					genie.WriteObject(GENIE_OBJ_FORM,FORN_FIRST_RUN_WIZARD_INIT,0);
+					delay(5000);
+					genie.WriteObject(GENIE_OBJ_FORM,FORN_FIRST_RUN_WIZARD_YESNOT,0);
 				}else{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				}
@@ -2031,6 +2036,41 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_BED_CALIB_SUCCESS,processing_state);
 				processing_state=0;
 				processing_bed_success = false;
+			}
+			
+			waitPeriod_p=GIF_FRAMERATE+millis();
+		}
+	}
+	else if (processing_success_first_run){
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<GIF_FRAMES_SUCCESS){
+				processing_state++;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_FIRST_RUN_WIZARD_SUCCESS,processing_state);
+			}
+			else{
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_FIRST_RUN_WIZARD_SUCCESS,processing_state);
+				processing_state=0;
+				processing_success_first_run = false;
+				delay(5000);
+				
+				
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
+				home_axis_from_code(true, true, false);
+				enquecommand_P((PSTR("T0")));
+				st_synchronize();
+				if(processing_error)return;
+				SERIAL_PROTOCOLPGM("Calibration Successful, going back to main menu \n");
+				
+				dobloking=false;
+				
+				screen_sdcard = false;
+				surfing_utilities=false;
+				SERIAL_PROTOCOLPGM("Surfing 0 \n");
+				surfing_temps = false;
+				genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
 			}
 			
 			waitPeriod_p=GIF_FRAMERATE+millis();

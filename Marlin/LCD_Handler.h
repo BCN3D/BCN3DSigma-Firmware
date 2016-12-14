@@ -5281,7 +5281,7 @@ inline void ListFilesUpfunc(){
 			
 			
 			while(jint < SDFILES_LIST_NUM){
-				
+				Serial.println("Dentro");
 				if(fileCnt > filepointer +  jint){
 					
 					
@@ -5312,7 +5312,7 @@ inline void ListFilesUpfunc(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf_P(listsd.comandline2, PSTR(""));
+							sprintf_P(listsd.comandline2, "");
 						}
 						else{
 							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
@@ -5325,8 +5325,8 @@ inline void ListFilesUpfunc(){
 				}
 				else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
-					genie.WriteStr(stringfilename[jint],PSTR("        "));//Printing form
-					genie.WriteStr(stringfiledur[jint],PSTR("           "));//Printing form
+					genie.WriteStr(stringfilename[jint],"        ");//Printing form
+					genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 					
 				}
 				Serial.println("HOLA DOWN");
@@ -5369,7 +5369,7 @@ inline void ListFilesDownfunc(){
 			
 			
 			while(jint < SDFILES_LIST_NUM){
-				
+				Serial.println("Dentro");
 				if(fileCnt > filepointer +  jint){
 					
 					
@@ -5400,7 +5400,7 @@ inline void ListFilesDownfunc(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf_P(listsd.comandline2, PSTR(""));
+							sprintf_P(listsd.comandline2, "");
 						}
 						else{
 							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
@@ -5413,8 +5413,8 @@ inline void ListFilesDownfunc(){
 				}
 				else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
-					genie.WriteStr(stringfilename[jint],PSTR("        "));//Printing form
-					genie.WriteStr(stringfiledur[jint],PSTR("           "));//Printing form
+					genie.WriteStr(stringfilename[jint],"        ");//Printing form
+					genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 					
 				}
 				Serial.println("HOLA UP");
@@ -5473,7 +5473,7 @@ inline void ListFileListINITSD(){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
 					listsd.get_lineduration();
 					if(listsd.get_minutes() == -1){
-						sprintf_P(listsd.comandline2, PSTR(""));
+						sprintf_P(listsd.comandline2, "");
 					}
 					else{
 						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
@@ -5486,8 +5486,8 @@ inline void ListFileListINITSD(){
 			}
 			else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
-				genie.WriteStr(stringfilename[jint],PSTR("        "));//Printing form
-				genie.WriteStr(stringfiledur[jint],PSTR("           "));//Printing form
+				genie.WriteStr(stringfilename[jint],"        ");//Printing form
+				genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 				
 			}
 			jint++;
@@ -5558,7 +5558,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
 					listsd.get_lineduration();
 					if(listsd.get_minutes() == -1){
-						sprintf_P(listsd.comandline2, PSTR(""));
+						sprintf_P(listsd.comandline2, "");
 					}
 					else{
 						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
@@ -5571,8 +5571,8 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			}
 			else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
-				genie.WriteStr(stringfilename[jint],PSTR("        "));//Printing form
-				genie.WriteStr(stringfiledur[jint],PSTR("           "));//Printing form
+				genie.WriteStr(stringfilename[jint],"        ");//Printing form
+				genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 				
 			}
 			jint++;

@@ -1151,6 +1151,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define PAUSE_G70_SETUP			 0				//(mm)
 #define PAUSE_G69_RETRACK		 4				//(mm)
 #define PAUSE_G69_XYMOVE		 5				//(mm)
+#define PAUSE_G70_ZMOVE			 1.0				//(mm)
 #define PAUSE_G70_PURGE			 10				//(mm)
 
 //////	THERMISTOR LECTURE PROTECTION 

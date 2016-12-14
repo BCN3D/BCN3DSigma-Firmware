@@ -4814,7 +4814,7 @@ inline void gcode_G70(){
 					
 					#if PAUSE_G70_SETUP == 0
 					
-					current_position[Z_AXIS] = saved_position[Z_AXIS]+0.05;
+					current_position[Z_AXIS] = saved_position[Z_AXIS]+PAUSE_G70_ZMOVE;
 					feedrate=homing_feedrate[Z_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					destination[Z_AXIS] = current_position[Z_AXIS];

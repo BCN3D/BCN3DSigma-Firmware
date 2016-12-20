@@ -152,6 +152,7 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,log_Y_mmdone);
   EEPROM_WRITE_VAR(i,log_E0_mmdone);
   EEPROM_WRITE_VAR(i,log_E1_mmdone);
+  EEPROM_WRITE_VAR(i,FLAG_First_Start_Wizard);
   #ifdef RECOVERY_PRINT
 	EEPROM_WRITE_VAR(i,saved_print_flag);
     EEPROM_WRITE_VAR(i,saved_x_position);
@@ -459,7 +460,7 @@ void Config_RetrieveSettings()
 		 EEPROM_READ_VAR(i,log_Y_mmdone);
 		 EEPROM_READ_VAR(i,log_E0_mmdone);
 		 EEPROM_READ_VAR(i,log_E1_mmdone);
-		 
+		 EEPROM_READ_VAR(i,FLAG_First_Start_Wizard);
 		 #ifdef RECOVERY_PRINT
 			EEPROM_READ_VAR(i,saved_print_flag);
 		   EEPROM_READ_VAR(i,saved_x_position);
@@ -584,6 +585,7 @@ void Config_ResetDefault()
 	log_X0_mmdone = 0;
 	log_Y_mmdone = 0;
 	log_X0_mmdone = 0;
+	FLAG_First_Start_Wizard = true;
 /*
 	//Extruder Offset
 	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
@@ -619,8 +621,8 @@ void Config_Reset_Calib(){
 		//Extruder Offset
 		//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
 		extruder_offset[X_AXIS][RIGHT_EXTRUDER] = X2_MAX_POS;
-		extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = -0.15;
-		extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = -0.1;
+		extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = 0.25;
+		extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = 0.08;
 
 		
 		#ifdef PIDTEMP
@@ -658,6 +660,7 @@ void Config_Reset_Statistics(int data){
 		log_Y_mmdone = 0;
 		log_E0_mmdone = 0;
 		log_E1_mmdone = 0;
+		FLAG_First_Start_Wizard = true;
 		SERIAL_PROTOCOLLNPGM("STATISTICS RESET");
 	}	
 }

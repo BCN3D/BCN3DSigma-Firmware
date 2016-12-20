@@ -141,7 +141,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					card.closefile();
 					FLAG_PrintPrintStop = true;
 					cancel_heatup = true;
-					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					processing = true;
 				}
@@ -163,13 +162,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						surfing_utilities = false;
 					}
 				}
-				else if (Event.reportObject.index == BUTTON_STOP_SAVE )
+				else if (Event.reportObject.index == BUTTON_STOP_SAVE && !waiting_temps)
 				{
 					if(screen_printing_pause_form == screen_printing_pause_form0){
-						
-						
-						
-						
 						
 						
 						is_on_printing_screen=false;
@@ -2702,7 +2697,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else changeTool(1);
 					
 					current_position[Y_AXIS] = 100;
-					current_position[X_AXIS] = 155;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 					st_synchronize();
 					if(processing_error)return;
@@ -2713,6 +2707,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{ //Inserting...
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						current_position[X_AXIS] = 155;
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 						delay(850);
 						SERIAL_PROTOCOLPGM("Inserting :   \n");
 						current_position[E_AXIS] += 30;//Extra extrusion at low feedrate
@@ -4469,7 +4465,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						//
 					}
-					else if(Event.reportObject.index == BUTTON_FULL_CAL_ZL_SKIP){
+					else if(Event.reportObject.index == BUTTON_FULL_CAL_ZL_SKIP && !FLAG_First_Start_Wizard){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);
 						
 					}
@@ -4574,7 +4570,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//home_axis_from_code(true,false,false);
 						
 					}
-					else if(Event.reportObject.index == BUTTON_FULL_CAL_ZR_SKIP){
+					else if(Event.reportObject.index == BUTTON_FULL_CAL_ZR_SKIP  && !FLAG_First_Start_Wizard){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_X,0);
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_X_GO){
@@ -4590,7 +4586,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if(processing_error)return;
 						
 					}
-					else if(Event.reportObject.index == BUTTON_FULL_CAL_X_SKIP){
+					else if(Event.reportObject.index == BUTTON_FULL_CAL_X_SKIP  && !FLAG_First_Start_Wizard){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_Y_GO){
@@ -4606,7 +4602,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if(processing_error)return;
 						
 					}
-					else if(Event.reportObject.index == BUTTON_FULL_CAL_Y_SKIP){
+					else if(Event.reportObject.index == BUTTON_FULL_CAL_Y_SKIP  && !FLAG_First_Start_Wizard){
 						if(FLAG_First_Start_Wizard){
 							genie.WriteObject(GENIE_OBJ_FORM,FORN_FIRST_RUN_WIZARD_SUCCESS,0);
 							processing_success_first_run = true;

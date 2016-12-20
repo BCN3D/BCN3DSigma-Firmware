@@ -1270,6 +1270,7 @@ void update_screen_printing(){
 	if(FLAG_PrintPrintStop == true){
 		FLAG_PrintPrintStop = false;
 		
+		
 		bufindw = (bufindr + 1)%BUFSIZE;
 		buflen = 1;
 		
@@ -1287,7 +1288,8 @@ void update_screen_printing(){
 		ymmdone = 0;
 		e0mmdone = 0;
 		e1mmdone = 0;
-		enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
+		enquecommand_P(PSTR("M35"));
+		
 		SERIAL_PROTOCOLPGM(" STOP PRINT \n");
 		
 	
@@ -4754,7 +4756,7 @@ inline void gcode_G69(){
 					//*********************************//
 					saved_active_extruder = active_extruder;
 					//********RETRACK
-					current_position[E_AXIS]-=PAUSE_G69_RETRACK;
+					current_position[E_AXIS]-=PAUSE_G69_RETRACT;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 					st_synchronize();
 					//*********************************//
@@ -5389,7 +5391,7 @@ inline void gcode_M33(){
 	if (card.cardOK){
 		card.closefile(true);
 		saved_position[Z_AXIS] = current_position[Z_AXIS];
-		current_position[E_AXIS]-=PAUSE_G69_RETRACK;
+		current_position[E_AXIS]-=PAUSE_G69_RETRACT;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 		st_synchronize();
 		//*********************************//
@@ -5443,7 +5445,7 @@ inline void gcode_M34(){
 		
 		if (card.cardOK){
 			
-			
+			waiting_temps = true;
 			listsd.get_lineduration();
 			card.openFile(card.filename,true);
 			
@@ -5522,10 +5524,37 @@ inline void gcode_M34(){
 				destination[i] = current_position[i];
 			}
 			Serial.println(current_position[Y_AXIS]);
+			waiting_temps = false;
+			
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
 		}
 		#endif //SDSUPPORT
 	}
 	saved_print_flag =  false;
+}
+inline void gcode_M35(){
+	
+	feedrate=homing_feedrate[X_AXIS];
+	if (active_extruder == LEFT_EXTRUDER && current_position[X_AXIS] != 0){															//Move X axis, controlling the current_extruder
+		current_position[X_AXIS] = current_position[X_AXIS]-PAUSE_G69_XYMOVE;
+		current_position[Y_AXIS] = current_position[Y_AXIS]+PAUSE_G69_XYMOVE;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		}else if(active_extruder == RIGHT_EXTRUDER && current_position[X_AXIS] != extruder_offset[X_AXIS][1]){
+		current_position[X_AXIS] = current_position[X_AXIS]+PAUSE_G69_XYMOVE;
+		current_position[Y_AXIS] = current_position[Y_AXIS]+PAUSE_G69_XYMOVE;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+	}
+	st_synchronize();
+	//********MOVE TO PAUSE POSITION
+	
+	if(current_position[Z_AXIS]>=180) current_position[Z_AXIS] += 2;								//
+	else if(current_position[Z_AXIS]>=205) {}
+	else if(current_position[Z_AXIS] == 0){}														//Move the bed, more or less in function of current_position
+	else current_position[Z_AXIS] += 10;															//
+	int feedrate=homing_feedrate[Z_AXIS];
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+	st_synchronize();
+	enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
 }
 inline void gcode_M928(){
 	#ifdef SDSUPPORT
@@ -5934,6 +5963,7 @@ inline void gcode_M105(){
 inline void gcode_M190(){
 	unsigned long codenum;
 	waiting_temps = true;
+	dobloking = false; 
 	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
 	HeaterCooldownInactivity(false);
 	#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
@@ -5978,6 +6008,7 @@ inline void gcode_M190(){
 		}*/
 	}
 	waiting_temps = false;
+	dobloking = true; 
 	Serial.println("Bed Heated");
 	LCD_MESSAGEPGM(MSG_BED_DONE);
 	previous_millis_cmd = millis();
@@ -7802,6 +7833,10 @@ void process_commands()
 			
 			case 34: //M34 - Save
 			gcode_M34();
+			break;
+			
+			case 35: //M35 - StopCut
+			gcode_M35();
 			break;
 			
 			case 928: //M928 - Start SD write

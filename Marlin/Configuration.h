@@ -192,17 +192,17 @@
 #define BED_MINTEMP 5
 
 //To clean the extruder's the best temperature configuration
-#define	PLA_INSERT_TEMP			220
+#define	PLA_INSERT_TEMP			215
 #define	PLA_REMOVE_TEMP			170
 #define	PLA_PRINT_TEMP			215
 #define PLA_BED_TEMP			65
 
-#define	ABS_INSERT_TEMP			265
-#define	ABS_REMOVE_TEMP			265
-#define	ABS_PRINT_TEMP			265
+#define	ABS_INSERT_TEMP			260
+#define	ABS_REMOVE_TEMP			240
+#define	ABS_PRINT_TEMP			260
 #define ABS_BED_TEMP			90
 
-#define	PVA_INSERT_TEMP			200
+#define	PVA_INSERT_TEMP			190
 #define	PVA_REMOVE_TEMP			170
 #define	PVA_PRINT_TEMP			190
 #define PVA_BED_TEMP			65
@@ -489,7 +489,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#define X_MAX_POS 303.9//312 //Distance between extruders
+	#define X_MAX_POS 305.6//312 //Distance between extruders
 	//#define X_MAX_POS 210 //Bed X
 	#define X_MIN_POS 0
 	#define Y_MAX_POS 295
@@ -736,7 +736,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#if MOTHERBOARD == BCN3D_BOARD
 		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  17//20
 		#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
-		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  2.9//2.80//3.4 //It is negative, it is compensated
+		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  2.7//2.80//3.4 //It is negative, it is compensated
 	#endif
 	
 	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-13.5
@@ -1149,8 +1149,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //////	PAUSE PRINT
 
 #define PAUSE_G70_SETUP			 0				//(mm)
-#define PAUSE_G69_RETRACK		 4				//(mm)
+#define PAUSE_G69_RETRACT		 4				//(mm)
 #define PAUSE_G69_XYMOVE		 5				//(mm)
+#define PAUSE_G70_ZMOVE			 2				//(mm)
 #define PAUSE_G70_PURGE			 10				//(mm)
 
 //////	THERMISTOR LECTURE PROTECTION 

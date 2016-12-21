@@ -321,7 +321,9 @@ extern int bed_calibration_times;
 extern bool processing;
 extern uint8_t processing_z_set;
 extern bool processing_success;
+extern bool processing_success_first_run;
 extern bool processing_bed_success;
+extern bool processing_saveprint_success;
 extern bool processing_nylon_step4;
 extern bool processing_purge_load;
 extern bool processing_nylon_step3;
@@ -335,7 +337,7 @@ extern bool printing_error_temps;
 extern bool processing_error;
 extern bool processing_bed_first;
 extern bool processing_test;
-
+extern bool FLAG_First_Start_Wizard;
 /////// end Processing Gifs	/////////
 
 extern bool back_home;

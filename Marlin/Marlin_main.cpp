@@ -4605,6 +4605,9 @@ if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 							enquecommand_P(PSTR("T0"));
 							processing = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZL,0);
+							if(FLAG_First_Start_Wizard){
+								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZL_SKIP,0);
+							}
 						
 		flag_continue_calib = true;							
 	}
@@ -5442,7 +5445,7 @@ inline void gcode_M33(){
 inline void gcode_M34(){
 	if(saved_print_flag){
 		#ifdef SDSUPPORT
-		
+		saved_print_flag =  false;
 		if (card.cardOK){
 			
 			waiting_temps = true;
@@ -5464,6 +5467,9 @@ inline void gcode_M34(){
 			while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
 				manage_heater();
 				touchscreen_update();
+				if(cancel_heatup == true){
+					return;
+				}
 			}
 			current_position[Z_AXIS]=saved_z_position;
 			z_restaurada = current_position[Z_AXIS];
@@ -5530,7 +5536,7 @@ inline void gcode_M34(){
 		}
 		#endif //SDSUPPORT
 	}
-	saved_print_flag =  false;
+	
 }
 inline void gcode_M35(){
 	

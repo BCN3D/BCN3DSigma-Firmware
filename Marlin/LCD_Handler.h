@@ -3345,12 +3345,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					#pragma region CalibrationsXYZ
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT1)
 					{
-						if(FLAG_CalibFull){
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
-							
-							
-						}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-						processing_bed_success=true;
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,0);
+						}
 						//char buffer[30];
 						float calculus = extruder_offset[X_AXIS][1] + 0.5;
 						SERIAL_PROTOCOLPGM("Calculus:  ");
@@ -3363,11 +3362,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT2)
 					{
 						
-						if(FLAG_CalibFull){
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
-						}else{
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-						processing_bed_success=true;
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,0);
 						}
 						float calculus = extruder_offset[X_AXIS][1] + 0.4;
 						SERIAL_PROTOCOLPGM("Calculus:  ");
@@ -3379,13 +3377,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT3)
 					{
-						if(FLAG_CalibFull){
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 						
-						}
-						else{
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-							processing_bed_success=true;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,0);
 						}
 						float calculus = extruder_offset[X_AXIS][1] + 0.3;
 						SERIAL_PROTOCOLPGM("Calculus:  ");
@@ -3397,13 +3392,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT4)
 					{
-						if(FLAG_CalibFull){
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
-							
-						}else{
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-						processing_bed_success=true;
-					}
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,0);
+						}
 						float calculus = extruder_offset[X_AXIS][1] + 0.2;
 						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
@@ -3415,12 +3408,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT5)
 					{
 						
-						if(FLAG_CalibFull){
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
-						}
-						else{
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-							processing_bed_success=true;
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,0);
 						}
 						float calculus = extruder_offset[X_AXIS][1] + 0.1;
 						SERIAL_PROTOCOLPGM("Calculus:  ");
@@ -3433,14 +3424,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT6)
 					{
 						
-						if(FLAG_CalibFull){
-							
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
-							
-						}
-						else{
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-							processing_bed_success=true;
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,0);
 						}
 						float calculus = extruder_offset[X_AXIS][1];
 						SERIAL_PROTOCOLPGM("Calculus:  ");
@@ -3452,13 +3439,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT7)
 					{
-						if(FLAG_CalibFull){
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
-							
-						}else{
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-						processing_bed_success=true;
-					}
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,0);
+						}
 						float calculus = extruder_offset[X_AXIS][1] - 0.1;
 						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
@@ -3469,14 +3454,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT8)
 					{
-						if(FLAG_CalibFull){
-							
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
-							
-						}else{
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-						processing_bed_success=true;
-					}
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,0);
+						}
 						float calculus = extruder_offset[X_AXIS][1] - 0.2;
 						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
@@ -3487,14 +3469,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT9)
 					{
-						if(FLAG_CalibFull){
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
-							
-						}else{
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-						processing_bed_success=true;
-					}
 						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,0);
+						}
 						float calculus = extruder_offset[X_AXIS][1] - 0.3;
 						SERIAL_PROTOCOLPGM("Calculus:  ");
 						Serial.println(calculus);
@@ -3511,15 +3490,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT10)
 					{
 						
-						if(FLAG_CalibFull){
-							
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
-							
-							
-						}
-						else{
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-							processing_bed_success=true;
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,0);
 						}
 						float calculus = extruder_offset[X_AXIS][1]-0.4;
 						SERIAL_PROTOCOLPGM("Calculus:  ");
@@ -4165,7 +4139,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT1){
 						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);	
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZR_SKIP,0);
+						}	
 						active_extruder = RIGHT_EXTRUDER;
 						zprobe_zoffset+=0.05;
 						Config_StoreSettings(); //Store changes
@@ -4173,7 +4150,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 					}
 					else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT2){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);	
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZR_SKIP,0);
+						}
 						
 						active_extruder = RIGHT_EXTRUDER;
 						
@@ -4181,7 +4161,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 					}
 					else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT3){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);	
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZR_SKIP,0);
+						}	
 						
 						active_extruder = RIGHT_EXTRUDER;
 						zprobe_zoffset-=0.05;
@@ -4189,7 +4172,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 					}
 					else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT4){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);		
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZR_SKIP,0);
+						}		
 						active_extruder = RIGHT_EXTRUDER;
 						zprobe_zoffset-=0.1;
 						Config_StoreSettings(); //Store changes
@@ -4197,7 +4183,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 					}
 					else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT5){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);	
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZR_SKIP,0);
+						}	
 						
 						active_extruder = RIGHT_EXTRUDER;
 						zprobe_zoffset-=0.15;
@@ -4331,6 +4320,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT1){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_X,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_X_SKIP,0);
+						}
 						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.05;
 						Config_StoreSettings(); //Store changes
 						
@@ -4338,10 +4330,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT2){
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_X,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_X_SKIP,0);
+						}
 						
 					}
 					else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT3){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_X,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_X_SKIP,0);
+						}
 						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.05;
 						Config_StoreSettings(); //Store changes
 						
@@ -4349,6 +4347,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT4){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_X,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_X_SKIP,0);
+						}
 						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.1;
 						Config_StoreSettings(); //Store changes
 						
@@ -4356,6 +4357,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT5){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_X,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_X_SKIP,0);
+						}
 						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.15;
 						Config_StoreSettings(); //Store changes
 						
@@ -4467,6 +4471,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_ZL_SKIP && !FLAG_First_Start_Wizard){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZR_SKIP,0);
+						}
 						
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_ZR_GO){
@@ -4572,6 +4579,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_ZR_SKIP  && !FLAG_First_Start_Wizard){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_X,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_X_SKIP,0);
+						}
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_X_GO){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
@@ -4588,6 +4598,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_X_SKIP  && !FLAG_First_Start_Wizard){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
+						if(FLAG_First_Start_Wizard){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,0);
+						}
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_Y_GO){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
@@ -4669,6 +4682,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							enquecommand_P(PSTR("T0"));
 							processing = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZL,0);
+							if(FLAG_First_Start_Wizard){
+								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZL_SKIP,0);
+							}
 							
 							
 							
@@ -4979,8 +4995,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							enquecommand_P(PSTR("T0"));
 							processing = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZL,0);
-							
-							
+							if(FLAG_First_Start_Wizard){
+								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZL_SKIP,0);
+							}
 							
 							
 							

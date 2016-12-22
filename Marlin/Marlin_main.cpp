@@ -797,7 +797,7 @@ void setup()
 					
 					genie.WriteObject(GENIE_OBJ_VIDEO,0,i);
 					i+=1;
-					waitPeriod = 40+millis();	//Every 5s
+					waitPeriod = GIF_FRAMERATE+millis();	//Every 5s
 				}
 				
 				
@@ -837,7 +837,7 @@ void setup()
 					if (card.cardOK){
 						
 						workDir_vector_lenght=saved_workDir_vector_lenght;
-						for(int i=0; i<saved_workDir_vector_lenght;i++){
+						for(int i=0; i<saved_workDir_vector_lenght && i < 10;i++){
 							card.getWorkDirName();
 							card.getfilename(saved_workDir_vector[i]);
 							workDir_vector[i]=saved_workDir_vector[i];
@@ -853,7 +853,18 @@ void setup()
 					
 				}else if (FLAG_First_Start_Wizard){
 					genie.WriteObject(GENIE_OBJ_FORM,FORN_FIRST_RUN_WIZARD_INIT,0);
-					delay(5000);
+					int j =0;
+					while ( j<GIF_FRAMES_INIT_FIRST_RUN){
+						if (millis() >= waitPeriod){
+							
+							genie.WriteObject(GENIE_OBJ_VIDEO,GIF_FIRST_RUN_WIZARD_INIT,i);
+							j+=1;
+							waitPeriod = GIF_FRAMERATE+millis();	//Every 5s
+						}
+						
+						
+						
+					}
 					genie.WriteObject(GENIE_OBJ_FORM,FORN_FIRST_RUN_WIZARD_YESNOT,0);
 				}else{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);

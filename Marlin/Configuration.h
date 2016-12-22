@@ -1191,6 +1191,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define GIF_FRAMES_NYLONTEMPS			43
 #define GIF_FRAMES_ERROR				44
 #define GIF_FRAMES_PREHEAT				41
+#define GIF_FRAMES_INIT_FIRST_RUN		124
 
 
 //#define SCREENTEST

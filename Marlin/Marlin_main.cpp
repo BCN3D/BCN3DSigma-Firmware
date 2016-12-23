@@ -283,7 +283,7 @@ uint8_t workDir_vector_lenght=0;
 #ifdef FIRST_START_WIZARD
 
 	int FLAG_First_Start_Wizard = 1888;
-	int Step_First_Start_Wizard = 0; // State
+	bool Step_First_Start_Wizard = false; // State
 
 #endif
 /////// end First Start Wizard	/////////
@@ -1731,7 +1731,7 @@ void update_screen_noprinting(){
 	}
 	if(FLAG_ZAdjust50Up && !blocks_queued()){
 		processing_z_set = 0;
-		current_position[Z_AXIS]-=50;
+		current_position[Z_AXIS]-=100;
 		FLAG_ZAdjust50Up= false;
 		if (home_made_Z){
 			if(current_position[Z_AXIS]< Z_MIN_POS){
@@ -1759,7 +1759,7 @@ void update_screen_noprinting(){
 	}
 	if(FLAG_ZAdjust50Down && !blocks_queued()){
 		processing_z_set = 1;
-		current_position[Z_AXIS]+=50;
+		current_position[Z_AXIS]+=100;
 		FLAG_ZAdjust50Down = false;
 		if (home_made_Z){
 			
@@ -4617,7 +4617,7 @@ if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 							processing = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZL,0);
 							if(FLAG_First_Start_Wizard==1888){
-								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZL_SKIP,0);
+								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZL_SKIP,1);
 							}
 						
 		flag_continue_calib = true;							

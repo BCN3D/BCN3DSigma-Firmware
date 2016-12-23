@@ -585,7 +585,7 @@ void Config_ResetDefault()
 	log_X0_mmdone = 0;
 	log_Y_mmdone = 0;
 	log_X0_mmdone = 0;
-	FLAG_First_Start_Wizard = true;
+	FLAG_First_Start_Wizard = 1888;
 /*
 	//Extruder Offset
 	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
@@ -660,7 +660,7 @@ void Config_Reset_Statistics(int data){
 		log_Y_mmdone = 0;
 		log_E0_mmdone = 0;
 		log_E1_mmdone = 0;
-		FLAG_First_Start_Wizard = true;
+		FLAG_First_Start_Wizard = 1888;
 		SERIAL_PROTOCOLLNPGM("STATISTICS RESET");
 	}	
 }

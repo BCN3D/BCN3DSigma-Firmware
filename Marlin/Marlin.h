@@ -337,7 +337,7 @@ extern bool printing_error_temps;
 extern bool processing_error;
 extern bool processing_bed_first;
 extern bool processing_test;
-extern bool FLAG_First_Start_Wizard;
+extern int FLAG_First_Start_Wizard;
 /////// end Processing Gifs	/////////
 
 extern bool back_home;
@@ -384,7 +384,7 @@ extern int saved_tempbed;
 extern int saved_feedspeed;
 extern float saved_feedrate1;
 extern int saved_fanlayer;
-extern bool saved_print_flag;	
+extern int saved_print_flag;	
 extern int workDir_vector[MAX_DIR_DEPTH];
 extern uint8_t workDir_vector_lenght;
 extern int saved_workDir_vector[MAX_DIR_DEPTH];

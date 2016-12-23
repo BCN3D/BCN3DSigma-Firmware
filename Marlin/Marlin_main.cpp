@@ -272,7 +272,7 @@ int UI_SerialID2 = 0;
 	float saved_feedrate1;
 	int saved_workDir_vector[MAX_DIR_DEPTH];
 	uint8_t saved_workDir_vector_lenght=0;
-	bool saved_print_flag=false;	
+	int saved_print_flag = 888;	
 #endif
 int workDir_vector[MAX_DIR_DEPTH];
 uint8_t workDir_vector_lenght=0;
@@ -282,7 +282,7 @@ uint8_t workDir_vector_lenght=0;
 /////// First Start Wizard	/////////
 #ifdef FIRST_START_WIZARD
 
-	bool FLAG_First_Start_Wizard = true;
+	int FLAG_First_Start_Wizard = 1888;
 	int Step_First_Start_Wizard = 0; // State
 
 #endif
@@ -830,7 +830,7 @@ void setup()
 				log_max_temp_r = 0;
 				log_max_bed =0;
 				Config_RetrieveSettings();
-				if(saved_print_flag){
+				if(saved_print_flag == 1888){
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
 					card.initsd();
@@ -851,13 +851,13 @@ void setup()
 						setfilenames(7);
 					}
 					
-				}else if (FLAG_First_Start_Wizard){
+				}else if (FLAG_First_Start_Wizard==1888){
 					genie.WriteObject(GENIE_OBJ_FORM,FORN_FIRST_RUN_WIZARD_INIT,0);
-					int j =0;
+					int j = 0;
 					while ( j<GIF_FRAMES_INIT_FIRST_RUN){
 						if (millis() >= waitPeriod){
 							
-							genie.WriteObject(GENIE_OBJ_VIDEO,GIF_FIRST_RUN_WIZARD_INIT,i);
+							genie.WriteObject(GENIE_OBJ_VIDEO,GIF_FIRST_RUN_WIZARD_INIT,j);
 							j+=1;
 							waitPeriod = GIF_FRAMERATE+millis();	//Every 5s
 						}
@@ -2175,7 +2175,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				log_minutes_lastprint = (int)(log_min_print%60);
 				Config_StoreSettings();
 				cancel_heatup = false;
-				if(saved_print_flag){
+				if(saved_print_flag == 1888){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_SAVEJOB_SUCCESS,0);
 					processing_saveprint_success= true;
 					processing_state = 0;
@@ -4616,7 +4616,7 @@ if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 							enquecommand_P(PSTR("T0"));
 							processing = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZL,0);
-							if(FLAG_First_Start_Wizard){
+							if(FLAG_First_Start_Wizard==1888){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZL_SKIP,0);
 							}
 						
@@ -5451,12 +5451,12 @@ inline void gcode_M33(){
 	}
 	#endif //SDSUPPORT
 	//Config_StoreSettings();
-	saved_print_flag =  true;
+	saved_print_flag =  1888;
 }
 inline void gcode_M34(){
-	if(saved_print_flag){
+	if(saved_print_flag == 1888){
 		#ifdef SDSUPPORT
-		saved_print_flag =  false;
+		saved_print_flag =  888;
 		if (card.cardOK){
 			
 			waiting_temps = true;
@@ -7134,7 +7134,7 @@ inline void gcode_M506(){
 	Config_StoreSettings();
 }
 inline void gcode_M507(){
-	if(saved_print_flag){
+	if(saved_print_flag == 1888){
 		SERIAL_PROTOCOLLNPGM("Print recovery up");
 		Config_PrintSAVESettings();
 	}else{

@@ -1,0 +1,1670 @@
+==============================================================
+==============================================================
+4DGL Compiler 2.8.0.5 -- Copyright 2004-2015 4D Labs
+** C:\Users\agarciamoreno\Documents\Firmware\PANTALLA\BCN3D_SIGMA_122RC\BCN3D_SIGMA.4DWork\BCN3D_SIGMA.4DGenieS
+compiled Fri Dec 23 10:26:56 2016
+
+==============================================================
+==============================================================
+
+
+No Ref for file
+[LINKING]
+function 12, main, address 13441
+(main entry point)
+stack usage 112 + 4
+function 'main' requires no arguments
+function 'main' has no return value
+
+[LINKING]
+function 11, DoGFXObjects, address 15415
+stack usage 0 + 4
+!Empty Function
+[LINKING]
+function 10, UpdateObjects, address 15416
+stack usage 4 + 4
+function 'UpdateObjects' requires 1 argument
+function 'UpdateObjects' has no return value
+
+[LINKING]
+function 9, ActivateForm, address 16047
+stack usage 6 + 4
+function 'ActivateForm' requires 1 argument
+function 'ActivateForm' has no return value
+
+[LINKING]
+function 8, TurnOffButtons, address 16368
+stack usage 6 + 4
+function 'TurnOffButtons' requires 1 argument
+function 'TurnOffButtons' has no return value
+
+[LINKING]
+function 7, WriteObject, address 16505
+stack usage 8 + 4
+function 'WriteObject' requires 3 argument
+function 'WriteObject' has no return value
+
+[LINKING]
+function 6, ReadObject, address 16798
+stack usage 6 + 4
+function 'ReadObject' requires 2 argument
+function 'ReadObject' has no return value
+
+[LINKING]
+function 5, SendReport, address 16946
+stack usage 0 + 4
+function 'SendReport' requires 4 argument
+function 'SendReport' has no return value
+
+[LINKING]
+function 4, seroutOcs, address 16996
+stack usage 0 + 4
+function 'seroutOcs' requires no arguments
+function 'seroutOcs' has no return value
+
+[LINKING]
+function 3, nak0, address 17013
+stack usage 0 + 4
+function 'nak0' requires no arguments
+function 'nak0' has no return value
+
+[LINKING]
+function 2, seroutCS, address 17029
+stack usage 0 + 4
+function 'seroutCS' requires 1 argument
+function 'seroutCS' has no return value
+
+[LINKING]
+function 1, PrintStrings, address 17048
+stack usage 14 + 4
+function 'PrintStrings' requires 3 argument
+function 'PrintStrings' has no return value
+
+[RESERVED WORDS]
+#inherit
+#LISTCODE
+#MODE
+#STACK
+#OPTIMIZE_ON
+#OPTIMIZE_OFF
+byte
+word
+dword
+float
+private
+#IF
+#IFNOT
+#ELSE
+#ENDIF
+#CONST
+#constant
+#USE
+USING
+func
+endfunc
+var
+#STOP
+#DATA
+#ASM
+#END
+#platform
+EXISTS
+#ERROR
+#MESSAGE
+#NOTICE
+sizeof
+argcount
+if
+else
+endif
+while
+wend
+repeat
+until
+forever
+return
+break
+continue
+for
+next
+switch
+case
+default
+endswitch
+print
+goto
+gosub
+endsub
+mcall
+lookup8
+lookup16
+
+[MACRO]
+
+[CONSTANTS]
+__MAXMEM                          00008000      32768  (usage 1)
+__MAXPROG                         00007FEE      32750  (usage 1)
+ACK                               00000006          6  (usage 12)
+BACKGROUND_COLOUR                 00000011         17  (usage 3)
+BLACK                             00000000          0  (usage 111)
+CMDLenMAX                         00000050         80  (usage 12)
+ColorBGimage                      00000020         32  (usage 228)
+COM0                              0000F804      63492  (usage 3)
+DIABLO                            00000003          3  (usage 3)
+I_ENABLED                         00008000      32768  (usage 3)
+I_STAYONTOP                       00000100        256  (usage 3)
+I_TOUCH_DISABLE                   00000020         32  (usage 6)
+iForm1                            00000001          1  (usage 3)
+iForm10                           000000AA        170  (usage 3)
+iForm11                           000000B3        179  (usage 3)
+iForm12                           000000AC        172  (usage 3)
+iForm13                           00000079        121  (usage 3)
+iForm14                           00000025         37  (usage 3)
+iForm15                           000000AE        174  (usage 3)
+iForm16                           00000067        103  (usage 3)
+iForm17                           0000007F        127  (usage 3)
+iForm18                           000000BC        188  (usage 3)
+iForm19                           00000029         41  (usage 3)
+iForm2                            00000005          5  (usage 3)
+iForm20                           0000002B         43  (usage 3)
+iForm21                           00000034         52  (usage 3)
+iForm22                           000000CB        203  (usage 3)
+iForm23                           000000DA        218  (usage 3)
+iForm24                           000000F9        249  (usage 3)
+iForm25                           00000081        129  (usage 3)
+iForm26                           0000012B        299  (usage 3)
+iForm27                           00000037         55  (usage 3)
+iForm28                           00000043         67  (usage 3)
+iForm29                           000000C3        195  (usage 3)
+iForm3                            00000075        117  (usage 3)
+iForm30                           0000012E        302  (usage 3)
+iForm31                           0000004B         75  (usage 3)
+iForm32                           0000004E         78  (usage 3)
+iForm33                           00000051         81  (usage 3)
+iForm34                           0000005D         93  (usage 3)
+iForm35                           00000062         98  (usage 3)
+iForm36                           000000C1        193  (usage 3)
+iForm37                           000000D0        208  (usage 3)
+iForm38                           000000D2        210  (usage 3)
+iForm39                           000000D4        212  (usage 3)
+iForm4                            00000011         17  (usage 3)
+iForm40                           0000011C        284  (usage 3)
+iForm41                           000000F6        246  (usage 3)
+iForm42                           000000DD        221  (usage 3)
+iForm43                           000000E2        226  (usage 3)
+iForm44                           0000006B        107  (usage 3)
+iForm45                           00000131        305  (usage 3)
+iForm46                           000000E4        228  (usage 3)
+iForm47                           0000007D        125  (usage 3)
+iForm48                           00000088        136  (usage 3)
+iForm49                           0000008F        143  (usage 3)
+iForm5                            00000016         22  (usage 3)
+iForm50                           000000E7        231  (usage 3)
+iForm51                           000000EC        236  (usage 3)
+iForm52                           00000094        148  (usage 3)
+iForm53                           000000A0        160  (usage 3)
+iForm54                           000000EF        239  (usage 3)
+iForm55                           000000F2        242  (usage 3)
+iForm56                           000000FB        251  (usage 3)
+iForm57                           000000FD        253  (usage 3)
+iForm58                           00000102        258  (usage 3)
+iForm59                           0000010E        270  (usage 3)
+iForm6                            0000001B         27  (usage 3)
+iForm60                           00000104        260  (usage 3)
+iForm61                           00000107        263  (usage 3)
+iForm62                           00000109        265  (usage 3)
+iForm63                           0000010C        268  (usage 3)
+iForm64                           00000119        281  (usage 3)
+iForm65                           0000011E        286  (usage 3)
+iForm66                           00000122        290  (usage 3)
+iForm67                           00000125        293  (usage 3)
+iForm68                           00000128        296  (usage 3)
+iForm69                           00000133        307  (usage 3)
+iForm7                            00000100        256  (usage 3)
+iForm70                           00000134        308  (usage 3)
+iForm71                           00000136        310  (usage 3)
+iForm72                           00000138        312  (usage 3)
+iForm73                           0000013A        314  (usage 3)
+iForm74                           0000013C        316  (usage 3)
+iForm8                            000000B1        177  (usage 3)
+iForm9                            00000021         33  (usage 3)
+IMAGE_INDEX                       00000009          9  (usage 42)
+IMAGE_TAG                         0000000C         12  (usage 9)
+IPDatasize                        00000016         22  (usage 3)
+iUserbutton0                      0000001C         28  (usage 3)
+iUserbutton1                      00000002          2  (usage 3)
+iUserbutton10                     0000010D        269  (usage 3)
+iUserbutton100                    00000040         64  (usage 3)
+iUserbutton101                    00000041         65  (usage 3)
+iUserbutton102                    00000052         82  (usage 3)
+iUserbutton103                    00000053         83  (usage 3)
+iUserbutton104                    00000054         84  (usage 3)
+iUserbutton105                    00000055         85  (usage 3)
+iUserbutton106                    00000056         86  (usage 3)
+iUserbutton107                    00000057         87  (usage 3)
+iUserbutton108                    00000058         88  (usage 3)
+iUserbutton109                    00000059         89  (usage 3)
+iUserbutton11                     00000044         68  (usage 3)
+iUserbutton110                    0000005A         90  (usage 3)
+iUserbutton111                    0000005B         91  (usage 3)
+iUserbutton112                    0000005E         94  (usage 3)
+iUserbutton113                    0000005F         95  (usage 3)
+iUserbutton114                    00000060         96  (usage 3)
+iUserbutton115                    00000063         99  (usage 3)
+iUserbutton116                    00000064        100  (usage 3)
+iUserbutton117                    00000065        101  (usage 3)
+iUserbutton118                    000000DF        223  (usage 3)
+iUserbutton119                    0000008B        139  (usage 3)
+iUserbutton12                     00000017         23  (usage 3)
+iUserbutton120                    000000C6        198  (usage 3)
+iUserbutton121                    000000C7        199  (usage 3)
+iUserbutton122                    000000C8        200  (usage 3)
+iUserbutton123                    000000CD        205  (usage 3)
+iUserbutton124                    000000CE        206  (usage 3)
+iUserbutton125                    000000CF        207  (usage 3)
+iUserbutton126                    00000033         51  (usage 3)
+iUserbutton127                    0000008C        140  (usage 3)
+iUserbutton128                    00000090        144  (usage 3)
+iUserbutton129                    00000091        145  (usage 3)
+iUserbutton13                     00000018         24  (usage 3)
+iUserbutton130                    00000092        146  (usage 3)
+iUserbutton131                    00000085        133  (usage 3)
+iUserbutton132                    000000D1        209  (usage 3)
+iUserbutton133                    000000D3        211  (usage 3)
+iUserbutton134                    0000009F        159  (usage 3)
+iUserbutton135                    00000073        115  (usage 3)
+iUserbutton136                    000000E0        224  (usage 3)
+iUserbutton137                    000000E1        225  (usage 3)
+iUserbutton138                    000000D5        213  (usage 3)
+iUserbutton139                    000000D6        214  (usage 3)
+iUserbutton14                     0000000B         11  (usage 3)
+iUserbutton140                    000000D7        215  (usage 3)
+iUserbutton141                    000000D8        216  (usage 3)
+iUserbutton142                    00000095        149  (usage 3)
+iUserbutton143                    00000096        150  (usage 3)
+iUserbutton144                    00000097        151  (usage 3)
+iUserbutton145                    00000098        152  (usage 3)
+iUserbutton146                    00000099        153  (usage 3)
+iUserbutton147                    0000009A        154  (usage 3)
+iUserbutton148                    0000009B        155  (usage 3)
+iUserbutton149                    0000009C        156  (usage 3)
+iUserbutton15                     00000008          8  (usage 3)
+iUserbutton150                    0000009D        157  (usage 3)
+iUserbutton151                    0000006C        108  (usage 3)
+iUserbutton152                    0000006D        109  (usage 3)
+iUserbutton153                    000000D9        217  (usage 3)
+iUserbutton154                    0000006E        110  (usage 3)
+iUserbutton155                    0000006F        111  (usage 3)
+iUserbutton156                    00000070        112  (usage 3)
+iUserbutton157                    00000071        113  (usage 3)
+iUserbutton158                    00000069        105  (usage 3)
+iUserbutton159                    0000001F         31  (usage 3)
+iUserbutton16                     00000024         36  (usage 3)
+iUserbutton160                    00000072        114  (usage 3)
+iUserbutton161                    0000009E        158  (usage 3)
+iUserbutton162                    000000A1        161  (usage 3)
+iUserbutton163                    000000A2        162  (usage 3)
+iUserbutton164                    000000A3        163  (usage 3)
+iUserbutton165                    000000A4        164  (usage 3)
+iUserbutton166                    000000A5        165  (usage 3)
+iUserbutton167                    000000A6        166  (usage 3)
+iUserbutton168                    000000A7        167  (usage 3)
+iUserbutton169                    000000A8        168  (usage 3)
+iUserbutton17                     00000026         38  (usage 3)
+iUserbutton170                    000000A9        169  (usage 3)
+iUserbutton171                    000000E5        229  (usage 3)
+iUserbutton172                    0000012D        301  (usage 3)
+iUserbutton173                    0000012F        303  (usage 3)
+iUserbutton174                    00000130        304  (usage 3)
+iUserbutton175                    00000135        309  (usage 3)
+iUserbutton176                    00000137        311  (usage 3)
+iUserbutton177                    000000E8        232  (usage 3)
+iUserbutton178                    000000E9        233  (usage 3)
+iUserbutton179                    000000EA        234  (usage 3)
+iUserbutton18                     00000022         34  (usage 3)
+iUserbutton180                    000000EB        235  (usage 3)
+iUserbutton181                    000000ED        237  (usage 3)
+iUserbutton182                    000000EE        238  (usage 3)
+iUserbutton183                    000000F3        243  (usage 3)
+iUserbutton184                    000000F4        244  (usage 3)
+iUserbutton185                    000000F5        245  (usage 3)
+iUserbutton186                    000000F0        240  (usage 3)
+iUserbutton187                    000000F1        241  (usage 3)
+iUserbutton188                    000000F8        248  (usage 3)
+iUserbutton189                    000000FC        252  (usage 3)
+iUserbutton19                     00000023         35  (usage 3)
+iUserbutton190                    000000FF        255  (usage 3)
+iUserbutton191                    0000010A        266  (usage 3)
+iUserbutton192                    00000101        257  (usage 3)
+iUserbutton193                    0000010F        271  (usage 3)
+iUserbutton194                    00000105        261  (usage 3)
+iUserbutton195                    00000106        262  (usage 3)
+iUserbutton196                    00000110        272  (usage 3)
+iUserbutton197                    0000011F        287  (usage 3)
+iUserbutton198                    00000120        288  (usage 3)
+iUserbutton199                    00000111        273  (usage 3)
+iUserbutton2                      0000001D         29  (usage 3)
+iUserbutton20                     00000042         66  (usage 3)
+iUserbutton200                    00000112        274  (usage 3)
+iUserbutton201                    00000113        275  (usage 3)
+iUserbutton202                    00000114        276  (usage 3)
+iUserbutton203                    00000115        277  (usage 3)
+iUserbutton204                    00000116        278  (usage 3)
+iUserbutton205                    00000117        279  (usage 3)
+iUserbutton206                    0000011A        282  (usage 3)
+iUserbutton207                    0000011B        283  (usage 3)
+iUserbutton208                    0000013D        317  (usage 3)
+iUserbutton209                    00000121        289  (usage 3)
+iUserbutton21                     00000038         56  (usage 3)
+iUserbutton210                    00000123        291  (usage 3)
+iUserbutton211                    00000126        294  (usage 3)
+iUserbutton212                    00000129        297  (usage 3)
+iUserbutton213                    0000012A        298  (usage 3)
+iUserbutton214                    0000013E        318  (usage 3)
+iUserbutton215                    00000124        292  (usage 3)
+iUserbutton22                     00000039         57  (usage 3)
+iUserbutton23                     00000086        134  (usage 3)
+iUserbutton24                     00000087        135  (usage 3)
+iUserbutton25                     0000008D        141  (usage 3)
+iUserbutton26                     0000005C         92  (usage 3)
+iUserbutton27                     00000076        118  (usage 3)
+iUserbutton28                     00000077        119  (usage 3)
+iUserbutton29                     00000078        120  (usage 3)
+iUserbutton3                      000000B4        180  (usage 3)
+iUserbutton30                     0000007A        122  (usage 3)
+iUserbutton31                     0000007B        123  (usage 3)
+iUserbutton32                     00000027         39  (usage 3)
+iUserbutton33                     00000028         40  (usage 3)
+iUserbutton34                     000000BA        186  (usage 3)
+iUserbutton35                     0000007C        124  (usage 3)
+iUserbutton36                     000000AD        173  (usage 3)
+iUserbutton37                     00000009          9  (usage 3)
+iUserbutton38                     000000AF        175  (usage 3)
+iUserbutton39                     000000B0        176  (usage 3)
+iUserbutton4                      00000006          6  (usage 3)
+iUserbutton40                     000000B5        181  (usage 3)
+iUserbutton41                     00000068        104  (usage 3)
+iUserbutton42                     000000B6        182  (usage 3)
+iUserbutton43                     00000082        130  (usage 3)
+iUserbutton44                     000000B9        185  (usage 3)
+iUserbutton45                     000000B7        183  (usage 3)
+iUserbutton46                     000000B8        184  (usage 3)
+iUserbutton47                     00000083        131  (usage 3)
+iUserbutton48                     00000084        132  (usage 3)
+iUserbutton49                     000000FE        254  (usage 3)
+iUserbutton5                      00000007          7  (usage 3)
+iUserbutton50                     0000001E         30  (usage 3)
+iUserbutton51                     0000003A         58  (usage 3)
+iUserbutton52                     0000002A         42  (usage 3)
+iUserbutton53                     00000035         53  (usage 3)
+iUserbutton54                     00000019         25  (usage 3)
+iUserbutton55                     0000000A         10  (usage 3)
+iUserbutton56                     0000000C         12  (usage 3)
+iUserbutton57                     0000001A         26  (usage 3)
+iUserbutton58                     0000007E        126  (usage 3)
+iUserbutton59                     000000BD        189  (usage 3)
+iUserbutton6                      00000012         18  (usage 3)
+iUserbutton60                     00000089        137  (usage 3)
+iUserbutton61                     00000003          3  (usage 3)
+iUserbutton62                     0000008A        138  (usage 3)
+iUserbutton63                     000000BE        190  (usage 3)
+iUserbutton64                     00000093        147  (usage 3)
+iUserbutton65                     0000002F         47  (usage 3)
+iUserbutton66                     000000DB        219  (usage 3)
+iUserbutton67                     000000F7        247  (usage 3)
+iUserbutton68                     000000E3        227  (usage 3)
+iUserbutton69                     000000FA        250  (usage 3)
+iUserbutton7                      00000013         19  (usage 3)
+iUserbutton70                     00000030         48  (usage 3)
+iUserbutton71                     000000AB        171  (usage 3)
+iUserbutton72                     0000003B         59  (usage 3)
+iUserbutton73                     0000008E        142  (usage 3)
+iUserbutton74                     000000C0        192  (usage 3)
+iUserbutton75                     0000002C         44  (usage 3)
+iUserbutton76                     0000002D         45  (usage 3)
+iUserbutton77                     0000002E         46  (usage 3)
+iUserbutton78                     00000031         49  (usage 3)
+iUserbutton79                     00000032         50  (usage 3)
+iUserbutton8                      00000014         20  (usage 3)
+iUserbutton80                     000000BF        191  (usage 3)
+iUserbutton81                     00000045         69  (usage 3)
+iUserbutton82                     00000046         70  (usage 3)
+iUserbutton83                     00000047         71  (usage 3)
+iUserbutton84                     000000CA        202  (usage 3)
+iUserbutton85                     0000000D         13  (usage 3)
+iUserbutton86                     0000000E         14  (usage 3)
+iUserbutton87                     000000DE        222  (usage 3)
+iUserbutton88                     00000004          4  (usage 3)
+iUserbutton89                     00000020         32  (usage 3)
+iUserbutton9                      00000015         21  (usage 3)
+iUserbutton90                     000000CC        204  (usage 3)
+iUserbutton91                     000000C4        196  (usage 3)
+iUserbutton92                     000000C5        197  (usage 3)
+iUserbutton93                     0000012C        300  (usage 3)
+iUserbutton94                     0000004C         76  (usage 3)
+iUserbutton95                     0000004F         79  (usage 3)
+iUserbutton96                     0000003C         60  (usage 3)
+iUserbutton97                     0000003D         61  (usage 3)
+iUserbutton98                     0000003E         62  (usage 3)
+iUserbutton99                     0000003F         63  (usage 3)
+iUserimages0                      000000C9        201  (usage 3)
+iUserimages1                      0000000F         15  (usage 3)
+iUserimages2                      00000118        280  (usage 3)
+iUserimages4                      0000004D         77  (usage 3)
+iUserimages5                      00000050         80  (usage 3)
+iVideo0                           00000000          0  (usage 3)
+iVideo1                           000000B2        178  (usage 3)
+iVideo10                          0000006A        106  (usage 3)
+iVideo11                          00000036         54  (usage 3)
+iVideo12                          000000DC        220  (usage 3)
+iVideo13                          0000010B        267  (usage 3)
+iVideo14                          00000010         16  (usage 3)
+iVideo15                          000000BB        187  (usage 3)
+iVideo16                          00000061         97  (usage 3)
+iVideo17                          00000066        102  (usage 3)
+iVideo18                          00000127        295  (usage 3)
+iVideo19                          00000103        259  (usage 3)
+iVideo2                           000000C2        194  (usage 3)
+iVideo20                          00000074        116  (usage 3)
+iVideo21                          00000132        306  (usage 3)
+iVideo22                          00000139        313  (usage 3)
+iVideo23                          0000013B        315  (usage 3)
+iVideo3                           00000048         72  (usage 3)
+iVideo4                           00000049         73  (usage 3)
+iVideo5                           0000004A         74  (usage 3)
+iVideo6                           00000080        128  (usage 3)
+iVideo7                           00000108        264  (usage 3)
+iVideo8                           0000011D        285  (usage 3)
+iVideo9                           000000E6        230  (usage 3)
+LANDSCAPE                         00000000          0  (usage 3)
+MaxTotObjects                     00000021         33  (usage 6)
+NAK                               00000015         21  (usage 3)
+NAVY                              00000010         16  (usage 15)
+nInputs                           000001BE        446  (usage 3)
+nStrings                          00000033         51  (usage 3)
+OFF                               00000000          0  (usage 3)
+Ofs_IPD_DOWN                      00000010         16  (usage 6)
+Ofs_IPD_OBJVIDX                   00000014         20  (usage 9)
+Ofs_IPD_P1                        00000002          2  (usage 15)
+Ofs_IPD_P2                        00000004          4  (usage 48)
+Ofs_IPD_P3                        00000006          6  (usage 9)
+Ofs_IPD_P4                        00000008          8  (usage 3)
+Ofs_IPD_P5                        0000000A         10  (usage 9)
+Ofs_IPD_P6                        0000000C         12  (usage 18)
+Ofs_IPD_RELEASE                   00000012         18  (usage 9)
+Ofs_String_Ansi                   00000016         22  (usage 3)
+Ofs_String_BGColor                00000010         16  (usage 6)
+Ofs_String_FGColor                0000000E         14  (usage 3)
+Ofs_String_FontAttribs            00000012         18  (usage 3)
+Ofs_String_Form                   00000018         24  (usage 3)
+Ofs_String_Size                   00000004          4  (usage 3)
+Ofs_String_StartH                 00000000          0  (usage 3)
+Ofs_String_StartL                 00000002          2  (usage 3)
+Ofs_String_Transparent            00000014         20  (usage 3)
+Ofs_String_x1                     00000006          6  (usage 12)
+Ofs_String_x2                     0000000A         10  (usage 9)
+Ofs_String_y1                     00000008          8  (usage 12)
+Ofs_String_y2                     0000000C         12  (usage 9)
+ON                                00000001          1  (usage 3)
+OT_ACTIVATE                       00000067        103  (usage 69)
+OT_MAGIC                          0000006C        108  (usage 3)
+OT_NEXTFRAME                      00000068        104  (usage 3)
+OT_NEXTSTRING                     0000006A        106  (usage 3)
+OT_PREVFRAME                      00000069        105  (usage 3)
+OT_PREVSTRING                     0000006B        107  (usage 3)
+OT_REPORT                         00000064        100  (usage 627)
+OT_SETANOTHER                     00000066        102  (usage 3)
+OT_SETCONST                       00000065        101  (usage 3)
+READ_OBJ                          00000000          0  (usage 3)
+REPORT_EVENT                      00000007          7  (usage 3)
+REPORT_OBJ                        00000005          5  (usage 3)
+ROYALBLUE                         0000435C      17244  (usage 15)
+Strings0Size                      00000004          4  (usage 3)
+Strings0StartH                    00000000          0  (usage 3)
+Strings0StartL                    00001800       6144  (usage 3)
+Strings10Size                     00000007          7  (usage 3)
+Strings10StartH                   00000000          0  (usage 3)
+Strings10StartL                   00002C00      11264  (usage 3)
+Strings11Size                     00000007          7  (usage 3)
+Strings11StartH                   00000000          0  (usage 3)
+Strings11StartL                   00005800      22528  (usage 3)
+Strings12Size                     00000001          1  (usage 3)
+Strings12StartH                   00000000          0  (usage 3)
+Strings12StartL                   00000800       2048  (usage 3)
+Strings13Size                     00000007          7  (usage 3)
+Strings13StartH                   00000000          0  (usage 3)
+Strings13StartL                   00003000      12288  (usage 3)
+Strings14Size                     00000007          7  (usage 3)
+Strings14StartH                   00000000          0  (usage 3)
+Strings14StartL                   00003200      12800  (usage 3)
+Strings15Size                     00000007          7  (usage 3)
+Strings15StartH                   00000000          0  (usage 3)
+Strings15StartL                   00003400      13312  (usage 3)
+Strings16Size                     00000001          1  (usage 3)
+Strings16StartH                   00000000          0  (usage 3)
+Strings16StartL                   00001200       4608  (usage 3)
+Strings17Size                     00000007          7  (usage 3)
+Strings17StartH                   00000000          0  (usage 3)
+Strings17StartL                   00002E00      11776  (usage 3)
+Strings18Size                     00000007          7  (usage 3)
+Strings18StartH                   00000000          0  (usage 3)
+Strings18StartL                   00003600      13824  (usage 3)
+Strings19Size                     00000009          9  (usage 3)
+Strings19StartH                   00000000          0  (usage 3)
+Strings19StartL                   00003800      14336  (usage 3)
+Strings1Size                      00000001          1  (usage 3)
+Strings1StartH                    00000000          0  (usage 3)
+Strings1StartL                    00000200        512  (usage 3)
+Strings20Size                     00000009          9  (usage 3)
+Strings20StartH                   00000000          0  (usage 3)
+Strings20StartL                   00003A00      14848  (usage 3)
+Strings21Size                     00000009          9  (usage 3)
+Strings21StartH                   00000000          0  (usage 3)
+Strings21StartL                   00003C00      15360  (usage 3)
+Strings22Size                     00000009          9  (usage 3)
+Strings22StartH                   00000000          0  (usage 3)
+Strings22StartL                   00003E00      15872  (usage 3)
+Strings23Size                     00000001          1  (usage 3)
+Strings23StartH                   00000000          0  (usage 3)
+Strings23StartL                   00000A00       2560  (usage 3)
+Strings24Size                     00000013         19  (usage 3)
+Strings24StartH                   00000000          0  (usage 3)
+Strings24StartL                   00000C00       3072  (usage 3)
+Strings25Size                     00000025         37  (usage 3)
+Strings25StartH                   00000000          0  (usage 3)
+Strings25StartL                   00000E00       3584  (usage 3)
+Strings26Size                     00000025         37  (usage 3)
+Strings26StartH                   00000000          0  (usage 3)
+Strings26StartL                   00001000       4096  (usage 3)
+Strings27Size                     00000001          1  (usage 3)
+Strings27StartH                   00000000          0  (usage 3)
+Strings27StartL                   00004000      16384  (usage 3)
+Strings28Size                     00000016         22  (usage 3)
+Strings28StartH                   00000000          0  (usage 3)
+Strings28StartL                   00004200      16896  (usage 3)
+Strings29Size                     00000004          4  (usage 3)
+Strings29StartH                   00000000          0  (usage 3)
+Strings29StartL                   00004800      18432  (usage 3)
+Strings2Size                      00000004          4  (usage 3)
+Strings2StartH                    00000000          0  (usage 3)
+Strings2StartL                    00001600       5632  (usage 3)
+Strings30Size                     00000025         37  (usage 3)
+Strings30StartH                   00000000          0  (usage 3)
+Strings30StartL                   00001400       5120  (usage 3)
+Strings31Size                     00000004          4  (usage 3)
+Strings31StartH                   00000000          0  (usage 3)
+Strings31StartL                   00004A00      18944  (usage 3)
+Strings32Size                     00000004          4  (usage 3)
+Strings32StartH                   00000000          0  (usage 3)
+Strings32StartL                   00004C00      19456  (usage 3)
+Strings33Size                     00000004          4  (usage 3)
+Strings33StartH                   00000000          0  (usage 3)
+Strings33StartL                   00004E00      19968  (usage 3)
+Strings34Size                     00000004          4  (usage 3)
+Strings34StartH                   00000000          0  (usage 3)
+Strings34StartL                   00001C00       7168  (usage 3)
+Strings35Size                     00000004          4  (usage 3)
+Strings35StartH                   00000000          0  (usage 3)
+Strings35StartL                   00005000      20480  (usage 3)
+Strings36Size                     00000004          4  (usage 3)
+Strings36StartH                   00000000          0  (usage 3)
+Strings36StartL                   00001E00       7680  (usage 3)
+Strings37Size                     00000004          4  (usage 3)
+Strings37StartH                   00000000          0  (usage 3)
+Strings37StartL                   00002000       8192  (usage 3)
+Strings38Size                     00000004          4  (usage 3)
+Strings38StartH                   00000000          0  (usage 3)
+Strings38StartL                   00005200      20992  (usage 3)
+Strings39Size                     00000001          1  (usage 3)
+Strings39StartH                   00000000          0  (usage 3)
+Strings39StartL                   00005E00      24064  (usage 3)
+Strings3Size                      00000001          1  (usage 3)
+Strings3StartH                    00000000          0  (usage 3)
+Strings3StartL                    00000000          0  (usage 3)
+Strings40Size                     00000010         16  (usage 3)
+Strings40StartH                   00000000          0  (usage 3)
+Strings40StartL                   00002400       9216  (usage 3)
+Strings41Size                     00000001          1  (usage 3)
+Strings41StartH                   00000000          0  (usage 3)
+Strings41StartL                   00002600       9728  (usage 3)
+Strings42Size                     00000001          1  (usage 3)
+Strings42StartH                   00000000          0  (usage 3)
+Strings42StartL                   00002800      10240  (usage 3)
+Strings43Size                     00000001          1  (usage 3)
+Strings43StartH                   00000000          0  (usage 3)
+Strings43StartL                   00005600      22016  (usage 3)
+Strings44Size                     00000001          1  (usage 3)
+Strings44StartH                   00000000          0  (usage 3)
+Strings44StartL                   00006000      24576  (usage 3)
+Strings45Size                     00000001          1  (usage 3)
+Strings45StartH                   00000000          0  (usage 3)
+Strings45StartL                   00005A00      23040  (usage 3)
+Strings46Size                     00000001          1  (usage 3)
+Strings46StartH                   00000000          0  (usage 3)
+Strings46StartL                   00004400      17408  (usage 3)
+Strings47Size                     00000001          1  (usage 3)
+Strings47StartH                   00000000          0  (usage 3)
+Strings47StartL                   00005400      21504  (usage 3)
+Strings48Size                     00000001          1  (usage 3)
+Strings48StartH                   00000000          0  (usage 3)
+Strings48StartL                   00005C00      23552  (usage 3)
+Strings49Size                     0000000C         12  (usage 3)
+Strings49StartH                   00000000          0  (usage 3)
+Strings49StartL                   00006200      25088  (usage 3)
+Strings4Size                      00000004          4  (usage 3)
+Strings4StartH                    00000000          0  (usage 3)
+Strings4StartL                    00002200       8704  (usage 3)
+Strings50Size                     00000001          1  (usage 3)
+Strings50StartH                   00000000          0  (usage 3)
+Strings50StartL                   00006400      25600  (usage 3)
+Strings5Size                      00000007          7  (usage 3)
+Strings5StartH                    00000000          0  (usage 3)
+Strings5StartL                    00002A00      10752  (usage 3)
+Strings6Size                      00000004          4  (usage 3)
+Strings6StartH                    00000000          0  (usage 3)
+Strings6StartL                    00004600      17920  (usage 3)
+Strings7Size                      00000025         37  (usage 3)
+Strings7StartH                    00000000          0  (usage 3)
+Strings7StartL                    00000400       1024  (usage 3)
+Strings8Size                      00000001          1  (usage 3)
+Strings8StartH                    00000000          0  (usage 3)
+Strings8StartL                    00000600       1536  (usage 3)
+Strings9Size                      00000004          4  (usage 3)
+Strings9StartH                    00000000          0  (usage 3)
+Strings9StartL                    00001A00       6656  (usage 3)
+t4Dbutton                         0000001E         30  (usage 15)
+tAngularmeter                     00000007          7  (usage 3)
+tAniButton                        0000001F         31  (usage 6)
+tColorPicker                      00000020         32  (usage 3)
+tCoolgauge                        00000008          8  (usage 3)
+tCustomdigits                     00000009          9  (usage 3)
+tDipSwitch                        00000000          0  (usage 3)
+tForm                             0000000A         10  (usage 15)
+tGauge                            0000000B         11  (usage 3)
+tGSlider                          00000004          4  (usage 3)
+tImage                            0000000C         12  (usage 3)
+tKeyboard                         0000000D         13  (usage 3)
+tKnob                             00000001          1  (usage 3)
+tLed                              0000000E         14  (usage 3)
+tLeddigits                        0000000F         15  (usage 3)
+tMeter                            00000010         16  (usage 3)
+TOUCH_ENABLE                      00000000          0  (usage 3)
+TOUCH_GETX                        00000001          1  (usage 3)
+TOUCH_GETY                        00000002          2  (usage 3)
+TOUCH_MOVING                      00000003          3  (usage 3)
+TOUCH_PRESSED                     00000001          1  (usage 9)
+TOUCH_RELEASED                    00000002          2  (usage 18)
+TOUCH_STATUS                      00000000          0  (usage 3)
+tPinInput                         0000001D         29  (usage 6)
+tPinOutput                        0000001C         28  (usage 6)
+TRANSPARENT                       00000000          0  (usage 3)
+tRockerSwitch                     00000002          2  (usage 3)
+tRotarySwitch                     00000003          3  (usage 3)
+tSounds                           00000016         22  (usage 6)
+tSpectrum                         00000018         24  (usage 3)
+tStaticText                       00000015         21  (usage 3)
+tStrings                          00000011         17  (usage 18)
+tTank                             0000001A         26  (usage 3)
+tThermometer                      00000012         18  (usage 3)
+tTimer                            00000017         23  (usage 6)
+tTrackbar                         00000005          5  (usage 3)
+tUserButton                       00000021         33  (usage 663)
+tUserImages                       0000001B         27  (usage 3)
+tUserled                          00000013         19  (usage 3)
+tVideo                            00000014         20  (usage 3)
+tWinButton                        00000006          6  (usage 12)
+WHITE                             0000FFFF      65535  (usage 9)
+WRITE_CONTRAST                    00000004          4  (usage 3)
+WRITE_OBJ                         00000001          1  (usage 3)
+WRITE_STR                         00000002          2  (usage 6)
+WRITE_STRU                        00000003          3  (usage 6)
+
+[PmmC FUNCTIONS]
+com_Count                         FFFFFF08        -248  args=0 r=1  (usage 3)
+com_Init                          FFFFFF18        -232  args=3 r=0  (usage 3)
+com_SetBaud                       FFFFFF1F        -225  args=2 r=1  (usage 3)
+com_TXbuffer                      FFFFFEF8        -264  args=3 r=0  (usage 3)
+file_GetC                         FFFFFE47        -441  args=1 r=1  (usage 3)
+file_GetW                         FFFFFE45        -443  args=1 r=1  (usage 3)
+file_LoadImageControl             FFFFFE3D        -451  args=3 r=1  (usage 24)
+file_Mount                        FFFFFE3C        -452  args=0 r=1  (usage 6)
+file_Open                         FFFFFE52        -430  args=2 r=1  (usage 3)
+file_Seek                         FFFFFE4F        -433  args=3 r=1  (usage 3)
+gfx_Clipping                      FFFFFF46        -186  args=1 r=1  (usage 6)
+gfx_ClipWindow                    FFFFFF6A        -150  args=4 r=0  (usage 3)
+gfx_Cls                           FFFFFF82        -126  args=0 r=0  (usage 6)
+gfx_Contrast                      FFFFFF40        -192  args=1 r=1  (usage 3)
+gfx_MoveTo                        FFFFFF81        -127  args=2 r=0  (usage 3)
+gfx_RectangleFilled               FFFFFF79        -135  args=5 r=0  (usage 6)
+gfx_ScreenMode                    FFFFFF42        -190  args=1 r=1  (usage 3)
+gfx_Set                           FFFFFF83        -125  args=2 r=0  (usage 3)
+img_ClearAttributes               FFFFFE81        -383  args=3 r=1  (usage 3)
+img_Disable                       FFFFFE88        -376  args=2 r=1  (usage 6)
+img_GetWord                       FFFFFE84        -380  args=3 r=1  (usage 39)
+img_SetAttributes                 FFFFFE82        -382  args=3 r=1  (usage 6)
+img_SetWord                       FFFFFE85        -379  args=4 r=1  (usage 12)
+img_Show                          FFFFFE83        -381  args=2 r=1  (usage 15)
+img_Touched                       FFFFFE80        -384  args=2 r=1  (usage 3)
+OVF                               FFFFFFC1         -63  args=0 r=1  (usage 3)
+pause                             FFFFFFFA          -6  args=1 r=0  (usage 6)
+putch                             FFFFFFFE          -2  args=1 r=0  (usage 6)
+putstr                            FFFFFFF7          -9  args=1 r=1  (usage 6)
+serin                             FFFFFF14        -236  args=0 r=1  (usage 3)
+serout                            FFFFFF10        -240  args=1 r=0  (usage 21)
+snd_BufSize                       FFFFFE33        -461  args=1 r=0  (usage 3)
+sys_EventsResume                  FFFFFE72        -398  args=0 r=0  (usage 3)
+touch_Get                         FFFFFE68        -408  args=1 r=1  (usage 9)
+touch_Set                         FFFFFE69        -407  args=1 r=0  (usage 3)
+txt_Attributes                    FFFFFFE1         -31  args=1 r=1  (usage 3)
+txt_BGcolour                      FFFFFFED         -19  args=1 r=1  (usage 3)
+txt_FGcolour                      FFFFFFEE         -18  args=1 r=1  (usage 3)
+txt_FontID                        FFFFFFEC         -20  args=1 r=1  (usage 3)
+txt_Opacity                       FFFFFFE6         -26  args=1 r=1  (usage 3)
+uadd_3232                         FFFFFFB9         -71  args=3 r=1  (usage 3)
+umul_1616                         FFFFFFB7         -73  args=3 r=1  (usage 3)
+
+[USER FUNCTIONS]
+ActivateForm                      00003EAF  args=1 r=0  (usage 9)
+DoGFXObjects                      00003C37  args=0 r=0  (usage 6)
+nak0                              00004275  args=0 r=0  (usage 24)
+PrintStrings                      00004298  args=3 r=0  (usage 9)
+ReadObject                        0000419E  args=2 r=0  (usage 3)
+SendReport                        00004232  args=4 r=0  (usage 6)
+seroutCS                          00004285  args=1 r=0  (usage 15)
+seroutOcs                         00004264  args=0 r=0  (usage 3)
+TurnOffButtons                    00003FF0  args=1 r=0  (usage 6)
+UpdateObjects                     00003C38  args=1 r=0  (usage 3)
+WriteObject                       00004079  args=3 r=0  (usage 24)
+
+[GLOBAL VARIABLES]
+cmd                                  186  word[80]   (usage 84)
+comRX                                146  word[40]   (usage 3)
+CurInputData                         144  word       (usage 24)
+CurrentForm                          139  word       (usage 42)
+hFonts                                 2  word[51]   (usage 288)
+hndl                                   1  word       (usage 87)
+hstrings                             104  word       (usage 12)
+InputCS                              266  word       (usage 21)
+InputType                            142  word       (usage 24)
+oObjects                             105  word[34]   (usage 108)
+OutputCS                             267  word       (usage 9)
+pInputIndex                          145  word       (usage 15)
+stringsCV                             53  word[51]   (usage 27)
+TouchState                           143  word       (usage 24)
+TouchXpos                            140  word       (usage 12)
+TouchYpos                            141  word       (usage 9)
+
+[PRIVATE VARIABLES]
+
+[DATA]
+0007: 00 00 01 00 05 00 75 00 11 00 16 00 1B 00 00 01     ......u.........
+0017: B1 00 21 00 AA 00 B3 00 AC 00 79 00 25 00 AE 00     ±.!.ª.³.¬.y.%.®.
+0027: 67 00 7F 00 BC 00 29 00 2B 00 34 00 CB 00 DA 00     g..¼.).+.4.Ë.Ú.
+0037: F9 00 81 00 2B 01 37 00 43 00 C3 00 2E 01 4B 00     ù..+.7.C.Ã...K.
+0047: 4E 00 51 00 5D 00 62 00 C1 00 D0 00 D2 00 D4 00     N.Q.].b.Á.Ğ.Ò.Ô.
+0057: 1C 01 F6 00 DD 00 E2 00 6B 00 31 01 E4 00 7D 00     ..ö.İ.â.k.1.ä.}.
+0067: 88 00 8F 00 E7 00 EC 00 94 00 A0 00 EF 00 F2 00     ˆ..ç.ì.”. .ï.ò.
+0077: FB 00 FD 00 02 01 0E 01 04 01 07 01 09 01 0C 01     û.ı.............
+0087: 19 01 1E 01 22 01 25 01 28 01 33 01 34 01 36 01     ....".%.(.3.4.6.
+0097: 38 01 3A 01 3C 01 01 00 05 00 11 00 79 00 16 00     8.:.<.......y...
+00A7: 1B 00 21 00 02 01 B3 00 25 00 AC 00 BC 00 AE 00     ..!...³.%.¬.¼.®.
+00B7: 7D 00 29 00 B1 00 6B 00 81 00 C1 00 2B 00 34 00     }.).±.k..Á.+.4.
+00C7: 37 00 D0 00 DD 00 FB 00 88 00 2E 01 43 00 4B 00     7.Ğ.İ.û.ˆ...C.K.
+00D7: CB 00 31 01 4E 00 51 00 5D 00 62 00 67 00 C3 00     Ë.1.N.Q.].b.g.Ã.
+00E7: D2 00 D4 00 DA 00 1E 01 F9 00 E2 00 E4 00 75 00     Ò.Ô.Ú...ù.â.ä.u.
+00F7: 33 01 E7 00 7F 00 8F 00 94 00 EC 00 EF 00 A0 00     3.ç...”.ì.ï. .
+0107: AA 00 F2 00 F6 00 FD 00 00 01 04 01 19 01 07 01     ª.ò.ö.ı.........
+0117: 09 01 0C 01 0E 01 1C 01 22 01 25 01 28 01 2B 01     ........".%.(.+.
+0127: 34 01 36 01 38 01 3A 01 3C 01 3F 01 FF FF FF FF     4.6.8.:.<.?.ÿÿÿÿ
+0137: 00 00 2C 00 58 00 FF FF 84 00 C6 00 F2 00 1E 01     ..,.X.ÿÿ„.Æ.ò...
+0147: 4A 01 76 01 A2 01 CE 01 FA 01 FF FF FF FF FF FF     J.v.¢.Î.ú.ÿÿÿÿÿÿ
+0157: 26 02 68 02 94 02 C0 02 FF FF EC 02 2E 03 70 03     &.h.”.À.ÿÿì...p.
+0167: 9C 03 FF FF DE 03 0A 04 36 04 62 04 8E 04 FF FF     œ.ÿÿŞ...6.b..ÿÿ
+0177: D0 04 FC 04 28 05 FF FF 54 05 80 05 AC 05 FF FF     Ğ.ü.(.ÿÿT.€.¬.ÿÿ
+0187: D8 05 FF FF 04 06 30 06 5C 06 88 06 B4 06 E0 06     Ø.ÿÿ..0.\.ˆ.´.à.
+0197: 0C 07 38 07 FF FF 64 07 FF FF FF FF 90 07 BC 07     ..8.ÿÿd.ÿÿÿÿ.¼.
+01A7: E8 07 14 08 40 08 6C 08 98 08 C4 08 F0 08 1C 09     è...@.l.˜.Ä.ğ...
+01B7: 48 09 FF FF 74 09 A0 09 CC 09 F8 09 FF FF FF FF     H.ÿÿt. .Ì.ø.ÿÿÿÿ
+01C7: FF FF FF FF 24 0A FF FF FF FF 50 0A FF FF FF FF     ÿÿÿÿ$.ÿÿÿÿP.ÿÿÿÿ
+01D7: 7C 0A A8 0A D4 0A 00 0B 2C 0B 58 0B 84 0B B0 0B     |.¨.Ô...,.X.„.°.
+01E7: DC 0B 08 0C 34 0C FF FF 60 0C 8C 0C B8 0C FF FF     Ü...4.ÿÿ`.Œ.¸.ÿÿ
+01F7: FF FF E4 0C 10 0D 3C 0D FF FF FF FF 68 0D 94 0D     ÿÿä...<.ÿÿÿÿh.”.
+0207: FF FF FF FF C0 0D EC 0D 18 0E 44 0E 70 0E 9C 0E     ÿÿÿÿÀ.ì...D.p.œ.
+0217: C8 0E F4 0E FF FF FF FF 20 0F 4C 0F 78 0F FF FF     È.ô.ÿÿÿÿ .L.x.ÿÿ
+0227: A4 0F D0 0F FC 0F FF FF 28 10 FF FF FF FF FF FF     ¤.Ğ.ü.ÿÿ(.ÿÿÿÿÿÿ
+0237: 54 10 80 10 AC 10 D8 10 04 11 30 11 FF FF 5C 11     T.€.¬.Ø...0.ÿÿ\.
+0247: 88 11 B4 11 E0 11 0C 12 38 12 FF FF 64 12 90 12     ˆ.´.à...8.ÿÿd..
+0257: BC 12 E8 12 FF FF 14 13 40 13 6C 13 98 13 C4 13     ¼.è.ÿÿ..@.l.˜.Ä.
+0267: F0 13 1C 14 48 14 74 14 A0 14 CC 14 FF FF F8 14     ğ...H.t. .Ì.ÿÿø.
+0277: 24 15 50 15 7C 15 A8 15 D4 15 00 16 2C 16 58 16     $.P.|.¨.Ô...,.X.
+0287: FF FF 84 16 FF FF B0 16 FF FF DC 16 08 17 FF FF     ÿÿ„.ÿÿ°.ÿÿÜ...ÿÿ
+0297: FF FF FF FF 4A 17 76 17 A2 17 CE 17 FA 17 26 18     ÿÿÿÿJ.v.¢.Î.ú.&.
+02A7: 68 18 FF FF FF FF 94 18 C0 18 EC 18 18 19 FF FF     h.ÿÿÿÿ”.À.ì...ÿÿ
+02B7: FF FF FF FF 44 19 70 19 9C 19 C8 19 F4 19 FF FF     ÿÿÿÿD.p.œ.È.ô.ÿÿ
+02C7: 20 1A FF FF 4C 1A 78 1A A4 1A D0 1A FF FF FC 1A      .ÿÿL.x.¤.Ğ.ÿÿü.
+02D7: FF FF 28 1B FF FF 54 1B 80 1B C2 1B EE 1B 1A 1C     ÿÿ(.ÿÿT.€.Â.î...
+02E7: FF FF 46 1C FF FF FF FF 72 1C 9E 1C CA 1C F6 1C     ÿÿF.ÿÿÿÿr..Ê.ö.
+02F7: FF FF 22 1D FF FF 4E 1D FF FF FF FF 7A 1D A6 1D     ÿÿ".ÿÿN.ÿÿÿÿz.¦.
+0307: D2 1D FE 1D FF FF 2A 1E 56 1E FF FF 82 1E AE 1E     Ò.ş.ÿÿ*.V.ÿÿ‚.®.
+0317: FF FF DA 1E F0 1E 1C 1F FF FF 48 1F 74 1F FF FF     ÿÿÚ.ğ...ÿÿH.t.ÿÿ
+0327: A0 1F FF FF CC 1F FF FF F8 1F 24 20 FF FF 50 20      .ÿÿÌ.ÿÿø.$ ÿÿP 
+0337: FF FF FF FF FF FF 7C 20 A8 20 FF FF FF FF FF FF     ÿÿÿÿÿÿ| ¨ ÿÿÿÿÿÿ
+0347: D4 20 FF FF FF FF 00 21 FF FF 2C 21 58 21 84 21     Ô ÿÿÿÿ.!ÿÿ,!X!„!
+0357: B0 21 DC 21 08 22 34 22 60 22 8C 22 FF FF FF FF     °!Ü!."4"`"Œ"ÿÿÿÿ
+0367: B8 22 E4 22 FF FF FF FF FF FF 10 23 52 23 7E 23     ¸"ä"ÿÿÿÿÿÿ.#R#~#
+0377: FF FF C0 23 02 24 FF FF 44 24 FF FF FF FF 70 24     ÿÿÀ#.$ÿÿD$ÿÿÿÿp$
+0387: B2 24 FF FF F4 24 20 25 FF FF 4C 25 78 25 FF FF     ²$ÿÿô$ %ÿÿL%x%ÿÿ
+0397: FF FF FF FF FF FF A4 25 FF FF D0 25 FF FF FF FF     ÿÿÿÿÿÿ¤%ÿÿĞ%ÿÿÿÿ
+03A7: FF FF FF FF FF FF FC 25 28 26 21 00 01 00 FF FF     ÿÿÿÿÿÿü%(&!...ÿÿ
+03B7: FF FF FF FF FF FF FF FF FF FF 00 00 16 00 04 00     ÿÿÿÿÿÿÿÿÿÿ......
+03C7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+03D7: 00 00 00 00 01 00 21 00 01 00 FF FF FF FF FF FF     ......!...ÿÿÿÿÿÿ
+03E7: FF FF FF FF FF FF 00 00 42 00 7C 00 64 00 00 00     ÿÿÿÿÿÿ..B.|.d...
+03F7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+0407: 3D 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     =.!...ÿÿÿÿÿÿÿÿÿÿ
+0417: FF FF 00 00 6E 00 B2 00 64 00 00 00 00 00 00 00     ÿÿ..n.².d.......
+0427: 00 00 00 00 00 00 00 00 00 00 00 00 58 00 21 00     ............X.!.
+0437: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+0447: 9A 00 0A 00 67 00 0A 00 05 00 00 00 12 00 00 00     š...g...........
+0457: 00 00 00 00 00 00 B0 00 00 00 64 00 00 00 00 00     ......°...d.....
+0467: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00     ................
+0477: 21 00 01 00 FF FF FF FF FF FF FF FF FF FF FF FF     !...ÿÿÿÿÿÿÿÿÿÿÿÿ
+0487: 00 00 DC 00 0C 00 64 00 00 00 00 00 00 00 00 00     ..Ü...d.........
+0497: 00 00 00 00 00 00 00 00 00 00 05 00 21 00 01 00     ............!...
+04A7: FF FF FF FF FF FF FF FF FF FF FF FF 00 00 08 01     ÿÿÿÿÿÿÿÿÿÿÿÿ....
+04B7: 20 00 64 00 00 00 00 00 00 00 00 00 00 00 00 00      .d.............
+04C7: 00 00 00 00 00 00 0F 00 21 00 01 00 FF FF FF FF     ........!...ÿÿÿÿ
+04D7: FF FF FF FF FF FF FF FF 00 00 34 01 4C 00 64 00     ÿÿÿÿÿÿÿÿ..4.L.d.
+04E7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+04F7: 00 00 25 00 21 00 01 00 FF FF FF FF FF FF FF FF     ..%.!...ÿÿÿÿÿÿÿÿ
+0507: FF FF FF FF 00 00 60 01 70 00 64 00 00 00 00 00     ÿÿÿÿ..`.p.d.....
+0517: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 37 00     ..............7.
+0527: 21 00 01 00 FF FF FF FF FF FF FF FF FF FF FF FF     !...ÿÿÿÿÿÿÿÿÿÿÿÿ
+0537: 00 00 8C 01 1E 00 64 00 00 00 00 00 00 00 00 00     ..Œ...d.........
+0547: 00 00 00 00 00 00 00 00 00 00 0E 00 21 00 01 00     ............!...
+0557: FF FF FF FF FF FF FF FF FF FF FF FF 00 00 B8 01     ÿÿÿÿÿÿÿÿÿÿÿÿ..¸.
+0567: 72 00 64 00 00 00 00 00 00 00 00 00 00 00 00 00     r.d.............
+0577: 00 00 00 00 00 00 38 00 21 00 01 00 FF FF FF FF     ......8.!...ÿÿÿÿ
+0587: FF FF FF FF FF FF FF FF 00 00 E4 01 AC 00 64 00     ÿÿÿÿÿÿÿÿ..ä.¬.d.
+0597: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+05A7: 00 00 55 00 21 00 01 00 FF FF FF FF FF FF FF FF     ..U.!...ÿÿÿÿÿÿÿÿ
+05B7: FF FF FF FF 00 00 10 02 AE 00 64 00 00 00 00 00     ÿÿÿÿ....®.d.....
+05C7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 56 00     ..............V.
+05D7: 21 00 01 00 FF FF FF FF FF FF FF FF FF FF FF FF     !...ÿÿÿÿÿÿÿÿÿÿÿÿ
+05E7: 00 00 3C 02 0E 00 67 00 0A 00 05 00 00 00 12 00     ..<...g.........
+05F7: 00 00 00 00 00 00 00 00 52 02 00 00 64 00 00 00     ........R...d...
+0607: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+0617: 05 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ..!...ÿÿÿÿÿÿÿÿÿÿ
+0627: FF FF 00 00 7E 02 10 00 64 00 00 00 00 00 00 00     ÿÿ..~...d.......
+0637: 00 00 00 00 00 00 00 00 00 00 00 00 07 00 21 00     ..............!.
+0647: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+0657: AA 02 12 00 67 00 0A 00 27 00 00 00 12 00 00 00     ª...g...'.......
+0667: 00 00 00 00 00 00 00 00 00 00 21 00 01 00 FF FF     ..........!...ÿÿ
+0677: FF FF FF FF FF FF FF FF FF FF 00 00 D6 02 14 00     ÿÿÿÿÿÿÿÿÿÿ..Ö...
+0687: 67 00 0A 00 06 00 00 00 12 00 00 00 00 00 00 00     g...............
+0697: 00 00 00 00 00 00 21 00 01 00 FF FF FF FF FF FF     ......!...ÿÿÿÿÿÿ
+06A7: FF FF FF FF FF FF 00 00 02 03 1A 00 67 00 0A 00     ÿÿÿÿÿÿ......g...
+06B7: 02 00 00 00 12 00 00 00 00 00 00 00 00 00 18 03     ................
+06C7: 00 00 64 00 00 00 00 00 00 00 00 00 00 00 00 00     ..d.............
+06D7: 00 00 00 00 00 00 02 00 21 00 01 00 FF FF FF FF     ........!...ÿÿÿÿ
+06E7: FF FF FF FF FF FF FF FF 00 00 44 03 1C 00 67 00     ÿÿÿÿÿÿÿÿ..D...g.
+06F7: 0A 00 04 00 00 00 12 00 00 00 00 00 00 00 00 00     ................
+0707: 5A 03 00 00 64 00 00 00 00 00 00 00 00 00 00 00     Z...d...........
+0717: 00 00 00 00 00 00 00 00 04 00 21 00 01 00 FF FF     ..........!...ÿÿ
+0727: FF FF FF FF FF FF FF FF FF FF 00 00 86 03 6E 00     ÿÿÿÿÿÿÿÿÿÿ..†.n.
+0737: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+0747: 00 00 00 00 36 00 21 00 01 00 FF FF FF FF FF FF     ....6.!...ÿÿÿÿÿÿ
+0757: FF FF FF FF FF FF 00 00 B2 03 74 00 67 00 0A 00     ÿÿÿÿÿÿ..².t.g...
+0767: 41 00 00 00 12 00 00 00 00 00 00 00 00 00 C8 03     A.............È.
+0777: 00 00 64 00 00 00 00 00 00 00 00 00 00 00 00 00     ..d.............
+0787: 00 00 00 00 00 00 41 00 21 00 01 00 FF FF FF FF     ......A.!...ÿÿÿÿ
+0797: FF FF FF FF FF FF FF FF 00 00 F4 03 02 00 64 00     ÿÿÿÿÿÿÿÿ..ô...d.
+07A7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+07B7: 00 00 00 00 21 00 01 00 FF FF FF FF FF FF FF FF     ....!...ÿÿÿÿÿÿÿÿ
+07C7: FF FF FF FF 00 00 20 04 06 00 64 00 00 00 00 00     ÿÿÿÿ.. ...d.....
+07D7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 02 00     ................
+07E7: 21 00 01 00 FF FF FF FF FF FF FF FF FF FF FF FF     !...ÿÿÿÿÿÿÿÿÿÿÿÿ
+07F7: 00 00 4C 04 66 00 64 00 00 00 00 00 00 00 00 00     ..L.f.d.........
+0807: 00 00 00 00 00 00 00 00 00 00 32 00 21 00 01 00     ..........2.!...
+0817: FF FF FF FF FF FF FF FF FF FF FF FF 00 00 78 04     ÿÿÿÿÿÿÿÿÿÿÿÿ..x.
+0827: 40 01 64 00 00 00 00 00 00 00 00 00 00 00 00 00     @.d.............
+0837: 00 00 00 00 00 00 9F 00 21 00 01 00 FF FF FF FF     ......Ÿ.!...ÿÿÿÿ
+0847: FF FF FF FF FF FF FF FF 00 00 A4 04 B4 00 67 00     ÿÿÿÿÿÿÿÿ..¤.´.g.
+0857: 0A 00 05 00 00 00 12 00 00 00 00 00 00 00 00 00     ................
+0867: BA 04 00 00 64 00 00 00 00 00 00 00 00 00 00 00     º...d...........
+0877: 00 00 00 00 00 00 00 00 05 00 21 00 01 00 FF FF     ..........!...ÿÿ
+0887: FF FF FF FF FF FF FF FF FF FF 00 00 E6 04 26 00     ÿÿÿÿÿÿÿÿÿÿ..æ.&.
+0897: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+08A7: 00 00 00 00 12 00 21 00 01 00 FF FF FF FF FF FF     ......!...ÿÿÿÿÿÿ
+08B7: FF FF FF FF FF FF 00 00 12 05 28 00 64 00 00 00     ÿÿÿÿÿÿ....(.d...
+08C7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+08D7: 13 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ..!...ÿÿÿÿÿÿÿÿÿÿ
+08E7: FF FF 00 00 3E 05 22 00 64 00 00 00 00 00 00 00     ÿÿ..>.".d.......
+08F7: 00 00 00 00 00 00 00 00 00 00 00 00 10 00 21 00     ..............!.
+0907: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+0917: 6A 05 24 00 64 00 00 00 00 00 00 00 00 00 00 00     j.$.d...........
+0927: 00 00 00 00 00 00 00 00 11 00 21 00 01 00 FF FF     ..........!...ÿÿ
+0937: FF FF FF FF FF FF FF FF FF FF 00 00 96 05 42 00     ÿÿÿÿÿÿÿÿÿÿ..–.B.
+0947: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+0957: 00 00 00 00 20 00 21 00 01 00 FF FF FF FF FF FF     .... .!...ÿÿÿÿÿÿ
+0967: FF FF FF FF FF FF 00 00 C2 05 44 00 64 00 00 00     ÿÿÿÿÿÿ..Â.D.d...
+0977: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+0987: 21 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     !.!...ÿÿÿÿÿÿÿÿÿÿ
+0997: FF FF 00 00 EE 05 6A 00 64 00 00 00 00 00 00 00     ÿÿ..î.j.d.......
+09A7: 00 00 00 00 00 00 00 00 00 00 00 00 34 00 21 00     ............4.!.
+09B7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+09C7: 1A 06 98 00 64 00 00 00 00 00 00 00 00 00 00 00     ..˜.d...........
+09D7: 00 00 00 00 00 00 00 00 4B 00 21 00 01 00 FF FF     ........K.!...ÿÿ
+09E7: FF FF FF FF FF FF FF FF FF FF 00 00 46 06 9A 00     ÿÿÿÿÿÿÿÿÿÿ..F.š.
+09F7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+0A07: 00 00 00 00 4C 00 21 00 01 00 FF FF FF FF FF FF     ....L.!...ÿÿÿÿÿÿ
+0A17: FF FF FF FF FF FF 00 00 72 06 9C 00 64 00 00 00     ÿÿÿÿÿÿ..r.œ.d...
+0A27: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+0A37: 4D 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     M.!...ÿÿÿÿÿÿÿÿÿÿ
+0A47: FF FF 00 00 9E 06 84 00 64 00 00 00 00 00 00 00     ÿÿ...„.d.......
+0A57: 00 00 00 00 00 00 00 00 00 00 00 00 41 00 21 00     ............A.!.
+0A67: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+0A77: CA 06 8E 00 64 00 00 00 00 00 00 00 00 00 00 00     Ê..d...........
+0A87: 00 00 00 00 00 00 00 00 46 00 21 00 01 00 FF FF     ........F.!...ÿÿ
+0A97: FF FF FF FF FF FF FF FF FF FF 00 00 F6 06 9E 00     ÿÿÿÿÿÿÿÿÿÿ..ö..
+0AA7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+0AB7: 00 00 00 00 4E 00 21 00 01 00 FF FF FF FF FF FF     ....N.!...ÿÿÿÿÿÿ
+0AC7: FF FF FF FF FF FF 00 00 22 07 A0 00 64 00 00 00     ÿÿÿÿÿÿ..". .d...
+0AD7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+0AE7: 4F 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     O.!...ÿÿÿÿÿÿÿÿÿÿ
+0AF7: FF FF 00 00 4E 07 FE 00 64 00 00 00 00 00 00 00     ÿÿ..N.ş.d.......
+0B07: 00 00 00 00 00 00 00 00 00 00 00 00 7E 00 21 00     ............~.!.
+0B17: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+0B27: 7A 07 6C 00 64 00 00 00 00 00 00 00 00 00 00 00     z.l.d...........
+0B37: 00 00 00 00 00 00 00 00 35 00 21 00 01 00 FF FF     ........5.!...ÿÿ
+0B47: FF FF FF FF FF FF FF FF FF FF 00 00 A6 07 2C 00     ÿÿÿÿÿÿÿÿÿÿ..¦.,.
+0B57: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+0B67: 00 00 00 00 15 00 21 00 01 00 FF FF FF FF FF FF     ......!...ÿÿÿÿÿÿ
+0B77: FF FF FF FF FF FF 00 00 D2 07 2E 00 64 00 00 00     ÿÿÿÿÿÿ..Ò...d...
+0B87: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+0B97: 16 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ..!...ÿÿÿÿÿÿÿÿÿÿ
+0BA7: FF FF 00 00 FE 07 68 00 64 00 00 00 00 00 00 00     ÿÿ..ş.h.d.......
+0BB7: 00 00 00 00 00 00 00 00 00 00 00 00 33 00 21 00     ............3.!.
+0BC7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+0BD7: 2A 08 92 00 64 00 00 00 00 00 00 00 00 00 00 00     *.’.d...........
+0BE7: 00 00 00 00 00 00 00 00 48 00 21 00 01 00 FF FF     ........H.!...ÿÿ
+0BF7: FF FF FF FF FF FF FF FF FF FF 00 00 56 08 C2 00     ÿÿÿÿÿÿÿÿÿÿ..V.Â.
+0C07: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+0C17: 00 00 00 00 60 00 21 00 01 00 FF FF FF FF FF FF     ....`.!...ÿÿÿÿÿÿ
+0C27: FF FF FF FF FF FF 00 00 82 08 C4 00 64 00 00 00     ÿÿÿÿÿÿ..‚.Ä.d...
+0C37: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+0C47: 61 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     a.!...ÿÿÿÿÿÿÿÿÿÿ
+0C57: FF FF 00 00 AE 08 C6 00 64 00 00 00 00 00 00 00     ÿÿ..®.Æ.d.......
+0C67: 00 00 00 00 00 00 00 00 00 00 00 00 62 00 21 00     ............b.!.
+0C77: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+0C87: DA 08 C8 00 64 00 00 00 00 00 00 00 00 00 00 00     Ú.È.d...........
+0C97: 00 00 00 00 00 00 00 00 63 00 21 00 01 00 FF FF     ........c.!...ÿÿ
+0CA7: FF FF FF FF FF FF FF FF FF FF 00 00 06 09 CA 00     ÿÿÿÿÿÿÿÿÿÿ....Ê.
+0CB7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+0CC7: 00 00 00 00 64 00 21 00 01 00 FF FF FF FF FF FF     ....d.!...ÿÿÿÿÿÿ
+0CD7: FF FF FF FF FF FF 00 00 32 09 CC 00 64 00 00 00     ÿÿÿÿÿÿ..2.Ì.d...
+0CE7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+0CF7: 65 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     e.!...ÿÿÿÿÿÿÿÿÿÿ
+0D07: FF FF 00 00 5E 09 2A 00 67 00 0A 00 03 00 00 00     ÿÿ..^.*.g.......
+0D17: 12 00 00 00 00 00 00 00 00 00 00 00 00 00 21 00     ..............!.
+0D27: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+0D37: 8A 09 18 00 64 00 00 00 00 00 00 00 00 00 00 00     Š...d...........
+0D47: 00 00 00 00 00 00 00 00 0B 00 21 00 01 00 FF FF     ..........!...ÿÿ
+0D57: FF FF FF FF FF FF FF FF FF FF 00 00 B6 09 A4 00     ÿÿÿÿÿÿÿÿÿÿ..¶.¤.
+0D67: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+0D77: 00 00 00 00 51 00 21 00 01 00 FF FF FF FF FF FF     ....Q.!...ÿÿÿÿÿÿ
+0D87: FF FF FF FF FF FF 00 00 E2 09 A6 00 64 00 00 00     ÿÿÿÿÿÿ..â.¦.d...
+0D97: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+0DA7: 52 00 21 00 01 00 00 00 FF FF FF FF FF FF FF FF     R.!.....ÿÿÿÿÿÿÿÿ
+0DB7: FF FF 00 00 0E 0A A8 00 64 00 00 00 00 00 00 00     ÿÿ....¨.d.......
+0DC7: 00 00 00 00 00 00 00 00 00 00 00 00 53 00 21 00     ............S.!.
+0DD7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+0DE7: 3A 0A BE 00 64 00 00 00 00 00 00 00 00 00 00 00     :.¾.d...........
+0DF7: 00 00 00 00 00 00 00 00 5E 00 21 00 01 00 FF FF     ........^.!...ÿÿ
+0E07: FF FF FF FF FF FF FF FF FF FF 00 00 66 0A C0 00     ÿÿÿÿÿÿÿÿÿÿ..f.À.
+0E17: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+0E27: 00 00 00 00 5F 00 21 00 01 00 FF FF FF FF FF FF     ...._.!...ÿÿÿÿÿÿ
+0E37: FF FF FF FF FF FF 00 00 92 0A CE 00 64 00 00 00     ÿÿÿÿÿÿ..’.Î.d...
+0E47: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+0E57: 66 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     f.!...ÿÿÿÿÿÿÿÿÿÿ
+0E67: FF FF 00 00 BE 0A D0 00 64 00 00 00 00 00 00 00     ÿÿ..¾.Ğ.d.......
+0E77: 00 00 00 00 00 00 00 00 00 00 00 00 67 00 21 00     ............g.!.
+0E87: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+0E97: EA 0A D2 00 64 00 00 00 00 00 00 00 00 00 00 00     ê.Ò.d...........
+0EA7: 00 00 00 00 00 00 00 00 68 00 21 00 01 00 FF FF     ........h.!...ÿÿ
+0EB7: FF FF FF FF FF FF FF FF FF FF 00 00 16 0B D4 00     ÿÿÿÿÿÿÿÿÿÿ....Ô.
+0EC7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+0ED7: 00 00 00 00 69 00 21 00 01 00 FF FF FF FF FF FF     ....i.!...ÿÿÿÿÿÿ
+0EE7: FF FF FF FF FF FF 00 00 42 0B D6 00 64 00 00 00     ÿÿÿÿÿÿ..B.Ö.d...
+0EF7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+0F07: 6A 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     j.!...ÿÿÿÿÿÿÿÿÿÿ
+0F17: FF FF 00 00 6E 0B D8 00 64 00 00 00 00 00 00 00     ÿÿ..n.Ø.d.......
+0F27: 00 00 00 00 00 00 00 00 00 00 00 00 6B 00 21 00     ............k.!.
+0F37: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+0F47: 9A 0B DA 00 64 00 00 00 00 00 00 00 00 00 00 00     š.Ú.d...........
+0F57: 00 00 00 00 00 00 00 00 6C 00 21 00 01 00 FF FF     ........l.!...ÿÿ
+0F67: FF FF FF FF FF FF FF FF FF FF 00 00 C6 0B DC 00     ÿÿÿÿÿÿÿÿÿÿ..Æ.Ü.
+0F77: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+0F87: 00 00 00 00 6D 00 21 00 01 00 FF FF FF FF FF FF     ....m.!...ÿÿÿÿÿÿ
+0F97: FF FF FF FF FF FF 00 00 F2 0B DE 00 64 00 00 00     ÿÿÿÿÿÿ..ò.Ş.d...
+0FA7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+0FB7: 6E 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     n.!...ÿÿÿÿÿÿÿÿÿÿ
+0FC7: FF FF 00 00 1E 0C E0 00 64 00 00 00 00 00 00 00     ÿÿ....à.d.......
+0FD7: 00 00 00 00 00 00 00 00 00 00 00 00 6F 00 21 00     ............o.!.
+0FE7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+0FF7: 4A 0C 36 00 67 00 0A 00 0D 00 00 00 12 00 00 00     J.6.g...........
+1007: 00 00 00 00 00 00 00 00 00 00 21 00 01 00 FF FF     ..........!...ÿÿ
+1017: FF FF FF FF FF FF FF FF FF FF 00 00 76 0C E2 00     ÿÿÿÿÿÿÿÿÿÿ..v.â.
+1027: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+1037: 00 00 00 00 70 00 21 00 01 00 FF FF FF FF FF FF     ....p.!...ÿÿÿÿÿÿ
+1047: FF FF FF FF FF FF 00 00 A2 0C E4 00 64 00 00 00     ÿÿÿÿÿÿ..¢.ä.d...
+1057: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1067: 71 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     q.!...ÿÿÿÿÿÿÿÿÿÿ
+1077: FF FF 00 00 CE 0C E6 00 64 00 00 00 00 00 00 00     ÿÿ..Î.æ.d.......
+1087: 00 00 00 00 00 00 00 00 00 00 00 00 72 00 21 00     ............r.!.
+1097: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+10A7: FA 0C E8 00 64 00 00 00 00 00 00 00 00 00 00 00     ú.è.d...........
+10B7: 00 00 00 00 00 00 00 00 73 00 21 00 01 00 FF FF     ........s.!...ÿÿ
+10C7: FF FF FF FF FF FF FF FF FF FF 00 00 26 0D EA 00     ÿÿÿÿÿÿÿÿÿÿ..&.ê.
+10D7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+10E7: 00 00 00 00 74 00 21 00 01 00 FF FF FF FF FF FF     ....t.!...ÿÿÿÿÿÿ
+10F7: FF FF FF FF FF FF 00 00 52 0D EC 00 64 00 00 00     ÿÿÿÿÿÿ..R.ì.d...
+1107: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1117: 75 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     u.!...ÿÿÿÿÿÿÿÿÿÿ
+1127: FF FF 00 00 7E 0D 54 00 64 00 00 00 00 00 00 00     ÿÿ..~.T.d.......
+1137: 00 00 00 00 00 00 00 00 00 00 00 00 29 00 21 00     ............).!.
+1147: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1157: AA 0D 3E 01 64 00 00 00 00 00 00 00 00 00 00 00     ª.>.d...........
+1167: 00 00 00 00 00 00 00 00 9E 00 21 00 01 00 FF FF     .........!...ÿÿ
+1177: FF FF FF FF FF FF FF FF FF FF 00 00 D6 0D 30 01     ÿÿÿÿÿÿÿÿÿÿ..Ö.0.
+1187: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+1197: 00 00 00 00 97 00 21 00 01 00 FF FF FF FF FF FF     ....—.!...ÿÿÿÿÿÿ
+11A7: FF FF FF FF FF FF 00 00 02 0E 32 01 64 00 00 00     ÿÿÿÿÿÿ....2.d...
+11B7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+11C7: 98 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ˜.!...ÿÿÿÿÿÿÿÿÿÿ
+11D7: FF FF 00 00 2E 0E 36 01 64 00 00 00 00 00 00 00     ÿÿ....6.d.......
+11E7: 00 00 00 00 00 00 00 00 00 00 00 00 9A 00 21 00     ............š.!.
+11F7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1207: 5A 0E 38 01 64 00 00 00 00 00 00 00 00 00 00 00     Z.8.d...........
+1217: 00 00 00 00 00 00 00 00 9B 00 21 00 01 00 FF FF     ........›.!...ÿÿ
+1227: FF FF FF FF FF FF FF FF FF FF 00 00 86 0E 3A 01     ÿÿÿÿÿÿÿÿÿÿ..†.:.
+1237: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+1247: 00 00 00 00 9C 00 21 00 01 00 FF FF FF FF FF FF     ....œ.!...ÿÿÿÿÿÿ
+1257: FF FF FF FF FF FF 00 00 B2 0E 3C 01 64 00 00 00     ÿÿÿÿÿÿ..².<.d...
+1267: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1277: 9D 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     .!...ÿÿÿÿÿÿÿÿÿÿ
+1287: FF FF 00 00 DE 0E 42 01 64 00 00 00 00 00 00 00     ÿÿ..Ş.B.d.......
+1297: 00 00 00 00 00 00 00 00 00 00 00 00 A0 00 21 00     ............ .!.
+12A7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+12B7: 0A 0F 10 01 64 00 00 00 00 00 00 00 00 00 00 00     ....d...........
+12C7: 00 00 00 00 00 00 00 00 87 00 21 00 01 00 FF FF     ........‡.!...ÿÿ
+12D7: FF FF FF FF FF FF FF FF FF FF 00 00 36 0F 38 00     ÿÿÿÿÿÿÿÿÿÿ..6.8.
+12E7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+12F7: 00 00 00 00 1B 00 21 00 01 00 FF FF FF FF FF FF     ......!...ÿÿÿÿÿÿ
+1307: FF FF FF FF FF FF 00 00 62 0F 3A 00 64 00 00 00     ÿÿÿÿÿÿ..b.:.d...
+1317: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1327: 1C 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ..!...ÿÿÿÿÿÿÿÿÿÿ
+1337: FF FF 00 00 8E 0F 3C 00 64 00 00 00 00 00 00 00     ÿÿ...<.d.......
+1347: 00 00 00 00 00 00 00 00 00 00 00 00 1D 00 21 00     ..............!.
+1357: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1367: BA 0F 3E 00 64 00 00 00 00 00 00 00 00 00 00 00     º.>.d...........
+1377: 00 00 00 00 00 00 00 00 1E 00 21 00 01 00 FF FF     ..........!...ÿÿ
+1387: FF FF FF FF FF FF FF FF FF FF 00 00 E6 0F 40 00     ÿÿÿÿÿÿÿÿÿÿ..æ.@.
+1397: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+13A7: 00 00 00 00 1F 00 21 00 01 00 FF FF FF FF FF FF     ......!...ÿÿÿÿÿÿ
+13B7: FF FF FF FF FF FF 00 00 12 10 48 00 64 00 00 00     ÿÿÿÿÿÿ....H.d...
+13C7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+13D7: 23 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     #.!...ÿÿÿÿÿÿÿÿÿÿ
+13E7: FF FF 00 00 3E 10 76 00 64 00 00 00 00 00 00 00     ÿÿ..>.v.d.......
+13F7: 00 00 00 00 00 00 00 00 00 00 00 00 3A 00 21 00     ............:.!.
+1407: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1417: 6A 10 58 00 64 00 00 00 00 00 00 00 00 00 00 00     j.X.d...........
+1427: 00 00 00 00 00 00 00 00 2B 00 21 00 01 00 FF FF     ........+.!...ÿÿ
+1437: FF FF FF FF FF FF FF FF FF FF 00 00 96 10 60 00     ÿÿÿÿÿÿÿÿÿÿ..–.`.
+1447: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+1457: 00 00 00 00 2F 00 21 00 01 00 FF FF FF FF FF FF     ..../.!...ÿÿÿÿÿÿ
+1467: FF FF FF FF FF FF 00 00 C2 10 62 00 64 00 00 00     ÿÿÿÿÿÿ..Â.b.d...
+1477: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1487: 30 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     0.!...ÿÿÿÿÿÿÿÿÿÿ
+1497: FF FF 00 00 EE 10 08 01 67 00 0A 00 31 00 00 00     ÿÿ..î...g...1...
+14A7: 12 00 00 00 00 00 00 00 00 00 00 00 00 00 21 00     ..............!.
+14B7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+14C7: 1A 11 30 00 64 00 00 00 00 00 00 00 00 00 00 00     ..0.d...........
+14D7: 00 00 00 00 00 00 00 00 17 00 21 00 01 00 FF FF     ..........!...ÿÿ
+14E7: FF FF FF FF FF FF FF FF FF FF 00 00 46 11 32 00     ÿÿÿÿÿÿÿÿÿÿ..F.2.
+14F7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+1507: 00 00 00 00 18 00 21 00 01 00 FF FF FF FF FF FF     ......!...ÿÿÿÿÿÿ
+1517: FF FF FF FF FF FF 00 00 72 11 7A 00 64 00 00 00     ÿÿÿÿÿÿ..r.z.d...
+1527: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1537: 3C 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     <.!...ÿÿÿÿÿÿÿÿÿÿ
+1547: FF FF 00 00 9E 11 7E 00 64 00 00 00 00 00 00 00     ÿÿ...~.d.......
+1557: 00 00 00 00 00 00 00 00 00 00 00 00 3E 00 21 00     ............>.!.
+1567: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1577: CA 11 F0 00 64 00 00 00 00 00 00 00 00 00 00 00     Ê.ğ.d...........
+1587: 00 00 00 00 00 00 00 00 77 00 21 00 01 00 FF FF     ........w.!...ÿÿ
+1597: FF FF FF FF FF FF FF FF FF FF 00 00 F6 11 00 01     ÿÿÿÿÿÿÿÿÿÿ..ö...
+15A7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+15B7: 00 00 00 00 7F 00 21 00 01 00 FF FF FF FF FF FF     .....!...ÿÿÿÿÿÿ
+15C7: FF FF FF FF FF FF 00 00 22 12 34 00 64 00 00 00     ÿÿÿÿÿÿ..".4.d...
+15D7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+15E7: 19 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ..!...ÿÿÿÿÿÿÿÿÿÿ
+15F7: FF FF 00 00 4E 12 94 00 64 00 00 00 00 00 00 00     ÿÿ..N.”.d.......
+1607: 00 00 00 00 00 00 00 00 00 00 00 00 49 00 21 00     ............I.!.
+1617: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1627: 7A 12 02 01 64 00 00 00 00 00 00 00 00 00 00 00     z...d...........
+1637: 00 00 00 00 00 00 00 00 80 00 21 00 01 00 FF FF     ........€.!...ÿÿ
+1647: FF FF FF FF FF FF FF FF FF FF 00 00 A6 12 04 01     ÿÿÿÿÿÿÿÿÿÿ..¦...
+1657: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+1667: 00 00 00 00 81 00 21 00 01 00 FF FF FF FF FF FF     .....!...ÿÿÿÿÿÿ
+1677: FF FF FF FF FF FF 00 00 D2 12 06 01 64 00 00 00     ÿÿÿÿÿÿ..Ò...d...
+1687: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1697: 82 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ‚.!...ÿÿÿÿÿÿÿÿÿÿ
+16A7: FF FF 00 00 FE 12 82 00 64 00 00 00 00 00 00 00     ÿÿ..ş.‚.d.......
+16B7: 00 00 00 00 00 00 00 00 00 00 00 00 40 00 21 00     ............@.!.
+16C7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+16D7: 2A 13 1E 01 64 00 00 00 00 00 00 00 00 00 00 00     *...d...........
+16E7: 00 00 00 00 00 00 00 00 8E 00 21 00 01 00 FF FF     .........!...ÿÿ
+16F7: FF FF FF FF FF FF FF FF FF FF 00 00 56 13 20 01     ÿÿÿÿÿÿÿÿÿÿ..V. .
+1707: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+1717: 00 00 00 00 8F 00 21 00 01 00 FF FF FF FF FF FF     .....!...ÿÿÿÿÿÿ
+1727: FF FF FF FF FF FF 00 00 82 13 22 01 64 00 00 00     ÿÿÿÿÿÿ..‚.".d...
+1737: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1747: 90 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     .!...ÿÿÿÿÿÿÿÿÿÿ
+1757: FF FF 00 00 AE 13 24 01 64 00 00 00 00 00 00 00     ÿÿ..®.$.d.......
+1767: 00 00 00 00 00 00 00 00 00 00 00 00 91 00 21 00     ............‘.!.
+1777: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1787: DA 13 26 01 64 00 00 00 00 00 00 00 00 00 00 00     Ú.&.d...........
+1797: 00 00 00 00 00 00 00 00 92 00 21 00 01 00 FF FF     ........’.!...ÿÿ
+17A7: FF FF FF FF FF FF FF FF FF FF 00 00 06 14 28 01     ÿÿÿÿÿÿÿÿÿÿ....(.
+17B7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+17C7: 00 00 00 00 93 00 21 00 01 00 FF FF FF FF FF FF     ....“.!...ÿÿÿÿÿÿ
+17D7: FF FF FF FF FF FF 00 00 32 14 2A 01 64 00 00 00     ÿÿÿÿÿÿ..2.*.d...
+17E7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+17F7: 94 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ”.!...ÿÿÿÿÿÿÿÿÿÿ
+1807: FF FF 00 00 5E 14 2C 01 64 00 00 00 00 00 00 00     ÿÿ..^.,.d.......
+1817: 00 00 00 00 00 00 00 00 00 00 00 00 95 00 21 00     ............•.!.
+1827: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1837: 8A 14 2E 01 64 00 00 00 00 00 00 00 00 00 00 00     Š...d...........
+1847: 00 00 00 00 00 00 00 00 96 00 21 00 01 00 FF FF     ........–.!...ÿÿ
+1857: FF FF FF FF FF FF FF FF FF FF 00 00 B6 14 44 01     ÿÿÿÿÿÿÿÿÿÿ..¶.D.
+1867: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+1877: 00 00 00 00 A1 00 21 00 01 00 FF FF FF FF FF FF     ....¡.!...ÿÿÿÿÿÿ
+1887: FF FF FF FF FF FF 00 00 E2 14 0E 01 64 00 00 00     ÿÿÿÿÿÿ..â...d...
+1897: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+18A7: 86 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     †.!...ÿÿÿÿÿÿÿÿÿÿ
+18B7: FF FF 00 00 0E 15 46 01 64 00 00 00 00 00 00 00     ÿÿ....F.d.......
+18C7: 00 00 00 00 00 00 00 00 00 00 00 00 A2 00 21 00     ............¢.!.
+18D7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+18E7: 3A 15 48 01 64 00 00 00 00 00 00 00 00 00 00 00     :.H.d...........
+18F7: 00 00 00 00 00 00 00 00 A3 00 21 00 01 00 FF FF     ........£.!...ÿÿ
+1907: FF FF FF FF FF FF FF FF FF FF 00 00 66 15 4A 01     ÿÿÿÿÿÿÿÿÿÿ..f.J.
+1917: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+1927: 00 00 00 00 A4 00 21 00 01 00 FF FF FF FF FF FF     ....¤.!...ÿÿÿÿÿÿ
+1937: FF FF FF FF FF FF 00 00 92 15 4C 01 64 00 00 00     ÿÿÿÿÿÿ..’.L.d...
+1947: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1957: A5 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ¥.!...ÿÿÿÿÿÿÿÿÿÿ
+1967: FF FF 00 00 BE 15 4E 01 64 00 00 00 00 00 00 00     ÿÿ..¾.N.d.......
+1977: 00 00 00 00 00 00 00 00 00 00 00 00 A6 00 21 00     ............¦.!.
+1987: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1997: EA 15 50 01 64 00 00 00 00 00 00 00 00 00 00 00     ê.P.d...........
+19A7: 00 00 00 00 00 00 00 00 A7 00 21 00 01 00 FF FF     ........§.!...ÿÿ
+19B7: FF FF FF FF FF FF FF FF FF FF 00 00 16 16 52 01     ÿÿÿÿÿÿÿÿÿÿ....R.
+19C7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+19D7: 00 00 00 00 A8 00 21 00 01 00 FF FF FF FF FF FF     ....¨.!...ÿÿÿÿÿÿ
+19E7: FF FF FF FF FF FF 00 00 42 16 54 01 64 00 00 00     ÿÿÿÿÿÿ..B.T.d...
+19F7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1A07: A9 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ©.!...ÿÿÿÿÿÿÿÿÿÿ
+1A17: FF FF 00 00 6E 16 56 01 64 00 00 00 00 00 00 00     ÿÿ..n.V.d.......
+1A27: 00 00 00 00 00 00 00 00 00 00 00 00 AA 00 21 00     ............ª.!.
+1A37: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1A47: 9A 16 90 00 64 00 00 00 00 00 00 00 00 00 00 00     š..d...........
+1A57: 00 00 00 00 00 00 00 00 47 00 21 00 01 00 FF FF     ........G.!...ÿÿ
+1A67: FF FF FF FF FF FF FF FF FF FF 00 00 C6 16 4A 00     ÿÿÿÿÿÿÿÿÿÿ..Æ.J.
+1A77: 67 00 0A 00 2F 00 00 00 12 00 00 00 00 00 00 00     g.../...........
+1A87: 00 00 00 00 00 00 21 00 01 00 FF FF FF FF FF FF     ......!...ÿÿÿÿÿÿ
+1A97: FF FF FF FF FF FF 00 00 F2 16 4E 00 64 00 00 00     ÿÿÿÿÿÿ..ò.N.d...
+1AA7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1AB7: 26 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     &.!...ÿÿÿÿÿÿÿÿÿÿ
+1AC7: FF FF 00 00 1E 17 50 00 67 00 0A 00 02 00 00 00     ÿÿ....P.g.......
+1AD7: 12 00 00 00 00 00 00 00 00 00 34 17 00 00 64 00     ..........4...d.
+1AE7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1AF7: 00 00 02 00 21 00 01 00 FF FF FF FF FF FF FF FF     ....!...ÿÿÿÿÿÿÿÿ
+1B07: FF FF FF FF 00 00 60 17 08 00 64 00 00 00 00 00     ÿÿÿÿ..`...d.....
+1B17: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 03 00     ................
+1B27: 21 00 01 00 FF FF FF FF FF FF FF FF FF FF FF FF     !...ÿÿÿÿÿÿÿÿÿÿÿÿ
+1B37: 00 00 8C 17 52 00 64 00 00 00 00 00 00 00 00 00     ..Œ.R.d.........
+1B47: 00 00 00 00 00 00 00 00 00 00 28 00 21 00 01 00     ..........(.!...
+1B57: FF FF FF FF FF FF FF FF FF FF FF FF 00 00 B8 17     ÿÿÿÿÿÿÿÿÿÿÿÿ..¸.
+1B67: 56 00 64 00 00 00 00 00 00 00 00 00 00 00 00 00     V.d.............
+1B77: 00 00 00 00 00 00 2A 00 21 00 01 00 FF FF FF FF     ......*.!...ÿÿÿÿ
+1B87: FF FF FF FF FF FF FF FF 00 00 E4 17 5C 00 64 00     ÿÿÿÿÿÿÿÿ..ä.\.d.
+1B97: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1BA7: 00 00 2D 00 21 00 01 00 FF FF FF FF FF FF FF FF     ..-.!...ÿÿÿÿÿÿÿÿ
+1BB7: FF FF FF FF 00 00 10 18 5E 00 64 00 00 00 00 00     ÿÿÿÿ....^.d.....
+1BC7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 2E 00     ................
+1BD7: 21 00 01 00 FF FF FF FF FF FF FF FF FF FF FF FF     !...ÿÿÿÿÿÿÿÿÿÿÿÿ
+1BE7: 00 00 3C 18 5A 00 67 00 0A 00 05 00 00 00 12 00     ..<.Z.g.........
+1BF7: 00 00 00 00 00 00 00 00 52 18 00 00 64 00 00 00     ........R...d...
+1C07: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1C17: 05 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ..!...ÿÿÿÿÿÿÿÿÿÿ
+1C27: FF FF 00 00 7E 18 46 00 64 00 00 00 00 00 00 00     ÿÿ..~.F.d.......
+1C37: 00 00 00 00 00 00 00 00 00 00 00 00 22 00 21 00     ............".!.
+1C47: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1C57: AA 18 78 00 64 00 00 00 00 00 00 00 00 00 00 00     ª.x.d...........
+1C67: 00 00 00 00 00 00 00 00 3B 00 21 00 01 00 FF FF     ........;.!...ÿÿ
+1C77: FF FF FF FF FF FF FF FF FF FF 00 00 D6 18 80 00     ÿÿÿÿÿÿÿÿÿÿ..Ö.€.
+1C87: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+1C97: 00 00 00 00 3F 00 21 00 01 00 FF FF FF FF FF FF     ....?.!...ÿÿÿÿÿÿ
+1CA7: FF FF FF FF FF FF 00 00 02 19 A2 00 64 00 00 00     ÿÿÿÿÿÿ....¢.d...
+1CB7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1CC7: 50 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     P.!...ÿÿÿÿÿÿÿÿÿÿ
+1CD7: FF FF 00 00 2E 19 96 00 64 00 00 00 00 00 00 00     ÿÿ....–.d.......
+1CE7: 00 00 00 00 00 00 00 00 00 00 00 00 4A 00 21 00     ............J.!.
+1CF7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1D07: 5A 19 B8 00 64 00 00 00 00 00 00 00 00 00 00 00     Z.¸.d...........
+1D17: 00 00 00 00 00 00 00 00 5B 00 21 00 01 00 FF FF     ........[.!...ÿÿ
+1D27: FF FF FF FF FF FF FF FF FF FF 00 00 86 19 BA 00     ÿÿÿÿÿÿÿÿÿÿ..†.º.
+1D37: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+1D47: 00 00 00 00 5C 00 21 00 01 00 FF FF FF FF FF FF     ....\.!...ÿÿÿÿÿÿ
+1D57: FF FF FF FF FF FF 00 00 B2 19 F2 00 64 00 00 00     ÿÿÿÿÿÿ..².ò.d...
+1D67: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1D77: 78 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     x.!...ÿÿÿÿÿÿÿÿÿÿ
+1D87: FF FF 00 00 DE 19 F4 00 64 00 00 00 00 00 00 00     ÿÿ..Ş.ô.d.......
+1D97: 00 00 00 00 00 00 00 00 00 00 00 00 79 00 21 00     ............y.!.
+1DA7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1DB7: 0A 1A F6 00 64 00 00 00 00 00 00 00 00 00 00 00     ..ö.d...........
+1DC7: 00 00 00 00 00 00 00 00 7A 00 21 00 01 00 FF FF     ........z.!...ÿÿ
+1DD7: FF FF FF FF FF FF FF FF FF FF 00 00 36 1A AA 00     ÿÿÿÿÿÿÿÿÿÿ..6.ª.
+1DE7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+1DF7: 00 00 00 00 54 00 21 00 01 00 FF FF FF FF FF FF     ....T.!...ÿÿÿÿÿÿ
+1E07: FF FF FF FF FF FF 00 00 62 1A B6 00 64 00 00 00     ÿÿÿÿÿÿ..b.¶.d...
+1E17: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1E27: 5A 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     Z.!...ÿÿÿÿÿÿÿÿÿÿ
+1E37: FF FF 00 00 8E 1A F8 00 64 00 00 00 00 00 00 00     ÿÿ...ø.d.......
+1E47: 00 00 00 00 00 00 00 00 00 00 00 00 7B 00 21 00     ............{.!.
+1E57: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1E67: BA 1A FA 00 64 00 00 00 00 00 00 00 00 00 00 00     º.ú.d...........
+1E77: 00 00 00 00 00 00 00 00 7C 00 21 00 01 00 FF FF     ........|.!...ÿÿ
+1E87: FF FF FF FF FF FF FF FF FF FF 00 00 E6 1A FC 00     ÿÿÿÿÿÿÿÿÿÿ..æ.ü.
+1E97: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+1EA7: 00 00 00 00 7D 00 21 00 01 00 FF FF FF FF FF FF     ....}.!...ÿÿÿÿÿÿ
+1EB7: FF FF FF FF FF FF 00 00 12 1B 0A 01 64 00 00 00     ÿÿÿÿÿÿ......d...
+1EC7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1ED7: 84 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     „.!...ÿÿÿÿÿÿÿÿÿÿ
+1EE7: FF FF 00 00 3E 1B 0C 01 64 00 00 00 00 00 00 00     ÿÿ..>...d.......
+1EF7: 00 00 00 00 00 00 00 00 00 00 00 00 85 00 21 00     ............….!.
+1F07: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+1F17: 6A 1B 16 01 64 00 00 00 00 00 00 00 00 00 00 00     j...d...........
+1F27: 00 00 00 00 00 00 00 00 8A 00 21 00 01 00 FF FF     ........Š.!...ÿÿ
+1F37: FF FF FF FF FF FF FF FF FF FF 00 00 96 1B 18 01     ÿÿÿÿÿÿÿÿÿÿ..–...
+1F47: 67 00 0A 00 05 00 00 00 12 00 00 00 00 00 00 00     g...............
+1F57: 00 00 AC 1B 00 00 64 00 00 00 00 00 00 00 00 00     ..¬...d.........
+1F67: 00 00 00 00 00 00 00 00 00 00 05 00 21 00 01 00     ............!...
+1F77: FF FF FF FF FF FF FF FF FF FF FF FF 00 00 D8 1B     ÿÿÿÿÿÿÿÿÿÿÿÿ..Ø.
+1F87: 1A 01 64 00 00 00 00 00 00 00 00 00 00 00 00 00     ..d.............
+1F97: 00 00 00 00 00 00 8C 00 21 00 01 00 FF FF FF FF     ......Œ.!...ÿÿÿÿ
+1FA7: FF FF FF FF FF FF FF FF 00 00 04 1C 1C 01 64 00     ÿÿÿÿÿÿÿÿ......d.
+1FB7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+1FC7: 00 00 8D 00 21 00 01 00 FF FF FF FF FF FF FF FF     ...!...ÿÿÿÿÿÿÿÿ
+1FD7: FF FF FF FF 00 00 30 1C 34 01 64 00 00 00 00 00     ÿÿÿÿ..0.4.d.....
+1FE7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 99 00     ..............™.
+1FF7: 21 00 01 00 FF FF FF FF FF FF FF FF FF FF FF FF     !...ÿÿÿÿÿÿÿÿÿÿÿÿ
+2007: 00 00 5C 1C 86 00 64 00 00 00 00 00 00 00 00 00     ..\.†.d.........
+2017: 00 00 00 00 00 00 00 00 00 00 42 00 21 00 01 00     ..........B.!...
+2027: FF FF FF FF FF FF FF FF FF FF FF FF 00 00 88 1C     ÿÿÿÿÿÿÿÿÿÿÿÿ..ˆ.
+2037: B0 00 64 00 00 00 00 00 00 00 00 00 00 00 00 00     °.d.............
+2047: 00 00 00 00 00 00 57 00 21 00 01 00 FF FF FF FF     ......W.!...ÿÿÿÿ
+2057: FF FF FF FF FF FF FF FF 00 00 B4 1C EE 00 64 00     ÿÿÿÿÿÿÿÿ..´.î.d.
+2067: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+2077: 00 00 76 00 21 00 01 00 FF FF FF FF FF FF FF FF     ..v.!...ÿÿÿÿÿÿÿÿ
+2087: FF FF FF FF 00 00 E0 1C 12 01 64 00 00 00 00 00     ÿÿÿÿ..à...d.....
+2097: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00     ..............ˆ.
+20A7: 21 00 01 00 FF FF FF FF FF FF FF FF FF FF FF FF     !...ÿÿÿÿÿÿÿÿÿÿÿÿ
+20B7: 00 00 0C 1D 14 01 64 00 00 00 00 00 00 00 00 00     ......d.........
+20C7: 00 00 00 00 00 00 00 00 00 00 89 00 21 00 01 00     ..........‰.!...
+20D7: FF FF FF FF FF FF FF FF FF FF FF FF 00 00 38 1D     ÿÿÿÿÿÿÿÿÿÿÿÿ..8.
+20E7: 8A 00 64 00 00 00 00 00 00 00 00 00 00 00 00 00     Š.d.............
+20F7: 00 00 00 00 00 00 44 00 21 00 01 00 FF FF FF FF     ......D.!...ÿÿÿÿ
+2107: FF FF FF FF FF FF FF FF 00 00 64 1D 58 01 64 00     ÿÿÿÿÿÿÿÿ..d.X.d.
+2117: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+2127: 00 00 AB 00 21 00 01 00 FF FF FF FF FF FF FF FF     ..«.!...ÿÿÿÿÿÿÿÿ
+2137: FF FF FF FF 00 00 90 1D 64 01 64 00 00 00 00 00     ÿÿÿÿ...d.d.....
+2147: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 B1 00     ..............±.
+2157: 21 00 01 00 FF FF FF FF FF FF FF FF FF FF FF FF     !...ÿÿÿÿÿÿÿÿÿÿÿÿ
+2167: 00 00 BC 1D 66 01 64 00 00 00 00 00 00 00 00 00     ..¼.f.d.........
+2177: 00 00 00 00 00 00 00 00 00 00 B2 00 21 00 01 00     ..........².!...
+2187: FF FF FF FF FF FF FF FF FF FF FF FF 00 00 E8 1D     ÿÿÿÿÿÿÿÿÿÿÿÿ..è.
+2197: 68 01 64 00 00 00 00 00 00 00 00 00 00 00 00 00     h.d.............
+21A7: 00 00 00 00 00 00 B3 00 21 00 01 00 FF FF FF FF     ......³.!...ÿÿÿÿ
+21B7: FF FF FF FF FF FF FF FF 00 00 14 1E 6A 01 64 00     ÿÿÿÿÿÿÿÿ....j.d.
+21C7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+21D7: 00 00 B4 00 21 00 01 00 FF FF FF FF FF FF FF FF     ..´.!...ÿÿÿÿÿÿÿÿ
+21E7: FF FF FF FF 00 00 40 1E 6C 01 64 00 00 00 00 00     ÿÿÿÿ..@.l.d.....
+21F7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 B5 00     ..............µ.
+2207: 21 00 01 00 FF FF FF FF FF FF FF FF FF FF FF FF     !...ÿÿÿÿÿÿÿÿÿÿÿÿ
+2217: 00 00 6C 1E 6E 01 64 00 00 00 00 00 00 00 00 00     ..l.n.d.........
+2227: 00 00 00 00 00 00 00 00 00 00 B6 00 21 00 01 00     ..........¶.!...
+2237: FF FF FF FF FF FF FF FF FF FF FF FF 00 00 98 1E     ÿÿÿÿÿÿÿÿÿÿÿÿ..˜.
+2247: 76 01 64 00 00 00 00 00 00 00 00 00 00 00 00 00     v.d.............
+2257: 00 00 00 00 00 00 BA 00 21 00 01 00 FF FF FF FF     ......º.!...ÿÿÿÿ
+2267: FF FF FF FF FF FF FF FF 00 00 C4 1E 78 01 64 00     ÿÿÿÿÿÿÿÿ..Ä.x.d.
+2277: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+2287: 00 00 BB 00 21 00 01 00 FF FF FF FF FF FF FF FF     ..».!...ÿÿÿÿÿÿÿÿ
+2297: FF FF FF FF 00 00 00 00 70 01 21 00 01 00 FF FF     ÿÿÿÿ....p.!...ÿÿ
+22A7: FF FF FF FF FF FF FF FF FF FF 00 00 06 1F 72 01     ÿÿÿÿÿÿÿÿÿÿ....r.
+22B7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+22C7: 00 00 00 00 B8 00 21 00 01 00 FF FF FF FF FF FF     ....¸.!...ÿÿÿÿÿÿ
+22D7: FF FF FF FF FF FF 00 00 32 1F 74 01 64 00 00 00     ÿÿÿÿÿÿ..2.t.d...
+22E7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+22F7: B9 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ¹.!...ÿÿÿÿÿÿÿÿÿÿ
+2307: FF FF 00 00 5E 1F 88 00 64 00 00 00 00 00 00 00     ÿÿ..^.ˆ.d.......
+2317: 00 00 00 00 00 00 00 00 00 00 00 00 43 00 21 00     ............C.!.
+2327: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+2337: 8A 1F 7A 01 64 00 00 00 00 00 00 00 00 00 00 00     Š.z.d...........
+2347: 00 00 00 00 00 00 00 00 BC 00 21 00 01 00 FF FF     ........¼.!...ÿÿ
+2357: FF FF FF FF FF FF FF FF FF FF 00 00 B6 1F 8C 00     ÿÿÿÿÿÿÿÿÿÿ..¶.Œ.
+2367: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+2377: 00 00 00 00 45 00 21 00 01 00 FF FF FF FF FF FF     ....E.!...ÿÿÿÿÿÿ
+2387: FF FF FF FF FF FF 00 00 E2 1F 7C 01 64 00 00 00     ÿÿÿÿÿÿ..â.|.d...
+2397: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+23A7: BD 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ½.!...ÿÿÿÿÿÿÿÿÿÿ
+23B7: FF FF 00 00 0E 20 64 00 64 00 00 00 00 00 00 00     ÿÿ... d.d.......
+23C7: 00 00 00 00 00 00 00 00 00 00 00 00 31 00 21 00     ............1.!.
+23D7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+23E7: 3A 20 7E 01 64 00 00 00 00 00 00 00 00 00 00 00     : ~.d...........
+23F7: 00 00 00 00 00 00 00 00 BE 00 21 00 01 00 FF FF     ........¾.!...ÿÿ
+2407: FF FF FF FF FF FF FF FF FF FF 00 00 66 20 82 01     ÿÿÿÿÿÿÿÿÿÿ..f ‚.
+2417: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+2427: 00 00 00 00 C0 00 21 00 01 00 FF FF FF FF FF FF     ....À.!...ÿÿÿÿÿÿ
+2437: FF FF FF FF FF FF 00 00 92 20 86 01 64 00 00 00     ÿÿÿÿÿÿ..’ †.d...
+2447: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+2457: C2 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     Â.!...ÿÿÿÿÿÿÿÿÿÿ
+2467: FF FF 00 00 BE 20 88 01 64 00 00 00 00 00 00 00     ÿÿ..¾ ˆ.d.......
+2477: 00 00 00 00 00 00 00 00 00 00 00 00 C3 00 21 00     ............Ã.!.
+2487: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+2497: EA 20 80 01 64 00 00 00 00 00 00 00 00 00 00 00     ê €.d...........
+24A7: 00 00 00 00 00 00 00 00 BF 00 21 00 01 00 FF FF     ........¿.!...ÿÿ
+24B7: FF FF FF FF FF FF FF FF FF FF 00 00 16 21 16 00     ÿÿÿÿÿÿÿÿÿÿ...!..
+24C7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+24D7: 00 00 00 00 0A 00 21 00 01 00 FF FF FF FF FF FF     ......!...ÿÿÿÿÿÿ
+24E7: FF FF FF FF FF FF 00 00 42 21 84 01 64 00 00 00     ÿÿÿÿÿÿ..B!„.d...
+24F7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+2507: C1 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     Á.!...ÿÿÿÿÿÿÿÿÿÿ
+2517: FF FF 00 00 6E 21 8A 01 64 00 00 00 00 00 00 00     ÿÿ..n!Š.d.......
+2527: 00 00 00 00 00 00 00 00 00 00 00 00 C4 00 21 00     ............Ä.!.
+2537: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+2547: 9A 21 90 01 64 00 00 00 00 00 00 00 00 00 00 00     š!.d...........
+2557: 00 00 00 00 00 00 00 00 C7 00 21 00 01 00 FF FF     ........Ç.!...ÿÿ
+2567: FF FF FF FF FF FF FF FF FF FF 00 00 C6 21 92 01     ÿÿÿÿÿÿÿÿÿÿ..Æ!’.
+2577: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+2587: 00 00 00 00 C8 00 21 00 01 00 FF FF FF FF FF FF     ....È.!...ÿÿÿÿÿÿ
+2597: FF FF FF FF FF FF 00 00 F2 21 94 01 64 00 00 00     ÿÿÿÿÿÿ..ò!”.d...
+25A7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+25B7: C9 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     É.!...ÿÿÿÿÿÿÿÿÿÿ
+25C7: FF FF 00 00 1E 22 96 01 64 00 00 00 00 00 00 00     ÿÿ..."–.d.......
+25D7: 00 00 00 00 00 00 00 00 00 00 00 00 CA 00 21 00     ............Ê.!.
+25E7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+25F7: 4A 22 98 01 64 00 00 00 00 00 00 00 00 00 00 00     J"˜.d...........
+2607: 00 00 00 00 00 00 00 00 CB 00 21 00 01 00 FF FF     ........Ë.!...ÿÿ
+2617: FF FF FF FF FF FF FF FF FF FF 00 00 76 22 9A 01     ÿÿÿÿÿÿÿÿÿÿ..v"š.
+2627: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+2637: 00 00 00 00 CC 00 21 00 01 00 FF FF FF FF FF FF     ....Ì.!...ÿÿÿÿÿÿ
+2647: FF FF FF FF FF FF 00 00 A2 22 9C 01 64 00 00 00     ÿÿÿÿÿÿ..¢"œ.d...
+2657: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+2667: CD 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     Í.!...ÿÿÿÿÿÿÿÿÿÿ
+2677: FF FF 00 00 CE 22 9E 01 64 00 00 00 00 00 00 00     ÿÿ..Î".d.......
+2687: 00 00 00 00 00 00 00 00 00 00 00 00 CE 00 21 00     ............Î.!.
+2697: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+26A7: FA 22 A0 01 64 00 00 00 00 00 00 00 00 00 00 00     ú" .d...........
+26B7: 00 00 00 00 00 00 00 00 CF 00 21 00 01 00 FF FF     ........Ï.!...ÿÿ
+26C7: FF FF FF FF FF FF FF FF FF FF 00 00 26 23 8C 01     ÿÿÿÿÿÿÿÿÿÿ..&#Œ.
+26D7: 67 00 0A 00 05 00 00 00 12 00 00 00 00 00 00 00     g...............
+26E7: 00 00 3C 23 00 00 64 00 00 00 00 00 00 00 00 00     ..<#..d.........
+26F7: 00 00 00 00 00 00 00 00 00 00 05 00 21 00 01 00     ............!...
+2707: FF FF FF FF FF FF FF FF FF FF FF FF 00 00 68 23     ÿÿÿÿÿÿÿÿÿÿÿÿ..h#
+2717: 8E 01 67 00 0A 00 42 00 00 00 12 00 00 00 00 00     .g...B.........
+2727: 00 00 00 00 00 00 00 00 21 00 01 00 FF FF FF FF     ........!...ÿÿÿÿ
+2737: FF FF FF FF FF FF FF FF 00 00 94 23 A4 01 67 00     ÿÿÿÿÿÿÿÿ..”#¤.g.
+2747: 0A 00 44 00 00 00 12 00 00 00 00 00 00 00 00 00     ..D.............
+2757: AA 23 00 00 64 00 00 00 00 00 00 00 00 00 00 00     ª#..d...........
+2767: 00 00 00 00 00 00 00 00 44 00 21 00 01 00 FF FF     ........D.!...ÿÿ
+2777: FF FF FF FF FF FF FF FF FF FF 00 00 D6 23 A6 01     ÿÿÿÿÿÿÿÿÿÿ..Ö#¦.
+2787: 67 00 0A 00 05 00 00 00 12 00 00 00 00 00 00 00     g...............
+2797: 00 00 EC 23 00 00 64 00 00 00 00 00 00 00 00 00     ..ì#..d.........
+27A7: 00 00 00 00 00 00 00 00 00 00 05 00 21 00 01 00     ............!...
+27B7: FF FF FF FF FF FF FF FF FF FF FF FF 00 00 18 24     ÿÿÿÿÿÿÿÿÿÿÿÿ...$
+27C7: B0 01 67 00 0A 00 41 00 00 00 12 00 00 00 00 00     °.g...A.........
+27D7: 00 00 00 00 2E 24 00 00 64 00 00 00 00 00 00 00     .....$..d.......
+27E7: 00 00 00 00 00 00 00 00 00 00 00 00 41 00 21 00     ............A.!.
+27F7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+2807: 5A 24 A8 01 64 00 00 00 00 00 00 00 00 00 00 00     Z$¨.d...........
+2817: 00 00 00 00 00 00 00 00 D3 00 21 00 01 00 FF FF     ........Ó.!...ÿÿ
+2827: FF FF FF FF FF FF FF FF FF FF 00 00 86 24 AA 01     ÿÿÿÿÿÿÿÿÿÿ..†$ª.
+2837: 67 00 0A 00 05 00 00 00 12 00 00 00 00 00 00 00     g...............
+2847: 00 00 9C 24 00 00 64 00 00 00 00 00 00 00 00 00     ..œ$..d.........
+2857: 00 00 00 00 00 00 00 00 00 00 05 00 21 00 01 00     ............!...
+2867: FF FF FF FF FF FF FF FF FF FF FF FF 00 00 C8 24     ÿÿÿÿÿÿÿÿÿÿÿÿ..È$
+2877: AC 01 67 00 0A 00 41 00 00 00 12 00 00 00 00 00     ¬.g...A.........
+2887: 00 00 00 00 DE 24 00 00 64 00 00 00 00 00 00 00     ....Ş$..d.......
+2897: 00 00 00 00 00 00 00 00 00 00 00 00 41 00 21 00     ............A.!.
+28A7: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+28B7: 0A 25 BC 00 64 00 00 00 00 00 00 00 00 00 00 00     .%¼.d...........
+28C7: 00 00 00 00 00 00 00 00 5D 00 21 00 01 00 FF FF     ........].!...ÿÿ
+28D7: FF FF FF FF FF FF FF FF FF FF 00 00 36 25 5A 01     ÿÿÿÿÿÿÿÿÿÿ..6%Z.
+28E7: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+28F7: 00 00 00 00 AC 00 21 00 01 00 FF FF FF FF FF FF     ....¬.!...ÿÿÿÿÿÿ
+2907: FF FF FF FF FF FF 00 00 62 25 5C 01 64 00 00 00     ÿÿÿÿÿÿ..b%\.d...
+2917: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+2927: AD 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     ­.!...ÿÿÿÿÿÿÿÿÿÿ
+2937: FF FF 00 00 8E 25 5E 01 64 00 00 00 00 00 00 00     ÿÿ..%^.d.......
+2947: 00 00 00 00 00 00 00 00 00 00 00 00 AE 00 21 00     ............®.!.
+2957: 01 00 FF FF FF FF FF FF FF FF FF FF FF FF 00 00     ..ÿÿÿÿÿÿÿÿÿÿÿÿ..
+2967: BA 25 60 01 64 00 00 00 00 00 00 00 00 00 00 00     º%`.d...........
+2977: 00 00 00 00 00 00 00 00 AF 00 21 00 01 00 FF FF     ........¯.!...ÿÿ
+2987: FF FF FF FF FF FF FF FF FF FF 00 00 E6 25 62 01     ÿÿÿÿÿÿÿÿÿÿ..æ%b.
+2997: 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     d...............
+29A7: 00 00 00 00 B0 00 21 00 01 00 FF FF FF FF FF FF     ....°.!...ÿÿÿÿÿÿ
+29B7: FF FF FF FF FF FF 00 00 12 26 A2 01 64 00 00 00     ÿÿÿÿÿÿ...&¢.d...
+29C7: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+29D7: D0 00 21 00 01 00 FF FF FF FF FF FF FF FF FF FF     Ğ.!...ÿÿÿÿÿÿÿÿÿÿ
+29E7: FF FF 00 00 3E 26 AE 01 64 00 00 00 00 00 00 00     ÿÿ..>&®.d.......
+29F7: 00 00 00 00 00 00 00 00 00 00 00 00 D6 00 00 00     ............Ö...
+2A07: 00 18 04 00 8C 01 54 00 D6 01 74 00 FC DE 00 00     ....Œ.T.Ö.t.üŞ..
+2A17: 00 00 00 00 01 00 09 00 00 00 00 02 01 00 28 00     ..............(.
+2A27: 84 00 FE 00 99 00 5C 43 FF FF 00 00 00 00 01 00     „.ş.™.\Cÿÿ......
+2A37: 02 00 00 00 00 16 04 00 DC 00 10 00 D5 01 32 00     ........Ü...Õ.2.
+2A47: FC DE 00 00 00 00 00 00 01 00 09 00 00 00 00 00     üŞ..............
+2A57: 01 00 80 01 24 01 DB 01 3D 01 18 0A 00 00 00 00     ..€.$.Û.=.......
+2A67: 00 00 01 00 00 00 00 00 00 22 04 00 1C 00 14 01     ........."......
+2A77: B8 00 2D 01 FC DE 00 00 00 00 00 00 01 00 09 00     ¸.-.üŞ..........
+2A87: 00 00 00 2A 07 00 08 01 C8 00 5D 01 EC 00 50 5B     ...*....È.].ì.P[
+2A97: 00 00 00 00 00 00 01 00 2C 00 00 00 00 46 04 00     ........,....F..
+2AA7: 1C 00 14 01 B8 00 2D 01 FC DE 00 00 00 00 00 00     ....¸.-.üŞ......
+2AB7: 01 00 2A 00 00 00 00 04 25 00 04 01 84 00 94 01     ..*.....%...„.”.
+2AC7: 99 00 10 00 7B 01 00 00 00 00 01 00 02 00 00 00     ™...{...........
+2AD7: 00 06 01 00 28 00 B8 00 FE 00 CD 00 5C 43 7B 01     ....(.¸.ş.Í.\C{.
+2AE7: 00 00 00 00 01 00 02 00 00 00 00 1A 04 00 8C 01     ..............Œ.
+2AF7: D0 00 CD 01 EA 00 FC DE 00 00 00 00 00 00 01 00     Ğ.Í.ê.üŞ........
+2B07: 09 00 00 00 00 2C 07 00 0C 00 10 01 5F 00 33 01     .....,......_.3.
+2B17: 50 5B 00 00 00 00 00 00 01 00 2C 00 00 00 00 58     P[........,....X
+2B27: 07 00 0C 01 B6 00 5D 01 D8 00 29 11 FF FF 00 00     ....¶.].Ø.).ÿÿ..
+2B37: 00 00 01 00 3B 00 00 00 00 08 01 00 28 00 EC 00     ....;.......(.ì.
+2B47: FE 00 01 01 5C 43 7B 01 00 00 00 00 01 00 02 00     ş...\C{.........
+2B57: 00 00 00 30 07 00 1C 00 A0 00 6E 00 BB 00 29 11     ...0.... .n.».).
+2B67: DD 23 00 00 00 00 01 00 34 00 00 00 00 32 07 00     İ#......4....2..
+2B77: 94 00 A0 00 E7 00 BB 00 29 11 00 00 00 00 00 00     ”. .ç.».).......
+2B87: 01 00 34 00 00 00 00 34 07 00 10 01 A0 00 61 01     ..4....4.... .a.
+2B97: BB 00 29 11 00 00 00 00 00 00 01 00 34 00 00 00     ».).........4...
+2BA7: 00 12 01 00 28 00 1C 01 FE 00 31 01 5C 43 7B 01     ....(...ş.1.\C{.
+2BB7: 00 00 00 00 01 00 02 00 00 00 00 2E 07 00 88 00     ..............ˆ.
+2BC7: 10 01 DF 00 34 01 50 5B 00 00 00 00 00 00 01 00     ..ß.4.P[........
+2BD7: 2C 00 00 00 00 36 07 00 88 01 A0 00 DC 01 BB 00     ,....6..ˆ. .Ü.».
+2BE7: 29 11 00 00 00 00 00 00 01 00 34 00 00 00 00 38     ).........4....8
+2BF7: 09 00 10 00 E0 00 62 00 FB 00 29 11 00 00 00 00     ....à.b.û.).....
+2C07: 00 00 01 00 35 00 00 00 00 3A 09 00 8C 00 E0 00     ....5....:..Œ.à.
+2C17: DE 00 FA 00 29 11 00 00 00 00 00 00 01 00 35 00     Ş.ú.).........5.
+2C27: 00 00 00 3C 09 00 04 01 E0 00 56 01 FA 00 29 11     ...<....à.V.ú.).
+2C37: 00 00 00 00 00 00 01 00 35 00 00 00 00 3E 09 00     ........5....>..
+2C47: 7C 01 E0 00 CE 01 FA 00 29 11 00 00 00 00 00 00     |.à.Î.ú.).......
+2C57: 01 00 35 00 00 00 00 0A 01 00 28 00 50 00 FE 00     ..5.......(.P.ş.
+2C67: 65 00 5C 43 7B 01 00 00 00 00 01 00 02 00 00 00     e.\C{...........
+2C77: 00 0C 13 00 04 01 50 00 94 01 65 00 10 00 7B 01     ......P.”.e...{.
+2C87: 00 00 00 00 01 00 02 00 00 00 00 0E 25 00 04 01     ............%...
+2C97: B8 00 94 01 CD 00 10 00 7B 01 00 00 00 00 01 00     ¸.”.Í...{.......
+2CA7: 02 00 00 00 00 10 25 00 04 01 EC 00 94 01 01 01     ......%...ì.”...
+2CB7: 10 00 7B 01 00 00 00 00 01 00 02 00 00 00 00 40     ..{............@
+2CC7: 01 00 2C 00 18 01 0D 01 34 01 29 11 7B 01 00 00     ..,.....4.).{...
+2CD7: 00 00 01 00 0F 00 00 00 00 42 16 00 30 01 18 01     .........B..0...
+2CE7: D9 01 34 01 29 11 7B 01 00 00 00 00 01 00 0F 00     Ù.4.).{.........
+2CF7: 00 00 00 48 04 00 DE 00 14 01 1E 01 2D 01 FC DE     ...H..Ş.....-.üŞ
+2D07: 00 00 00 00 00 00 01 00 2A 00 00 00 00 14 25 00     ........*.....%.
+2D17: 04 01 1C 01 94 01 31 01 10 00 7B 01 00 00 00 00     ....”.1...{.....
+2D27: 01 00 02 00 00 00 00 4A 04 00 8C 01 54 00 D6 01     .......J..Œ.T.Ö.
+2D37: 74 00 FC DE 00 00 00 00 00 00 01 00 2A 00 00 00     t.üŞ........*...
+2D47: 00 4C 04 00 8C 01 94 00 D4 01 AF 00 FC DE 00 00     .L..Œ.”.Ô.¯.üŞ..
+2D57: 00 00 00 00 01 00 2A 00 00 00 00 4E 04 00 8C 01     ......*....N..Œ.
+2D67: D0 00 CD 01 EA 00 FC DE 00 00 00 00 00 00 01 00     Ğ.Í.ê.üŞ........
+2D77: 2A 00 00 00 00 1C 04 00 8C 01 94 00 D4 01 AF 00     *.......Œ.”.Ô.¯.
+2D87: FC DE 00 00 00 00 00 00 01 00 09 00 00 00 00 50     üŞ.............P
+2D97: 04 00 8C 01 10 01 CE 01 2B 01 FC DE 00 00 00 00     ..Œ...Î.+.üŞ....
+2DA7: 00 00 01 00 2A 00 00 00 00 1E 04 00 8C 01 10 01     ....*.......Œ...
+2DB7: CE 01 2B 01 FC DE 00 00 00 00 00 00 01 00 09 00     Î.+.üŞ..........
+2DC7: 00 00 00 20 04 00 DE 00 14 01 1E 01 2D 01 FC DE     ... ..Ş.....-.üŞ
+2DD7: 00 00 00 00 00 00 01 00 09 00 00 00 00 52 04 00     .............R..
+2DE7: DC 00 10 00 D5 01 32 00 FC DE 00 00 00 00 00 00     Ü...Õ.2.üŞ......
+2DF7: 01 00 2A 00 00 00 00 5E 01 00 34 00 AC 00 BF 01     ..*....^..4.¬.¿.
+2E07: FA 00 00 D8 00 00 00 00 00 00 01 00 43 00 00 00     ú..Ø........C...
+2E17: 00 24 10 00 45 01 5E 00 DE 01 74 00 50 5B 00 00     .$..E.^.Ş.t.P[..
+2E27: 00 00 00 00 01 00 1C 00 00 00 00 26 01 00 45 01     ...........&..E.
+2E37: B4 00 DE 01 CA 00 50 5B 00 00 00 00 00 00 01 00     ´.Ş.Ê.P[........
+2E47: 1C 00 00 00 00 28 01 00 45 01 09 01 DE 01 1F 01     .....(..E...Ş...
+2E57: 50 5B 00 00 00 00 00 00 01 00 1C 00 00 00 00 56     P[.............V
+2E67: 01 00 DC 00 C8 00 26 01 EC 00 50 5B 00 00 00 00     ..Ü.È.&.ì.P[....
+2E77: 00 00 01 00 3D 00 00 00 00 60 01 00 1C 01 54 00     ....=....`....T.
+2E87: D5 01 6D 00 50 5B 00 00 00 00 00 00 01 00 44 00     Õ.m.P[........D.
+2E97: 00 00 00 5A 01 00 DC 00 C8 00 26 01 EC 00 50 5B     ...Z..Ü.È.&.ì.P[
+2EA7: 00 00 00 00 00 00 01 00 28 00 00 00 00 44 01 00     ........(....D..
+2EB7: DC 00 C8 00 26 01 EC 00 50 5B 00 00 00 00 00 00     Ü.È.&.ì.P[......
+2EC7: 01 00 24 00 00 00 00 54 01 00 D4 00 B4 00 1E 01     ..$....T..Ô.´...
+2ED7: D3 00 50 5B 00 00 00 00 00 00 01 00 3A 00 00 00     Ó.P[........:...
+2EE7: 00 5C 01 00 2C 01 08 01 AA 01 23 01 FF FF 00 00     .\..,...ª.#.ÿÿ..
+2EF7: 00 00 00 00 01 00 41 00 00 00 00 62 0C 00 1C 01     ......A....b....
+2F07: B0 00 D5 01 C9 00 50 5B 00 00 00 00 00 00 01 00     °.Õ.É.P[........
+2F17: 44 00 00 00 00 64 01 00 34 00 00 01 1A 01 19 01     D....d..4.......
+2F27: 00 00 7B 01 00 00 00 00 01 00 1A 00 00 00 00 00     ..{.............
+2F37: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+2F47: 4B 00 FF FF 01 00 05 00 75 00 11 00 16 00 1B 00     K.ÿÿ....u.......
+2F57: 00 01 B1 00 21 00 AA 00 B3 00 AC 00 79 00 25 00     ..±.!.ª.³.¬.y.%.
+2F67: AE 00 67 00 7F 00 BC 00 29 00 2B 00 34 00 CB 00     ®.g..¼.).+.4.Ë.
+2F77: DA 00 F9 00 81 00 2B 01 37 00 43 00 C3 00 2E 01     Ú.ù..+.7.C.Ã...
+2F87: 4B 00 4E 00 51 00 5D 00 62 00 C1 00 D0 00 D2 00     K.N.Q.].b.Á.Ğ.Ò.
+2F97: D4 00 1C 01 F6 00 DD 00 E2 00 6B 00 31 01 E4 00     Ô...ö.İ.â.k.1.ä.
+2FA7: 7D 00 88 00 8F 00 E7 00 EC 00 94 00 A0 00 EF 00     }.ˆ..ç.ì.”. .ï.
+2FB7: F2 00 FB 00 FD 00 02 01 0E 01 04 01 07 01 09 01     ò.û.ı...........
+2FC7: 0C 01 19 01 1E 01 22 01 25 01 28 01 33 01 34 01     ......".%.(.3.4.
+2FD7: 36 01 38 01 3A 01 3C 01 00 00 00 00 00 00 00 00     6.8.:.<.........
+2FE7: 00 00 00 00 33 00 05 AA 1F AA 39 AA 53 AA 6D AA     ....3..ª.ª9ªSªmª
+2FF7: 87 AA A1 AA BB AA D5 AA EF AA 09 AB 23 AB 3D AB     ‡ª¡ª»ªÕªïª.«#«=«
+3007: 57 AB 71 AB 8B AB A5 AB BF AB D9 AB F3 AB 0D AC     W«q«‹«¥«¿«Ù«ó«.¬
+3017: 27 AC 41 AC 5B AC 75 AC 8F AC A9 AC C3 AC DD AC     '¬A¬[¬u¬¬©¬Ã¬İ¬
+3027: F7 AC 11 AD 2B AD 45 AD 5F AD 79 AD 93 AD AD AD     ÷¬.­+­E­_­y­“­­­
+3037: C7 AD E1 AD FB AD 15 AE 2F AE 49 AE 63 AE 7D AE     Ç­á­û­.®/®I®c®}®
+3047: 97 AE B1 AE CB AE E5 AE FF AE 19 AF 00 00 00 00     —®±®Ë®å®ÿ®.¯....
+3057: 18 00 00 00 B2 00 C2 00 48 00 49 00 4A 00 80 00     ....².Â.H.I.J.€.
+3067: 08 01 1D 01 E6 00 6A 00 36 00 DC 00 0B 01 10 00     ....æ.j.6.Ü.....
+3077: BB 00 61 00 66 00 27 01 03 01 74 00 32 01 39 01     ».a.f.'...t.2.9.
+3087: 3B 01 00 00 00 00 00 00 00 00 06 00 C9 00 0F 00     ;...........É...
+3097: 18 01 FF FF 4D 00 50 00 00 00 00 00 00 00 00 00     ..ÿÿM.P.........
+30A7: D8 00 1C 00 02 00 1D 00 B4 00 06 00 07 00 12 00     Ø.......´.......
+30B7: 13 00 14 00 15 00 0D 01 44 00 17 00 18 00 0B 00     ........D.......
+30C7: 08 00 24 00 26 00 22 00 23 00 42 00 38 00 39 00     ..$.&.".#.B.8.9.
+30D7: 86 00 87 00 8D 00 5C 00 76 00 77 00 78 00 7A 00     †.‡..\.v.w.x.z.
+30E7: 7B 00 27 00 28 00 BA 00 7C 00 AD 00 09 00 AF 00     {.'.(.º.|.­...¯.
+30F7: B0 00 B5 00 68 00 B6 00 82 00 B9 00 B7 00 B8 00     °.µ.h.¶.‚.¹.·.¸.
+3107: 83 00 84 00 FE 00 1E 00 3A 00 2A 00 35 00 19 00     ƒ.„.ş...:.*.5...
+3117: 0A 00 0C 00 1A 00 7E 00 BD 00 89 00 03 00 8A 00     ......~.½.‰...Š.
+3127: BE 00 93 00 2F 00 DB 00 F7 00 E3 00 FA 00 30 00     ¾.“./.Û.÷.ã.ú.0.
+3137: AB 00 3B 00 8E 00 C0 00 2C 00 2D 00 2E 00 31 00     «.;..À.,.-...1.
+3147: 32 00 BF 00 45 00 46 00 47 00 CA 00 0D 00 0E 00     2.¿.E.F.G.Ê.....
+3157: DE 00 04 00 20 00 CC 00 C4 00 C5 00 2C 01 4C 00     Ş... .Ì.Ä.Å.,.L.
+3167: 4F 00 3C 00 3D 00 3E 00 3F 00 40 00 41 00 52 00     O.<.=.>.?.@.A.R.
+3177: 53 00 54 00 55 00 56 00 57 00 58 00 59 00 5A 00     S.T.U.V.W.X.Y.Z.
+3187: 5B 00 5E 00 5F 00 60 00 63 00 64 00 65 00 DF 00     [.^._.`.c.d.e.ß.
+3197: 8B 00 C6 00 C7 00 C8 00 CD 00 CE 00 CF 00 33 00     ‹.Æ.Ç.È.Í.Î.Ï.3.
+31A7: 8C 00 90 00 91 00 92 00 85 00 D1 00 D3 00 9F 00     Œ..‘.’.….Ñ.Ó.Ÿ.
+31B7: 73 00 E0 00 E1 00 D5 00 D6 00 D7 00 D8 00 95 00     s.à.á.Õ.Ö.×.Ø.•.
+31C7: 96 00 97 00 98 00 99 00 9A 00 9B 00 9C 00 9D 00     –.—.˜.™.š.›.œ..
+31D7: 6C 00 6D 00 D9 00 6E 00 6F 00 70 00 71 00 69 00     l.m.Ù.n.o.p.q.i.
+31E7: 1F 00 72 00 9E 00 A1 00 A2 00 A3 00 A4 00 A5 00     ..r..¡.¢.£.¤.¥.
+31F7: A6 00 A7 00 A8 00 A9 00 E5 00 2D 01 2F 01 30 01     ¦.§.¨.©.å.-./.0.
+3207: 35 01 37 01 E8 00 E9 00 EA 00 EB 00 ED 00 EE 00     5.7.è.é.ê.ë.í.î.
+3217: F3 00 F4 00 F5 00 F0 00 F1 00 F8 00 FC 00 FF 00     ó.ô.õ.ğ.ñ.ø.ü.ÿ.
+3227: 0A 01 01 01 0F 01 05 01 06 01 10 01 1F 01 20 01     .............. .
+3237: 11 01 12 01 13 01 14 01 15 01 16 01 17 01 1A 01     ................
+3247: 1B 01 3D 01 21 01 23 01 26 01 29 01 2A 01 3E 01     ..=.!.#.&.).*.>.
+3257: 24 01 00 00 00 00 00 00 FF FF 20 00 20 00 20 00     $.......ÿÿ . . .
+3267: 20 00 20 00 20 00 20 00 20 00 20 00 20 00 20 00      . . . . . . . .
+3277: 20 00 20 00 20 00 20 00 20 00 20 00 20 00 20 00      . . . . . . . .
+3287: 20 00 20 00 20 00 20 00 20 00 20 00 20 00 20 00      . . . . . . . .
+3297: 20 00 20 00 20 00 20 00 20 00 20 00 20 00 20 00      . . . . . . . .
+32A7: 20 00 20 00 20 00 20 00 20 00 20 00 20 00 20 00      . . . . . . . .
+32B7: 20 00 20 00 20 00 20 00 20 00 20 00 20 00 20 00      . . . . . . . .
+32C7: 20 00 20 00 20 00 20 00 20 00 20 00 20 00 20 00      . . . . . . . .
+32D7: 20 00 20 00 20 00 20 00 20 00 20 00 20 00 20 00      . . . . . . . .
+32E7: 20 00 20 00 20 00 20 00 20 00 20 00 20 00 FF FF      . . . . . . .ÿÿ
+32F7: FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ÿÿ..............
+3307: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+3317: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+3327: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+3337: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+3347: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00     ................
+3357: 00 00 00 00 00 00 00 00 4D 6F 75 6E 74 69 6E 67     ........Mounting
+3367: 2E 2E 2E 0A 00 44 72 69 76 65 20 6E 6F 74 20 6D     .....Drive not m
+3377: 6F 75 6E 74 65 64 2E 2E 2E 00 42 43 4E 33 44 5F     ounted....BCN3D_
+3387: 7E 31 2E 64 61 74 00 42 43 4E 33 44 5F 7E 31 2E     ~1.dat.BCN3D_~1.
+3397: 67 63 69 00 42 43 4E 33 44 5F 7E 31 2E 64 30 32     gci.BCN3D_~1.d02
+33A7: 00 42 43 4E 33 44 5F 7E 31 2E 67 30 32 00 42 43     .BCN3D_~1.g02.BC
+33B7: 4E 33 44 5F 7E 31 2E 64 30 33 00 42 43 4E 33 44     N3D_~1.d03.BCN3D
+33C7: 5F 7E 31 2E 67 30 33 00 42 43 4E 33 44 5F 7E 31     _~1.g03.BCN3D_~1
+33D7: 2E 64 30 31 00 42 43 4E 33 44 5F 7E 31 2E 67 30     .d01.BCN3D_~1.g0
+33E7: 31 00 42 43 4E 33 44 5F 7E 31 2E 64 30 35 00 42     1.BCN3D_~1.d05.B
+33F7: 43 4E 33 44 5F 7E 31 2E 67 30 35 00 42 43 4E 33     CN3D_~1.g05.BCN3
+3407: 44 5F 7E 31 2E 64 30 36 00 42 43 4E 33 44 5F 7E     D_~1.d06.BCN3D_~
+3417: 31 2E 67 30 36 00 42 43 4E 33 44 5F 7E 31 2E 64     1.g06.BCN3D_~1.d
+3427: 30 34 00 42 43 4E 33 44 5F 7E 31 2E 67 30 34 00     04.BCN3D_~1.g04.
+3437: 42 43 4E 33 44 5F 7E 31 2E 64 30 37 00 42 43 4E     BCN3D_~1.d07.BCN
+3447: 33 44 5F 7E 31 2E 67 30 37 00 42 43 4E 33 44 5F     3D_~1.g07.BCN3D_
+3457: 7E 31 2E 74 78 66 00 75 3B 75 3B 75 3B 75 3B 75     ~1.txf.u;u;u;u;u
+3467: 3B 75 3B 86 3B 75 3B 36 3C 36 3C 75 3B CD 40 E5     ;u;†;u;6<6<u;Í@å
+3477: 40                                                  @
+
+[__MAXPROG]
+32750
+[__MAXMEM]
+32768
+
+[PROGRAM]
+main
+[CODESIZE]
+17522
+[MEMSIZE]
+267
+[ARGCOUNT]
+0
+[RETURNS]
+NO
+[STACKSIZE]
+0 (AUTO)
+[STACK_ESTIMATE]
+204   (nb:- worst case estimate)
+[MODE]
+0
+
+[PROJECT]
+C:\Users\agarciamoreno\Documents\Firmware\PANTALLA\BCN3D_SIGMA_122RC\BCN3D_SIGMA.4DWork\BCN3D_SIGMA.4DGenieS
+C:\Program Files (x86)\4D Labs\4D Workshop 4 IDE\include\uLCD-35DT.fnc
+C:\Program Files (x86)\4D Labs\4D Workshop 4 IDE\include\Diablo16_Functions.fnc
+C:\Program Files (x86)\4D Labs\4D Workshop 4 IDE\include\4DGL_16bitColours.fnc
+C:\Program Files (x86)\4D Labs\4D Workshop 4 IDE\include\VisualConst.inc
+C:\Users\agarciamoreno\Documents\Firmware\PANTALLA\BCN3D_SIGMA_122RC\BCN3D_SIGMA.4DWork\BCN3D_SIGMAConst.inc
+C:\Program Files (x86)\4D Labs\4D Workshop 4 IDE\include\CLPrintStrings.inc

@@ -6324,6 +6324,8 @@ inline void gcode_M84(){
 			#endif
 		}
 	}
+	dobloking = false;
+	fanSpeed = 0;
 }
 inline void gcode_M85(){
 	if(code_seen('S')) {

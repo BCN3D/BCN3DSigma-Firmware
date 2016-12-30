@@ -847,6 +847,14 @@ void setup()
 								if (card.chdir(card.filename)!=-1){
 								}
 							}
+						
+						}
+						listsd.get_lineduration();
+						if(listsd.get_minutes() == -1){
+							sprintf_P(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh",listsd.get_hoursremaining_save(saved_fileposition), listsd.get_minutesremaining_save(saved_fileposition));
 						}
 						setfilenames(7);
 					}
@@ -1417,7 +1425,7 @@ if(is_on_printing_screen){
 		static int tBed = -1;
 		static int percentDone = -1;
 		static int feedmultiply1 = -1;
-		static int minuteremaning = -1;
+		static int minuteremaining = -1;
 		//genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
 		//Rapduch
 		//Edit for final TouchScreen
@@ -1452,11 +1460,11 @@ if(is_on_printing_screen){
 			if(!card.sdispaused)genie.WriteStr(STRING_PRINTING_PERCENT,buffer7);
 			else genie.WriteStr(STRING_PRINTING_PERCENT_PAUSE,buffer7);
 		}
-		if ( minuteremaning != listsd.get_minutesremanig() || FLAG_DataRefresh == true ){
-			minuteremaning = listsd.get_minutesremanig();
-			sprintf_P(buffer7, PSTR("%d h %d m"),listsd.get_hoursremaning(), listsd.get_minutesremanig());
-			if(!card.sdispaused)genie.WriteStr(STRING_PRINTING_TIMEREMANING,buffer7);
-			else genie.WriteStr(STRING_PRINTING_TIMEREMANING_PAUSE,buffer7);
+		if ( minuteremaining != listsd.get_minutesremaining() || FLAG_DataRefresh == true ){
+			minuteremaining = listsd.get_minutesremaining();
+			sprintf_P(buffer7, PSTR("%d h %d m"),listsd.get_hoursremaining(), listsd.get_minutesremaining());
+			if(!card.sdispaused)genie.WriteStr(STRING_PRINTING_TIMEremaining,buffer7);
+			else genie.WriteStr(STRING_PRINTING_TIMEremaining_PAUSE,buffer7);
 		}
 		
 		if(feedmultiply != feedmultiply1 || FLAG_DataRefresh == true ){

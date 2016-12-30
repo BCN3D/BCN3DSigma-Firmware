@@ -255,7 +255,7 @@ int Listfiles::get_filgramos2(){
 	gram = filgramos2;
 	return gram;
 }
-int Listfiles::get_hoursremaning(){
+int Listfiles::get_hoursremaining(){
 	unsigned long long hours = 0;
 	if (get_hours()==0)return 0;
 	hours =(unsigned long long)get_hours()*60+(unsigned long long)get_minutes();
@@ -266,11 +266,30 @@ int Listfiles::get_hoursremaning(){
 	Serial.println((long)hours);
 	return (int) hours;
 }
-int Listfiles::get_minutesremanig(){
+int Listfiles::get_minutesremaining(){
 	unsigned long long minu = 0;
 	if (get_minutes()==-1)return 0;
 	minu = (unsigned long long)get_hours()*60+(unsigned long long)get_minutes();
 	minu = minu-minu*card.getSdPosition()/card.getFileSize();
+	minu = minu%60;
+	return (int) minu;
+}
+int Listfiles::get_hoursremaining_save(long position){
+	unsigned long long hours = 0;
+	if (get_hours()==0)return 0;
+	hours =(unsigned long long)get_hours()*60+(unsigned long long)get_minutes();
+	Serial.println((long)hours);
+	hours = hours-hours*position/card.getFileSize();
+	Serial.println((long)hours);
+	hours = hours/60;
+	Serial.println((long)hours);
+	return (int) hours;
+}
+int Listfiles::get_minutesremaining_save(long position){
+	unsigned long long minu = 0;
+	if (get_minutes()==-1)return 0;
+	minu = (unsigned long long)get_hours()*60+(unsigned long long)get_minutes();
+	minu = minu-minu*position/card.getFileSize();
 	minu = minu%60;
 	return (int) minu;
 }

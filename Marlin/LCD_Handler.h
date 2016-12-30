@@ -39,6 +39,7 @@ bool FLAG_GifHotent0 = false;
 bool FLAG_GifHotent1 = false;
 bool FLAG_GifBed = false;
 bool FLAG_PrintPrintStop = false;
+bool FLAG_PrintPrintSave = false;
 bool FLAG_PrintPrintPause = false;
 bool FLAG_PrintPrintResume = false;
 bool FLAG_PauseResume = false;

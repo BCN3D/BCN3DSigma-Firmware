@@ -1278,10 +1278,8 @@ void update_screen_printing(){
 		}
 		FLAG_PrintPrintResume = false;
 	}
-	if(FLAG_PrintPrintStop == true){
-		FLAG_PrintPrintStop = false;
-		
-		
+	if(FLAG_PrintPrintStop|| FLAG_PrintPrintSave){
+				
 		bufindw = (bufindr + 1)%BUFSIZE;
 		buflen = 1;
 		
@@ -1299,8 +1297,13 @@ void update_screen_printing(){
 		ymmdone = 0;
 		e0mmdone = 0;
 		e1mmdone = 0;
-		enquecommand_P(PSTR("M35"));
-		
+		if(FLAG_PrintPrintStop){
+			enquecommand_P(PSTR("M35"));
+			FLAG_PrintPrintStop = false;
+		}else if(FLAG_PrintPrintSave){
+			enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
+			FLAG_PrintPrintSave = false;
+		}
 		SERIAL_PROTOCOLPGM(" STOP PRINT \n");
 		
 	
@@ -5400,7 +5403,7 @@ inline void gcode_M32(){
 }
 inline void gcode_M33(){
 	#ifdef SDSUPPORT
-	FLAG_PrintPrintStop = true;
+	FLAG_PrintPrintSave = true;
 	cancel_heatup = true;
 	if (card.cardOK){
 		card.closefile(true);

@@ -293,3 +293,8 @@ int Listfiles::get_minutesremaining_save(long position){
 	minu = minu%60;
 	return (int) minu;
 }
+int Listfiles::get_percentage_save(long position){
+	unsigned long long minu = 0;
+	minu = position*100/card.getFileSize();
+	return (int) minu;
+}

@@ -854,7 +854,7 @@ void setup()
 							sprintf_P(listsd.comandline2, "");
 						}
 						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh",listsd.get_hoursremaining_save(saved_fileposition), listsd.get_minutesremaining_save(saved_fileposition));
+							sprintf(listsd.comandline2, "%d%% - %4d:%.2dh",listsd.get_percentage_save(saved_fileposition), listsd.get_hoursremaining_save(saved_fileposition), listsd.get_minutesremaining_save(saved_fileposition));
 						}
 						setfilenames(7);
 					}

@@ -1488,6 +1488,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						log_prints++;
 						log_min_print = 0;
 						saved_print_flag = 888;
+						acceleration_old = acceleration;
 						Config_StoreSettings();
 						//gcode_T0_T1_auto(0);
 						//st_synchronize();

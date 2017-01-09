@@ -1324,6 +1324,7 @@ void update_screen_printing(){
 			enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
 			FLAG_PrintPrintSave = false;
 		}
+		acceleration = acceleration_old;
 		SERIAL_PROTOCOLPGM(" STOP PRINT \n");
 		
 	

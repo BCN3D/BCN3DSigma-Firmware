@@ -831,8 +831,8 @@ void setup()
 				log_max_bed =0;
 				Config_RetrieveSettings();
 				if(saved_print_flag == 1888){
+					bool successSD = false;
 					
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
 					card.initsd();
 					if (card.cardOK){
 						
@@ -843,20 +843,32 @@ void setup()
 							workDir_vector[i]=saved_workDir_vector[i];
 							if (!card.filenameIsDir){
 								SERIAL_PROTOCOLLNPGM("Te pille");
+								successSD = true;
 								}else{
 								if (card.chdir(card.filename)!=-1){
+								successSD = false;
 								}
 							}
-						
+							
 						}
+						
+						
+					}
+					if(successSD){
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf_P(listsd.comandline2, "");
+							sprintf_P(listsd.commandline2, "");
 						}
 						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh",listsd.get_hoursremaining_save(saved_fileposition), listsd.get_minutesremaining_save(saved_fileposition));
+							sprintf(listsd.commandline2, "%d%% - %4d:%.2dh",listsd.get_percentage_save(saved_fileposition), listsd.get_hoursremaining_save(saved_fileposition), listsd.get_minutesremaining_save(saved_fileposition));
 						}
 						setfilenames(7);
+						}else{
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+						saved_print_flag = 888;
+						Config_StoreSettings();
 					}
 					
 				}else if (FLAG_First_Start_Wizard==1888){
@@ -1312,6 +1324,7 @@ void update_screen_printing(){
 			enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
 			FLAG_PrintPrintSave = false;
 		}
+		acceleration = acceleration_old;
 		SERIAL_PROTOCOLPGM(" STOP PRINT \n");
 		
 	
@@ -1969,7 +1982,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SAVEJOB_SUCCESS,processing_state);
 				processing_state=0;
 				processing_saveprint_success = false;
-				delay(7000);
+				delay(5000);
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_SAVEJOB_SHUTDOWN,0);
 				
 			}

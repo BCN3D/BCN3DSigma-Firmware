@@ -32,9 +32,10 @@ class Listfiles
 	int get_minutesremaining(void);
 	int get_hoursremaining_save(long position);
 	int get_minutesremaining_save(long position);
+	int get_percentage_save(long position);
 	public:
-	char comandline[50];
-	char comandline2[25];
+	char commandline[50];
+	char commandline2[25];
 	
 	private:
 	int dias, horas, minutos, simplify3D;

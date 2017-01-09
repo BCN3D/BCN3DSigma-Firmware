@@ -1152,10 +1152,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
 							if(listsd.get_minutes() == -1){
-								sprintf_P(listsd.comandline2, PSTR(""));
+								sprintf_P(listsd.commandline2, PSTR(""));
 							}
 							else{
-								sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+								sprintf_P(listsd.commandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							}
 							setfilenames(6);
 							
@@ -1196,10 +1196,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
 							if(listsd.get_minutes() == -1){
-								sprintf_P(listsd.comandline2, PSTR(""));
+								sprintf_P(listsd.commandline2, PSTR(""));
 							}
 							else{
-								sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+								sprintf_P(listsd.commandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							}
 							setfilenames(6);
 							
@@ -1245,10 +1245,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
 							if(listsd.get_minutes() == -1){
-								sprintf_P(listsd.comandline2, PSTR(""));
+								sprintf_P(listsd.commandline2, PSTR(""));
 							}
 							else{
-								sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+								sprintf_P(listsd.commandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							}
 							setfilenames(6);
 							
@@ -1298,10 +1298,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
 							if(listsd.get_minutes() == -1){
-								sprintf_P(listsd.comandline2, PSTR(""));
+								sprintf_P(listsd.commandline2, PSTR(""));
 							}
 							else{
-								sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+								sprintf_P(listsd.commandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							}
 							setfilenames(6);
 							
@@ -1357,10 +1357,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
 							if(listsd.get_minutes() == -1){
-								sprintf_P(listsd.comandline2, PSTR(""));
+								sprintf_P(listsd.commandline2, PSTR(""));
 							}
 							else{
-								sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+								sprintf_P(listsd.commandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							}
 							setfilenames(6);
 							
@@ -1419,10 +1419,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 								listsd.get_lineduration();
 								if(listsd.get_minutes() == -1){
-									sprintf_P(listsd.comandline2, PSTR(""));
+									sprintf_P(listsd.commandline2, PSTR(""));
 								}
 								else{
-									sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+									sprintf_P(listsd.commandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 								}
 								setfilenames(6);
 								
@@ -1488,6 +1488,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						log_prints++;
 						log_min_print = 0;
 						saved_print_flag = 888;
+						acceleration_old = acceleration;
 						Config_StoreSettings();
 						//gcode_T0_T1_auto(0);
 						//st_synchronize();
@@ -2038,6 +2039,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_UP,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_DOWN,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_MENU,0);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE,0);
 					
 					purge_extruder_selected = -1;
@@ -5247,7 +5249,7 @@ inline void setfilenames(int jint){
 		buffer[count]='\0';
 		char* buffer2 = strcat(buffer,"...\0");
 		genie.WriteStr(stringfilename[jint],buffer2);//Printing form
-		genie.WriteStr(stringfiledur[jint],listsd.comandline2);//Printing form
+		genie.WriteStr(stringfiledur[jint],listsd.commandline2);//Printing form
 		memset( buffer2, '\0', sizeof(buffer2));
 	}
 	else {
@@ -5262,7 +5264,7 @@ inline void setfilenames(int jint){
 		}
 		//buffer[count]='\0';
 		genie.WriteStr(stringfilename[jint],buffer);//Printing form
-		genie.WriteStr(stringfiledur[jint],listsd.comandline2);//Printing form
+		genie.WriteStr(stringfiledur[jint],listsd.commandline2);//Printing form
 		//Is a file
 		//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 	}
@@ -5329,12 +5331,12 @@ inline void ListFilesUpfunc(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf_P(listsd.comandline2, "");
+							sprintf_P(listsd.commandline2, "");
 						}
 						else{
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf(listsd.commandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 						}
-						//Serial.println(listsd.comandline);
+						//Serial.println(listsd.commandline);
 						setfilenames(jint);
 						
 					}
@@ -5358,7 +5360,7 @@ inline void ListFilesUpfunc(){
 	
 	FLAG_FilesUpDown= true;
 	
-	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
+	memset(listsd.commandline2, '\0', sizeof(listsd.commandline2) );
 }
 inline void ListFilesDownfunc(){
 	
@@ -5417,10 +5419,10 @@ inline void ListFilesDownfunc(){
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
 						listsd.get_lineduration();
 						if(listsd.get_minutes() == -1){
-							sprintf_P(listsd.comandline2, "");
+							sprintf_P(listsd.commandline2, "");
 						}
 						else{
-							sprintf_P(listsd.comandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf_P(listsd.commandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 						}
 						
 						setfilenames(jint);
@@ -5443,7 +5445,7 @@ inline void ListFilesDownfunc(){
 	}
 	FLAG_FilesUpDown= true;
 
-	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
+	memset(listsd.commandline2, '\0', sizeof(listsd.commandline2) );
 }
 inline void ListFileListINITSD(){
 	genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,0);
@@ -5490,12 +5492,12 @@ inline void ListFileListINITSD(){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
 					listsd.get_lineduration();
 					if(listsd.get_minutes() == -1){
-						sprintf_P(listsd.comandline2, "");
+						sprintf_P(listsd.commandline2, "");
 					}
 					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						sprintf(listsd.commandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					}
-					//Serial.println(listsd.comandline);
+					//Serial.println(listsd.commandline);
 					setfilenames(jint);
 					
 				}
@@ -5523,7 +5525,7 @@ inline void ListFileListINITSD(){
 		screen_sdcard = true;
 		#endif
 	}
-	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
+	memset(listsd.commandline2, '\0', sizeof(listsd.commandline2) );
 
 }
 inline void ListFileListENTERBACKFORLDERSD(){
@@ -5575,12 +5577,12 @@ inline void ListFileListENTERBACKFORLDERSD(){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
 					listsd.get_lineduration();
 					if(listsd.get_minutes() == -1){
-						sprintf_P(listsd.comandline2, "");
+						sprintf_P(listsd.commandline2, "");
 					}
 					else{
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						sprintf(listsd.commandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					}
-					//Serial.println(listsd.comandline);
+					//Serial.println(listsd.commandline);
 					setfilenames(jint);
 					
 				}
@@ -5608,7 +5610,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 		screen_sdcard = true;
 		#endif
 	}
-	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
+	memset(listsd.commandline2, '\0', sizeof(listsd.commandline2) );
 	
 	
 	

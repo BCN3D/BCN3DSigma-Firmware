@@ -115,6 +115,7 @@ extern float axis_steps_per_unit[4];
 extern unsigned long max_acceleration_units_per_sq_second[4]; // Use M201 to override by software
 extern float minimumfeedrate;
 extern float acceleration;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
+extern float acceleration_old;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
 extern float retract_acceleration; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
 extern float max_xy_jerk; //speed than can be stopped at once, if i understand correctly.
 extern float max_z_jerk;

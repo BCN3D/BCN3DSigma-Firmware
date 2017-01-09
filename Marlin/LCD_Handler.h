@@ -2039,6 +2039,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_UP,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_DOWN,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_MENU,0);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE,0);
 					
 					purge_extruder_selected = -1;

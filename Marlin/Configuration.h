@@ -28,6 +28,7 @@
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
 #define VERSION_STRING  "01-1.2.2RC"
+#define BUILD_DATE  "|12.01.16"
 #define UI_SerialID  "XXX.XXXXXX.XXXX"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during

@@ -5190,8 +5190,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == FORM_INFO_UI)
 				{
 					char buffer[256];
-					genie.WriteStr(STRING_INFO_UI_VERSION,VERSION_STRING);
-					
+					sprintf(buffer, "%s%s",VERSION_STRING,BUILD_DATE);
+					genie.WriteStr(STRING_INFO_UI_VERSION,buffer);
 					if(UI_SerialID0 || UI_SerialID0 || UI_SerialID0){
 						sprintf(buffer, "%03d.%03d%03d.%04d",UI_SerialID0, (int)(UI_SerialID1/1000),(int)(UI_SerialID1%1000), UI_SerialID2);
 						//sprintf(buffer, "%03d.%03d%03d.%04d",1020, 1151,1021, 10002);

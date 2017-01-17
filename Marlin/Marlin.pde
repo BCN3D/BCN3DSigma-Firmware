@@ -32,7 +32,7 @@
 
 #include "Configuration.h"
 #include "pins.h"
-
+#include "Hysteresis.h"
 #ifdef ULTRA_LCD
   #if defined(LCD_I2C_TYPE_PCF8575)
     #include <Wire.h>

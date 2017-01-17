@@ -165,7 +165,7 @@ void Config_StoreSettings()
     EEPROM_WRITE_VAR(i,saved_temp0);
     EEPROM_WRITE_VAR(i,saved_tempbed);
     EEPROM_WRITE_VAR(i,saved_fanlayer);
-	EEPROM_WRITE_VAR(i,saved_feedrate1);
+	EEPROM_WRITE_VAR(i,saved_feedmulti);
     EEPROM_WRITE_VAR(i,saved_workDir_vector_lenght);
     EEPROM_WRITE_VAR(i,saved_workDir_vector[0]);
 	EEPROM_WRITE_VAR(i,saved_workDir_vector[1]);
@@ -341,7 +341,7 @@ void Config_PrintSAVESettings()
 	SERIAL_ECHOPAIR(", saved_temp0: " ,(float)saved_temp0);
 	SERIAL_ECHOPAIR(", saved_tempbed: " ,(float)saved_tempbed);
 	SERIAL_ECHOPAIR(", saved_fanlayer: " ,(float)saved_fanlayer);
-	SERIAL_ECHOPAIR(", saved_feedrate: " ,(float)saved_feedrate1);
+	SERIAL_ECHOPAIR(", saved_feedrate: " ,(float)saved_feedmulti);
 	SERIAL_ECHOLN("");
 	
 	
@@ -474,7 +474,7 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,saved_temp0);
 		EEPROM_READ_VAR(i,saved_tempbed);
 		EEPROM_READ_VAR(i,saved_fanlayer);
-		EEPROM_READ_VAR(i,saved_feedrate1);
+		EEPROM_READ_VAR(i,saved_feedmulti);
 		EEPROM_READ_VAR(i,saved_workDir_vector_lenght);
 		EEPROM_READ_VAR(i,saved_workDir_vector[0]);
 		EEPROM_READ_VAR(i,saved_workDir_vector[1]);

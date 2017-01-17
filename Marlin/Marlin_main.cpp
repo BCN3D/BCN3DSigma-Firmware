@@ -47,7 +47,7 @@ http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
-
+#include "Hysteresis.h"
 
 //Rapduch
 #include "genieArduino.h"
@@ -257,7 +257,7 @@ int UI_SerialID2 = 0;
 /////// Print Recovery	/////////
 
 #ifdef RECOVERY_PRINT
-	float getfeedrate();
+
 	float saved_x_position;
 	float saved_y_position;
 	float saved_z_position;
@@ -269,7 +269,7 @@ int UI_SerialID2 = 0;
 	int saved_tempbed;
 	int saved_feedspeed;
 	int saved_fanlayer;
-	float saved_feedrate1;
+	int saved_feedmulti;
 	int saved_workDir_vector[MAX_DIR_DEPTH];
 	uint8_t saved_workDir_vector_lenght=0;
 	int saved_print_flag = 888;	
@@ -1037,9 +1037,6 @@ void SD_firstPrint (){
 int getBuflen()
 {
 	return buflen;
-}
-float getfeedrate(){
-	
 }
 
 void HeaterCooldownInactivity(bool switchOnOff){
@@ -5420,6 +5417,7 @@ inline void gcode_M34(){
 			setTargetBed(saved_tempbed);
 			setTargetHotend0(saved_temp0);
 			setTargetHotend1(saved_temp1);
+			feedmultiply = saved_feedmulti;
 			screen_printing_pause_form = screen_printing_pause_form0;
 			is_on_printing_screen=true;//We are entering printing screen
 			
@@ -5450,12 +5448,15 @@ inline void gcode_M34(){
 			
 			changeToolSigma(saved_tool_active);
 			
+			
+			
 			//active_extruder = saved_tool_active;
 			feedrate = homing_feedrate[Y_AXIS];
 			
 			current_position[Y_AXIS]=saved_y_position;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 			st_synchronize();
+			
 			
 			current_position[E_AXIS]+=PAUSE_G70_PURGE;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
@@ -5487,6 +5488,7 @@ inline void gcode_M34(){
 			fanSpeed = saved_fanlayer;
 			feedrate = saved_feedrate;
 			
+
 			for(int8_t i=0; i < NUM_AXIS; i++) {
 				destination[i] = current_position[i];
 			}
@@ -6302,6 +6304,15 @@ inline void gcode_M92(){
 			}
 		}
 	}
+}
+inline void gcode_M98(){
+	hysteresis.ReportToSerial();
+}
+inline void gcode_M99(){
+	if(code_seen('X')) hysteresis.SetAxis( X_AXIS, code_value() );
+	if(code_seen('Y')) hysteresis.SetAxis( Y_AXIS, code_value() );
+	if(code_seen('Z')) hysteresis.SetAxis( Z_AXIS, code_value() );
+	if(code_seen('E')) hysteresis.SetAxis( E_AXIS, code_value() );
 }
 inline void gcode_M115(){
 	SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
@@ -7901,7 +7912,15 @@ void process_commands()
 			case 92://M92
 			gcode_M92();
 			break;
-					
+			
+			case 98: // M98
+			gcode_M98();
+			break;
+			
+			case 99: // M99
+			gcode_M99();
+			break;	
+				
 			case 115: // M115
 			gcode_M115();
 			break;

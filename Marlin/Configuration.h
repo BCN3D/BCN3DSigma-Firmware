@@ -1138,6 +1138,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define PURGE_TEMP_HYSTERESIS		 10			//(mm)
 #define PURGE_DISTANCE_INSERTED		 30			//(mm)
 
+//////	PID ITERATIONS AUTOTUNE
+
+#define AUTOTUNE_ITERATIONS		 10			// iterations
+
 //////	CHANGE FILAMENT
 
 #define CHANGE_FIL_TEMP_HYSTERESIS		 10				//(ºC)

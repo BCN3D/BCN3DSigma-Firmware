@@ -32,6 +32,7 @@ void myGenieEventHandler();
 bool FLAG_NylonCleanMetode = false;
 bool FLAG_PrintSettingRefresh = false;
 bool FLAG_PrintSettingBack = false;
+bool FLAG_PIDautotune = false;
 bool FLAG_FilamentHome = false;
 bool FLAG_FilamentAcceptOk = false;
 bool FLAG_PausePause = false;
@@ -1680,6 +1681,33 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_MAINTENANCE_BACKUTILITIES ){
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_UTILITIES, 0);
 				}
+				else if (Event.reportObject.index == BUTTON_AUTOTUNE_HOTENDS ){
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_WAITING_ROOM, 0);
+					FLAG_PIDautotune = true;
+					processing = true;
+					PID_autotune_Save(print_temp_l, 0, AUTOTUNE_ITERATIONS);
+					Config_StoreSettings();
+					SERIAL_PROTOCOL(MSG_OK);
+					SERIAL_PROTOCOL(" p:");
+					SERIAL_PROTOCOL(Kp[0]);
+					SERIAL_PROTOCOL(" i:");
+					SERIAL_PROTOCOL(unscalePID_i(Ki[0]));
+					SERIAL_PROTOCOL(" d:");
+					SERIAL_PROTOCOL(unscalePID_d(Kd[0]));
+					PID_autotune_Save(print_temp_r, 1, AUTOTUNE_ITERATIONS);
+					Config_StoreSettings();
+					SERIAL_PROTOCOL(MSG_OK);
+					SERIAL_PROTOCOL(" p:");
+					SERIAL_PROTOCOL(Kp[1]);
+					SERIAL_PROTOCOL(" i:");
+					SERIAL_PROTOCOL(unscalePID_i(Ki[1]));
+					SERIAL_PROTOCOL(" d:");
+					SERIAL_PROTOCOL(unscalePID_d(Kd[1]));
+					processing = false;
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_CAL_WIZARD_DONE_GOOD, 0);
+					processing_bed_success =  true;
+										
+				}
 				else if (Event.reportObject.index == BUTTON_MAINTENANCE_BACKMENU ){
 					screen_sdcard = false;
 					surfing_utilities=false;
@@ -2520,7 +2548,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (which_extruder == 1 || which_extruder == 0) // Need to pause
 					{
 						if(Step_First_Start_Wizard){
-					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_CUSTOM_MENU, 1);
+					//genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_CUSTOM_MENU, 1);
 					}
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_CUSTOM_MATERIAL,0);
@@ -2577,14 +2605,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
 				}
-				else if (Event.reportObject.index == BUTTON_CUSTOM_MENU){
+				/*else if (Event.reportObject.index == BUTTON_CUSTOM_MENU){
 					screen_sdcard = false;
 					surfing_utilities=false;
 					surfing_temps = false;
 					SERIAL_PROTOCOLPGM("Surfing 0 \n");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 
-				}
+				}*/
 				else if(Event.reportObject.index == BUTTON_CUSTOM_INS_LESS){
 					if (custom_insert_temp > 0){
 						char buffer[256];
@@ -3266,26 +3294,33 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_BED_CALIB_SUCCESS )
 					{
 						processing_bed_success = false;
-						//enquecommand_P((PSTR("G28 X0 Y0")));
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						processing = true;
-						setTargetHotend0(0);
-						setTargetHotend1(0);
-						setTargetBed(0);
-						home_axis_from_code(true, true, false);
-						enquecommand_P((PSTR("T0")));
-						st_synchronize();
-						if(processing_error)return;
-						SERIAL_PROTOCOLPGM("Calibration Successful, going back to main menu \n");
-						processing = false;
-						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
-						
+						if(FLAG_PIDautotune){
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_MAINTENANCE,0);
+							FLAG_PIDautotune = false;
+						}
+						else{
 							
+							//enquecommand_P((PSTR("G28 X0 Y0")));
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							processing = true;
+							setTargetHotend0(0);
+							setTargetHotend1(0);
+							setTargetBed(0);
+							home_axis_from_code(true, true, false);
+							enquecommand_P((PSTR("T0")));
+							st_synchronize();
+							if(processing_error)return;
+							SERIAL_PROTOCOLPGM("Calibration Successful, going back to main menu \n");
+							processing = false;
+							
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+							
+							FLAG_CalibBedDone = true;
+							
+							dobloking=false;
+						}
 						
-						FLAG_CalibBedDone = true;
 						
-						dobloking=false;
 					}
 					
 					else if (Event.reportObject.index == BUTTON_SUCCESS_FILAMENT_OK)

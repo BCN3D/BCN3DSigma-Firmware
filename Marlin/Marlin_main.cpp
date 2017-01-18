@@ -5412,7 +5412,6 @@ inline void gcode_M34(){
 			
 			gcode_M24();
 			
-			
 			card.setIndex(saved_fileposition);
 			setTargetBed(saved_tempbed);
 			setTargetHotend0(saved_temp0);

@@ -32,6 +32,7 @@ void myGenieEventHandler();
 bool FLAG_NylonCleanMetode = false;
 bool FLAG_PrintSettingRefresh = false;
 bool FLAG_PrintSettingBack = false;
+bool FLAG_PIDautotune = false;
 bool FLAG_FilamentHome = false;
 bool FLAG_FilamentAcceptOk = false;
 bool FLAG_PausePause = false;
@@ -164,6 +165,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				else if (Event.reportObject.index == BUTTON_STOP_SAVE && !waiting_temps)
+				{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_SAVEPRINT_SURE_ASK,0);
+					
+				}
+				else if (Event.reportObject.index == BUTTON_SAVEPRINT_SURE_ASK_NOT && !waiting_temps)
+				{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_STOP_PRINT,0);
+				}
+				else if (Event.reportObject.index == BUTTON_SAVEPRINT_SURE_ASK_OK && !waiting_temps)
 				{
 					if(screen_printing_pause_form == screen_printing_pause_form0){
 						
@@ -1680,6 +1690,33 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_MAINTENANCE_BACKUTILITIES ){
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_UTILITIES, 0);
 				}
+				else if (Event.reportObject.index == BUTTON_AUTOTUNE_HOTENDS ){
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_WAITING_ROOM, 0);
+					FLAG_PIDautotune = true;
+					processing = true;
+					PID_autotune_Save(print_temp_l, 0, AUTOTUNE_ITERATIONS);
+					Config_StoreSettings();
+					SERIAL_PROTOCOL(MSG_OK);
+					SERIAL_PROTOCOL(" p:");
+					SERIAL_PROTOCOL(Kp[0]);
+					SERIAL_PROTOCOL(" i:");
+					SERIAL_PROTOCOL(unscalePID_i(Ki[0]));
+					SERIAL_PROTOCOL(" d:");
+					SERIAL_PROTOCOL(unscalePID_d(Kd[0]));
+					PID_autotune_Save(print_temp_r, 1, AUTOTUNE_ITERATIONS);
+					Config_StoreSettings();
+					SERIAL_PROTOCOL(MSG_OK);
+					SERIAL_PROTOCOL(" p:");
+					SERIAL_PROTOCOL(Kp[1]);
+					SERIAL_PROTOCOL(" i:");
+					SERIAL_PROTOCOL(unscalePID_i(Ki[1]));
+					SERIAL_PROTOCOL(" d:");
+					SERIAL_PROTOCOL(unscalePID_d(Kd[1]));
+					processing = false;
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_CAL_WIZARD_DONE_GOOD, 0);
+					processing_bed_success =  true;
+										
+				}
 				else if (Event.reportObject.index == BUTTON_MAINTENANCE_BACKMENU ){
 					screen_sdcard = false;
 					surfing_utilities=false;
@@ -2520,7 +2557,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if (which_extruder == 1 || which_extruder == 0) // Need to pause
 					{
 						if(Step_First_Start_Wizard){
-					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_CUSTOM_MENU, 1);
+					//genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_CUSTOM_MENU, 1);
 					}
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_CUSTOM_MATERIAL,0);
@@ -2577,14 +2614,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
 				}
-				else if (Event.reportObject.index == BUTTON_CUSTOM_MENU){
+				/*else if (Event.reportObject.index == BUTTON_CUSTOM_MENU){
 					screen_sdcard = false;
 					surfing_utilities=false;
 					surfing_temps = false;
 					SERIAL_PROTOCOLPGM("Surfing 0 \n");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 
-				}
+				}*/
 				else if(Event.reportObject.index == BUTTON_CUSTOM_INS_LESS){
 					if (custom_insert_temp > 0){
 						char buffer[256];
@@ -3021,7 +3058,56 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//Extruder Calibrations-------------------------------------------------
 					else if (Event.reportObject.index == BUTTON_CAL_FULL)
 					{
-						genie.WriteObject(GENIE_OBJ_FORM, FORM_CALL_FULL_SURE,0);
+						bed_calibration_times = 0;
+						if(saved_print_flag==1888){
+							saved_print_flag = 888;
+							Config_StoreSettings();
+						}
+						
+						SERIAL_PROTOCOLPGM("INFO: BED CALIB - ");
+						Serial.println(FLAG_CalibBedDone);
+						FLAG_CalibFull = true;
+						
+						//enquecommand_P(PSTR("T0"));
+						if(!FLAG_CalibBedDone){  //Do g34
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							processing = true;
+							home_axis_from_code(true,true,true);
+							st_synchronize();
+							if(processing_error)return;
+							enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
+							changeTool(0);
+							
+							
+						}
+						else{
+							
+							active_extruder = LEFT_EXTRUDER;
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							processing = true;
+							setTargetHotend0(print_temp_l);
+							setTargetHotend1(print_temp_r);
+							setTargetBed(max(bed_temp_l,bed_temp_r));
+							
+							
+							home_axis_from_code(true,true,false);
+							st_synchronize();
+							if(processing_error)return;
+							enquecommand_P(PSTR("T0"));
+							processing = false;
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZL,0);
+							if(Step_First_Start_Wizard){
+								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZL_SKIP,1);
+							}
+							
+							
+							
+							
+							
+							
+							
+							
+						}
 					}
 					else if (Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB)
 					{
@@ -3266,26 +3352,33 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_BED_CALIB_SUCCESS )
 					{
 						processing_bed_success = false;
-						//enquecommand_P((PSTR("G28 X0 Y0")));
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						processing = true;
-						setTargetHotend0(0);
-						setTargetHotend1(0);
-						setTargetBed(0);
-						home_axis_from_code(true, true, false);
-						enquecommand_P((PSTR("T0")));
-						st_synchronize();
-						if(processing_error)return;
-						SERIAL_PROTOCOLPGM("Calibration Successful, going back to main menu \n");
-						processing = false;
-						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
-						
+						if(FLAG_PIDautotune){
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_MAINTENANCE,0);
+							FLAG_PIDautotune = false;
+						}
+						else{
 							
+							//enquecommand_P((PSTR("G28 X0 Y0")));
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							processing = true;
+							setTargetHotend0(0);
+							setTargetHotend1(0);
+							setTargetBed(0);
+							home_axis_from_code(true, true, false);
+							enquecommand_P((PSTR("T0")));
+							st_synchronize();
+							if(processing_error)return;
+							SERIAL_PROTOCOLPGM("Calibration Successful, going back to main menu \n");
+							processing = false;
+							
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+							
+							FLAG_CalibBedDone = true;
+							
+							dobloking=false;
+						}
 						
-						FLAG_CalibBedDone = true;
 						
-						dobloking=false;
 					}
 					
 					else if (Event.reportObject.index == BUTTON_SUCCESS_FILAMENT_OK)
@@ -4646,63 +4739,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						enquecommand_P(PSTR("G43"));
 						flag_continue_calib = false;
 					}
-					else if(Event.reportObject.index == BUTTON_CALL_FULL_SURE_OK){
-						
-						bed_calibration_times = 0;
-						if(saved_print_flag==1888){
-							saved_print_flag = 888;
-							Config_StoreSettings();	
-						}
-						
-						SERIAL_PROTOCOLPGM("INFO: BED CALIB - ");
-						Serial.println(FLAG_CalibBedDone);
-						FLAG_CalibFull = true;
-						
-						//enquecommand_P(PSTR("T0"));
-						if(!FLAG_CalibBedDone){  //Do g34
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-							processing = true;
-							home_axis_from_code(true,true,true);
-							st_synchronize();
-							if(processing_error)return;
-							enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
-							changeTool(0);
-							
-							
-						}
-						else{
-							
-							active_extruder = LEFT_EXTRUDER;
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-							processing = true;
-							setTargetHotend0(print_temp_l);
-							setTargetHotend1(print_temp_r);
-							setTargetBed(max(bed_temp_l,bed_temp_r));
-							
-							
-							home_axis_from_code(true,true,false);
-							st_synchronize();
-							if(processing_error)return;
-							enquecommand_P(PSTR("T0"));
-							processing = false;
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZL,0);
-							if(Step_First_Start_Wizard){
-								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZL_SKIP,1);
-							}
-							
-							
-							
-							
-							
-							
-							
-							
-						}
-					}
-					else if(Event.reportObject.index == BUTTON_CALL_FULL_SURE_NOT){
-						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
-					}
+					
 					
 					
 					
@@ -5092,6 +5129,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 						}
 					}
+					else if (Event.reportObject.index == BUTTON_SETUP_ASSISTANT)
+					{
+						genie.WriteObject(GENIE_OBJ_FORM,FORN_FIRST_RUN_WIZARD_INIT,0);
+						int j = 0;
+						static uint32_t waitPeriod = millis(); //Processing back home
+						while ( j<GIF_FRAMES_INIT_FIRST_RUN){
+							if (millis() >= waitPeriod){
+								
+								genie.WriteObject(GENIE_OBJ_VIDEO,GIF_FIRST_RUN_WIZARD_INIT,j);
+								j+=1;
+								waitPeriod = GIF_FRAMERATE+millis();	//Every 5s
+							}
+							
+							
+							
+						}
+						genie.WriteObject(GENIE_OBJ_FORM,FORN_FIRST_RUN_WIZARD_YESNOT,0);
+					}
 					#pragma endregion Setup Assistan
 					
 				}// else
@@ -5177,7 +5232,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteStr(STRING_PREHEAT_SET_BED,buffer);
 					
 				}
-				else if (Event.reportObject.index == FORM_INFO_SIGMA)
+				/*else if (Event.reportObject.index == FORM_INFO_SIGMA)
 				{
 					
 					char buffer[256];
@@ -5186,7 +5241,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//Serial.println(buffer);
 					genie.WriteStr(STRING_INFO_PRINTINGTIME,buffer);
 					
-				}
+				}*/
 				else if (Event.reportObject.index == FORM_INFO_UI)
 				{
 					char buffer[256];
@@ -5199,6 +5254,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}else{
 						genie.WriteStr(STRING_INFO_UI_SerialID,UI_SerialID);
 					}
+					sprintf(buffer, "%d h",log_hours_print);
+					//Serial.println(buffer);
+					genie.WriteStr(STRING_INFO_PRINTINGTIME,buffer);
 				}
 			}
 		}

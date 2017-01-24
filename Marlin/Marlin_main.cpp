@@ -4563,7 +4563,7 @@ if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 							enquecommand_P(PSTR("T0"));
 							processing = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZL,0);
-							if(FLAG_First_Start_Wizard==1888){
+							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZL_SKIP,1);
 							}
 						

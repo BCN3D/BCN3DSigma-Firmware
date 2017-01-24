@@ -2242,7 +2242,7 @@ UserButton
     Name                         Userbutton27
     Alias                        Userbutton27
     Height                       63
-    Images                       'Boto 1 Off.png\nBoto 1 On.png'
+    Images                       'Boto 1 Off.png\nBoto 1 On V3.png'
     Left                         0
     Matrix                       -1
     Momentary                    Yes
@@ -2255,7 +2255,7 @@ UserButton
     Name                         Userbutton28
     Alias                        Userbutton28
     Height                       63
-    Images                       'Boto 10 Off.png\nBoto 10 On.png'
+    Images                       'Boto 10 Off.png\nBoto 10 On V3.png'
     Left                         384
     Matrix                       -1
     Momentary                    Yes
@@ -2268,7 +2268,7 @@ UserButton
     Name                         Userbutton29
     Alias                        Userbutton29
     Height                       63
-    Images                       'Boto Redo gran Off.png\nBoto Redo gran On.png'
+    Images                       'Boto Redo gran Off.png\nBoto Redo gran On V3.png'
     Left                         0
     Matrix                       -1
     Momentary                    Yes
@@ -2311,7 +2311,7 @@ UserButton
     Name                         Userbutton31
     Alias                        Userbutton31
     Height                       63
-    Images                       'Boto 1 Off.png\nBoto 1 On.png'
+    Images                       'Boto 1 Off.png\nBoto 1 On V3.png'
     Left                         0
     Matrix                       -1
     Momentary                    Yes
@@ -2324,7 +2324,7 @@ UserButton
     Name                         Userbutton35
     Alias                        Userbutton35
     Height                       63
-    Images                       'Boto 10 Off.png\nBoto 10 On.png'
+    Images                       'Boto 10 Off.png\nBoto 10 On V3.png'
     Left                         384
     Matrix                       -1
     Momentary                    Yes
@@ -2894,19 +2894,6 @@ UserButton
     Width                        119
     OnChanged                    'Report Message'
 end
-UserButton
-    Name                         Userbutton134
-    Alias                        Userbutton134
-    Height                       64
-    Images                       'Boto Menu off_V3.png\nBoto Menu on_V3.png\nBoto blau - copia - copia.png\nBoto blau - copia.png'
-    Left                         408
-    Matrix                       -1
-    Momentary                    Yes
-    Stretch                      No
-    Top                          0
-    Width                        72
-    OnChanged                    'Report Message'
-end
 Form
     Name                         Form53
     Alias                        Form53
@@ -2941,7 +2928,7 @@ UserButton
     Name                         Userbutton163
     Alias                        Userbutton163
     Height                       64
-    Images                       'Boton Up off_settings - copia.png\nBoto fletxa On V3bajo.png'
+    Images                       'Boton Up off_settings - copia.png\nBoto fletxa On V3.png'
     Left                         0
     Matrix                       -1
     Momentary                    Yes
@@ -2954,7 +2941,7 @@ UserButton
     Name                         Userbutton164
     Alias                        Userbutton164
     Height                       64
-    Images                       'Boton Up off_settings.png\nBoto fletxa On V3bajo.png'
+    Images                       'Boton Up off_settings.png\nBoto fletxa On V3.png'
     Left                         121
     Matrix                       -1
     Momentary                    Yes
@@ -2967,7 +2954,7 @@ UserButton
     Name                         Userbutton165
     Alias                        Userbutton165
     Height                       64
-    Images                       'Boton Up off_settings.png\nBoto fletxa On V3bajo.png'
+    Images                       'Boton Up off_settings.png\nBoto fletxa On V3.png'
     Left                         241
     Matrix                       -1
     Momentary                    Yes
@@ -2980,7 +2967,7 @@ UserButton
     Name                         Userbutton166
     Alias                        Userbutton166
     Height                       64
-    Images                       'Boton Up off_settings.png\nBoto fletxa On V3bajo.png'
+    Images                       'Boton Up off_settings.png\nBoto fletxa On V3.png'
     Left                         361
     Matrix                       -1
     Momentary                    Yes
@@ -3508,6 +3495,19 @@ UserButton
     Stretch                      No
     Top                          0
     Width                        72
+    OnChanged                    'Report Message'
+end
+UserButton
+    Name                         Userbutton216
+    Alias                        Userbutton216
+    Height                       84
+    Images                       'Boto Autotune Off V5.png\nBoto Autotune On V5.png'
+    Left                         0
+    Matrix                       -1
+    Momentary                    Yes
+    Stretch                      No
+    Top                          235
+    Width                        479
     OnChanged                    'Report Message'
 end
 Form
@@ -4329,7 +4329,7 @@ UserButton
     Name                         Userbutton181
     Alias                        Userbutton181
     Height                       64
-    Images                       'Boto Nylon Clean Next Off.png\nBoto Nylon Clean Next On.png'
+    Images                       'Boto Calibration Off V5.png\nBoto Calibration On V5.png'
     Left                         0
     Matrix                       -1
     Momentary                    Yes
@@ -4372,7 +4372,7 @@ UserButton
     Name                         Userbutton186
     Alias                        Userbutton186
     Height                       64
-    Images                       'Boto Nylon Clean Next Off.png\nBoto Nylon Clean Next On.png'
+    Images                       'Boto Calibration Off V5.png\nBoto Calibration On V5.png'
     Left                         0
     Matrix                       -1
     Momentary                    Yes
@@ -4428,7 +4428,7 @@ UserButton
     Name                         Userbutton184
     Alias                        Userbutton184
     Height                       64
-    Images                       'Boto Nylon Clean Next Off.png\nBoto Nylon Clean Next On.png'
+    Images                       'Boto Calibration Off V5.png\nBoto Calibration On V5.png'
     Left                         0
     Matrix                       -1
     Momentary                    Yes
@@ -4471,7 +4471,7 @@ UserButton
     Name                         Userbutton67
     Alias                        Userbutton67
     Height                       64
-    Images                       'Boto Nylon Clean Next Off.png\nBoto Nylon Clean Next On.png'
+    Images                       'Boto Calibration Off V5.png\nBoto Calibration On V5.png'
     Left                         0
     Matrix                       -1
     Momentary                    Yes
@@ -4558,7 +4558,7 @@ Form
     Alias                        Form57
     Bgtype                       Image
     Color                        BLACK
-    Image                        'Pantalla Are you sure V3.png'
+    Image                        'Pantalla Are you sure SAVE V5.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -4579,7 +4579,7 @@ UserButton
     Matrix                       -1
     Momentary                    Yes
     Stretch                      No
-    Top                          95
+    Top                          65
     Width                        239
     OnChanged                    'Report Message'
 end
@@ -4588,11 +4588,11 @@ UserButton
     Alias                        Userbutton190
     Height                       126
     Images                       'Boto Cancel V3_sure Off.png\nBoto Cancel V3sure On.png'
-    Left                         240
+    Left                         241
     Matrix                       -1
     Momentary                    Yes
     Stretch                      No
-    Top                          95
+    Top                          65
     Width                        239
     OnChanged                    'Report Message'
 end
@@ -5141,12 +5141,12 @@ Form
     Alias                        Form65
     Bgtype                       Image
     Color                        BLACK
-    Image                        'Pantalla Information V4.png'
+    Image                        'Pantalla Information V5.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
     Source.Width                 480
-    OnActivate                   'Report Message'
+    OnActivate                   ''
     OnCreate                     ''
     OnRepeat                     ''
     OnTouchMoving                ''
@@ -5170,7 +5170,7 @@ UserButton
     Name                         Userbutton198
     Alias                        Userbutton198
     Height                       84
-    Images                       'Boto Contact Off V4.png\nBoto Contact On V4.png'
+    Images                       'Boto Contact Off V5.png\nBoto Contact On V5.png'
     Left                         0
     Matrix                       -1
     Momentary                    Yes
@@ -5182,7 +5182,7 @@ end
 UserButton
     Name                         Userbutton209
     Alias                        Userbutton209
-    Height                       85
+    Height                       83
     Images                       'Boto Information Off.png\nBoto Information On V3.png'
     Left                         0
     Matrix                       -1
@@ -5192,34 +5192,25 @@ UserButton
     Width                        480
     OnChanged                    Form68Activate
 end
-Strings
-    Name                         Strings48
-    Alias                        Strings48
-    Alignment                    Left
-    BGcolor                      BLACK
-    Height                       28
-    FGcolor                      WHITE
-    Font.Bold                    No
-    Font.CharSet                 ANSI
-    Font.Italic                  No
-    Font.Name                    Montserrat
-    Font.Opaque                  No
-    Font.Size                    25
-    Font.Strikethrough           No
-    Font.Underline               No
-    Left                         300
-    Strings                      \n
-    StringsStyle                 Message
-    Top                          264
-    Width                        127
-    OnChanged                    ''
+UserButton
+    Name                         Userbutton134
+    Alias                        Userbutton134
+    Height                       84
+    Images                       'Boto Run Setup Assistant Off V5.png\nBoto Run Setup Assistant On V5.png'
+    Left                         0
+    Matrix                       -1
+    Momentary                    Yes
+    Stretch                      No
+    Top                          236
+    Width                        480
+    OnChanged                    'Report Message'
 end
 Form
     Name                         Form66
     Alias                        Form66
     Bgtype                       Image
     Color                        BLACK
-    Image                        'Pantalla Contact.png'
+    Image                        'Pantalla Contact V5.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -5334,7 +5325,7 @@ Form
     Alias                        Form68
     Bgtype                       Image
     Color                        BLACK
-    Image                        'Pantalla Information Serial number V4.png'
+    Image                        'Pantalla Unit Information V5.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -5416,6 +5407,28 @@ Strings
     Width                        186
     OnChanged                    ''
 end
+Strings
+    Name                         Strings52
+    Alias                        Strings52
+    Alignment                    Left
+    BGcolor                      BLACK
+    Height                       26
+    FGcolor                      0x81685C
+    Font.Bold                    No
+    Font.CharSet                 ANSI
+    Font.Italic                  No
+    Font.Name                    Montserrat
+    Font.Opaque                  No
+    Font.Size                    25
+    Font.Strikethrough           No
+    Font.Underline               No
+    Left                         280
+    Strings                      \n
+    StringsStyle                 Message
+    Top                          260
+    Width                        186
+    OnChanged                    ''
+end
 Form
     Name                         Form26
     Alias                        Form26
@@ -5481,12 +5494,34 @@ Strings
     Width                        231
     OnChanged                    ''
 end
+Strings
+    Name                         Strings51
+    Alias                        Strings51
+    Alignment                    Left
+    BGcolor                      0xDA2C06
+    Height                       26
+    FGcolor                      BLACK
+    Font.Bold                    No
+    Font.CharSet                 ANSI
+    Font.Italic                  No
+    Font.Name                    Montserrat
+    Font.Opaque                  No
+    Font.Size                    19
+    Font.Strikethrough           No
+    Font.Underline               No
+    Left                         296
+    Strings                      \n
+    StringsStyle                 Message
+    Top                          256
+    Width                        158
+    OnChanged                    ''
+end
 Form
     Name                         Form30
     Alias                        Form30
     Bgtype                       Image
     Color                        BLACK
-    Image                        'Pantalla Careful.png'
+    Image                        'Pantalla Careful OK.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -5566,7 +5601,7 @@ Form
     Alias                        Form69
     Bgtype                       Image
     Color                        BLACK
-    Image                        'Pantalla Info Turn off.png'
+    Image                        'Pantalla Info Turn off OK.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0

@@ -5093,6 +5093,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						FLAG_First_Start_Wizard = 888;
 						Step_First_Start_Wizard = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+						Config_StoreSettings();
 					}
 					else if (Event.reportObject.index == BUTTON_FIRST_RUN_WIZARD_STEP_NEXT_1)
 					{

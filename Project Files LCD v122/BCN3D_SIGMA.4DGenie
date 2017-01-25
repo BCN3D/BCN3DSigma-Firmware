@@ -950,7 +950,7 @@ Form
     Alias                        Form14
     Bgtype                       Image
     Color                        DEEPSKYBLUE
-    Image                        'Pantalla Ajusting Filament V4.png'
+    Image                        'Pantalla Ajusting Filament V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -1207,7 +1207,7 @@ Form
     Alias                        Form27
     Bgtype                       Image
     Color                        DEEPSKYBLUE
-    Image                        'Pantalla IDEX Calibration X Axis V3.png'
+    Image                        'Pantalla IDEX Calibration X Axis V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -1448,8 +1448,8 @@ end
 UserButton
     Name                         Userbutton11
     Alias                        Userbutton11
-    Height                       85
-    Images                       'Boto L. Extruder Off V3.png\nBoto L. Extruder Off V3.png\nBoto L. Extruder On V3.png\nBoto L. Extruder On V3.png'
+    Height                       84
+    Images                       'Boto L. Extruder Off V6.png\nBoto L. Extruder Off V6.png\nBoto L. Extruder On V6.png\nBoto L. Extruder On V6.png'
     Left                         130
     Matrix                       -1
     Momentary                    Yes
@@ -1462,7 +1462,7 @@ UserButton
     Name                         Userbutton81
     Alias                        Userbutton81
     Height                       84
-    Images                       'Boto R. Extruder Off.png\nBoto R. Extruder Off.png\nBoto R. Extruder On V3.png\nBoto R. Extruder On V3.png'
+    Images                       'Boto R. Extruder Off V6.png\nBoto R. Extruder Off V6.png\nBoto R. Extruder On V6.png\nBoto R. Extruder On V6.png'
     Left                         130
     Matrix                       -1
     Momentary                    Yes
@@ -1644,7 +1644,7 @@ Form
     Alias                        Form33
     Bgtype                       Image
     Color                        DEEPSKYBLUE
-    Image                        'Pantalla IDEX Calibration Y Axis V3.png'
+    Image                        'Pantalla IDEX Calibration Y Axis V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -2338,7 +2338,7 @@ Form
     Alias                        Form47
     Bgtype                       Image
     Color                        0xC17C0B
-    Image                        'Pantalla Processos 3 V3.png'
+    Image                        'Pantalla Processos 3 V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -2368,7 +2368,7 @@ Form
     Alias                        Form17
     Bgtype                       Image
     Color                        0xC17C0B
-    Image                        'Pantalla Printing test.png'
+    Image                        'Pantalla Prnting Test V6 2.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -2405,7 +2405,7 @@ Form
     Alias                        Form25
     Bgtype                       Image
     Color                        0xC17C0B
-    Image                        'Pantalla Calibration Z Axis L. Extr Select Num.png'
+    Image                        'Pantalla Calibration Z Axis L. Extr Select Num V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -2500,7 +2500,7 @@ Form
     Alias                        Form48
     Bgtype                       Image
     Color                        0xC17C0B
-    Image                        'Pantalla Calibration Z Axis R. Extr Select Num.png'
+    Image                        'Pantalla Calibration Z Axis R. Extr Select Num V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -2595,7 +2595,7 @@ Form
     Alias                        Form49
     Bgtype                       Image
     Color                        0xC17C0B
-    Image                        'Pantalla Calibration Z Axis REDO L.Extr V3.png'
+    Image                        'Pantalla Calibration Z Axis REDO L.Extr V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -3305,7 +3305,7 @@ Form
     Alias                        Form11
     Bgtype                       Image
     Color                        BLACK
-    Image                        'Pantalla Move Axis Z V3.png'
+    Image                        'Pantalla Move Z Axis V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -3475,7 +3475,7 @@ UserButton
     Name                         Userbutton80
     Alias                        Userbutton80
     Height                       84
-    Images                       'Boto Clean Nylon off V4.png\nBoto Clean Nylon on V4.png'
+    Images                       'Boto Clean Nylon off V6.png\nBoto Clean Nylon on V6.png'
     Left                         0
     Matrix                       -1
     Momentary                    Yes
@@ -3749,7 +3749,7 @@ Form
     Alias                        Form37
     Bgtype                       Image
     Color                        BLACK
-    Image                        'Pantalla Nylon Cleaning bouden V3.png'
+    Image                        'Pantalla Nylon Cleaning bouden V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -4164,7 +4164,7 @@ Form
     Alias                        Form43
     Bgtype                       Image
     Color                        BLACK
-    Image                        'Pantalla Insert filament 3 V3.png'
+    Image                        'Pantalla Insert filament 3 V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -4244,7 +4244,7 @@ Form
     Alias                        Form50
     Bgtype                       Image
     Color                        BLACK
-    Image                        'Pantalla Calibration Z Axis REDO R.Extr V3.png'
+    Image                        'Pantalla Calibration Z Axis REDO R.Extr V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -4690,7 +4690,7 @@ Form
     Alias                        Form60
     Bgtype                       Image
     Color                        BLACK
-    Image                        'Pantalla Nylon Cleaning Repeat V3.png'
+    Image                        'Pantalla Nylon Cleaning Repeat V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -4842,7 +4842,7 @@ Form
     Alias                        Form63
     Bgtype                       Image
     Color                        BLACK
-    Image                        'Pantalla Nylon Cleaning pull out.png'
+    Image                        'Pantalla Nylon Cleaning pull out V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0
@@ -5601,7 +5601,7 @@ Form
     Alias                        Form69
     Bgtype                       Image
     Color                        BLACK
-    Image                        'Pantalla Info Turn off OK.png'
+    Image                        'Pantalla Info Turn off OK V6.png'
     Source.Height                320
     Source.Left                  0
     Source.Top                   0

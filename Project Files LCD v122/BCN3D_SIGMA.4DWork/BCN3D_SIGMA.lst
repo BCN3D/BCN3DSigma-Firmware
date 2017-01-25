@@ -5196,7 +5196,7 @@ file C:\Program Files (x86)\4D Labs\4D Workshop 4 IDE\include\Diablo16_Functions
 005190  000017        
 005191  000018        
 005192  000002        
-005193  000003  // generated 25/01/2017 12:57:17
+005193  000003  // generated 25/01/2017 13:21:08
 005194  000004        
 005195  000005        
 file C:\Program Files (x86)\4D Labs\4D Workshop 4 IDE\include\4DGL_16bitColours.fnc
@@ -5234,7 +5234,7 @@ file C:\Users\agarciamoreno\Documents\Firmware\BCN3DSigma-Firmware\Project Files
 
 005223  000011  #inherit "BCN3D_SIGMAConst.inc"
 005224  000011  #inherit "BCN3D_SIGMAConst.inc"
-005225  000001  // File generated 25/01/2017 12:56:36
+005225  000001  // File generated 25/01/2017 13:20:29
 005226  000002  // Warning! This is a generated file, any manual changes will be
 005227  000003  // lost during the next generation.
 005228  000004        

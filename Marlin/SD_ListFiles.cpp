@@ -189,9 +189,24 @@ void Listfiles::extract_data(void){
 	else if (simplify3D == 1){
 		dias = 0;
 		sscanf_P( commandline, PSTR(";   Build time: %d hours %d minutes"), &horas, &minutos);
+		
 		if(minutos==-1){
+			
+			sscanf_P( commandline, PSTR(";   Build time: %d hours %d minute"), &horas, &minutos);
+		}
+		if(minutos==-1){
+			
 			sscanf_P( commandline, PSTR(";   Build time: %d hour %d minutes"), &horas, &minutos);
 		}
+		if(minutos==-1){
+			
+			sscanf_P( commandline, PSTR(";   Build time: %d hour %d minute"), &horas, &minutos);
+		}
+		if(minutos == -1){
+			horas = 0;
+			minutos = 1;
+		}
+		
 		
 	}
 	

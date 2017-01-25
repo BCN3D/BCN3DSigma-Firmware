@@ -1,6 +1,6 @@
-#platform "Gen4-uLCD-35DCT-CLB"
+#platform "uLCD-35DT"
 
-// generated 25/01/2017 13:15:01
+// generated 25/01/2017 13:21:08
 
 
 #inherit "4DGL_16bitColours.fnc"
@@ -902,7 +902,7 @@ func main()
 //    gfx_TransparentColour(0x0020);
 //    gfx_Transparency(ON);
 
-    gfx_ScreenMode(LANDSCAPE_R) ;
+    gfx_ScreenMode(LANDSCAPE) ;
 
     // open image control
     hndl := file_LoadImageControl("BCN3D_~1.dat", "BCN3D_~1.gci", 1);

@@ -1,12 +1,12 @@
 file C:\Users\agarciamoreno\Documents\Firmware\BCN3DSigma-Firmware\Project Files LCD v122\BCN3D_SIGMA.4DWork\BCN3D_SIGMA.4DGenieS
 
-file C:\Program Files (x86)\4D Labs\4D Workshop 4 IDE\include\uLCD-35DT.fnc
+file C:\Program Files (x86)\4D Labs\4D Workshop 4 IDE\include\Gen4-uLCD-35DCT-CLB.fnc
 
-000001  000001  #platform "uLCD-35DT"
-000002  000001  #platform "uLCD-35DT"
+000001  000001  #platform "Gen4-uLCD-35DCT-CLB"
+000002  000001  #platform "Gen4-uLCD-35DCT-CLB"
 000003  000008  */
-000004  000009      #constant ULCD_35DT_DIABLO16_GFX
-000005  000009      #constant ULCD_35DT_DIABLO16_GFX
+000004  000009      #constant Gen4_ULCD_35DCT_CLB_DIABLO16_GFX
+000005  000009      #constant Gen4_ULCD_35DCT_CLB_DIABLO16_GFX
 000006  000010        
 000007  000011      #IFNOT EXISTS DIABLO16_GFX2_FUNCTIONS
 file C:\Program Files (x86)\4D Labs\4D Workshop 4 IDE\include\Diablo16_Functions.fnc
@@ -5196,7 +5196,7 @@ file C:\Program Files (x86)\4D Labs\4D Workshop 4 IDE\include\Diablo16_Functions
 005190  000017        
 005191  000018        
 005192  000002        
-005193  000003  // generated 25/01/2017 13:21:08
+005193  000003  // generated 26/01/2017 13:06:37
 005194  000004        
 005195  000005        
 file C:\Program Files (x86)\4D Labs\4D Workshop 4 IDE\include\4DGL_16bitColours.fnc
@@ -5234,7 +5234,7 @@ file C:\Users\agarciamoreno\Documents\Firmware\BCN3DSigma-Firmware\Project Files
 
 005223  000011  #inherit "BCN3D_SIGMAConst.inc"
 005224  000011  #inherit "BCN3D_SIGMAConst.inc"
-005225  000001  // File generated 25/01/2017 13:20:29
+005225  000001  // File generated 26/01/2017 13:06:08
 005226  000002  // Warning! This is a generated file, any manual changes will be
 005227  000003  // lost during the next generation.
 005228  000004        
@@ -19132,7 +19132,7 @@ file C:\Program Files (x86)\4D Labs\4D Workshop 4 IDE\include\CLPrintStrings.inc
 019118  000902  //    gfx_TransparentColour(0x0020);
 019119  000903  //    gfx_Transparency(ON);
 019120  000904        
-019121  000905      gfx_ScreenMode(LANDSCAPE) ;
+019121  000905      gfx_ScreenMode(LANDSCAPE_R) ;
 019122  000906        
 019123  000907      // open image control
 019124  000908      hndl := file_LoadImageControl("BCN3D_~1.dat", "BCN3D_~1.gci", 1);
@@ -19992,6 +19992,7 @@ FRAME_DELAY                           22  0x00000016 (const dword)  (not used)
 FUCHSIA                            63519  0x0000f81f (const dword)  (not used)
 GAINSBORO                          57083  0x0000defb (const dword)  (not used)
 gbutton                           UNRESOLVED  (not used)
+Gen4_ULCD_35DCT_CLB_DIABLO16_GFX       0  0x00000000 (const ??? 0)  (not used)
 GFX                                63489  0x0000f801 (const dword)  (not used)
 gfx_332to565                        -165  0xffffff5b (PmmC func) args[1] r=1  (not used)
 gfx_565to332                        -166  0xffffff5a (PmmC func) args[1] r=1  (not used)
@@ -20644,8 +20645,8 @@ iVideo9                              230  0x000000e6 (const ??? 0)  (usage 3)
 IVORY                              65534  0x0000fffe (const dword)  (not used)
 KHAKI                              63281  0x0000f731 (const dword)  (not used)
 kKeyboardKeystrokes                13057  0x00003301kKeyboardKeystrokes                13057  0x00003301 (mem) word[1] (member of C:\Users\agarciamoreno\Documents\Firmware\BCN3DSigma-Firmware\Project Files LCD v122\BCN3D_SIGMA.4DWork\BCN3D_SIGMA.4DGenieS)  (not used)
-LANDSCAPE                              0  0x00000000 (const dword)  (usage 3)
-LANDSCAPE_R                            1  0x00000001 (const dword)  (not used)
+LANDSCAPE                              0  0x00000000 (const dword)  (not used)
+LANDSCAPE_R                            1  0x00000001 (const dword)  (usage 3)
 LAVENDER                           59199  0x0000e73f (const dword)  (not used)
 LAVENDERBLUSH                      65438  0x0000ff9e (const dword)  (not used)
 LAWNGREEN                          32736  0x00007fe0 (const dword)  (not used)
@@ -21572,7 +21573,6 @@ UDEC5ZB                            25866  0x0000650a (const dword)  (not used)
 UDECZ                              21770  0x0000550a (const dword)  (not used)
 UDECZB                             25866  0x0000650a (const dword)  (not used)
 udiv_3232                            -74  0xffffffb6 (PmmC func) args[3] r=1  (not used)
-ULCD_35DT_DIABLO16_GFX                 0  0x00000000 (const ??? 0)  (not used)
 umul_1616                            -73  0xffffffb7 (PmmC func) args[3] r=1  (usage 3)
 UNCHECKED                              1  0x00000001 (const dword)  (not used)
 UNDERLINED                           128  0x00000080 (const dword)  (not used)

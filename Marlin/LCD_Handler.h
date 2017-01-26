@@ -58,6 +58,8 @@ bool FLAG_ZAdjust10Down = false;
 bool FLAG_DataRefresh =  false;
 bool FLAG_PurgeSelect0 = false;//purge
 bool FLAG_PurgeSelect1 = false;//retrack
+bool FLAG_LoadSelect0 = false;//purge
+bool FLAG_UnloadSelect1 = false;//retrack
 int Tref1 = 0;
 int Tfinal1 = 0;
 int  print_setting_tool = 2;
@@ -792,7 +794,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if(processing_error)return;
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
-						
 					}
 					
 				}
@@ -859,12 +860,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//changeTool(0);
 					}
 					
-					else if (Event.reportObject.index == BUTTON_ADJUST_ZUp  && FLAG_FilamentAcceptOk == false)
+					else if (Event.reportObject.index == BUTTON_ADJUST_Load  && FLAG_FilamentAcceptOk == false)
 					{
 						if (millis() >= waitPeriod_purge){
 							//Adjusting the filament with a retrack Up
-							SERIAL_PROTOCOLPGM("Adjust ZUp \n");
-							float modified_position=current_position[E_AXIS]-6;
+							
+							float modified_position=current_position[E_AXIS]+6;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
 							current_position[E_AXIS]=modified_position;
 							
@@ -873,12 +874,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 					}
 					
-					else if (Event.reportObject.index == BUTTON_ADJUST_ZDown  && FLAG_FilamentAcceptOk == false)
+					else if (Event.reportObject.index == BUTTON_ADJUST_Unload  && FLAG_FilamentAcceptOk == false)
 					{
 						//Adjusting the filament with a purge Down
 						if (millis() >= waitPeriod_purge){
-							SERIAL_PROTOCOLPGM("Adjust ZDown \n");
-							float modified_position=current_position[E_AXIS]+6;
+							
+							float modified_position=current_position[E_AXIS]-6;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
 							current_position[E_AXIS]=modified_position;
 							waitPeriod_purge=millis()+3000;
@@ -1691,9 +1692,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_UTILITIES, 0);
 				}
 				else if (Event.reportObject.index == BUTTON_AUTOTUNE_HOTENDS ){
-					genie.WriteObject(GENIE_OBJ_FORM, FORM_WAITING_ROOM, 0);
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_ADJUSTING_TEMPERATURES, 0);
 					FLAG_PIDautotune = true;
-					processing = true;
+					processing_adjusting = true;
+					char buffer[25];
+					int percentage = 0;
+					sprintf(buffer, "%d%%", percentage);
+					genie.WriteStr(STRING_ADJUSTING_TEMPERATURES,buffer);
 					PID_autotune_Save(print_temp_l, 0, AUTOTUNE_ITERATIONS);
 					Config_StoreSettings();
 					SERIAL_PROTOCOL(MSG_OK);
@@ -1712,7 +1717,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					SERIAL_PROTOCOL(unscalePID_i(Ki[1]));
 					SERIAL_PROTOCOL(" d:");
 					SERIAL_PROTOCOL(unscalePID_d(Kd[1]));
-					processing = false;
+					processing_adjusting = false;
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_CAL_WIZARD_DONE_GOOD, 0);
 					processing_bed_success =  true;
 										
@@ -2764,7 +2769,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if(processing_error)return;
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
-						
 					}
 					
 				}
@@ -3000,55 +3004,34 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_ACCEPT_ADJUST && FLAG_FilamentAcceptOk == false)
 				{
 					
-					if (millis() >= waitPeriod_purge){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						FLAG_FilamentAcceptOk = true;
-						home_made = false;
-						processing=true;
-						home_axis_from_code(true,true,false);
-						//genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
-						
-						
+					if(blocks_queued()) quickStop();
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					FLAG_FilamentAcceptOk = true;
+					home_made = false;
+					processing=true;
+					home_axis_from_code(true,true,false);
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+					
+					
 					}
 					
-					
-					
-					
-					/*if (quick_guide){
-					if (quick_guide_step == 1) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_RIGHT,0);
-					else if(quick_guide_step == 2) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_CALIBRATE,0);
-					}
-					else {*/
-						
-						//}
-						//setTargetHotend0(0);
-						//setTargetHotend1(0);
-						//changeTool(0);
-					}
-					
-					else if (Event.reportObject.index == BUTTON_ADJUST_ZUp  && FLAG_FilamentAcceptOk == false)
+					else if (Event.reportObject.index == BUTTON_ADJUST_Load  && FLAG_FilamentAcceptOk == false)
 					{
-						if (millis() >= waitPeriod_purge){
-							//Adjusting the filament with a retrack Up
-							SERIAL_PROTOCOLPGM("Adjust ZUp \n");
-							float modified_position=current_position[E_AXIS]-6;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
-							current_position[E_AXIS]=modified_position;
-							
-							waitPeriod_purge=millis()+3000;
+						if(!blocks_queued()){
+							FLAG_LoadSelect0 = 1;
+							}else{
+							quickStop();
 						}
 						
 					}
 					
-					else if (Event.reportObject.index == BUTTON_ADJUST_ZDown  && FLAG_FilamentAcceptOk == false)
+					else if (Event.reportObject.index == BUTTON_ADJUST_Unload  && FLAG_FilamentAcceptOk == false)
 					{
-						//Adjusting the filament with a purge Down
-						if (millis() >= waitPeriod_purge){
-							SERIAL_PROTOCOLPGM("Adjust ZDown \n");
-							float modified_position=current_position[E_AXIS]+6;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
-							current_position[E_AXIS]=modified_position;
-							waitPeriod_purge=millis()+3000;
+						if(!blocks_queued()){
+							FLAG_UnloadSelect1 = 1;
+							}else{
+							quickStop();
 						}
 					}
 					#pragma endregion AdjustFilament

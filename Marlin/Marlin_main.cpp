@@ -1589,6 +1589,26 @@ void update_screen_noprinting(){
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
 			}
 		}
+		if(FLAG_LoadSelect0){
+			FLAG_LoadSelect0 = false;
+			if(degHotend(which_extruder) >= target_temperature[which_extruder]-PURGE_TEMP_HYSTERESIS){
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_ADJUST_Load, 1);
+				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);//Purge
+				st_synchronize();
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_ADJUST_Load, 0);
+			}
+		}
+		if(FLAG_UnloadSelect1){
+			FLAG_UnloadSelect1 = false;
+			if(degHotend(which_extruder) >= target_temperature[which_extruder]-PURGE_TEMP_HYSTERESIS){
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_ADJUST_Unload, 1);
+				current_position[E_AXIS]-=5;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);//Retrack
+				st_synchronize();
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_ADJUST_Unload, 0);
+			}
+		}
 		if (millis() >= waitPeriodno)
 		{
 			int tHotend=int(degHotend(0));

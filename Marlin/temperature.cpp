@@ -369,7 +369,7 @@ void PID_autotune_Save(float temp, int extruder, int ncycles)
      bias = d = (PID_MAX)/2;
   }
  for(;;) {
-
+	
     if(temp_meas_ready == true) { // temp sample ready
       updateTemperaturesFromRawValues();
 
@@ -442,6 +442,11 @@ void PID_autotune_Save(float temp, int extruder, int ncycles)
             soft_pwm[extruder] = (bias + d) >> 1;
           cycles++;
           min=temp;
+		  char buffer[25];
+		  int percentage = 0;
+		  percentage = 100*((extruder*ncycles)+cycles-1)/(ncycles*2);
+		  sprintf(buffer, "%d%%", percentage);
+		  genie.WriteStr(STRING_ADJUSTING_TEMPERATURES,buffer);
         }
       } 
     }

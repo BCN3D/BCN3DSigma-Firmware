@@ -145,8 +145,8 @@
 	#define BUTTON_REDO_DOWN_CAB			35
 #define FORM_ADJUST_FILAMENT						14
 	#define BUTTON_ACCEPT_ADJUST			17
-	#define BUTTON_ADJUST_ZUp				32
-	#define BUTTON_ADJUST_ZDown				33
+	#define BUTTON_ADJUST_Load				33
+	#define BUTTON_ADJUST_Unload				32
 #define FORM_INFO_TURN_SCREWS						16
 	#define BUTTON_SKIP_BED					158
 	#define BUTTON_INFO_TURN_SCREWS			41

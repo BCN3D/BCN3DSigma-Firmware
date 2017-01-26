@@ -979,7 +979,7 @@ UserButton
     Name                         Userbutton32
     Alias                        Userbutton32
     Height                       63
-    Images                       'Boto Unload Off V4.png\nBoto Unload On V4.png'
+    Images                       'Boto Unload Off V4.png\nBoto Unload On V4.png\nBoto Unload On V4.png\nBoto Unload On V4.png'
     Left                         0
     Matrix                       -1
     Momentary                    Yes
@@ -992,7 +992,7 @@ UserButton
     Name                         Userbutton33
     Alias                        Userbutton33
     Height                       63
-    Images                       'Boto load Off V4.png\nBoto load On V4.png'
+    Images                       'Boto load Off V4.png\nBoto load On V4.png\nBoto load On V4.png\nBoto load On V4.png'
     Left                         240
     Matrix                       -1
     Momentary                    Yes

@@ -571,12 +571,7 @@ void Config_ResetDefault()
 		absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
 		absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
 	#endif
-	#ifdef ENABLE_AUTO_BED_LEVELING
-		zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
-	#endif
-	#ifdef Z_SIGMA_HOME
-		zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
-	#endif
+	
 	if (UI_SerialID0 <= 0 || UI_SerialID0 >= 123 || UI_SerialID2 >= 9999 || UI_SerialID1 >= 999999 || UI_SerialID2 <= 0 || UI_SerialID1 <= 0){
 		UI_SerialID0 = 0;
 		UI_SerialID1 = 0;
@@ -625,7 +620,12 @@ void Config_Reset_Calib(){
 		extruder_offset[X_AXIS][RIGHT_EXTRUDER] = X2_MAX_POS;
 		extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = 0.25;
 		extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = 0.08;
-
+		#ifdef ENABLE_AUTO_BED_LEVELING
+		zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+		#endif
+		#ifdef Z_SIGMA_HOME
+		zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
+		#endif
 		
 		#ifdef PIDTEMP
 			Kp[0] = DEFAULT_Kp;

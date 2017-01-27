@@ -60,6 +60,7 @@ bool FLAG_PurgeSelect0 = false;//purge
 bool FLAG_PurgeSelect1 = false;//retrack
 bool FLAG_LoadSelect0 = false;//purge
 bool FLAG_UnloadSelect1 = false;//retrack
+bool FLAG_SavePrintCommand = false;
 int Tref1 = 0;
 int Tfinal1 = 0;
 int  print_setting_tool = 2;
@@ -186,7 +187,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						card.sdispaused = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						processing = true;
-						enquecommand_P(PSTR("M33")); //Home X and Y
+						FLAG_SavePrintCommand = true;
+						
 					}
 				}
 				else if (Event.reportObject.index == BUTTON_STOP_SCREEN && (screen_printing_pause_form == screen_printing_pause_form0))
@@ -4932,33 +4934,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 						genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3);
 					}
-					/*else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_LEFT && calib_value_selected==0){
-						
-						
-						if(offset_calib_manu[calib_value_selected] > -1.975) offset_calib_manu[calib_value_selected] -= 0.025;
-						
-						
-						genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3); 
-					}
-					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_RIGHT && calib_value_selected==0){
-						
-						
-					if(offset_calib_manu[calib_value_selected] < 1.975) offset_calib_manu[calib_value_selected] += 0.025;
-						
-						
-						
-						genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3); 
-						
-					}*/
-					
-					
-					///save
+									
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_SAVE_OK){
 						
 						 extruder_offset[X_AXIS][RIGHT_EXTRUDER]+= offset_calib_manu[0];
 						 extruder_offset[Y_AXIS][RIGHT_EXTRUDER]+= offset_calib_manu[1];
 						 zprobe_zoffset += offset_calib_manu[2];
-						 extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+= offset_calib_manu[3];
+						 extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+= offset_calib_manu[3] - offset_calib_manu[2];
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
 						offset_calib_manu[0]=0.0;
 						offset_calib_manu[1]=0.0;

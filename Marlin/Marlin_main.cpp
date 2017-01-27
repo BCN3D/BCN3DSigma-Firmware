@@ -1309,6 +1309,10 @@ void update_screen_printing(){
 		card.sdispaused = false;
 		processing = false;
 	}
+	if(FLAG_SavePrintCommand){
+		enquecommand_P(PSTR("M33")); //Home X and Y;
+		FLAG_SavePrintCommand = false;
+	}
 	if (surfing_utilities)
 	{
 		//static uint32_t waitPeriod = millis();

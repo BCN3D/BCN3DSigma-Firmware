@@ -4304,7 +4304,7 @@ active_extruder=RIGHT_EXTRUDER;
 axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the right extruder
 Serial.println(current_position[X_AXIS]);
 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
-current_position[X_AXIS]-=10;
+current_position[X_AXIS]-=13;
 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				
 //*********************************************************************		
@@ -4383,8 +4383,8 @@ clean_up_after_endstop_move();
 //NOT NEEDED because we have to check the bed from the same position. Theorically the offsets between probes is inexistent
 //Calculate medians
 float z_final_probe_1 = (z_at_pt_1+(z2_at_pt_1-(((z2_at_pt_2-z_at_pt_3)+(z2_at_pt_3-z_at_pt_2))/2)))/2; //Upper left, upper right
-float z_final_probe_2 = z_at_pt_2;//(z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
-float z_final_probe_3 = z_at_pt_3;//(z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right
+float z_final_probe_2 = z_at_pt_2 - ((z2_at_pt_2-z_at_pt_3)+(z2_at_pt_3-z_at_pt_2))/2 ;//(z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
+float z_final_probe_3 = z_at_pt_3 - ((z2_at_pt_2-z_at_pt_3)+(z2_at_pt_3-z_at_pt_2))/2 ;//(z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right
 				
 Serial.print("Probe 1: ");
 Serial.println(z_final_probe_1);
@@ -4436,18 +4436,49 @@ float z3=(-planeNormal.x*d3.x-planeNormal.y*d3.y)/planeNormal.z;
 float centre_x = cargol_1_x;//(X_MAX_POS/2)-X_SIGMA_PROBE_2_LEFT_EXTR;
 float centre_y = cargol_1_y;//(Y_MAX_POS/2)-Y_SIGMA_PROBE_2_LEFT_EXTR;
 vector_3 centre = vector_3 (centre_x, centre_y, 0);
+
+
+
 				
 //Càlcul de l'alçada Z del centre de la plataforma
 float zc=(-planeNormal.x*centre.x-planeNormal.y*centre.y)/planeNormal.z;
-				
+
+Serial.print("Valor Zc:  ");
+Serial.println(zc);
+Serial.print("Valor Z1:  ");
+Serial.println(z1);
+Serial.print("Valor Z2:  ");
+Serial.println(z2);
+Serial.print("Valor Z3:  ");
+Serial.println(z3);				
 //Càlcul alçades relatives cargols regulació respecte al centre (objectiu de regulació)
+///
+/*
 float dz1 = zc-z1;
 float dz2 = zc-z2;
 float dz3 = zc-z3;
-				
+*/	
+///Alejandro
+
+float dz1 = zc-z1;
+float dz2 = z_final_probe_2 - z_final_probe_1;
+float dz3 = z_final_probe_3 - z_final_probe_1;
+
+
+////
+
+
+			
 //Voltes cargols
 				
 float pas_M5 = PAS_M5;
+
+Serial.print("Valor dZ1:  ");
+Serial.println(dz1);
+Serial.print("Valor dZ2:  ");
+Serial.println(dz2);
+Serial.print("Valor dZ3:  ");
+Serial.println(dz3);
 				
 sentit1 = sentit (dz1);
 sentit2 = sentit (dz2);

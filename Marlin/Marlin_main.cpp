@@ -4453,6 +4453,15 @@ if (vuitens3<0) vuitens3=vuitens3*(-1);
 if (vuitens2>8) vuitens2=8;
 if (vuitens3>8) vuitens3=8;
 
+if (dz2 <= PAS_M5/8 && dz2 >= -PAS_M5/8){
+	aprox2 = 0;
+	vuitens2 = 0;
+}
+if (dz3 <= PAS_M5/8 && dz2 >= -PAS_M5/8){
+	aprox3 = 0;
+	vuitens3 = 0;
+}
+
 				
 Serial.print("Voltes2:  ");
 Serial.println(voltes2);

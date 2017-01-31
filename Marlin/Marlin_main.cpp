@@ -4304,7 +4304,7 @@ active_extruder=RIGHT_EXTRUDER;
 axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the right extruder
 Serial.println(current_position[X_AXIS]);
 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
-current_position[X_AXIS]-=10;
+current_position[X_AXIS]-=13;
 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 				
 //*********************************************************************		
@@ -4383,8 +4383,8 @@ clean_up_after_endstop_move();
 //NOT NEEDED because we have to check the bed from the same position. Theorically the offsets between probes is inexistent
 //Calculate medians
 float z_final_probe_1 = (z_at_pt_1+(z2_at_pt_1-(((z2_at_pt_2-z_at_pt_3)+(z2_at_pt_3-z_at_pt_2))/2)))/2; //Upper left, upper right
-float z_final_probe_2 = z_at_pt_2;//(z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
-float z_final_probe_3 = z_at_pt_3;//(z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right
+float z_final_probe_2 = z_at_pt_2 - ((z2_at_pt_2-z_at_pt_3)+(z2_at_pt_3-z_at_pt_2))/2 ;//(z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
+float z_final_probe_3 = z_at_pt_3 - ((z2_at_pt_2-z_at_pt_3)+(z2_at_pt_3-z_at_pt_2))/2 ;//(z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right
 				
 Serial.print("Probe 1: ");
 Serial.println(z_final_probe_1);
@@ -4392,75 +4392,38 @@ Serial.print("Probe 2: ");
 Serial.println(z_final_probe_2);
 Serial.print("Probe 3: ");
 Serial.println(z_final_probe_3);
-				
-//Eric's Part!!!
-//plan_bed_level_matrix.set_to_identity();
-float probe_x1 = (X_SIGMA_PROBE_1_LEFT_EXTR+((X_SIGMA_PROBE_1_RIGHT_EXTR-X_SIGMA_PROBE_1_LEFT_EXTR)/2));
-Serial.print("The p1 is on X:");
-Serial.println(probe_x1);
-float probe_y1 = Y_SIGMA_PROBE_1_LEFT_EXTR;
-vector_3 pt1 = vector_3(probe_x1, probe_y1, z_final_probe_1);
 
-vector_3 pt2 = vector_3(X_SIGMA_PROBE_2_LEFT_EXTR, Y_SIGMA_PROBE_2_LEFT_EXTR, z_final_probe_2);
-vector_3 pt3 = vector_3(X_SIGMA_PROBE_3_LEFT_EXTR, Y_SIGMA_PROBE_3_LEFT_EXTR, z_final_probe_3);
-				
-vector_3 from_2_to_1 = (pt1 - pt2);
-vector_3 from_2_to_3 = (pt3 - pt2);
-vector_3 planeNormal = vector_3::cross(from_2_to_1, from_2_to_3);
-planeNormal = vector_3(planeNormal.x, planeNormal.y, abs(planeNormal.z));
-				
-//Es calcula el pla a partir del pt2 i per tant és l'origen (0,0,0)
-				
-//Posicions relatives dels cargols de regulació respecte l'origen
-float cargol_1_x = CARGOL_1_X-X_SIGMA_PROBE_2_LEFT_EXTR;
-float cargol_1_y = CARGOL_1_Y-Y_SIGMA_PROBE_2_LEFT_EXTR;
-				
-float cargol_2_x = CARGOL_2_X-X_SIGMA_PROBE_2_LEFT_EXTR;
-float cargol_2_y = CARGOL_2_Y-Y_SIGMA_PROBE_2_LEFT_EXTR;
-				
-float cargol_3_x = CARGOL_3_X-X_SIGMA_PROBE_2_LEFT_EXTR;
-float cargol_3_y = CARGOL_3_Y-Y_SIGMA_PROBE_2_LEFT_EXTR;
-				
-//Càlcul dels vectors normalitzats de l'origen fins al cargol de regulació
+///Alejandro
 
-vector_3 d1 = vector_3 (cargol_1_x, cargol_1_y, 0);
-vector_3 d2 = vector_3(cargol_2_x, cargol_2_y, 0);
-vector_3 d3 = vector_3(cargol_3_x, cargol_3_y, 0);
-				
-//Càlcul de l'alçada Z dels cargols de regulació
-float z1=(-planeNormal.x*d1.x-planeNormal.y*d1.y)/planeNormal.z;
-float z2=(-planeNormal.x*d2.x-planeNormal.y*d2.y)/planeNormal.z;
-float z3=(-planeNormal.x*d3.x-planeNormal.y*d3.y)/planeNormal.z;
 
-//Posició relativa del centre de la plataforma respecte l'origen
-float centre_x = cargol_1_x;//(X_MAX_POS/2)-X_SIGMA_PROBE_2_LEFT_EXTR;
-float centre_y = cargol_1_y;//(Y_MAX_POS/2)-Y_SIGMA_PROBE_2_LEFT_EXTR;
-vector_3 centre = vector_3 (centre_x, centre_y, 0);
-				
-//Càlcul de l'alçada Z del centre de la plataforma
-float zc=(-planeNormal.x*centre.x-planeNormal.y*centre.y)/planeNormal.z;
-				
-//Càlcul alçades relatives cargols regulació respecte al centre (objectiu de regulació)
-float dz1 = zc-z1;
-float dz2 = zc-z2;
-float dz3 = zc-z3;
-				
+float dz2 = z_final_probe_2 - z_final_probe_1;
+float dz3 = z_final_probe_3 - z_final_probe_1;
+
+
+////
+
+
+			
 //Voltes cargols
 				
 float pas_M5 = PAS_M5;
+
+
+Serial.print("Valor dZ2:  ");
+Serial.println(dz2);
+Serial.print("Valor dZ3:  ");
+Serial.println(dz3);
 				
-sentit1 = sentit (dz1);
+
 sentit2 = sentit (dz2);
 sentit3 = sentit (dz3);
 				
-float voltes1= voltes (dz1);
+
 float voltes2= voltes (dz2);
 float voltes3= voltes (dz3);
 				
 //Aproximació a 1/8 de volta
-int aprox1 = aprox (voltes1);
-int numvoltes1 = aprox1/8;   // Voltes completes
-vuitens1 = aprox1 % 8;  // Vuitens
+
 				
 int aprox2 = aprox (voltes2);
 int numvoltes2 = aprox2/8;   // Voltes completes
@@ -4471,9 +4434,7 @@ int numvoltes3 = aprox3/8;   // Voltes completes
 vuitens3 = aprox3 % 8;  // Vuitens
 				
 				
-if (numvoltes1!=0){
-	vuitens1+=(numvoltes1*8);
-}
+
 				
 if (numvoltes2!=0){
 	vuitens2+=(numvoltes2*8);
@@ -4483,22 +4444,15 @@ if (numvoltes3!=0){
 	vuitens3+=(numvoltes3*8);
 }
 				
-if (vuitens1<0) vuitens1=vuitens1*(-1);
+
 if (vuitens2<0) vuitens2=vuitens2*(-1);
 if (vuitens3<0) vuitens3=vuitens3*(-1);
 				
 //limit the maxim turns to 1
-if (vuitens1>8) vuitens1=8;
+
 if (vuitens2>8) vuitens2=8;
 if (vuitens3>8) vuitens3=8;
-				
-Serial.print("Voltes1:  ");
-Serial.println(voltes1);
-Serial.print("Aprox1:  ");
-Serial.println(aprox1);
-Serial.print("Vuitens1:  ");
-Serial.println(vuitens1);
-Serial.println("");
+
 				
 Serial.print("Voltes2:  ");
 Serial.println(voltes2);
@@ -4516,7 +4470,7 @@ Serial.print("Vuitens3:  ");
 Serial.println(vuitens3);
 Serial.println("");
 				
-if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
+if (aprox2==0 && aprox3==0) //If the calibration it's ok
 {
 	
 	if (FLAG_CalibFull){						
@@ -4616,77 +4570,19 @@ if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_TURN_SCREWS_FIRST,0);
 		processing_bed_first = true;		
 	}
-	/*		 //char buffer[256];
-	//
-	//
-	//if (vuitens1!= 0){
-	//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW1,0);
-	//sprintf(buffer, " %d / 8",vuitens1); //Printing how to calibrate on screen
-	//genie.WriteStr(STRING_BED_SCREW1,buffer);
-	//if (vuitens2==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW2,2);
-	//if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,1);} //The direction is inverted in Sigma's bed screws
-	//else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW1,0);}
-	//}
-	//
-	//else if (vuitens2!= 0){
-	//Serial.println("Jump over screw1");
-	//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW2,0);
-	//sprintf(buffer, " %d / 8",vuitens2); //Printing how to calibrate on screen
-	//genie.WriteStr(STRING_BED_SCREW2,buffer);
-	//if (vuitens3==0) genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_BED_CALIB_SW3,2);
-	//if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,1);} //The direction is inverted in Sigma's bed screws
-	//else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW2,0);}
-	//}
-	//
-	//else if (vuitens3!= 0){
-	//Serial.println("Jump over screw1 and screw2");
-	//
-	//sprintf(buffer, " %d / 8",vuitens3); //Printing how to calibrate on screen
-	//genie.WriteStr(STRING_BED_SCREW3,buffer);
-	//if (sentit1>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,1);} //The direction is inverted in Sigma's bed screws
-	//else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,0);}
-	//
-	//genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
-	//}
-					
-	//sprintf(buffer, " %d / 8",vuitens2);
-	//genie.WriteStr(STRING_SCREW2,buffer);
-					
-	//sprintf(buffer, " %d / 8",vuitens3);
-	//genie.WriteStr(STRING_SCREW3,buffer);
-					
-	//genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_BAD,1);*/
+
 					
 					
 	#endif
 					
-	SERIAL_PROTOCOLPGM(" zc: ");
-	SERIAL_PROTOCOL(zc);
-	SERIAL_PROTOCOLPGM("\n");
-	SERIAL_PROTOCOLPGM(" dz1: ");
-	SERIAL_PROTOCOL(dz1);
+	
 	SERIAL_PROTOCOLPGM(" dz2: ");
 	SERIAL_PROTOCOL(dz2);
 	SERIAL_PROTOCOLPGM(" dz3: ");
 	SERIAL_PROTOCOL(dz3);
 	SERIAL_PROTOCOLPGM("\n");
 
-	SERIAL_PROTOCOLPGM(" Voltes cargol 1: ");
-	if (numvoltes1 != 0)
-	{
-	SERIAL_PROTOCOL(numvoltes1);
-	SERIAL_PROTOCOLPGM("voltes ");
-	}
-	SERIAL_PROTOCOL(vuitens1);
-	SERIAL_PROTOCOLPGM("/8");
-	if (sentit1 > 0)
-	{
-	SERIAL_PROTOCOLPGM(" horari\n ");
-	}
-	else
-	{
-	SERIAL_PROTOCOLPGM(" antihorari\n: ");
-	}
+	
 
 	SERIAL_PROTOCOLPGM(" Voltes cargol 2: ");
 	if (numvoltes2 != 0)

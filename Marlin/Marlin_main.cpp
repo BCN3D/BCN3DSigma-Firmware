@@ -4457,7 +4457,7 @@ if (dz2 <= PAS_M5/8 && dz2 >= -PAS_M5/8){
 	aprox2 = 0;
 	vuitens2 = 0;
 }
-if (dz3 <= PAS_M5/8 && dz2 >= -PAS_M5/8){
+if (dz3 <= PAS_M5/8 && dz3 >= -PAS_M5/8){
 	aprox3 = 0;
 	vuitens3 = 0;
 }

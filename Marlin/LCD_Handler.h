@@ -4309,6 +4309,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else if(redo_source == 1){ //redo x test print
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 							processing_test = true;
+							home_axis_from_code(true,true,false);
 							current_position[Z_AXIS] = 0.2;
 							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 							enquecommand_P(PSTR("G40"));
@@ -4317,8 +4318,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else if(redo_source == 2){ //redo y test print
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 							processing_test = true;
+							home_axis_from_code(true,true,false);
 							current_position[Z_AXIS] = 0.3;
-							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);							
 							enquecommand_P(PSTR("G41"));
 							enquecommand_P(PSTR("M84"));
 						}

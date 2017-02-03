@@ -4673,7 +4673,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						home_axis_from_code(true,true,false);
 						if(processing_error)return;
 						changeTool(0);
-						st_synchronize();
 						enquecommand_P(PSTR("G40"));
 						enquecommand_P(PSTR("M84"));
 						if(processing_error)return;
@@ -4687,8 +4686,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_Y_GO){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-						processing_adjusting =  true;
-						
+						processing_adjusting =  true;						
 						dobloking=true;
 						home_axis_from_code(true,true,false);
 						changeTool(0);

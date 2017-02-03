@@ -3387,14 +3387,12 @@ inline void gcode_G40(){
 	processing_adjusting =  false;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 	processing_test = true;
-	//delay(5000);
-	//Raise for a layer of Z=0.2
+	
 	current_position[Z_AXIS]=2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15 , active_extruder);
 	st_synchronize();
 	if(processing_error)return;
-	//2)Extruder one prints
-	//Purge & up
+	
 	current_position[E_AXIS]+=15;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60 , active_extruder);
 	st_synchronize();
@@ -3470,7 +3468,7 @@ inline void gcode_G40(){
 	}
 
 	if(processing_error)return;
-	changeToolSigma(1);
+	changeTool(1);
 
 	current_position[Z_AXIS]=2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15 , active_extruder); //Raise for a layer of Z=2
@@ -3549,7 +3547,7 @@ inline void gcode_G40(){
 	if(processing_error)return;
 	home_axis_from_code(true,true,false);
 	if(processing_error)return;
-	changeToolSigma(0);
+	changeTool(0);
 	//Go to Calibration select screen
 	processing_test = false;
 	dobloking = false;

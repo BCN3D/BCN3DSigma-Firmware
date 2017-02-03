@@ -57,9 +57,9 @@ bool FLAG_ZAdjust50Down = false;
 bool FLAG_ZAdjust10Down = false;
 bool FLAG_DataRefresh =  false;
 bool FLAG_PurgeSelect0 = false;//purge
-bool FLAG_PurgeSelect1 = false;//retrack
+bool FLAG_PurgeSelect1 = false;//Retract
 bool FLAG_LoadSelect0 = false;//purge
-bool FLAG_UnloadSelect1 = false;//retrack
+bool FLAG_UnloadSelect1 = false;//Retract
 bool FLAG_SavePrintCommand = false;
 int Tref1 = 0;
 int Tfinal1 = 0;
@@ -232,7 +232,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME_PAUSE && card.sdispaused && screen_printing_pause_form == screen_printing_pause_form2)
 				{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,0);
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_Retract,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_UP,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_DOWN,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_MENU,1);
@@ -865,7 +865,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_ADJUST_Load  && FLAG_FilamentAcceptOk == false)
 					{
 						if (millis() >= waitPeriod_purge){
-							//Adjusting the filament with a retrack Up
+							//Adjusting the filament with a Retract Up
 							
 							float modified_position=current_position[E_AXIS]+6;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
@@ -895,7 +895,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//****************PURGE BUTTONS******
 				else if (Event.reportObject.index == BUTTON_PURGE_LEFT  && !blocks_queued()){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_Retract,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_UP,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_DOWN,1);
 					if (purge_extruder_selected == 1){
@@ -928,7 +928,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BUTTON_PURGE_RIGHT  && !blocks_queued()){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_Retract,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_UP,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_DOWN,1);
 					if (purge_extruder_selected == 0){
@@ -981,12 +981,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				//***MOVING
-				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK && purge_extruder_selected != -1 && !blocks_queued()){
+				else if(Event.reportObject.index == BUTTON_PURGE_Retract && purge_extruder_selected != -1 && !blocks_queued()){
 					
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							processing_purge_load = true;
 							current_position[E_AXIS]-=5;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retract
 							st_synchronize();
 							if(processing_error)return;
 							processing_purge_load = false;
@@ -1947,7 +1947,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//****************PURGE BUTTONS******
 				else if (Event.reportObject.index == BUTTON_PURGE_LEFT ){
 					//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
-					//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
+					//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_Retract,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_UP,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_DOWN,1);
 					if (purge_extruder_selected == 1){
@@ -1980,7 +1980,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BUTTON_PURGE_RIGHT ){
 					//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
-					//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
+					//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_Retract,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_UP,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_DOWN,1);
 					if (purge_extruder_selected == 0){
@@ -2035,7 +2035,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				//***MOVING
-				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK && purge_extruder_selected != -1){
+				else if(Event.reportObject.index == BUTTON_PURGE_Retract && purge_extruder_selected != -1){
 					if(!blocks_queued()){
 						FLAG_PurgeSelect1 = 1;
 						}else{
@@ -2045,7 +2045,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					/*if (millis() >= waitPeriod_purge){
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]-=5;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retract
 						}
 						waitPeriod_purge=millis()+2500;
 					}*/
@@ -2080,7 +2080,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if(Event.reportObject.index == BUTTON_PURGE){
 					
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,0);
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_Retract,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_UP,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_DOWN,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_MENU,0);
@@ -4309,6 +4309,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else if(redo_source == 1){ //redo x test print
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 							processing_test = true;
+							home_axis_from_code(true,true,false);
 							current_position[Z_AXIS] = 0.2;
 							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 							enquecommand_P(PSTR("G40"));
@@ -4317,8 +4318,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else if(redo_source == 2){ //redo y test print
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 							processing_test = true;
+							home_axis_from_code(true,true,false);
 							current_position[Z_AXIS] = 0.3;
-							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);							
 							enquecommand_P(PSTR("G41"));
 							enquecommand_P(PSTR("M84"));
 						}
@@ -4671,7 +4673,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						home_axis_from_code(true,true,false);
 						if(processing_error)return;
 						changeTool(0);
-						st_synchronize();
 						enquecommand_P(PSTR("G40"));
 						enquecommand_P(PSTR("M84"));
 						if(processing_error)return;
@@ -4685,8 +4686,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_Y_GO){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-						processing_adjusting =  true;
-						
+						processing_adjusting =  true;						
 						dobloking=true;
 						home_axis_from_code(true,true,false);
 						changeTool(0);

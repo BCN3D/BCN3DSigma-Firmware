@@ -28,7 +28,7 @@
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
 #define VERSION_STRING  "01-1.2.2RC"
-#define BUILD_DATE  "|M01.31"
+#define BUILD_DATE  "|M02.03"
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
 //#define DEFAULT_QUICK_GUIDE  0;
@@ -746,35 +746,35 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//2.90
 	
 	//Left extruder probe point
-	#define X_SIGMA_PROBE_1_LEFT_EXTR 58
+	#define X_SIGMA_PROBE_1_LEFT_EXTR 55
 	#define Y_SIGMA_PROBE_1_LEFT_EXTR 265
 	//#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_LEFT_EXTR 58
+	#define X_SIGMA_PROBE_2_LEFT_EXTR 55
 	#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
 	//#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 	
-	#define X_SIGMA_PROBE_3_LEFT_EXTR 251
+	#define X_SIGMA_PROBE_3_LEFT_EXTR 254
 	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
 	//#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 	
 	//Right extruder probe point
-	#define X_SIGMA_PROBE_1_RIGHT_EXTR 251
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 254
 	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 265
 	//#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_RIGHT_EXTR 251
+	#define X_SIGMA_PROBE_2_RIGHT_EXTR 254
 	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
 	//#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 	
-	#define X_SIGMA_PROBE_3_RIGHT_EXTR 58
+	#define X_SIGMA_PROBE_3_RIGHT_EXTR 55
 	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
 	//#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
 #endif
 
 #ifdef  SIGMA_BED_AUTOCALIB
 	//Calibration WIZARD --------
-	#define PAS_M5 0.8
+	#define PAS_M5 0.85
 	//Screw positions on BED for
 	#define CARGOL_1_X  156;
 	//#define CARGOL_1_X  104;

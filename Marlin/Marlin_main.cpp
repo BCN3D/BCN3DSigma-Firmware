@@ -3468,8 +3468,10 @@ inline void gcode_G40(){
 	}
 
 	if(processing_error)return;
-	changeTool(1);
-
+	
+	//changeTool(1);
+	gcode_T0_T1_auto(1);
+	
 	current_position[Z_AXIS]=2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15 , active_extruder); //Raise for a layer of Z=2
 	st_synchronize();
@@ -3660,7 +3662,7 @@ inline void gcode_G41(){
 		}
 	}
 	
-	changeTool(1);
+	gcode_T0_T1_auto(1);
 	
 	
 	current_position[Z_AXIS]=2;

@@ -5047,7 +5047,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					
 					#pragma endregion Info Screens
-					#pragma region Setup Assistan
+					#pragma region Setup Assistant
 					else if (Event.reportObject.index == BUTTON_FIRST_RUN_WIZARD_YES)
 					{
 						surfing_utilities = true;
@@ -5083,18 +5083,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						Serial.println(FLAG_CalibBedDone);
 						FLAG_CalibFull = true;
 						
-						//enquecommand_P(PSTR("T0"));
-						if(!FLAG_CalibBedDone){  //Do g34
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-							processing = true;
-							home_axis_from_code(true,true,true);
-							st_synchronize();
-							if(processing_error)return;
-							enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
-							changeTool(0);
-							
-							
-						}
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						processing = true;
+						home_axis_from_code(true,true,true);
+						st_synchronize();
+						if(processing_error)return;
+						enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
+						changeTool(0);
+						
 					}
 					else if (Event.reportObject.index == BUTTON_SETUP_ASSISTANT)
 					{
@@ -5114,7 +5110,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						genie.WriteObject(GENIE_OBJ_FORM,FORN_FIRST_RUN_WIZARD_YESNOT,0);
 					}
-					#pragma endregion Setup Assistan
+					#pragma endregion Setup Assistant
 					
 				}// else
 			}

@@ -1800,7 +1800,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
 						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
 						
-						
+						dobloking = true;
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						
@@ -1838,7 +1838,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						Config_StoreSettings();
 					}
 					if(which_extruder != 255){
-						
+						dobloking = true;
 						setTargetHotend(NYLON_TEMP_HEATUP_THRESHOLD,which_extruder);
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -1862,7 +1862,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						
 						
-						SERIAL_PROTOCOLPGM("Filament Removed, GOING TO CLEAN THE NOZZEL \n");
+						SERIAL_PROTOCOLPGM("Filament Removed, GOING TO CLEAN THE NOZZLE \n");
 						
 						if (which_extruder == 0) changeTool(0);
 						else changeTool(1);
@@ -2987,6 +2987,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_SUCCESS)
 				{
+					dobloking = false;
 					setTargetHotend0(0);
 					setTargetHotend1(0);
 					HeaterCooldownInactivity(true);
@@ -3403,7 +3404,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else{
 							setTargetHotend0(0);
 							setTargetHotend1(0);
-							SERIAL_PROTOCOLPGM("Filament Removed, GOING TO CLEAN THE NOZZEL \n");
+							SERIAL_PROTOCOLPGM("Filament Removed, GOING TO CLEAN THE NOZZLE \n");
 							setTargetHotend(NYLON_TEMP_HEATUP_THRESHOLD,which_extruder);
 							if (which_extruder == 0) changeTool(0);
 							else changeTool(1);
@@ -4533,16 +4534,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing = true;
 						changeTool(0);
 						current_position[Z_AXIS] = 60;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, LEFT_EXTRUDER);//move bed
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, LEFT_EXTRUDER);//move bed
 						st_synchronize();
 						if(processing_error)return;
 						current_position[X_AXIS] = 150; current_position[Y_AXIS] = 0;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, LEFT_EXTRUDER);//move first extruder
 						st_synchronize();
 						if(processing_error)return;
 						processing = false;
 						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_NOZZEL_L,0);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_NOZZLE_L,0);
 						
 						
 						//////
@@ -4642,16 +4643,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing = true;
 						changeTool(1);
 						current_position[Z_AXIS] = 60;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, RIGHT_EXTRUDER);//move bed
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, RIGHT_EXTRUDER);//move bed
 						st_synchronize();
 						if(processing_error)return;
 						current_position[X_AXIS] = 170; current_position[Y_AXIS] = 0;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, RIGHT_EXTRUDER);//move first extruder
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, RIGHT_EXTRUDER);//move first extruder
 						st_synchronize();
 						if(processing_error)return;
 						processing = false;
 						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_NOZZEL_R,0);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_NOZZLE_R,0);
 						
 						
 					
@@ -4709,14 +4710,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						
 					}
-					else if(Event.reportObject.index == BUTTON_CLEAN_NOZZEL_L){
+					else if(Event.reportObject.index == BUTTON_CLEAN_NOZZLE_L){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						//processing =  true;
 						//home_axis_from_code(true, true , false);
 						enquecommand_P(PSTR("G43"));
 						flag_continue_calib = false;
 					}
-					else if(Event.reportObject.index == BUTTON_CLEAN_NOZZEL_R){
+					else if(Event.reportObject.index == BUTTON_CLEAN_NOZZLE_R){
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						
@@ -5046,7 +5047,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					
 					#pragma endregion Info Screens
-					#pragma region Setup Assistan
+					#pragma region Setup Assistant
 					else if (Event.reportObject.index == BUTTON_FIRST_RUN_WIZARD_YES)
 					{
 						surfing_utilities = true;
@@ -5082,18 +5083,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						Serial.println(FLAG_CalibBedDone);
 						FLAG_CalibFull = true;
 						
-						//enquecommand_P(PSTR("T0"));
-						if(!FLAG_CalibBedDone){  //Do g34
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-							processing = true;
-							home_axis_from_code(true,true,true);
-							st_synchronize();
-							if(processing_error)return;
-							enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
-							changeTool(0);
-							
-							
-						}
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						processing = true;
+						home_axis_from_code(true,true,true);
+						st_synchronize();
+						if(processing_error)return;
+						enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
+						changeTool(0);
+						
 					}
 					else if (Event.reportObject.index == BUTTON_SETUP_ASSISTANT)
 					{
@@ -5113,7 +5110,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						genie.WriteObject(GENIE_OBJ_FORM,FORN_FIRST_RUN_WIZARD_YESNOT,0);
 					}
-					#pragma endregion Setup Assistan
+					#pragma endregion Setup Assistant
 					
 				}// else
 			}

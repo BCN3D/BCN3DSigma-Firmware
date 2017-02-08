@@ -3197,17 +3197,23 @@ inline void gcode_G28(){
 			active_extruder=LEFT_EXTRUDER;
 			axis_is_at_home(X_AXIS);
 			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+			Serial.println("CAMBIADO");
 		}
 		
-		destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
-		destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
-		destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
 		feedrate = SIGMA_Z_HOME_TRAVEL_SPEED;
 		current_position[Z_AXIS] = 0;
+		destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
+		destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+		destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		
+		plan_buffer_line(current_position[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);//Left Extruder
+		st_synchronize();		
 		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);//Left Extruder
 		st_synchronize();
+		
+		
 		current_position[X_AXIS] = destination[X_AXIS];
 		current_position[Y_AXIS] = destination[Y_AXIS];
 		HOMEAXIS(Z);
@@ -8253,7 +8259,7 @@ void get_coordinates()
 			if(i == 0 && !relative_mode) {
 				//Serial.print("X old: ");
 				//Serial.println(destination[i]);
-				destination[i]+= 48.5;
+				destination[i]+= 47;
 				//Serial.print("X new: ");
 				//Serial.println(destination[i]);
 			}
@@ -9146,17 +9152,20 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 		
 		if (saved_active_extruder == RIGHT_EXTRUDER){
 			active_extruder=LEFT_EXTRUDER;
-			axis_is_at_home(X_AXIS);
+			axis_is_at_home(X_AXIS);		
 			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+			Serial.println("CAMBIADO");
 		}
-		
-		destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
-		destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
-		destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
 		feedrate = SIGMA_Z_HOME_TRAVEL_SPEED;
 		current_position[Z_AXIS] = 0;
+		destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
+		destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+		destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		
+		plan_buffer_line(current_position[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);//Left Extruder
+		st_synchronize();
 		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);//Left Extruder
 		st_synchronize();
 		

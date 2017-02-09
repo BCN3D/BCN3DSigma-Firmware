@@ -2765,9 +2765,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
 						current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
-						
-						
 						st_synchronize();
+						dobloking = false;
 						if(processing_error)return;
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
@@ -3404,6 +3403,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else{
 							setTargetHotend0(0);
 							setTargetHotend1(0);
+							home_axis_from_code(true, true, false);
 							SERIAL_PROTOCOLPGM("Filament Removed, GOING TO CLEAN THE NOZZLE \n");
 							setTargetHotend(NYLON_TEMP_HEATUP_THRESHOLD,which_extruder);
 							if (which_extruder == 0) changeTool(0);
@@ -3411,6 +3411,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							current_position[Y_AXIS] = 10;
 							current_position[X_AXIS] = 155;
+							dobloking = true;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							processing = true;
 							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
@@ -5684,6 +5685,7 @@ inline void insertmetod(){
 	processing = true;
 	if(!card.sdispaused){
 		//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+		dobloking = true;
 		if (!home_made) home_axis_from_code(true,true,true);
 		
 		int feedrate;

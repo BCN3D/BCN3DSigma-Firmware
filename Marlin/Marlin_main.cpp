@@ -735,13 +735,13 @@ void setup()
 	setup_killpin();
 	setup_powerhold();
 	st_init();    // Initialize stepper, this enables interrupts!
+	pinMode(RELAY, OUTPUT);
+	digitalWrite(RELAY, LOW);
 	MYSERIAL.begin(BAUDRATE);
 
 	SERIAL_PROTOCOLLNPGM(VERSION_STRING);
 	SERIAL_ECHO_START;
 	SERIAL_PROTOCOLLNPGM("start");
-	
-	
 	Serial.println("BCN3D Sigma");
 			
 	//LCD START routine
@@ -814,7 +814,7 @@ void setup()
 					analogWrite(GREEN,led);
 					analogWrite(BLUE,led);
 					
-					waitPeriod=10+millis();	//Every 5s
+					waitPeriod=10+millis();
 					led++;
 				}
 			}
@@ -920,8 +920,7 @@ void setup()
 		//enable 24V
 	
 	
-	pinMode(RELAY, OUTPUT);
-	digitalWrite(RELAY, LOW);
+	
 	delay(1);
 	digitalWrite(RELAY, HIGH); //Relay On
 	
@@ -6997,6 +6996,17 @@ inline void gcode_M530(){
 	Change_ConfigCalibration(Xcalib, Ycalib, Zcalib, Zprobecalib);
 	Config_StoreSettings();
 }
+inline void gcode_M535(){
+	int R=0, G=0, B=0;
+	if (code_seen('R')) R = (int)code_value();
+	if (code_seen('V')) G = (int)code_value();
+	if (code_seen('A')) B = (int)code_value();
+	
+	analogWrite(RED, R);
+	analogWrite(GREEN, G);
+	analogWrite(BLUE, B);
+	
+}
 inline void gcode_M540(){
 	#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 	if(code_seen('S')) abort_on_endstop_hit = code_value() > 0;
@@ -8002,6 +8012,10 @@ void process_commands()
 					
 			case 530:  //right hotend
 			gcode_M530();
+			break;
+			
+			case 535:  
+			gcode_M535();
 			break;
 					
 			case 540:

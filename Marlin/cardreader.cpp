@@ -671,7 +671,7 @@ int CardReader::updir()
 
 void CardReader::printingHasFinished()
 {
-	dobloking=false;
+	doblocking=false;
 	log_prints_finished++;
 	Config_StoreSettings();
 	enquecommand_P(PSTR("M107"));	

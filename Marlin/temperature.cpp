@@ -978,7 +978,7 @@ void check_termistors_connections()
 					card.sdispaused = false;
 					
 					cancel_heatup = true;
-					dobloking = false;
+					doblocking = false;
 					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
 					processing_error = true;
 					
@@ -999,7 +999,7 @@ void check_termistors_connections()
 					card.sdispaused = false;
 					cancel_heatup = true;
 					
-					dobloking = false;
+					doblocking = false;
 					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
 					processing_error = true;
 					
@@ -1025,7 +1025,7 @@ void check_termistors_connections()
 					card.sdispaused = false;
 					
 					cancel_heatup = true;
-					dobloking = false;
+					doblocking = false;
 					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
 					processing_error = true;
 					

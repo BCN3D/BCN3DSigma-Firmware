@@ -1126,7 +1126,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRINGS_PRINTING_GCODE_PAUSE,namefilegcode);
 						FLAG_DataRefresh = true;
 					}
-					//dobloking =true;
+					//doblocking =true;
 					
 					#pragma endregion SuccessScreensPrin
 			
@@ -1488,7 +1488,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if(card.cardOK)
 					{
 						Serial.println(card.getFileSize());
-						//dobloking = true;
+						//doblocking = true;
 						setTargetBed(0);
 						setTargetHotend0(0);
 						setTargetHotend1(0);
@@ -1800,7 +1800,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
 						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
 						
-						dobloking = true;
+						doblocking = true;
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						
@@ -1838,7 +1838,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						Config_StoreSettings();
 					}
 					if(which_extruder != 255){
-						dobloking = true;
+						doblocking = true;
 						setTargetHotend(NYLON_TEMP_HEATUP_THRESHOLD,which_extruder);
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -2757,16 +2757,20 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						current_position[X_AXIS] = 155;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 						delay(850);
+						st_synchronize();
 						SERIAL_PROTOCOLPGM("Inserting :   \n");
+						doblocking = false;
 						current_position[E_AXIS] += 30;//Extra extrusion at low feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  700/60, which_extruder); //850/60
 						current_position[E_AXIS] += ((BOWDEN_LENGTH-EXTRUDER_LENGTH)-15);//BOWDEN_LENGTH-300+340);
+						st_synchronize();
 						Serial.println(current_position[E_AXIS]);
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
+						st_synchronize();
 						current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
 						st_synchronize();
-						dobloking = false;
+						
 						if(processing_error)return;
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
@@ -2986,7 +2990,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_SUCCESS)
 				{
-					dobloking = false;
+					doblocking = false;
 					setTargetHotend0(0);
 					setTargetHotend1(0);
 					HeaterCooldownInactivity(true);
@@ -3129,7 +3133,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteStr(STRING_AXIS,"        Z AXIS");
 							
 							home_axis_from_code(true,false,false);
-							dobloking=false;
+							doblocking=false;
 							enquecommand_P(PSTR("G43"));
 							flag_continue_calib = false;
 							
@@ -3139,7 +3143,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteStr(STRING_AXIS,"        Z AXIS");
 							
 							home_axis_from_code(true,false,false);
-							dobloking=false;
+							doblocking=false;
 							enquecommand_P(PSTR("G43"));
 							st_synchronize();
 							
@@ -3270,7 +3274,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						home_axis_from_code(true,false,false);
+						home_axis_from_code(true,true,false);
 						enquecommand_P((PSTR("T0")));
 						enquecommand_P((PSTR("G34")));
 						previous_state = FORM_CALIBRATION;
@@ -3290,7 +3294,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							}else{
 							processing = true;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-							home_axis_from_code(true,false,false);
+							home_axis_from_code(true,true,false);
 							enquecommand_P((PSTR("T0")));
 							enquecommand_P((PSTR("G34")));
 							previous_state = FORM_CALIBRATION;
@@ -3360,7 +3364,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							FLAG_CalibBedDone = true;
 							
-							dobloking=false;
+							doblocking=false;
 						}
 						
 						
@@ -3411,7 +3415,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							current_position[Y_AXIS] = 10;
 							current_position[X_AXIS] = 155;
-							dobloking = true;
+							doblocking = true;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							processing = true;
 							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
@@ -4286,7 +4290,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					
 					else if(Event.reportObject.index == BUTTON_CLEAN_BED){
-						dobloking = true;
+						doblocking = true;
 						if(redo_source == 0){		 //redo z test print
 							if (active_extruder==0){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
@@ -4450,7 +4454,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_ZL_GO){
-						dobloking=true;
+						doblocking=true;
 						
 						
 						setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
@@ -4563,7 +4567,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_ZR_GO){
 						
-						dobloking=true;
+						doblocking=true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						processing = true;
 						active_extruder = RIGHT_EXTRUDER;
@@ -4671,7 +4675,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_X_GO){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 						processing_adjusting =  true;
-						dobloking=true;
+						doblocking=true;
 						home_axis_from_code(true,true,false);
 						if(processing_error)return;
 						changeTool(0);
@@ -4689,7 +4693,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_Y_GO){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 						processing_adjusting =  true;						
-						dobloking=true;
+						doblocking=true;
 						home_axis_from_code(true,true,false);
 						changeTool(0);
 						enquecommand_P(PSTR("G41"));
@@ -5044,7 +5048,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						HeaterCooldownInactivity(true);
 						genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
 						}
-						dobloking = false;
+						doblocking = false;
 					}
 					
 					#pragma endregion Info Screens
@@ -5685,7 +5689,7 @@ inline void insertmetod(){
 	processing = true;
 	if(!card.sdispaused){
 		//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-		dobloking = true;
+		doblocking = true;
 		if (!home_made) home_axis_from_code(true,true,true);
 		
 		int feedrate;

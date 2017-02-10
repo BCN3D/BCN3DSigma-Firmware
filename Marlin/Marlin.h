@@ -394,7 +394,7 @@ extern uint8_t saved_workDir_vector_lenght;
 extern void PID_autotune_Save(float temp, int extruder, int ncycles);
 extern void Config_Reset_Calib();
 extern void Config_StoreSettings();
-extern bool dobloking;
+extern bool doblocking;
 extern int preheat_E0_value;
 extern int preheat_E1_value;
 extern int preheat_B_value;

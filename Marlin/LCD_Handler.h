@@ -1098,16 +1098,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Y_AXIS]/60, active_extruder);//Purge
 						st_synchronize();
 						if(processing_error)return;
-						#if PAUSE_G70_SETUP == 1
 						
-						current_position[Z_AXIS] = saved_position[Z_AXIS];
-						
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS],saved_active_extruder);
-						
-						st_synchronize();
-						if(processing_error)return;
-						
-						#endif
 						//home_axis_from_code(true, true, false);
 						
 						current_position[Z_AXIS] = saved_position[Z_AXIS] + 10;

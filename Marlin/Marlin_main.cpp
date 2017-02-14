@@ -4638,14 +4638,13 @@ inline void gcode_G70(){
 					doblocking = true;
 					active_extruder = saved_active_extruder;
 					
-					#if PAUSE_G70_SETUP == 0
 					
 					current_position[Z_AXIS] = saved_position[Z_AXIS]+PAUSE_G70_ZMOVE;
 					feedrate=homing_feedrate[Z_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					destination[Z_AXIS] = current_position[Z_AXIS];
 					st_synchronize();
-					#endif
+					
 					current_position[Y_AXIS] = saved_position[Y_AXIS];
 					feedrate=homing_feedrate[Y_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);//Purge
@@ -4658,63 +4657,13 @@ inline void gcode_G70(){
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Purge
 					st_synchronize();
 					
-					
-					
-					
-					#if PAUSE_G70_SETUP == 1
-					
-					
-					if (!active_extruder){
-					current_position[X_AXIS] = current_position[X_AXIS]+30;
-					feedrate=homing_feedrate[X_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-					st_synchronize();
-					
-					
-					current_position[X_AXIS] = current_position[X_AXIS]-20;
-					feedrate=homing_feedrate[X_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-					st_synchronize();
-					}
-					else{
-					current_position[X_AXIS] = current_position[X_AXIS]-30;
-					feedrate=homing_feedrate[X_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-					st_synchronize();
-					
-					
-					current_position[X_AXIS] = current_position[X_AXIS]+20;
-					feedrate=homing_feedrate[X_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-					st_synchronize();	
-					}
-					/*plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] += 2, INSERT_SLOW_SPEED/60, active_extruder);
-					st_synchronize();*/
-					delay(300);
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, INSERT_FAST_SPEED/60, active_extruder);
-					st_synchronize();
-					delay(1000);
-					
-					#endif
-					
+										
 					current_position[X_AXIS] = saved_position[X_AXIS];
 					
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
 					st_synchronize();
 					
-					
-					
-					#if PAUSE_G70_SETUP == 1
-					current_position[Z_AXIS] = saved_position[Z_AXIS];
-					feedrate=homing_feedrate[Z_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-					destination[Z_AXIS] = current_position[Z_AXIS];
-					st_synchronize();
-					//*********************************//
-					
-					
-					//********EXTRACK to keep ready to the new instruction
-					#endif
+		
 					current_position[Z_AXIS] = saved_position[Z_AXIS];
 					feedrate=homing_feedrate[Z_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);

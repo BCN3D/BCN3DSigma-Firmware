@@ -28,7 +28,7 @@
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
 #define VERSION_STRING  "01-1.2.2RC"
-#define BUILD_DATE  "|M02.13"
+#define BUILD_DATE  "|M02.14"
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
 //#define DEFAULT_QUICK_GUIDE  0;
@@ -1156,7 +1156,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //////	PAUSE PRINT
 
-#define PAUSE_G70_SETUP			 0				//(mm)
+
 #define PAUSE_G69_RETRACT		 4				//(mm)
 #define PAUSE_G69_XYMOVE		 5				//(mm)
 #define PAUSE_G70_ZMOVE			 2				//(mm)

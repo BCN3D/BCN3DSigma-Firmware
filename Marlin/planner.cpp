@@ -546,6 +546,7 @@ void check_axes_activity()
 #endif
 }
 
+
 float junction_deviation = 0.1;
 // Add a new linear movement to the buffer. steps_x, _y and _z is the absolute position in 
 // mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
@@ -557,84 +558,10 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 #endif  //ENABLE_AUTO_BED_LEVELING
 {
 	#ifdef DEFAULT_HYSTERESIS
-	//hysteresis.InsertCorrection(x,y,z,e);
-	
-	float fixed_pos[NUM_AXIS];
-	float destination[NUM_AXIS] = {x,y,z,e};
-		
-	for(int axis=0;axis<NUM_AXIS;++axis)
-	{
-		fixed_pos[axis] = destination[axis];
-	}
-	float best_feedrate = feed_rate;	
-	unsigned char direction_bits = calc_direction_bits( current_position, destination );
-	// if the direction has changed in any of the axis that need hysteresis corrections...
-	unsigned char direction_change_bits = (direction_bits ^ hysteresis.m_prev_direction_bits);
-	if( (direction_change_bits & hysteresis.m_hysteresis_bits) != 0 )
-	{
-		// calculate the position to move to that will fix the hysteresis
-		
-		for(int axis=0;axis<NUM_AXIS;++axis)
-		{
-			
-			// if this axis changed direction...
-			if( (1<<axis) )
-			{
-				//... add the hysteresis
-				fixed_pos[axis] += (((direction_bits&(1<<axis))!=0)?-hysteresis.m_hysteresis_mm[axis]:hysteresis.m_hysteresis_mm[axis]);
-			}
-		}
-		float best_feedrate = calc_best_feedrate( current_position, destination );
-
-
-		// debug output to display any hysteresis corrections.
-		SERIAL_PROTOCOLPGM("From=X");
-		SERIAL_PROTOCOL(current_position[X_AXIS]);
-		SERIAL_PROTOCOLPGM(" Y");
-		SERIAL_PROTOCOL(current_position[Y_AXIS]);
-		SERIAL_PROTOCOLPGM(" Z");
-		SERIAL_PROTOCOL(current_position[Z_AXIS]);
-		SERIAL_PROTOCOLPGM(" E");
-		SERIAL_PROTOCOL(current_position[E_AXIS]);
-
-		SERIAL_PROTOCOLLN("");
-
-		SERIAL_PROTOCOLPGM("  To=X");
-		SERIAL_PROTOCOL(fixed_pos[X_AXIS]);
-		SERIAL_PROTOCOLPGM(" Y");
-		SERIAL_PROTOCOL(fixed_pos[Y_AXIS]);
-		SERIAL_PROTOCOLPGM(" Z");
-		SERIAL_PROTOCOL(fixed_pos[Z_AXIS]);
-		SERIAL_PROTOCOLPGM(" E");
-		SERIAL_PROTOCOL(fixed_pos[E_AXIS]);
-		
-		SERIAL_PROTOCOLPGM(" F");
-		SERIAL_PROTOCOL(best_feedrate);
-		
-
-		SERIAL_PROTOCOLLN("");
-
-		
-		hysteresis.m_prev_direction_bits = direction_bits; // need to set these now to avoid recursion as plan_buffer_line calls this function
-		
-	}
-	hysteresis.m_prev_direction_bits = direction_bits;
-	
-	
-	
-	
+	hysteresis.InsertCorrection(x,y,z,e);
 	#endif
 	
-	SERIAL_PROTOCOLPGM("To=X");
-	SERIAL_PROTOCOL(x);
-	SERIAL_PROTOCOLPGM(" Y");
-	SERIAL_PROTOCOL(y);
-	SERIAL_PROTOCOLPGM(" Z");
-	SERIAL_PROTOCOL(z);
-	SERIAL_PROTOCOLPGM(" E");
-	SERIAL_PROTOCOL(e);
-
-	SERIAL_PROTOCOLLN("");
+	
   // Calculate the buffer head after we push this byte
 	int next_buffer_head = next_block_index(block_buffer_head);
 
@@ -651,17 +578,17 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 	}
 
 	#ifdef ENABLE_AUTO_BED_LEVELING
-		apply_rotation_xyz(plan_bed_level_matrix, fixed_pos[X_AXIS], fixed_pos[Y_AXIS], fixed_pos[Z_AXIS]);
+		apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
 	#endif // ENABLE_AUTO_BED_LEVELING
 
 	  // The target position of the tool in absolute steps
 	  // Calculate target position in absolute steps
 	  //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
 	long target[4];
-	target[X_AXIS] = lround(fixed_pos[X_AXIS]*axis_steps_per_unit[X_AXIS]);
-	target[Y_AXIS] = lround(fixed_pos[Y_AXIS]*axis_steps_per_unit[Y_AXIS]);
-	target[Z_AXIS] = lround(fixed_pos[Z_AXIS]*axis_steps_per_unit[Z_AXIS]);     
-	target[E_AXIS] = lround(fixed_pos[E_AXIS]*axis_steps_per_unit[E_AXIS]);
+	target[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
+	target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
+	target[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
+	target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);
 
 	#ifdef PREVENT_DANGEROUS_EXTRUDE
 		if(target[E_AXIS]!=position[E_AXIS])
@@ -813,11 +740,11 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 
 	if (block->steps_e == 0)
 	{
-		if(best_feedrate<mintravelfeedrate) best_feedrate=mintravelfeedrate;
+		if(feed_rate<mintravelfeedrate) feed_rate=mintravelfeedrate;
 	}
 	else
 	{
-		if(best_feedrate<minimumfeedrate) best_feedrate=minimumfeedrate;
+		if(feed_rate<minimumfeedrate) feed_rate=minimumfeedrate;
 	} 
 
 	float delta_mm[4];
@@ -841,13 +768,13 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 	float inverse_millimeters = 1.0/block->millimeters;  // Inverse millimeters to remove multiple divides 
 
     // Calculate speed in mm/second for each axis. No divide by zero due to previous checks.
-	float inverse_second = best_feedrate * inverse_millimeters;
+	float inverse_second = feed_rate * inverse_millimeters;
 
 	int moves_queued=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
 
 	// slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
 	#ifdef OLD_SLOWDOWN
-		if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5) && moves_queued > 1)	best_feedrate = best_feedrate*moves_queued / (BLOCK_BUFFER_SIZE * 0.5); 
+		if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5) && moves_queued > 1)	feed_rate = feed_rate*moves_queued / (BLOCK_BUFFER_SIZE * 0.5); 
 	#endif
 
 	#ifdef SLOWDOWN

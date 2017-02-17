@@ -121,7 +121,7 @@ void Hysteresis::InsertCorrection(const float &x, const float &y, const float &z
   unsigned char direction_bits = calc_direction_bits( current_position, destination );
   // if the direction has changed in any of the axis that need hysteresis corrections...
   unsigned char direction_change_bits = (direction_bits ^ m_prev_direction_bits);
-  if( (m_hysteresis_bits) != 0 ) ////   if( (direction_change_bits & m_hysteresis_bits) != 0 )
+  if( (direction_change_bits & m_hysteresis_bits) != 0 )
   {
     // calculate the position to move to that will fix the hysteresis
     float fixed_pos[NUM_AXIS];
@@ -129,7 +129,7 @@ void Hysteresis::InsertCorrection(const float &x, const float &y, const float &z
     {
       fixed_pos[axis] = current_position[axis];
       // if this axis changed direction...
-     if( (1<<axis) )
+      if( direction_change_bits & (1<<axis) )
       {
         //... add the hysteresis
         fixed_pos[axis] += (((direction_bits&(1<<axis))!=0)?-m_hysteresis_mm[axis]:m_hysteresis_mm[axis]);
@@ -137,7 +137,7 @@ void Hysteresis::InsertCorrection(const float &x, const float &y, const float &z
     }
     float best_feedrate = calc_best_feedrate( current_position, destination );
 
-
+/*
         // debug output to display any hysteresis corrections.
         SERIAL_PROTOCOLPGM("From=X");
         SERIAL_PROTOCOL(current_position[X_AXIS]);
@@ -164,7 +164,7 @@ void Hysteresis::InsertCorrection(const float &x, const float &y, const float &z
         
 
         SERIAL_PROTOCOLLN("");
-
+*/
   
     m_prev_direction_bits = direction_bits; // need to set these now to avoid recursion as plan_buffer_line calls this function
     plan_buffer_line(fixed_pos[X_AXIS], fixed_pos[Y_AXIS], fixed_pos[Z_AXIS], fixed_pos[E_AXIS], best_feedrate, active_extruder);

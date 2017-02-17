@@ -581,12 +581,12 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 			if( (1<<axis) )
 			{
 				//... add the hysteresis
-				fixed_pos[axis] += (((direction_bits&(1<<axis))!=0)?-hysteresis.m_hysteresis_mm[axis]:hysteresis.m_hysteresis_mm[axis]);
+				position[axis] += lround((((direction_bits&(1<<axis))!=0)?hysteresis.m_hysteresis_mm[axis]:-hysteresis.m_hysteresis_mm[axis])*axis_steps_per_unit[axis]);
 			}
 		}
 		float best_feedrate = calc_best_feedrate( current_position, destination );
 
-
+/*
 		// debug output to display any hysteresis corrections.
 		SERIAL_PROTOCOLPGM("From=X");
 		SERIAL_PROTOCOL(current_position[X_AXIS]);
@@ -613,7 +613,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 		
 
 		SERIAL_PROTOCOLLN("");
-
+*/
 		
 		hysteresis.m_prev_direction_bits = direction_bits; // need to set these now to avoid recursion as plan_buffer_line calls this function
 		
@@ -625,16 +625,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 	
 	#endif
 	
-	SERIAL_PROTOCOLPGM("To=X");
-	SERIAL_PROTOCOL(x);
-	SERIAL_PROTOCOLPGM(" Y");
-	SERIAL_PROTOCOL(y);
-	SERIAL_PROTOCOLPGM(" Z");
-	SERIAL_PROTOCOL(z);
-	SERIAL_PROTOCOLPGM(" E");
-	SERIAL_PROTOCOL(e);
 
-	SERIAL_PROTOCOLLN("");
   // Calculate the buffer head after we push this byte
 	int next_buffer_head = next_block_index(block_buffer_head);
 

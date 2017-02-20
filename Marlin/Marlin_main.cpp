@@ -831,6 +831,16 @@ void setup()
 				log_max_bed =0;
 				Config_RetrieveSettings();
 				
+				if(version_number < 122 || VERSION_NUMBER < version_number){
+					Config_ResetDefault();
+					version_number = VERSION_NUMBER;
+					Config_StoreSettings();
+					}else if(VERSION_NUMBER != version_number){
+					Config_ResetDefault();
+					version_number = VERSION_NUMBER;
+					Config_StoreSettings();
+				}
+				
 				if(saved_print_flag == 1888){
 					bool successSD = false;
 					
@@ -891,15 +901,7 @@ void setup()
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				}
 			
-			if(version_number < 122 || VERSION_NUMBER < version_number){
-				Config_ResetDefault();
-				version_number = VERSION_NUMBER;
-				Config_StoreSettings();
-				}else if(VERSION_NUMBER != version_number){
-				Config_ResetDefault();
-				version_number = VERSION_NUMBER;
-				Config_StoreSettings();
-			}			
+						
 		#endif	
 	#endif
 	

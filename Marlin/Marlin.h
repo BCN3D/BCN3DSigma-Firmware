@@ -369,7 +369,7 @@ extern int old_print_temp_r;
 extern int old_bed_temp_r;
 
 ////// end Temperatures of current material for two extruders //////
-
+extern int version_number;
 /////// Print Recovery	/////////
 
 extern float saved_x_position;

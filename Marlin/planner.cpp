@@ -584,7 +584,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 				position[axis] += lround((((direction_bits&(1<<axis))!=0)?hysteresis.m_hysteresis_mm[axis]:-hysteresis.m_hysteresis_mm[axis])*axis_steps_per_unit[axis]);
 			}
 		}
-		float best_feedrate = calc_best_feedrate( current_position, destination );
+		//float best_feedrate = calc_best_feedrate( current_position, destination );
 
 /*
 		// debug output to display any hysteresis corrections.

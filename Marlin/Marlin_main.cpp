@@ -853,6 +853,7 @@ void setup()
 							card.getfilename(saved_workDir_vector[i]);
 							workDir_vector[i]=saved_workDir_vector[i];
 							if (!card.filenameIsDir){
+								SERIAL_PROTOCOLLNPGM("gcode found");
 								successSD = true;
 								}else{
 								if (card.chdir(card.filename)!=-1){

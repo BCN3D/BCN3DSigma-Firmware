@@ -178,6 +178,7 @@ void Config_StoreSettings()
 	EEPROM_WRITE_VAR(i,saved_workDir_vector[8]);
 	EEPROM_WRITE_VAR(i,saved_workDir_vector[9]);
 	EEPROM_WRITE_VAR(i,acceleration_old);
+	EEPROM_WRITE_VAR(i,version_number);
    #endif 
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
@@ -487,6 +488,7 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,saved_workDir_vector[8]);
 		EEPROM_READ_VAR(i,saved_workDir_vector[9]);
 		EEPROM_READ_VAR(i,acceleration_old);
+		EEPROM_READ_VAR(i,version_number);
 		#endif RECOVERY_PRINT
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();

@@ -29,6 +29,7 @@
 
 #define VERSION_STRING  "01-1.2.3_dev"
 #define BUILD_DATE  "|M02.20"
+#define VERSION_NUMBER  123
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
 //#define DEFAULT_QUICK_GUIDE  0;

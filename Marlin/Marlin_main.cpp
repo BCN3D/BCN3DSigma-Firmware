@@ -254,7 +254,7 @@ int UI_SerialID2 = 0;
 #ifndef SIGMA_TOUCH_SCREEN	
 	void SD_firstPrint();
 #endif
-
+int version_number;
 /////// Print Recovery	/////////
 
 #ifdef RECOVERY_PRINT
@@ -831,6 +831,7 @@ void setup()
 				log_max_temp_r = 0;
 				log_max_bed =0;
 				Config_RetrieveSettings();
+				
 				if(saved_print_flag == 1888){
 					bool successSD = false;
 					
@@ -890,13 +891,12 @@ void setup()
 				}else{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				}
-				
-			//}
-			//Turn the Display on (Contrast) - (Not needed but illustrates how)
-			/*for(int i = 0;i<16;i++){				
-				genie.WriteContrast(i);	
-				delay(1500);
-			}*/			
+			
+			if(version_number < 122 || VERSION_NUMBER < version_number){
+				Config_ResetDefault();
+				version_number = VERSION_NUMBER;
+				Config_StoreSettings();
+			}			
 		#endif	
 	#endif
 	

@@ -896,6 +896,9 @@ void setup()
 				Config_ResetDefault();
 				version_number = VERSION_NUMBER;
 				Config_StoreSettings();
+			}else if(VERSION_NUMBER != version_number){
+				version_number = VERSION_NUMBER;
+				Config_StoreSettings();
 			}			
 		#endif	
 	#endif

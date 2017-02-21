@@ -1692,7 +1692,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					int percentage = 0;
 					sprintf(buffer, "%d%%", percentage);
 					genie.WriteStr(STRING_ADJUSTING_TEMPERATURES,buffer);
-					PID_autotune_Save(print_temp_l, 0, AUTOTUNE_ITERATIONS);
+					PID_autotune_Save(print_temp_l, 0, AUTOTUNE_ITERATIONS, 25.0);
 					Config_StoreSettings();
 					SERIAL_PROTOCOL(MSG_OK);
 					SERIAL_PROTOCOL(" p:");
@@ -1701,7 +1701,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					SERIAL_PROTOCOL(unscalePID_i(Ki[0]));
 					SERIAL_PROTOCOL(" d:");
 					SERIAL_PROTOCOL(unscalePID_d(Kd[0]));
-					PID_autotune_Save(print_temp_r, 1, AUTOTUNE_ITERATIONS);
+					PID_autotune_Save(print_temp_r, 1, AUTOTUNE_ITERATIONS, 25.0);
 					Config_StoreSettings();
 					SERIAL_PROTOCOL(MSG_OK);
 					SERIAL_PROTOCOL(" p:");

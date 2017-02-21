@@ -391,7 +391,7 @@ extern uint8_t saved_workDir_vector_lenght;
 
 /////// end Print Recovery	/////////
 
-extern void PID_autotune_Save(float temp, int extruder, int ncycles);
+extern void PID_autotune_Save(float temp, int extruder, int ncycles, float K_p);
 extern void Config_Reset_Calib();
 extern void Config_StoreSettings();
 extern bool doblocking;

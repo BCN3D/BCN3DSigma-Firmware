@@ -236,6 +236,7 @@ int UI_SerialID2 = 0;
 	bool surfing_utilities = false;
 	bool surfing_temps = false;
 	bool is_on_printing_screen = false;
+	long time_inactive_extruder[2];
 	uint16_t filepointer = 0;
 	String screen_status = "Printing...";
 	uint8_t which_extruder=0;
@@ -1808,11 +1809,18 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	//static keyword specifies that the variable retains its state between calls to the function
 
 	static uint32_t waitPeriod_p = millis();
-	
+	static uint32_t waitPeriod_inactive = millis();
 	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
 	static int8_t processing_state = 0;
 	static int8_t processing_state_z = 0;
 	static int count5s = 0;
+	
+	if (millis() >= waitPeriod_inactive){
+		
+		time_inactive_extruder[!active_extruder] += 1;// 1 second
+		waitPeriod_inactive=1000+millis();
+	}	
+	
 	if(card.sdispaused){
 		previous_millis_cmd = millis();
 	}
@@ -3074,6 +3082,8 @@ inline void gcode_G11(){
 inline void gcode_G28(){
 	saved_doblocking = doblocking;
 	doblocking = true;
+	time_inactive_extruder[0] = 0;
+	time_inactive_extruder[1] = 0;
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 	#endif //ENABLE_AUTO_BED_LEVELING
@@ -7208,6 +7218,55 @@ inline void gcode_M351(){
 	microstep_readings();
 	#endif
 }
+inline void gcode_M800(){ //Smart purge
+	float Speed=0.0, A=0.0, B=0.0, purge_distance = 0.0, purge_distance_min = 0.0;
+	if(code_seen('F')) Speed = code_value();
+	if(code_seen('E')) A = code_value();
+	if(code_seen('S')) B = code_value();
+	if(code_seen('P')) purge_distance_min = code_value();
+	if (Speed > 0.0 && A > 0.0 && B > 0.0 && purge_distance_min >= 0.0){
+		purge_distance = (float)(A -A*exp(-time_inactive_extruder[active_extruder]/B));
+		if(purge_distance_min > purge_distance){
+			purge_distance = purge_distance_min;
+		}
+		Serial.println("Purge distance");
+		Serial.println(purge_distance);
+		Serial.println("Time inactive");
+		Serial.println(time_inactive_extruder[active_extruder]);
+		current_position[E_AXIS]+=purge_distance;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], Speed/60, active_extruder);//Purge
+		st_synchronize();
+		
+		time_inactive_extruder[active_extruder]= 0;
+		
+		
+		}else{
+		current_position[E_AXIS]+=1;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
+		st_synchronize();
+		plan_set_e_position(current_position[E_AXIS]);
+		current_position[E_AXIS]-=4;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 2400/60, active_extruder);//Purge
+		st_synchronize();
+		if(active_extruder==0){
+			
+			current_position[X_AXIS]+=20;
+			}else if(active_extruder==1){
+			current_position[X_AXIS]-=20;
+		}
+		
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 12000/60, active_extruder);// X fast travel
+		st_synchronize();
+		if(active_extruder==0){
+			
+			current_position[X_AXIS]+=5;
+			}else if(active_extruder==1){
+			current_position[X_AXIS]-=5;
+		}
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1800/60, active_extruder);// X slow travel
+		st_synchronize();
+	}
+}
 inline void gcode_M999(){
 	Stopped = false;
 	lcd_reset_alert_level();
@@ -7253,6 +7312,7 @@ inline void gcode_M851(){
 #pragma region TCODES
 inline void gcode_T0_T1(){
 	tmp_extruder = code_value();
+	time_inactive_extruder[active_extruder]=0;
 	if(tmp_extruder >= EXTRUDERS) {
 		SERIAL_ECHO_START;
 		SERIAL_ECHO("T");
@@ -8001,6 +8061,10 @@ void process_commands()
 			case 605: // Set dual x-carriage movement mode:
 			gcode_M605();
 			break;	
+
+			case 800: // M800 Smart purge
+			gcode_M800();
+			break;
 
 			case 907: // M907 Set digital trimpot motor current using axis codes.
 			gcode_M907();

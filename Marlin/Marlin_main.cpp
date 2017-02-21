@@ -834,12 +834,12 @@ void setup()
 				if(version_number < 122 || VERSION_NUMBER < version_number){
 					Config_ResetDefault();
 					version_number = VERSION_NUMBER;
-					FLAG_First_Start_Wizard==888;
+					FLAG_First_Start_Wizard=888;
 					Config_StoreSettings();
 					}else if(VERSION_NUMBER != version_number){
 					Config_ResetDefault();
 					version_number = VERSION_NUMBER;
-					FLAG_First_Start_Wizard==888;
+					FLAG_First_Start_Wizard=888;
 					Config_StoreSettings();
 				}
 				
@@ -6700,13 +6700,15 @@ inline void gcode_M307(){
 	float temp = max((float)print_temp_l,(float)print_temp_r);
 	int e=0;
 	int c=10;
+	float kp=25.0;
 	if (code_seen('E')) {
 		e = code_value();
 		if(e==0) temp = float(print_temp_l);
 		else  temp = float(print_temp_r);
 	}
 	if (code_seen('S')) temp = code_value();
-	PID_autotune_Save(temp, e, c);
+	if (code_seen('P')) kp = code_value();
+	PID_autotune_Save(temp, e, c, kp);
 	Config_StoreSettings();
 	SERIAL_PROTOCOL(MSG_OK);
 	SERIAL_PROTOCOL(" p:");

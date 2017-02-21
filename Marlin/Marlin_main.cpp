@@ -7235,33 +7235,7 @@ inline void gcode_M800(){ //Smart purge
 		current_position[E_AXIS]+=purge_distance;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], Speed/60, active_extruder);//Purge
 		st_synchronize();
-		plan_set_e_position(current_position[E_AXIS]);
-		/*
-		current_position[E_AXIS]-=R;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 2400/60, active_extruder);//Retract
-		st_synchronize();
-		if(active_extruder==0){
-			
-		current_position[X_AXIS]+=20;
-		}else if(active_extruder==1){
-		current_position[X_AXIS]-=20;	
-		}
-		
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 12000/60, active_extruder);// X fast travel
-		st_synchronize();
-		if(active_extruder==0){
-			
-			current_position[X_AXIS]+=5;
-			}else if(active_extruder==1){
-			current_position[X_AXIS]-=5;
-		}
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1800/60, active_extruder);// X slow travel
-		st_synchronize();
-		
-		*/
-		
-		
-		
+				
 		time_inactive_extruder[active_extruder]= 0;
 		
 		

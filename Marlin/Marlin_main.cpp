@@ -835,10 +835,12 @@ void setup()
 				if(version_number < 122 || VERSION_NUMBER < version_number){
 					Config_ResetDefault();
 					version_number = VERSION_NUMBER;
+					FLAG_First_Start_Wizard==888;
 					Config_StoreSettings();
 					}else if(VERSION_NUMBER != version_number){
 					Config_ResetDefault();
 					version_number = VERSION_NUMBER;
+					FLAG_First_Start_Wizard==888;
 					Config_StoreSettings();
 				}
 				

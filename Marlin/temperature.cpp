@@ -328,7 +328,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
 	#endif
   }
 }
-void PID_autotune_Save(float temp, int extruder, int ncycles)
+void PID_autotune_Save(float temp, int extruder, int ncycles, float K_p)
 {
   float input = 0.0;
   int cycles=0;
@@ -369,7 +369,7 @@ void PID_autotune_Save(float temp, int extruder, int ncycles)
      bias = d = (PID_MAX)/2;
   }
  for(;;) {
-
+	
     if(temp_meas_ready == true) { // temp sample ready
       updateTemperaturesFromRawValues();
 
@@ -409,7 +409,8 @@ void PID_autotune_Save(float temp, int extruder, int ncycles)
               Tu = ((float)(t_low + t_high)/1000.0);
               SERIAL_PROTOCOLPGM(" Ku: "); SERIAL_PROTOCOL(Ku);
               SERIAL_PROTOCOLPGM(" Tu: "); SERIAL_PROTOCOLLN(Tu);
-              Kp[extruder] = 0.6*Ku;
+              //Kp[extruder] = 0.6*Ku;
+			  Kp[extruder] = K_p;
               Ki[extruder] = 2*Kp[extruder]/Tu;
               Kd[extruder] = Kp[extruder]*Tu/8;
 			  
@@ -441,6 +442,11 @@ void PID_autotune_Save(float temp, int extruder, int ncycles)
             soft_pwm[extruder] = (bias + d) >> 1;
           cycles++;
           min=temp;
+		  char buffer[25];
+		  int percentage = 0;
+		  percentage = 100*((extruder*ncycles)+cycles-1)/(ncycles*2);
+		  sprintf(buffer, "%d%%", percentage);
+		  genie.WriteStr(STRING_ADJUSTING_TEMPERATURES,buffer);
         }
       } 
     }
@@ -938,19 +944,19 @@ void check_termistors_connections()
 		static bool message_showedbed = false;
 		if(!message_showed){
 			
-			if(tHotend < 5 || tHotend > 340){
+			if(tHotend < 5 || tHotend > HEATER_0_MAXTEMP + 15){
 				times_failuret0++;
 				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_81);
 				}else{
 				if(times_failureb > 0)times_failuret0--;
 			}
-			if(tHotend1 < 5 || tHotend1 > 340){
+			if(tHotend1 < 5 || tHotend1 > HEATER_1_MAXTEMP + 15){
 				times_failuret1++;
 				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_82);
 				}else{
 				if(times_failureb > 0)times_failuret1--;
 			}
-			if(tBed < 5 || tBed > 340){
+			if(tBed < 5 || tBed > BED_MAXTEMP + 15){
 				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_83);
 				times_failureb++;
 				}else{
@@ -972,7 +978,7 @@ void check_termistors_connections()
 					card.sdispaused = false;
 					
 					cancel_heatup = true;
-					dobloking = false;
+					doblocking = false;
 					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
 					processing_error = true;
 					
@@ -993,7 +999,7 @@ void check_termistors_connections()
 					card.sdispaused = false;
 					cancel_heatup = true;
 					
-					dobloking = false;
+					doblocking = false;
 					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
 					processing_error = true;
 					
@@ -1019,7 +1025,7 @@ void check_termistors_connections()
 					card.sdispaused = false;
 					
 					cancel_heatup = true;
-					dobloking = false;
+					doblocking = false;
 					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
 					processing_error = true;
 					

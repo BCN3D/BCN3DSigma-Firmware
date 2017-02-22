@@ -151,7 +151,35 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,log_X1_mmdone);
   EEPROM_WRITE_VAR(i,log_Y_mmdone);
   EEPROM_WRITE_VAR(i,log_E0_mmdone);
-  EEPROM_WRITE_VAR(i,log_E1_mmdone);    
+  EEPROM_WRITE_VAR(i,log_E1_mmdone);
+  EEPROM_WRITE_VAR(i,FLAG_First_Start_Wizard);
+  #ifdef RECOVERY_PRINT
+	EEPROM_WRITE_VAR(i,saved_print_flag);
+    EEPROM_WRITE_VAR(i,saved_x_position);
+    EEPROM_WRITE_VAR(i,saved_y_position);
+    EEPROM_WRITE_VAR(i,saved_z_position);
+    EEPROM_WRITE_VAR(i,saved_tool_active);
+    EEPROM_WRITE_VAR(i,saved_e_position);
+    EEPROM_WRITE_VAR(i,saved_fileposition);
+    EEPROM_WRITE_VAR(i,saved_temp1);
+    EEPROM_WRITE_VAR(i,saved_temp0);
+    EEPROM_WRITE_VAR(i,saved_tempbed);
+    EEPROM_WRITE_VAR(i,saved_fanlayer);
+	EEPROM_WRITE_VAR(i,saved_feedmulti);
+    EEPROM_WRITE_VAR(i,saved_workDir_vector_lenght);
+    EEPROM_WRITE_VAR(i,saved_workDir_vector[0]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[1]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[2]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[3]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[4]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[5]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[6]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[7]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[8]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[9]);
+	EEPROM_WRITE_VAR(i,acceleration_old);
+	EEPROM_WRITE_VAR(i,version_number);
+   #endif 
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver2); // validate data
@@ -298,53 +326,76 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 
 	} 
 #endif
-
+#ifndef DISABLE_M503
+void Config_PrintSAVESettings()
+{  // Always have this function, even with EEPROM_SETTINGS disabled, the current values will be shown
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("SAVE PRINT LOG:");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR(", saved_x_position: " ,(float)saved_x_position);
+	SERIAL_ECHOPAIR(", saved_y_position: " ,(float)saved_y_position);
+	SERIAL_ECHOPAIR(", saved_z_position: " ,(float)saved_z_position);
+	SERIAL_ECHOPAIR(", saved_tool_active: " ,(unsigned long)saved_tool_active);
+	SERIAL_ECHOPAIR(", saved_e_position: " ,(float)saved_e_position);
+	SERIAL_ECHOPAIR(", saved_fileposition: " ,(unsigned long)saved_fileposition);
+	SERIAL_ECHOPAIR(", saved_temp1: " ,(float)saved_temp1);
+	SERIAL_ECHOPAIR(", saved_temp0: " ,(float)saved_temp0);
+	SERIAL_ECHOPAIR(", saved_tempbed: " ,(float)saved_tempbed);
+	SERIAL_ECHOPAIR(", saved_fanlayer: " ,(float)saved_fanlayer);
+	SERIAL_ECHOPAIR(", saved_feedrate: " ,(float)saved_feedmulti);
+	SERIAL_ECHOLN("");
+	
+	
+	
+	
+}
+#endif
 
 #ifdef EEPROM_SETTINGS
 void Config_RetrieveSettings()
 {
-    int i=EEPROM_OFFSET;
-    char stored_ver[4];
-    char ver[4]=EEPROM_VERSION;
-    EEPROM_READ_VAR(i,stored_ver); //read stored version
+	int i=EEPROM_OFFSET;
+	char stored_ver[4];
+	char ver[4]=EEPROM_VERSION;
+	EEPROM_READ_VAR(i,stored_ver); //read stored version
 	
-    //  SERIAL_ECHOLN("Version: [" << ver << "] Stored version: [" << stored_ver << "]");
-    if (strncmp(ver,stored_ver,3) == 0)
-    {
-        // version number match
-        EEPROM_READ_VAR(i,axis_steps_per_unit);
-        EEPROM_READ_VAR(i,max_feedrate);  
-        EEPROM_READ_VAR(i,max_acceleration_units_per_sq_second);
-        
-        // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
+	//  SERIAL_ECHOLN("Version: [" << ver << "] Stored version: [" << stored_ver << "]");
+	if (strncmp(ver,stored_ver,3) == 0)
+	{
+		// version number match
+		EEPROM_READ_VAR(i,axis_steps_per_unit);
+		EEPROM_READ_VAR(i,max_feedrate);
+		EEPROM_READ_VAR(i,max_acceleration_units_per_sq_second);
+		
+		// steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
 		reset_acceleration_rates();
-        
-        EEPROM_READ_VAR(i,acceleration);
-        EEPROM_READ_VAR(i,retract_acceleration);
-        EEPROM_READ_VAR(i,minimumfeedrate);
-        EEPROM_READ_VAR(i,mintravelfeedrate);
-        EEPROM_READ_VAR(i,minsegmenttime);
-        EEPROM_READ_VAR(i,max_xy_jerk);
-        EEPROM_READ_VAR(i,max_z_jerk);
-        EEPROM_READ_VAR(i,max_e_jerk);
-        EEPROM_READ_VAR(i,add_homing);
-        #ifdef DELTA
+		
+		EEPROM_READ_VAR(i,acceleration);
+		EEPROM_READ_VAR(i,retract_acceleration);
+		EEPROM_READ_VAR(i,minimumfeedrate);
+		EEPROM_READ_VAR(i,mintravelfeedrate);
+		EEPROM_READ_VAR(i,minsegmenttime);
+		EEPROM_READ_VAR(i,max_xy_jerk);
+		EEPROM_READ_VAR(i,max_z_jerk);
+		EEPROM_READ_VAR(i,max_e_jerk);
+		EEPROM_READ_VAR(i,add_homing);
+		#ifdef DELTA
 		EEPROM_READ_VAR(i,endstop_adj);
 		EEPROM_READ_VAR(i,delta_radius);
 		EEPROM_READ_VAR(i,delta_diagonal_rod);
 		EEPROM_READ_VAR(i,delta_segments_per_second);
-        #endif
-        #ifndef ULTIPANEL
-        int plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed;
-        int absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed;
-        #endif
-        EEPROM_READ_VAR(i,plaPreheatHotendTemp);
-        EEPROM_READ_VAR(i,plaPreheatHPBTemp);
-        EEPROM_READ_VAR(i,plaPreheatFanSpeed);
-        EEPROM_READ_VAR(i,absPreheatHotendTemp);
-        EEPROM_READ_VAR(i,absPreheatHPBTemp);
-        EEPROM_READ_VAR(i,absPreheatFanSpeed);
-        
+		#endif
+		#ifndef ULTIPANEL
+		int plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed;
+		int absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed;
+		#endif
+		EEPROM_READ_VAR(i,plaPreheatHotendTemp);
+		EEPROM_READ_VAR(i,plaPreheatHPBTemp);
+		EEPROM_READ_VAR(i,plaPreheatFanSpeed);
+		EEPROM_READ_VAR(i,absPreheatHotendTemp);
+		EEPROM_READ_VAR(i,absPreheatHPBTemp);
+		EEPROM_READ_VAR(i,absPreheatFanSpeed);
+		
 		EEPROM_READ_VAR(i,zprobe_zoffset);
 		
 		//Extruder Offset
@@ -372,19 +423,19 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,old_print_temp_r);
 		EEPROM_READ_VAR(i,old_insert_temp_r);
 		EEPROM_READ_VAR(i,old_remove_temp_r);
-		EEPROM_READ_VAR(i,old_bed_temp_r);	
+		EEPROM_READ_VAR(i,old_bed_temp_r);
 		
 		//Language
-//		EEPROM_READ_VAR(i,language);
+		//		EEPROM_READ_VAR(i,language);
 		
-         #ifdef PIDTEMP
-        // do not need to scale PID values as the values in EEPROM are already scaled		
-			EEPROM_READ_VAR(i,Kp[0]);
-			EEPROM_READ_VAR(i,Ki[0]);
-			EEPROM_READ_VAR(i,Kd[0]);
-			EEPROM_READ_VAR(i,Kp[1]);
-			EEPROM_READ_VAR(i,Ki[1]);
-			EEPROM_READ_VAR(i,Kd[1]);
+		#ifdef PIDTEMP
+		// do not need to scale PID values as the values in EEPROM are already scaled
+		EEPROM_READ_VAR(i,Kp[0]);
+		EEPROM_READ_VAR(i,Ki[0]);
+		EEPROM_READ_VAR(i,Kd[0]);
+		EEPROM_READ_VAR(i,Kp[1]);
+		EEPROM_READ_VAR(i,Ki[1]);
+		EEPROM_READ_VAR(i,Kd[1]);
 		#endif
 		
 		EEPROM_READ_VAR(i,log_prints);
@@ -394,45 +445,71 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,log_hours_print);
 		EEPROM_READ_VAR(i,log_max_bed);
 		
-        #ifndef DOGLCD
-        int lcd_contrast;
-        #endif
-        EEPROM_READ_VAR(i,lcd_contrast);
+		#ifndef DOGLCD
+		int lcd_contrast;
+		#endif
+		EEPROM_READ_VAR(i,lcd_contrast);
 		#ifdef SCARA
 		EEPROM_READ_VAR(i,axis_scaling);
 		#endif
-		 EEPROM_READ_VAR(i,UI_SerialID0);        
-		 EEPROM_READ_VAR(i,UI_SerialID1);        
-		 EEPROM_READ_VAR(i,UI_SerialID2);  
-		 EEPROM_READ_VAR(i,log_minutes_lastprint);    
-		 EEPROM_READ_VAR(i,log_hours_lastprint); 
-		 EEPROM_READ_VAR(i,log_X0_mmdone);
-		 EEPROM_READ_VAR(i,log_X1_mmdone);
-		 EEPROM_READ_VAR(i,log_Y_mmdone);
-		 EEPROM_READ_VAR(i,log_E0_mmdone);
-		 EEPROM_READ_VAR(i,log_E1_mmdone);
-		 
-		       
+		EEPROM_READ_VAR(i,UI_SerialID0);
+		EEPROM_READ_VAR(i,UI_SerialID1);
+		EEPROM_READ_VAR(i,UI_SerialID2);
+		EEPROM_READ_VAR(i,log_minutes_lastprint);
+		EEPROM_READ_VAR(i,log_hours_lastprint);
+		EEPROM_READ_VAR(i,log_X0_mmdone);
+		EEPROM_READ_VAR(i,log_X1_mmdone);
+		EEPROM_READ_VAR(i,log_Y_mmdone);
+		EEPROM_READ_VAR(i,log_E0_mmdone);
+		EEPROM_READ_VAR(i,log_E1_mmdone);
+		EEPROM_READ_VAR(i,FLAG_First_Start_Wizard);
+		#ifdef RECOVERY_PRINT
+		EEPROM_READ_VAR(i,saved_print_flag);
+		EEPROM_READ_VAR(i,saved_x_position);
+		EEPROM_READ_VAR(i,saved_y_position);
+		EEPROM_READ_VAR(i,saved_z_position);
+		EEPROM_READ_VAR(i,saved_tool_active);
+		EEPROM_READ_VAR(i,saved_e_position);
+		EEPROM_READ_VAR(i,saved_fileposition);
+		EEPROM_READ_VAR(i,saved_temp1);
+		EEPROM_READ_VAR(i,saved_temp0);
+		EEPROM_READ_VAR(i,saved_tempbed);
+		EEPROM_READ_VAR(i,saved_fanlayer);
+		EEPROM_READ_VAR(i,saved_feedmulti);
+		EEPROM_READ_VAR(i,saved_workDir_vector_lenght);
+		EEPROM_READ_VAR(i,saved_workDir_vector[0]);
+		EEPROM_READ_VAR(i,saved_workDir_vector[1]);
+		EEPROM_READ_VAR(i,saved_workDir_vector[2]);
+		EEPROM_READ_VAR(i,saved_workDir_vector[3]);
+		EEPROM_READ_VAR(i,saved_workDir_vector[4]);
+		EEPROM_READ_VAR(i,saved_workDir_vector[5]);
+		EEPROM_READ_VAR(i,saved_workDir_vector[6]);
+		EEPROM_READ_VAR(i,saved_workDir_vector[7]);
+		EEPROM_READ_VAR(i,saved_workDir_vector[8]);
+		EEPROM_READ_VAR(i,saved_workDir_vector[9]);
+		EEPROM_READ_VAR(i,acceleration_old);
+		EEPROM_READ_VAR(i,version_number);
+		#endif RECOVERY_PRINT
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
-        SERIAL_ECHO_START;
+		SERIAL_ECHO_START;
 		if (UI_SerialID0 <= 0 || UI_SerialID0 >= 123 || UI_SerialID2 >= 9999 || UI_SerialID1 >= 999999 || UI_SerialID2 <= 0 || UI_SerialID1 <= 0){
 			UI_SerialID0 = 0;
 			UI_SerialID1 = 0;
 			UI_SerialID2 = 0;
 		}
 		
-        SERIAL_ECHOLNPGM("Stored settings retrieved");
-    }
-    else
-    {		
-        Config_ResetDefault();
+		SERIAL_ECHOLNPGM("Stored settings retrieved");
+	}
+	else
+	{
+		Config_ResetDefault();
 		Config_Reset_Calib();
-		Config_StoreSettings();		
-    }
-    #ifdef EEPROM_CHITCHAT
-      Config_PrintSettings();
-    #endif
+		Config_StoreSettings();
+	}
+	#ifdef EEPROM_CHITCHAT
+	Config_PrintSettings();
+	#endif
 }
 #endif
 
@@ -496,12 +573,7 @@ void Config_ResetDefault()
 		absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
 		absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
 	#endif
-	#ifdef ENABLE_AUTO_BED_LEVELING
-		zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
-	#endif
-	#ifdef Z_SIGMA_HOME
-		zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
-	#endif
+	
 	if (UI_SerialID0 <= 0 || UI_SerialID0 >= 123 || UI_SerialID2 >= 9999 || UI_SerialID1 >= 999999 || UI_SerialID2 <= 0 || UI_SerialID1 <= 0){
 		UI_SerialID0 = 0;
 		UI_SerialID1 = 0;
@@ -512,6 +584,7 @@ void Config_ResetDefault()
 	log_X0_mmdone = 0;
 	log_Y_mmdone = 0;
 	log_X0_mmdone = 0;
+	FLAG_First_Start_Wizard = 1888;
 /*
 	//Extruder Offset
 	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
@@ -547,9 +620,14 @@ void Config_Reset_Calib(){
 		//Extruder Offset
 		//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
 		extruder_offset[X_AXIS][RIGHT_EXTRUDER] = X2_MAX_POS;
-		extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = -0.15;
-		extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = -0.1;
-
+		extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = 0.25;
+		extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = 0.08;
+		#ifdef ENABLE_AUTO_BED_LEVELING
+		zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+		#endif
+		#ifdef Z_SIGMA_HOME
+		zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
+		#endif
 		
 		#ifdef PIDTEMP
 			Kp[0] = DEFAULT_Kp;
@@ -586,6 +664,7 @@ void Config_Reset_Statistics(int data){
 		log_Y_mmdone = 0;
 		log_E0_mmdone = 0;
 		log_E1_mmdone = 0;
+		FLAG_First_Start_Wizard = 1888;
 		SERIAL_PROTOCOLLNPGM("STATISTICS RESET");
 	}	
 }
@@ -600,12 +679,7 @@ void Config_Set_UISerialNumber(int input0, long input1, int input2){
 	}
 }
 void Change_ConfigTemp_LeftHotend(int i_temp_l, int r_temp_l, int p_temp_l, int b_temp_l){
-	/*
-		int insert_temp_l;
-		int remove_temp_l;
-		int print_temp_l;
-		int bed_temp_l;*/ //BED_MINTEMP BED_MAXTEMP
-	
+		
 	if (i_temp_l > HEATER_0_MAXTEMP ||  i_temp_l < EXTRUDE_MINTEMP){
 		SERIAL_PROTOCOLLNPGM("Values out of range");
 	}
@@ -635,10 +709,6 @@ void Change_ConfigTemp_LeftHotend(int i_temp_l, int r_temp_l, int p_temp_l, int 
 }
 void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int b_temp_r){
 	
-	/*insert_temp_r;
-	remove_temp_r;
-	print_temp_r;
-	bed_temp_r;*/
 	if (i_temp_r > HEATER_0_MAXTEMP ||  i_temp_r < EXTRUDE_MINTEMP){
 		SERIAL_PROTOCOLLNPGM("Values out of range");
 	}

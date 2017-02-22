@@ -27,8 +27,11 @@
 //This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
-#define VERSION_STRING  "01-1.2.1"
-#define UI_SerialID  "XXX.XXXXXX.XXXX"
+#define VERSION_STRING  "01-1.2.2"
+//#define BUILD_DATE  "|M02.22"
+#define VERSION_NUMBER  122
+#define BUILD_DATE  " "
+#define UI_SerialID  "At Bottom Sticker"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
@@ -192,17 +195,17 @@
 #define BED_MINTEMP 5
 
 //To clean the extruder's the best temperature configuration
-#define	PLA_INSERT_TEMP			220
+#define	PLA_INSERT_TEMP			215
 #define	PLA_REMOVE_TEMP			170
 #define	PLA_PRINT_TEMP			215
 #define PLA_BED_TEMP			65
 
-#define	ABS_INSERT_TEMP			265
-#define	ABS_REMOVE_TEMP			265
-#define	ABS_PRINT_TEMP			265
+#define	ABS_INSERT_TEMP			260
+#define	ABS_REMOVE_TEMP			240
+#define	ABS_PRINT_TEMP			260
 #define ABS_BED_TEMP			90
 
-#define	PVA_INSERT_TEMP			200
+#define	PVA_INSERT_TEMP			190
 #define	PVA_REMOVE_TEMP			170
 #define	PVA_PRINT_TEMP			190
 #define PVA_BED_TEMP			65
@@ -489,7 +492,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#define X_MAX_POS 303.9//312 //Distance between extruders
+	#define X_MAX_POS 305.6//312 //Distance between extruders
 	//#define X_MAX_POS 210 //Bed X
 	#define X_MIN_POS 0
 	#define Y_MAX_POS 295
@@ -570,8 +573,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
   #define XY_TRAVEL_SPEED15 12000         // X and Y axis travel speed between probes, in mm/min  
 
-  #define Z_RAISE_BEFORE_PROBING 6    //How much the extruder will be raised before traveling to the first probing point.
-  #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
+  #define Z_RAISE_BEFORE_PROBING 5    //How much the extruder will be raised before traveling to the first probing point.
+  #define Z_RAISE_BETWEEN_PROBINGS 2.5  //How much the extruder will be raised when traveling from between next probing points
 
   //#define Z_PROBE_SLED // turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
   //#define SLED_DOCKING_OFFSET 5 // the extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
@@ -707,7 +710,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	
 	#define SIGMA_Z_HOME_TRAVEL_SPEED 13000
 	
-	#define Z_SIGMA_RAISE_BEFORE_HOMING 2//5
+	#define Z_SIGMA_RAISE_BEFORE_HOMING 10
 	#define Z_SIGMA_RAISE_AFTER_HOMING 5
 
 #endif
@@ -736,7 +739,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#if MOTHERBOARD == BCN3D_BOARD
 		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  17//20
 		#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
-		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  2.9//2.80//3.4 //It is negative, it is compensated
+		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  2.7//2.80//3.4 //It is negative, it is compensated
 	#endif
 	
 	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-13.5
@@ -744,34 +747,35 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//2.90
 	
 	//Left extruder probe point
-	#define X_SIGMA_PROBE_1_LEFT_EXTR 58
-	//#define X_SIGMA_PROBE_1_LEFT_EXTR 3
-	#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
+	#define X_SIGMA_PROBE_1_LEFT_EXTR 55
+	#define Y_SIGMA_PROBE_1_LEFT_EXTR 265
+	//#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_LEFT_EXTR 58
-	//#define X_SIGMA_PROBE_2_LEFT_EXTR 3
-	#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
+	#define X_SIGMA_PROBE_2_LEFT_EXTR 55
+	#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
+	//#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 	
-	#define X_SIGMA_PROBE_3_LEFT_EXTR 251
-	//#define X_SIGMA_PROBE_3_LEFT_EXTR 204
-	#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
+	#define X_SIGMA_PROBE_3_LEFT_EXTR 254
+	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
+	//#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 	
 	//Right extruder probe point
-	#define X_SIGMA_PROBE_1_RIGHT_EXTR 251//254.5
-	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 254
+	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 265
+	//#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_RIGHT_EXTR 251//255
-	//#define X_SIGMA_PROBE_2_RIGHT_EXTR 204
-	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
+	#define X_SIGMA_PROBE_2_RIGHT_EXTR 254
+	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
+	//#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 	
-	#define X_SIGMA_PROBE_3_RIGHT_EXTR 58
-	//#define X_SIGMA_PROBE_3_RIGHT_EXTR 3
-	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
+	#define X_SIGMA_PROBE_3_RIGHT_EXTR 55
+	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
+	//#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
 #endif
 
 #ifdef  SIGMA_BED_AUTOCALIB
 	//Calibration WIZARD --------
-	#define PAS_M5 0.8
+	#define PAS_M5 0.85
 	//Screw positions on BED for
 	#define CARGOL_1_X  156;
 	//#define CARGOL_1_X  104;
@@ -840,7 +844,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define NUM_LINES 10
 //#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
-#define HOMING_FEEDRATE {90*60, 90*60, 15*60, 0} ///{75*60, 65*60, 6*60, 0}  // old homing speeds (mm/min)
+#define HOMING_FEEDRATE {60*60, 90*60, 15*60, 0} ///{75*60, 65*60, 6*60, 0}  // old homing speeds (mm/min)
 #define CALIB_FEEDRATE_ZAXIS 6*60 // bed homing speeds (mm/min)
 // default settings if screen not defined
 #ifndef SIGMA_TOUCH_SCREEN
@@ -866,14 +870,15 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 
-#define DEFAULT_MAX_FEEDRATE          {250, 180, 15, 60}    // (mm/sec)
+#define DEFAULT_MAX_FEEDRATE          {200, 200, 15, 60}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {2250,2250,80,800}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
-
+#define DEFAULT_HYSTERESIS_MM         0, 0, 0, 0  // X, Y, Z, E hysteresis in mm. These are the extra distances that are performed when an axis changes direction to compensate for any mechanical hysteresis your printer has.
+//#define DEFAULT_HYSTERESIS
 //#define DEFAULT_MAX_ACCELERATION      {2000,2000,50,1000}
 //#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
 //#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum star
 
-#define DEFAULT_ACCELERATION          1500    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_ACCELERATION          2000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 //#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 //#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
@@ -1124,52 +1129,83 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
 
 
-#define LISTNUMSDFILES 5
-#define PURGE_TEMP_HYSTERESIS 10
-#define CHANGE_FIL_TEMP_HYSTERESIS 10
-#define NYLON_TEMP_HYSTERESIS 5
-#define SETUP_G70 0
+/////////////////////////////////BCN3D SIGMA  CONFIG////////////////////////////////////////////////////////////////////
 
-#define G69_RETRACK 4
-#define G69_XYMOVE 5
-#define G70_PURGE 10
+//////	SDFILES LISTING
 
-#define NYLON_TEMP_HEATUP_THRESHOLD 260
-#define NYLON_TEMP_COOLDOWN_THRESHOLD 60
+#define SDFILES_LIST_NUM				 5
+#define SDFILES_LIST_GCODE_LENGHT		 20		//String GcodePrinting
 
+//////	PURGE
+
+#define PURGE_TEMP_HYSTERESIS		 10			//(mm)
+#define PURGE_DISTANCE_INSERTED		 30			//(mm)
+
+//////	PID ITERATIONS AUTOTUNE
+
+#define AUTOTUNE_ITERATIONS		 10			// iterations
+
+//////	CHANGE FILAMENT
+
+#define CHANGE_FIL_TEMP_HYSTERESIS		 10				//(ºC)
+
+//////	NYLON CLEANING
+
+#define NYLON_TEMP_HYSTERESIS				 5			//(ºC)
+#define NYLON_TEMP_HEATUP_THRESHOLD			 260		//(ºC)
+#define NYLON_TEMP_COOLDOWN_THRESHOLD		 60			//(ºC)
+
+//////	PAUSE PRINT
+
+
+#define PAUSE_G69_RETRACT		 4				//(mm)
+#define PAUSE_G69_XYMOVE		 5				//(mm)
+#define PAUSE_G70_ZMOVE			 2				//(mm)
+#define PAUSE_G70_PURGE			 10				//(mm)
+
+//////	THERMISTOR LECTURE PROTECTION 
 
 #define	THERMAL_LECTURE_FAILURE
 
-//String GcodePrinting
-
-#define StringGcodeLength 20
-
-///////GIFs
-#define FramerateGifs   40   /// 40ms------> 25fps
-
-#define PURGE_DISTANCE_INSERTED 30// in mm
-
-#define FramesGifSuccess   40
-#define FramesGifNylonStep3   22
-#define FramesGifPurgeLoad   35    
-#define FramesBedScrew   43     
-#define FramesZCalib   49
-#define FramesZSet   49
-#define FramesTest   36
-#define FramesProcessing   15
-#define FramesChangefilamentTemps   43
-#define FramesAdjustingTemps   44
-#define FramesNylonTemps   43
-#define FramesError   44
-#define FramesPreheat   41
-
-//#define SCREENTEST
+//////	INACTIVITY SHUTDOWN HEATING
 
 #define TIMERCOOLDOWN 10*60 // 10min
 
+////// PRINTING RECOVERY
+
+#define RECOVERY_PRINT
+
+////// FIRST RUN WIZARD
+
+#define FIRST_START_WIZARD
+
+///////	GIFs SETUP 
+
+//	FRAME RATE
+
+#define GIF_FRAMERATE				40   /// 40ms------> 25fps
+
+//NUMBER OF FRAMES PER GIF
+
+#define GIF_FRAMES_SUCCESS				40
+#define GIF_FRAMES_NYLONSTEP3			22
+#define GIF_FRAMES_PURGELOAD			35    
+#define GIF_FRAMES_BEDSCREW				43     
+#define GIF_FRAMES_ZCALIB				49
+#define GIF_FRAMES_ZSET					49
+#define GIF_FRAMES_CALIBTEST			36
+#define GIF_FRAMES_PROCESSING			15
+#define GIF_FRAMES_CHANGEFILAMENTTEMP   43
+#define GIF_FRAMES_ADJUSTINGTEMPS		44
+#define GIF_FRAMES_NYLONTEMPS			43
+#define GIF_FRAMES_ERROR				44
+#define GIF_FRAMES_PREHEAT				41
+#define GIF_FRAMES_INIT_FIRST_RUN		124
+
+
+//#define SCREENTEST
+
 //#define ErroWindowEnable
-
-
 
 
 #include "Configuration_adv.h"

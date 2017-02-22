@@ -57,7 +57,7 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "language.h"
-
+#include "Hysteresis.h"
 //===========================================================================
 //=============================public variables ============================
 //===========================================================================
@@ -72,6 +72,7 @@ float axis_steps_per_unit[4];
 unsigned long max_acceleration_units_per_sq_second[4]; // Use M201 to override by software
 float minimumfeedrate;
 float acceleration;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
+float acceleration_old;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
 float retract_acceleration; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
 float max_xy_jerk; //speed than can be stopped at once, if i understand correctly.
 float max_z_jerk;
@@ -484,10 +485,10 @@ void check_axes_activity()
       block_index = (block_index+1) & (BLOCK_BUFFER_SIZE - 1);
     }
   }
-  if((DISABLE_X) && (x_active == 0) && (!dobloking)) disable_x();
-  if((DISABLE_Y) && (y_active == 0) && (!dobloking)) disable_y();
-  if((DISABLE_Z) && (z_active == 0) && (!dobloking)) disable_z();
-  if((DISABLE_E) && (e_active == 0) && (!dobloking))
+  if((DISABLE_X) && (x_active == 0) && (!doblocking)) disable_x();
+  if((DISABLE_Y) && (y_active == 0) && (!doblocking)) disable_y();
+  if((DISABLE_Z) && (z_active == 0) && (!doblocking)) disable_z();
+  if((DISABLE_E) && (e_active == 0) && (!doblocking))
   {
     disable_e0();
     disable_e1();
@@ -556,10 +557,10 @@ void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
 #endif  //ENABLE_AUTO_BED_LEVELING
 {
-	//#ifdef HYSTERESIS_H
-	////Hysteresis correction if needed
-	//hysteresis.InsertCorrection(x,y,z,e);
-	//#endif
+	#ifdef DEFAULT_HYSTERESIS
+	hysteresis.InsertCorrection(x,y,z,e);
+	#endif
+	
 	
   // Calculate the buffer head after we push this byte
 	int next_buffer_head = next_block_index(block_buffer_head);

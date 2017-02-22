@@ -856,7 +856,7 @@ void setup()
 							card.getfilename(saved_workDir_vector[i]);
 							workDir_vector[i]=saved_workDir_vector[i];
 							if (!card.filenameIsDir){
-								SERIAL_PROTOCOLLNPGM("Te pille");
+								SERIAL_PROTOCOLLNPGM("gcode found");
 								successSD = true;
 								}else{
 								if (card.chdir(card.filename)!=-1){
@@ -903,6 +903,7 @@ void setup()
 				}else{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				}
+			
 						
 		#endif	
 	#endif
@@ -1818,7 +1819,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		
 		time_inactive_extruder[!active_extruder] += 1;// 1 second
 		waitPeriod_inactive=1000+millis();
-	}
+	}	
 	
 	if(card.sdispaused){
 		previous_millis_cmd = millis();
@@ -6709,7 +6710,7 @@ inline void gcode_M307(){
 	float temp = max((float)print_temp_l,(float)print_temp_r);
 	int e=0;
 	int c=10;
-	int kp = 25;
+	float kp=25.0;
 	if (code_seen('E')) {
 		e = code_value();
 		if(e==0) temp = float(print_temp_l);
@@ -7235,11 +7236,10 @@ inline void gcode_M800(){ //Smart purge
 		current_position[E_AXIS]+=purge_distance;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], Speed/60, active_extruder);//Purge
 		st_synchronize();
-				
 		time_inactive_extruder[active_extruder]= 0;
 		
 		
-	}else{
+		}else{
 		current_position[E_AXIS]+=1;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
 		st_synchronize();
@@ -8061,7 +8061,7 @@ void process_commands()
 			gcode_M605();
 			break;	
 
-			case 800: // M907 Set digital trimpot motor current using axis codes.
+			case 800: // M800 Smart purge
 			gcode_M800();
 			break;
 

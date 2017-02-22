@@ -61,6 +61,7 @@ bool FLAG_PurgeSelect1 = false;//Retract
 bool FLAG_LoadSelect0 = false;//purge
 bool FLAG_UnloadSelect1 = false;//Retract
 bool FLAG_SavePrintCommand = false;
+int Temp_ChangeFilament_Saved = 0;
 int Tref1 = 0;
 int Tfinal1 = 0;
 int  print_setting_tool = 2;
@@ -485,9 +486,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						which_extruder=1;
 					}
-					
-					if(which_extruder == 0) setTargetHotend(max(print_temp_r,old_print_temp_l),which_extruder);
-					else setTargetHotend(max(print_temp_r,old_print_temp_r),which_extruder);
+					Temp_ChangeFilament_Saved = target_temperature[which_extruder];
+					if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
+					else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
 					processing = true;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_REMOVE_MENU_FILAMENT,0);
@@ -842,6 +843,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						home_made = false;
 						processing=true;
 						home_axis_from_code(true,true,false);*/
+						setTargetHotend((float)Temp_ChangeFilament_Saved, which_extruder);
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
 						processing_success = true;
 						
@@ -3038,6 +3040,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//Extruder Calibrations-------------------------------------------------
 					else if (Event.reportObject.index == BUTTON_CAL_FULL)
 					{
+						
 						bed_calibration_times = 0;
 						if(saved_print_flag==1888){
 							saved_print_flag = 888;
@@ -3052,6 +3055,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if(!FLAG_CalibBedDone){  //Do g34
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							processing = true;
+							doblocking= true;
 							home_axis_from_code(true,true,true);
 							st_synchronize();
 							if(processing_error)return;
@@ -3251,6 +3255,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Config_StoreSettings();
 						}
 						processing = true;
+						doblocking = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						bed_calibration_times = 0;
 						FLAG_CalibFull = false;
@@ -3264,6 +3269,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_REDO_BED_CALIB )
 					{
 						processing = true;
+						doblocking = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						home_axis_from_code(true,true,false);
 						enquecommand_P((PSTR("T0")));
@@ -3284,6 +3290,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
 							}else{
 							processing = true;
+							doblocking = true;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							home_axis_from_code(true,true,false);
 							enquecommand_P((PSTR("T0")));
@@ -5081,6 +5088,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						processing = true;
+						doblocking = true;
 						home_axis_from_code(true,true,true);
 						st_synchronize();
 						if(processing_error)return;

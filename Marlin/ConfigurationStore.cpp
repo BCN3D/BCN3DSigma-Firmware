@@ -179,6 +179,8 @@ void Config_StoreSettings()
 	EEPROM_WRITE_VAR(i,saved_workDir_vector[9]);
 	EEPROM_WRITE_VAR(i,acceleration_old);
 	EEPROM_WRITE_VAR(i,version_number);
+	EEPROM_WRITE_VAR(i,bed_offset_left_screw);
+	EEPROM_WRITE_VAR(i,bed_offset_right_screw);
    #endif 
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
@@ -274,6 +276,12 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	 SERIAL_ECHOPAIR(" Y " ,extruder_offset[Y_AXIS][1]  );
 	 SERIAL_ECHOPAIR(" Z " ,extruder_offset[Z_AXIS][1]  );
 	 SERIAL_ECHOPAIR(" Z probe" ,zprobe_zoffset  );
+	 SERIAL_ECHOLN("");
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOLNPGM("Bed Offsets (mm):");
+	 SERIAL_ECHO_START;
+	 SERIAL_ECHOPAIR(" Bed left screw ",bed_offset_left_screw);
+	 SERIAL_ECHOPAIR(" Bed right screw " ,bed_offset_right_screw);
 	 SERIAL_ECHOLN("");
 	
 	 SERIAL_ECHO_START;
@@ -489,6 +497,8 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,saved_workDir_vector[9]);
 		EEPROM_READ_VAR(i,acceleration_old);
 		EEPROM_READ_VAR(i,version_number);
+		EEPROM_READ_VAR(i,bed_offset_left_screw);
+		EEPROM_READ_VAR(i,bed_offset_right_screw);
 		#endif RECOVERY_PRINT
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
@@ -497,6 +507,13 @@ void Config_RetrieveSettings()
 			UI_SerialID0 = 0;
 			UI_SerialID1 = 0;
 			UI_SerialID2 = 0;
+		}
+		if (bed_offset_left_screw <= -1.0 || bed_offset_left_screw >= 1.0 || bed_offset_right_screw >= 1.0 || bed_offset_right_screw <= -1.0){
+			bed_offset_left_screw = 0.0;
+			bed_offset_right_screw = 0.0;
+		}else if(isnan(bed_offset_left_screw) || isnan(bed_offset_right_screw)  ){
+			bed_offset_left_screw = 0.0;
+			bed_offset_right_screw = 0.0;
 		}
 		
 		SERIAL_ECHOLNPGM("Stored settings retrieved");
@@ -742,5 +759,17 @@ void Change_ConfigCalibration(float Xcalib, float Ycalib, float Zcalib, float Zp
 	extruder_offset[Y_AXIS][1]= Ycalib;
 	extruder_offset[Z_AXIS][1]= Zcalib;
 	zprobe_zoffset= Zprobecalib;
+	
+}
+void Change_ConfigBed_offset(float bed_left, float bed_right){
+	
+	if (bed_left <= -1.0 || bed_left >= 1.0 || bed_right >= 1.0 || bed_right <= -1.0){
+		bed_offset_left_screw = bed_offset_left_screw;
+		bed_offset_right_screw = bed_offset_right_screw;
+	}else{
+		bed_offset_left_screw = bed_left;
+		bed_offset_right_screw = bed_right;
+	}
+	
 	
 }

@@ -364,6 +364,8 @@ float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = {false, false, false};
 float zprobe_zoffset;
+float bed_offset_left_screw=0.0;
+float bed_offset_right_screw=0.0;
 
 //bools to control which kind of process are actually running
 
@@ -4347,8 +4349,8 @@ Serial.println(z_final_probe_3);
 ///Alejandro
 
 
-float dz2 = z_final_probe_2 - z_final_probe_1;
-float dz3 = z_final_probe_3 - z_final_probe_1;
+float dz2 = z_final_probe_2 - z_final_probe_1 + bed_offset_left_screw;
+float dz3 = z_final_probe_3 - z_final_probe_1 + bed_offset_right_screw;
 
 
 ////
@@ -6972,6 +6974,15 @@ inline void gcode_M530(){
 	Change_ConfigCalibration(Xcalib, Ycalib, Zcalib, Zprobecalib);
 	Config_StoreSettings();
 }
+inline void gcode_M531(){  //Set Bed Offset screw 
+	float bed_left, bed_right;
+	if (code_seen('L')) bed_left = code_value();
+	else bed_left = bed_offset_left_screw;
+	if (code_seen('R')) bed_right = code_value();
+	else bed_right = bed_offset_right_screw;
+	Change_ConfigBed_offset(bed_left, bed_right);
+	Config_StoreSettings();
+}
 inline void gcode_M535(){
 	int R=0, G=0, B=0;
 	if (code_seen('R')) R = (int)code_value();
@@ -8038,6 +8049,10 @@ void process_commands()
 					
 			case 530:  //right hotend
 			gcode_M530();
+			break;
+			
+			case 531:  //Set Bed Offset screw 
+			gcode_M531();
 			break;
 			
 			case 535:  

@@ -4349,8 +4349,8 @@ Serial.println(z_final_probe_3);
 ///Alejandro
 
 
-float dz2 = z_final_probe_2 - z_final_probe_1 + bed_offset_left_screw;
-float dz3 = z_final_probe_3 - z_final_probe_1 + bed_offset_right_screw;
+float dz2 = z_final_probe_2 - z_final_probe_1 - bed_offset_left_screw;
+float dz3 = z_final_probe_3 - z_final_probe_1 - bed_offset_right_screw;
 
 
 ////

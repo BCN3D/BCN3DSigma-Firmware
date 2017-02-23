@@ -5056,6 +5056,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						surfing_utilities = true;
 						Step_First_Start_Wizard = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORN_FIRST_RUN_WIZARD_STEP_1,0);
+						Config_ResetDefault();
+						Config_StoreSettings();
 					}
 					else if (Event.reportObject.index == BUTTON_FIRST_RUN_WIZARD_SKIP)
 					{

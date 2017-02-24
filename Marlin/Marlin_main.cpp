@@ -1097,7 +1097,41 @@ void thermal_error_screen_on(){
 	processing_test = false;
 	is_changing_filament = false;
 }
+float smartPurge_Distant(double A, double B, double T, double P, double E, int timeIdle){
+	
+	double a = T - 3*B +3*A;
+	double b = 3*B - 6*A;
+	double c = 3*A;
+	double d = - (double) timeIdle;
+	double Distance = 0.0;
+	double Discriminant = 18*a*b*c*d - 4*pow(b,3.)*d + pow(b,3.)*pow(c,2.) - 4*a*pow(c,3.) - 27*pow(c,3.)*pow(d,2.);
 
+	if (Discriminant >= 0){
+		Distance = E;
+	}
+	// in this case, curve takes more than one Y for each X. Wrong curve so default purge distance is used
+	
+	else{		// the curve is right
+		if ((double)timeIdle <= T){   // we're inside the curve
+			
+			double Disc0 =  pow(b,2)-3*a*c;
+			double Disc1 =  2*pow(b,3.) - 9*a*b*c + 27*pow(a,2.)*d;
+			double C_eq = pow(pow(Disc1,2.0)+4*pow(Disc0,3.0),0.5)/2.0;
+			double C_eq1 = (C_eq, 1/3.);
+			double x = (-1/(3.*a))*(b+C_eq+Disc0/C_eq1);
+			
+			Distance = pow(-2*P*x,3.) +pow(3*P*x,2.);
+		}
+		else{  //we're outside the curve
+			Distance = P;
+		}
+	}
+	
+	
+	return (float)Distance;
+	
+	
+}
 
 void update_screen_printing(){
 	static uint32_t waitPeriod = millis();

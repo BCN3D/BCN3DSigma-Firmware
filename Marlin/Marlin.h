@@ -235,6 +235,8 @@ extern float min_pos[3];
 extern float max_pos[3];
 extern bool axis_known_position[3];
 extern float zprobe_zoffset;
+extern float bed_offset_left_screw;
+extern float bed_offset_right_screw;
 extern int fanSpeed;
 #ifdef BARICUDA
 extern int ValvePressure;
@@ -434,5 +436,6 @@ extern void Config_Set_UISerialNumber(int input0, long input1, int input2);
 extern void Change_ConfigTemp_LeftHotend(int i_temp_l, int remove_temp_l, int p_temp_r, int b_temp_l);
 extern void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int b_temp_r);
 extern void Change_ConfigCalibration(float Xcalib, float Ycalib, float Zcalib, float Zprobecalib);
+extern void Change_ConfigBed_offset(float bed_left, float bed_right);
 extern void thermal_error_screen_on();
 #endif

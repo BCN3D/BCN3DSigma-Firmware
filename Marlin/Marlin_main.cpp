@@ -364,6 +364,8 @@ float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = {false, false, false};
 float zprobe_zoffset;
+float bed_offset_left_screw=0.0;
+float bed_offset_right_screw=0.0;
 
 //bools to control which kind of process are actually running
 
@@ -2616,6 +2618,7 @@ static void run_z_probe() {
 	// move up until you find the bed
 	float zPosition = -10;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], 15, active_extruder);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], 8, active_extruder);
 	st_synchronize();
 	// we have to let the planner know where we are right now as it is not where we said to go.
 	zPosition = st_get_position_mm(Z_AXIS);
@@ -2625,6 +2628,8 @@ static void run_z_probe() {
 	// move down the retract distance
 	zPosition += (home_retract_mm(Z_AXIS)/2);
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], 8, active_extruder);
+	zPosition += (home_retract_mm(Z_AXIS));
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], 4, active_extruder);
 	st_synchronize();
 
 	// move back up slowly to find bed
@@ -4288,9 +4293,8 @@ Serial.print("Zvalue after home:");
 Serial.println(current_position[Z_AXIS]);	
 
 float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
-float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
-float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
-
+float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
+float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
 				
 	
 	current_position[Z_AXIS] += Z_RAISE_BETWEEN_PROBINGS;
@@ -4314,10 +4318,8 @@ plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_po
 //probe left extruder
 
 float z2_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_RIGHT_EXTR,Y_SIGMA_PROBE_3_RIGHT_EXTR, Z_RAISE_BEFORE_PROBING);
-float z2_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_RIGHT_EXTR,Y_SIGMA_PROBE_2_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
-float z2_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
-				
-				
+float z2_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_RIGHT_EXTR,Y_SIGMA_PROBE_2_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
+float z2_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
 
 current_position[Z_AXIS] += Z_RAISE_BETWEEN_PROBINGS;
 plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, RIGHT_EXTRUDER);
@@ -4346,15 +4348,9 @@ Serial.println(z_final_probe_3);
 
 ///Alejandro
 
-
-float dz2 = z_final_probe_2 - z_final_probe_1;
-float dz3 = z_final_probe_3 - z_final_probe_1;
-
-
-////
-
-
-			
+float dz2 = z_final_probe_2 - z_final_probe_1 - bed_offset_left_screw;
+float dz3 = z_final_probe_3 - z_final_probe_1 - bed_offset_right_screw;
+		
 //Voltes cargols
 				
 float pas_M5 = PAS_M5;
@@ -6972,6 +6968,15 @@ inline void gcode_M530(){
 	Change_ConfigCalibration(Xcalib, Ycalib, Zcalib, Zprobecalib);
 	Config_StoreSettings();
 }
+inline void gcode_M531(){  //Set Bed Offset screw 
+	float bed_left, bed_right;
+	if (code_seen('L')) bed_left = code_value();
+	else bed_left = bed_offset_left_screw;
+	if (code_seen('R')) bed_right = code_value();
+	else bed_right = bed_offset_right_screw;
+	Change_ConfigBed_offset(bed_left, bed_right);
+	Config_StoreSettings();
+}
 inline void gcode_M535(){
 	int R=0, G=0, B=0;
 	if (code_seen('R')) R = (int)code_value();
@@ -7236,6 +7241,7 @@ inline void gcode_M800(){ //Smart purge
 		current_position[E_AXIS]+=purge_distance;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], Speed/60, active_extruder);//Purge
 		st_synchronize();
+		
 		time_inactive_extruder[active_extruder]= 0;
 		
 		
@@ -8037,6 +8043,10 @@ void process_commands()
 					
 			case 530:  //right hotend
 			gcode_M530();
+			break;
+			
+			case 531:  //Set Bed Offset screw 
+			gcode_M531();
 			break;
 			
 			case 535:  

@@ -1202,6 +1202,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define GIF_FRAMES_PREHEAT				41
 #define GIF_FRAMES_INIT_FIRST_RUN		124
 
+///////	SMART PURGE SETUP 
+
+#define SMARTPURGE_SETUP_2
 
 //#define SCREENTEST
 

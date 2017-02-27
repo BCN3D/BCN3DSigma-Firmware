@@ -7257,54 +7257,74 @@ inline void gcode_M351(){
 	microstep_readings();
 	#endif
 }
-inline void gcode_M800(){ //Smart purge
-	float Speed=0.0, A=0.0, B=0.0, purge_distance = 0.0, purge_distance_min = 0.0;
+inline void gcode_M800(){ //Smart purge smartPurge_Distant(double A, double B, double T, double P, double E, int timeIdle)
+	
+	#ifdef SMARTPURGE_SETUP_2
+	float Speed=0.0, A=0.0, B=0.0, T=0.0, P=0.0, E=0.0, purge_distance = 0.0;
 	if(code_seen('F')) Speed = code_value();
-	if(code_seen('E')) A = code_value();
-	if(code_seen('S')) B = code_value();
-	if(code_seen('P')) purge_distance_min = code_value();
-	if (Speed > 0.0 && A > 0.0 && B > 0.0 && purge_distance_min >= 0.0){
-		purge_distance = (float)(A -A*exp(-time_inactive_extruder[active_extruder]/B));
-		if(purge_distance_min > purge_distance){
-			purge_distance = purge_distance_min;
-		}
-		Serial.println("Purge distance");
-		Serial.println(purge_distance);
-		Serial.println("Time inactive");
-		Serial.println(time_inactive_extruder[active_extruder]);
-		current_position[E_AXIS]+=purge_distance;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], Speed/60, active_extruder);//Purge
-		st_synchronize();
+	if(code_seen('A')) A = code_value();
+	if(code_seen('B')) B = code_value();
+	if(code_seen('T')) T = code_value();
+	if(code_seen('P')) P = code_value();
+	if(code_seen('E')) E = code_value();
+	
+	purge_distance = smartPurge_Distant((double)A,(double)B,(double)T,(double)P,(double)E, time_inactive_extruder[active_extruder]);
+	current_position[E_AXIS]+=purge_distance;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], Speed/60, active_extruder);//Purge
+	st_synchronize();
+	time_inactive_extruder[active_extruder] = 0;
+	#endif
+	
+	
+	#ifdef SMARTPURGE_SETUP_1
+		float Speed=0.0, A=0.0, B=0.0, purge_distance = 0.0, purge_distance_min = 0.0;
+		if(code_seen('F')) Speed = code_value();
+		if(code_seen('E')) A = code_value();
+		if(code_seen('S')) B = code_value();
+		if(code_seen('P')) purge_distance_min = code_value();
+		if (Speed > 0.0 && A > 0.0 && B > 0.0 && purge_distance_min >= 0.0){
+			purge_distance = (float)(A -A*exp(-time_inactive_extruder[active_extruder]/B));
+			if(purge_distance_min > purge_distance){
+				purge_distance = purge_distance_min;
+			}
+			Serial.println("Purge distance");
+			Serial.println(purge_distance);
+			Serial.println("Time inactive");
+			Serial.println(time_inactive_extruder[active_extruder]);
+			current_position[E_AXIS]+=purge_distance;
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], Speed/60, active_extruder);//Purge
+			st_synchronize();
 		
-		time_inactive_extruder[active_extruder]= 0;
+			time_inactive_extruder[active_extruder]= 0;
 		
 		
-		}else{
-		current_position[E_AXIS]+=1;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
-		st_synchronize();
-		plan_set_e_position(current_position[E_AXIS]);
-		current_position[E_AXIS]-=4;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 2400/60, active_extruder);//Purge
-		st_synchronize();
-		if(active_extruder==0){
+			}else{
+			current_position[E_AXIS]+=1;
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
+			st_synchronize();
+			plan_set_e_position(current_position[E_AXIS]);
+			current_position[E_AXIS]-=4;
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 2400/60, active_extruder);//Purge
+			st_synchronize();
+			if(active_extruder==0){
 			
-			current_position[X_AXIS]+=20;
-			}else if(active_extruder==1){
-			current_position[X_AXIS]-=20;
-		}
+				current_position[X_AXIS]+=20;
+				}else if(active_extruder==1){
+				current_position[X_AXIS]-=20;
+			}
 		
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 12000/60, active_extruder);// X fast travel
-		st_synchronize();
-		if(active_extruder==0){
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 12000/60, active_extruder);// X fast travel
+			st_synchronize();
+			if(active_extruder==0){
 			
-			current_position[X_AXIS]+=5;
-			}else if(active_extruder==1){
-			current_position[X_AXIS]-=5;
+				current_position[X_AXIS]+=5;
+				}else if(active_extruder==1){
+				current_position[X_AXIS]-=5;
+			}
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1800/60, active_extruder);// X slow travel
+			st_synchronize();
 		}
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1800/60, active_extruder);// X slow travel
-		st_synchronize();
-	}
+	#endif
 }
 inline void gcode_M999(){
 	Stopped = false;

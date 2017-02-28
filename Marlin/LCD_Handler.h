@@ -61,6 +61,7 @@ bool FLAG_PurgeSelect1 = false;//Retract
 bool FLAG_LoadSelect0 = false;//purge
 bool FLAG_UnloadSelect1 = false;//Retract
 bool FLAG_SavePrintCommand = false;
+bool busy_button = false;
 int Temp_ChangeFilament_Saved = 0;
 int Tref1 = 0;
 int Tfinal1 = 0;
@@ -1145,9 +1146,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//*****SD Gcode Selection*****
 				#pragma region SD Gcode Selector
 				
-				if ((Event.reportObject.index == BUTTON_SD_SELECTED0) && FLAG_FilesUpDown)
+				if ((Event.reportObject.index == BUTTON_SD_SELECTED0) && FLAG_FilesUpDown && !busy_button)
 				{
-					
+					busy_button = true;
 					if(card.cardOK)
 					{
 						FLAG_FilesUpDown = false;
@@ -1179,10 +1180,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						FLAG_FilesUpDown = true;
 					}
+					busy_button = false;
 				}
-				if ((Event.reportObject.index == BUTTON_SD_SELECTED1) && FLAG_FilesUpDown)
+				else if ((Event.reportObject.index == BUTTON_SD_SELECTED1) && FLAG_FilesUpDown)
 				{
-					
+					busy_button = true;
 					if(card.cardOK)
 					{
 						FLAG_FilesUpDown = false;
@@ -1224,10 +1226,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						FLAG_FilesUpDown = true;
 					}
+					busy_button = false;
 				}
-				if ((Event.reportObject.index == BUTTON_SD_SELECTED2) && FLAG_FilesUpDown)
+				else if ((Event.reportObject.index == BUTTON_SD_SELECTED2) && FLAG_FilesUpDown && !busy_button)
 				{
-					
+					busy_button = true;
 					if(card.cardOK)
 					{
 						FLAG_FilesUpDown = false;
@@ -1273,10 +1276,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						FLAG_FilesUpDown = true;
 					}
+					busy_button = false;
 				}
-				if ((Event.reportObject.index == BUTTON_SD_SELECTED3) && FLAG_FilesUpDown)
+				else if ((Event.reportObject.index == BUTTON_SD_SELECTED3) && FLAG_FilesUpDown && !busy_button)
 				{
-					
+					busy_button = true;
 					if(card.cardOK)
 					{	
 						FLAG_FilesUpDown = false;
@@ -1327,9 +1331,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					FLAG_FilesUpDown = true;
 					}
-					
+					busy_button = false;
 				}
-				if ((Event.reportObject.index == BUTTON_SD_SELECTED4) && FLAG_FilesUpDown)
+				else if ((Event.reportObject.index == BUTTON_SD_SELECTED4) && FLAG_FilesUpDown)
 				{
 					
 					if(card.cardOK)
@@ -1387,9 +1391,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					
 				}
-				if ((Event.reportObject.index == BUTTON_SD_SELECTED5) && FLAG_FilesUpDown)
+				else if ((Event.reportObject.index == BUTTON_SD_SELECTED5) && FLAG_FilesUpDown && !busy_button)
 				{
-					
+					busy_button = true;
 					if(card.cardOK)
 					{
 						FLAG_FilesUpDown = false;
@@ -1447,7 +1451,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						FLAG_FilesUpDown = true;
 					}
-					
+					busy_button = false;
 				}
 				else if (Event.reportObject.index == BUTTON_FOLDER_BACK)
 				{
@@ -1475,9 +1479,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
 					
 				}
-				else if (Event.reportObject.index == BUTTON_SDCONFIRMATION_YES)
+				else if (Event.reportObject.index == BUTTON_SDCONFIRMATION_YES && !busy_button)
 				{
-					
+					busy_button = true;
 					if(card.cardOK)
 					{
 						Serial.println(card.getFileSize());
@@ -1517,6 +1521,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						
 					}
+					busy_button = false;
 				}
 				
 				else if (Event.reportObject.index == BUTTON_SD_RIGHT || Event.reportObject.index == BUTTON_SD_LEFT )
@@ -3038,9 +3043,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					
 					//Extruder Calibrations-------------------------------------------------
-					else if (Event.reportObject.index == BUTTON_CAL_FULL)
+					else if (Event.reportObject.index == BUTTON_CAL_FULL && !busy_button)
 					{
-						
+						busy_button = true;
 						bed_calibration_times = 0;
 						if(saved_print_flag==1888){
 							saved_print_flag = 888;
@@ -3092,10 +3097,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							
 						}
+						busy_button = false;
 					}
-					else if (Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB)
+					else if (Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB && !busy_button)
 					{
-						
+						busy_button = true;
 						offset_calib_manu[0]=0.0;
 						offset_calib_manu[1]=0.0;
 						offset_calib_manu[2]=0.0;
@@ -3116,6 +3122,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,1);
 						genie.WriteObject(GENIE_OBJ_FORM, FORM_MANUAL_FINE_CALIB,0);
 						genie.WriteStr(STRING_MANUAL_FINE_CALIB,buffer); 
+						busy_button = false;
 					}
 					
 					/*
@@ -3248,8 +3255,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					//*****Bed Calibration*****
 					#pragma region Bed Calibration
-					else if (Event.reportObject.index == BUTTON_Z_CAL_WIZARD)
+					else if (Event.reportObject.index == BUTTON_Z_CAL_WIZARD && !busy_button)
 					{
+						busy_button = true;
 						if(saved_print_flag==1888){
 							saved_print_flag = 888;
 							Config_StoreSettings();
@@ -3263,7 +3271,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						enquecommand_P(PSTR("T0"));
 						enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 						previous_state = FORM_CALIBRATION;
-						
+						busy_button = false;
 					}
 					
 					else if (Event.reportObject.index == BUTTON_REDO_BED_CALIB )
@@ -4975,10 +4983,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					#pragma region Info Screens
 					
 					//Backing from INFO SCREENS
-					else if (Event.reportObject.index == BACKBUTTON_CALIBRATION)
+					else if (Event.reportObject.index == BACKBUTTON_CALIBRATION && !busy_button)
 					{
+						busy_button = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
-						
+						busy_button = false;
 					}
 					
 					

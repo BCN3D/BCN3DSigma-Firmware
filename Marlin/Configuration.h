@@ -492,7 +492,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#define X_MAX_POS 305.6//312 //Distance between extruders
+	#define X_MAX_POS 530.6//312 //Distance between extruders
 	//#define X_MAX_POS 210 //Bed X
 	#define X_MIN_POS 0
 	#define Y_MAX_POS 295
@@ -704,7 +704,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 #ifdef Z_SIGMA_HOME
-	#define Z_SIGMA_HOME_X_POINT 58
+	#define Z_SIGMA_HOME_X_POINT 51
 	//#define Z_SIGMA_HOME_X_POINT 3
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
@@ -747,28 +747,28 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//2.90
 	
 	//Left extruder probe point
-	#define X_SIGMA_PROBE_1_LEFT_EXTR 55
+	#define X_SIGMA_PROBE_1_LEFT_EXTR 52
 	#define Y_SIGMA_PROBE_1_LEFT_EXTR 265
 	//#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_LEFT_EXTR 55
+	#define X_SIGMA_PROBE_2_LEFT_EXTR 52
 	#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
 	//#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 	
-	#define X_SIGMA_PROBE_3_LEFT_EXTR 254
+	#define X_SIGMA_PROBE_3_LEFT_EXTR 458 //254
 	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
 	//#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 	
 	//Right extruder probe point
-	#define X_SIGMA_PROBE_1_RIGHT_EXTR 254
+	#define X_SIGMA_PROBE_1_RIGHT_EXTR 458//254
 	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 265
 	//#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
-	#define X_SIGMA_PROBE_2_RIGHT_EXTR 254
+	#define X_SIGMA_PROBE_2_RIGHT_EXTR 458 ///254
 	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
 	//#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 	
-	#define X_SIGMA_PROBE_3_RIGHT_EXTR 55
+	#define X_SIGMA_PROBE_3_RIGHT_EXTR 52
 	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
 	//#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
 #endif

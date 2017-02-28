@@ -3040,6 +3040,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//Extruder Calibrations-------------------------------------------------
 					else if (Event.reportObject.index == BUTTON_CAL_FULL)
 					{
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						delay(500);
 						
 						bed_calibration_times = 0;
 						if(saved_print_flag==1888){
@@ -3053,7 +3055,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						//enquecommand_P(PSTR("T0"));
 						if(!FLAG_CalibBedDone){  //Do g34
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							
 							processing = true;
 							doblocking= true;
 							home_axis_from_code(true,true,true);
@@ -3067,7 +3069,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else{
 							
 							active_extruder = LEFT_EXTRUDER;
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							processing = true;
 							setTargetHotend0(print_temp_l);
 							setTargetHotend1(print_temp_r);
@@ -3115,6 +3117,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_UP,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,1);
 						genie.WriteObject(GENIE_OBJ_FORM, FORM_MANUAL_FINE_CALIB,0);
+						delay(500);
 						genie.WriteStr(STRING_MANUAL_FINE_CALIB,buffer); 
 					}
 					
@@ -3250,13 +3253,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					#pragma region Bed Calibration
 					else if (Event.reportObject.index == BUTTON_Z_CAL_WIZARD)
 					{
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						delay(500);
 						if(saved_print_flag==1888){
 							saved_print_flag = 888;
 							Config_StoreSettings();
 						}
 						processing = true;
-						doblocking = true;
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						doblocking = true;						
 						bed_calibration_times = 0;
 						FLAG_CalibFull = false;
 						home_axis_from_code(true,true,true);
@@ -4978,6 +4982,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BACKBUTTON_CALIBRATION)
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
+						delay(500);
 						
 					}
 					

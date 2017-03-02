@@ -1432,7 +1432,13 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM("Thermal runaway protection \n Temp don't reached by Heater_ID: %d");
         SERIAL_ERRORLN((int)heater_id);
-        LCD_ALERTMESSAGEPGM("THERMAL RUNAWAY");
+		
+		*timer = millis();
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+		sprintf(thermal_message, "WARNING(88): Thermal runaway protection \n Temp don't reached by Heater_ID: %d",(int)heater_id);
+		genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+		FLAG_thermal_runaway = true;
+        /*LCD_ALERTMESSAGEPGM("THERMAL RUNAWAY");
 		if(!(card.sdprinting || card.sdispaused)){
 			
         thermal_runaway = true;
@@ -1453,16 +1459,13 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
 		  }
 		  #ifdef SIGMA_TOUCH_SCREEN
 		  
-		  
-		  
 		  genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 		  genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 		  
 		 // touchscreen_update();
 		  processing_error = true;
 		  FLAG_thermal_runaway = true;
-		  *state = 0;
-		  *timer = 0;
+		  *timer = millis();
 		  if(!(card.sdprinting || card.sdispaused)){
 		  while(processing_error){
 			  
@@ -1470,12 +1473,11 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
 			  
 			  
 		  }
-		  }else{
-			 return; 
 		  }
+		  break;
 		  
 		  #endif
-        
+        */
       }
       break;
   }

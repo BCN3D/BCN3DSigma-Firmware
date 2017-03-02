@@ -1127,6 +1127,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BUTTON_ERROR_OK)
 				{
+					if(FLAG_thermal_runaway){
+						processing_error = false;
+						FLAG_thermal_runaway = false;
+						if(screen_printing_pause_form == screen_printing_pause_form0){
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+						}else{
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
+						}
+						
+					}else{
 					processing_error = false;
 					screen_sdcard = false;
 					surfing_utilities=false;
@@ -1134,6 +1144,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					surfing_temps = false;
 					HeaterCooldownInactivity(true);
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
+				}
+					
 					
 				}
 				}else{//All that has to be done out of the printing room

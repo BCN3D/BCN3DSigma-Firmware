@@ -317,7 +317,6 @@ uint8_t workDir_vector_lenght=0;
 #pragma endregion temperatures
 
 ////// end Temperatures of current material for two extruders //////
-
 bool screen_change_nozz1up = false;
 bool screen_change_nozz2up = false;
 bool screen_change_bedup = false;
@@ -336,6 +335,7 @@ int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 int8_t saved_active_extruder = 0;
 int extrudemultiply=100; //100->1 200->2
+bool FLAG_thermal_runaway = false;
 int extruder_multiply[EXTRUDERS] = {100
 	#if EXTRUDERS > 1
 	, 100
@@ -2651,7 +2651,6 @@ static void run_z_probe() {
 	
 	// move up until you find the bed
 	float zPosition = -10;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], 15, active_extruder);
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], 8, active_extruder);
 	st_synchronize();
 	// we have to let the planner know where we are right now as it is not where we said to go.
@@ -2660,8 +2659,7 @@ static void run_z_probe() {
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS]);
 
 	// move down the retract distance
-	zPosition += (home_retract_mm(Z_AXIS)/2);
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], 8, active_extruder);
+	
 	zPosition += (home_retract_mm(Z_AXIS));
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], 4, active_extruder);
 	st_synchronize();

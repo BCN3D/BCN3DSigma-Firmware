@@ -1393,94 +1393,83 @@ void setWatch()
 #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
 void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, unsigned long period_seconds, int hysteresis_degc)
 {
-/*
-      SERIAL_ECHO_START;
-      SERIAL_ECHO("Thermal Thermal Runaway Running. Heater ID:");
-      SERIAL_ECHO(heater_id);
-      SERIAL_ECHO(" ;  State:");
-      SERIAL_ECHO(*state);
-      SERIAL_ECHO(" ;  Timer:");
-      SERIAL_ECHO(*timer);
-      SERIAL_ECHO(" ;  Temperature:");
-      SERIAL_ECHO(temperature);
-      SERIAL_ECHO(" ;  Target Temp:");
-      SERIAL_ECHO(target_temperature);
-      SERIAL_ECHOLN("");  */  
+	/*
+	SERIAL_ECHO_START;
+	SERIAL_ECHO("Thermal Thermal Runaway Running. Heater ID:");
+	SERIAL_ECHO(heater_id);
+	SERIAL_ECHO(" ;  State:");
+	SERIAL_ECHO(*state);
+	SERIAL_ECHO(" ;  Timer:");
+	SERIAL_ECHO(*timer);
+	SERIAL_ECHO(" ;  Temperature:");
+	SERIAL_ECHO(temperature);
+	SERIAL_ECHO(" ;  Target Temp:");
+	SERIAL_ECHO(target_temperature);
+	SERIAL_ECHOLN("");  */
 
-  if ((target_temperature == 0) || thermal_runaway)
-  {
-    *state = 0;
-    *timer = 0;
-    return;
-  }
-  switch (*state)
-  {
-    case 0: // "Heater Inactive" state
-      if (target_temperature > 0) *state = 1;
-      break;
-    case 1: // "First Heating" state
-      if (temperature >= target_temperature) *state = 2;
-      break;
-    case 2: // "Temperature Stable" state
-      if (temperature >= (target_temperature - hysteresis_degc))
-      {
-        *timer = millis();
-      } 
-      else if ( (millis() - *timer) > period_seconds*1000)
-      {
-		char thermal_message[50];
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM("Thermal runaway protection \n Temp don't reached by Heater_ID: %d");
-        SERIAL_ERRORLN((int)heater_id);
-		
-		*timer = millis();
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-		sprintf(thermal_message, "WARNING(88): Thermal runaway protection \n Temp don't reached by Heater_ID: %d",(int)heater_id);
-		genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-		FLAG_thermal_runaway = true;
-        /*LCD_ALERTMESSAGEPGM("THERMAL RUNAWAY");
-		if(!(card.sdprinting || card.sdispaused)){
+	if ((target_temperature == 0) || thermal_runaway)
+	{
+		*state = 0;
+		*timer = 0;
+		thermal_runaway = false;
+		return;
+	}
+	switch (*state)
+	{
+		case 0: // "Heater Inactive" state
+		if (target_temperature > 0) *state = 1;
+		break;
+		case 1: // "First Heating" state
+		if (temperature >= target_temperature) *state = 2;
+		break;
+		case 2: // "Temperature Stable" state
+		if (temperature >= (target_temperature - hysteresis_degc))
+		{
+			*timer = millis();
+		}
+		else if ( (millis() - *timer) > period_seconds*1000)
+		{
+			*timer = millis();
 			
-        thermal_runaway = true;
-        
-          disable_heater();
-          disable_x();
-          disable_y();
-          disable_z();
-          disable_e0();
-          disable_e1();
-          disable_e2();
-		  sprintf(thermal_message, "WARNING(88): Thermal runaway protection \n Temp don't reached by Heater_ID: %d",(int)heater_id);
-         // manage_heater();
-          //lcd_update();
-		  
-		  }else{
-			  sprintf(thermal_message, "ERROR(88): Thermal runaway protection \n Temp don't reached by Heater_ID: %d",(int)heater_id);
-		  }
-		  #ifdef SIGMA_TOUCH_SCREEN
-		  
-		  genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-		  genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-		  
-		 // touchscreen_update();
-		  processing_error = true;
-		  FLAG_thermal_runaway = true;
-		  *timer = millis();
-		  if(!(card.sdprinting || card.sdispaused)){
-		  while(processing_error){
-			  
-			  touchscreen_update();
-			  
-			  
-		  }
-		  }
-		  break;
-		  
-		  #endif
-        */
-      }
-      break;
-  }
+			char thermal_message[50];
+			SERIAL_ERROR_START;
+			SERIAL_ERRORLNPGM("Thermal runaway protection by Heater_ID:");
+			SERIAL_ERRORLN((int)heater_id);
+			
+			
+			if(!(card.sdprinting || card.sdispaused) && surfing_utilities){
+				
+				thermal_runaway = true;
+				
+				disable_heater();
+				disable_x();
+				disable_y();
+				disable_z();
+				disable_e0();
+				disable_e1();
+				disable_e2();
+				sprintf(thermal_message, "ERROR(88): Temperature not reached by Heater_ID: %d",(int)heater_id);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+				genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+				processing_error = true;
+				
+				}
+				else if(!(card.sdprinting || card.sdispaused) && !surfing_utilities){
+					sprintf(thermal_message, "ERROR(88): Temperature not reached by Heater_ID: %d",(int)heater_id);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+					processing_error = true;
+				}
+				else{
+				ID_thermal_runaway = (int)heater_id;
+				FLAG_thermal_runaway = true;
+			}
+		}
+		
+		
+		
+		break;
+	}
 }
 #endif
 

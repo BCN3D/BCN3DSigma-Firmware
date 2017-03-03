@@ -1127,9 +1127,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BUTTON_ERROR_OK)
 				{
-					if(FLAG_thermal_runaway){
+					if(FLAG_thermal_runaway_screen){
 						processing_error = false;
-						FLAG_thermal_runaway = false;
+						FLAG_thermal_runaway_screen = false;
+						FLAG_PrintSettingBack = true;
 						if(screen_printing_pause_form == screen_printing_pause_form0){
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 						}else{

@@ -336,6 +336,8 @@ int saved_feedmultiply;
 int8_t saved_active_extruder = 0;
 int extrudemultiply=100; //100->1 200->2
 bool FLAG_thermal_runaway = false;
+bool FLAG_thermal_runaway_screen = false;
+int ID_thermal_runaway = 0;
 int extruder_multiply[EXTRUDERS] = {100
 	#if EXTRUDERS > 1
 	, 100
@@ -1188,6 +1190,17 @@ void update_screen_printing(){
 		FLAG_PrintSettingBack = false;
 		
 	}
+	if(FLAG_thermal_runaway){
+		char buffer[255];
+		sprintf(buffer, "WARNING(88): Temperature not reached by Heater_ID: %d",ID_thermal_runaway);
+		if(!FLAG_thermal_runaway_screen && (screen_printing_pause_form !=screen_printing_pause_form2)){
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+			genie.WriteStr(STRING_ERROR_MESSAGE,buffer);
+			FLAG_thermal_runaway_screen = true;
+			processing_error = true;
+		}
+		FLAG_thermal_runaway = false;
+	}
 	if(screen_change_nozz1up){
 		char buffer[25];
 		memset(buffer, '\0', sizeof(buffer) );
@@ -1857,18 +1870,11 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		waitPeriod_inactive=1000+millis();
 	}	
 	
-	if(card.sdispaused){
-		previous_millis_cmd = millis();
-	}
 	
 	
 	if(card.sdprinting && !card.sdispaused || !card.sdprinting && card.sdispaused )
 	{
-		if(card.sdispaused){
 		
-		previous_millis_cmd = millis();
-		
-		}
 		update_screen_printing();
 	}
 	else if(screen_sdcard){

@@ -340,6 +340,8 @@ extern bool processing_bed_first;
 extern bool processing_test;
 extern int FLAG_First_Start_Wizard;
 extern bool FLAG_thermal_runaway;
+extern bool FLAG_thermal_runaway_screen;
+extern int ID_thermal_runaway;
 extern bool Step_First_Start_Wizard;
 /////// end Processing Gifs	/////////
 

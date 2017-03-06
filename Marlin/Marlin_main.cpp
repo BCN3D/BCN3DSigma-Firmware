@@ -6174,6 +6174,19 @@ inline void gcode_M92(){
 		}
 	}
 }
+inline void gcode_M96(){
+	float Position = 0.0;
+	if(code_seen('P')) Position = code_value();
+	Position = hysteresis.ReportHisteresys_AxisY(Position);
+	Serial.println(Position);
+}
+inline void gcode_M97(){
+	float A = 0.0, B = 0.0, C=0.0;
+	if(code_seen('A')) A= code_value();
+	if(code_seen('B')) B= code_value();
+	if(code_seen('C')) C= code_value();
+	hysteresis.Parabola(A, B, C);
+}
 inline void gcode_M98(){
 	hysteresis.ReportToSerial();
 }
@@ -7872,6 +7885,14 @@ void process_commands()
 			
 			case 92://M92
 			gcode_M92();
+			break;
+			
+			case 96: // M96
+			gcode_M96();
+			break;
+			
+			case 97: // M97
+			gcode_M97();
 			break;
 			
 			case 98: // M98

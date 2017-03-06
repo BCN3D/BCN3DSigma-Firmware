@@ -28,8 +28,11 @@ public:
   void Set( float x_mm, float y_mm, float z_mm, float e_mm );
   void SetAxis( int axis, float mm );
   void ReportToSerial();
+  void Parabola( float Front, float Middle, float Back);
   void InsertCorrection(const float &x, const float &y, const float &z, const float &e);
   float         m_hysteresis_mm[NUM_AXIS];
+  float parabolaA, parabolaB, parabolaC;
+  float ReportHisteresys_AxisY(float Position);
   unsigned char m_prev_direction_bits;
   unsigned char m_hysteresis_bits;
 };

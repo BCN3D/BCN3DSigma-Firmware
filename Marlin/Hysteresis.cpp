@@ -35,6 +35,7 @@ Hysteresis::Hysteresis( float x_mm, float y_mm, float z_mm, float e_mm )
 {
   m_prev_direction_bits = 0;
   Set( x_mm, y_mm, z_mm, e_mm );
+  Parabola( 0.0, 0.0, 0.0);
 }
 
 //===========================================================================
@@ -49,7 +50,16 @@ void Hysteresis::Set( float x_mm, float y_mm, float z_mm, float e_mm )
                     | ((m_hysteresis_mm[Z_AXIS]!=0.0f)?(1<<Z_AXIS):0)
                     | ((m_hysteresis_mm[E_AXIS]!=0.0f)?(1<<E_AXIS):0);
 }
-
+void Hysteresis::Parabola( float Front, float Middle, float Back)
+{
+	parabolaA = (float)(Back*(150-10)-Middle*290+Front*290-Front*(150-10)+Middle*10-Front*10)/(pow(290,2)*(150-10)-pow(150,2)*290+pow(10,2)*290-pow(10,2)*(150-10)+pow(150,2)*10+pow(10,3));
+	parabolaB = (float)(Middle-parabolaA*pow(150,2)+parabolaA*pow(10,2)-Front)/(150-10);
+	parabolaC = (float)Back-parabolaA*pow(290,2)-parabolaB*290;
+}
+float Hysteresis::ReportHisteresys_AxisY(float Position)
+{
+	return (float)parabolaA*pow(Position,2) + parabolaB*Position + parabolaC;
+}
 //===========================================================================
 void Hysteresis::SetAxis( int axis, float mm )
 {

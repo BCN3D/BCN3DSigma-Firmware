@@ -732,7 +732,7 @@ void manage_heater()
   #if TEMP_SENSOR_BED != 0
   
     #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
-      thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS);
+      thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS*target_temperature_bed/100);
     #endif
 
   #ifdef PIDTEMPBED
@@ -1435,6 +1435,9 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
 			SERIAL_ERROR_START;
 			SERIAL_ERRORLNPGM("Thermal runaway protection by Heater_ID:");
 			SERIAL_ERRORLN((int)heater_id);
+			SERIAL_ERROR_START;
+			SERIAL_ERRORLNPGM("Hysteresis temperature");
+			SERIAL_ERRORLN((int)hysteresis_degc);
 			
 			
 			if(!(card.sdprinting || card.sdispaused) && surfing_utilities){

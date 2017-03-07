@@ -55,6 +55,7 @@ void Hysteresis::Parabola( float Front, float Middle, float Back)
 	parabolaA = (float)(Back*(150-10)-Middle*290+Front*290-Front*(150-10)+Middle*10-Front*10)/(pow(290,2)*(150-10)-pow(150,2)*290+pow(10,2)*290-pow(10,2)*(150-10)+pow(150,2)*10+pow(10,3));
 	parabolaB = (float)(Middle-parabolaA*pow(150,2)+parabolaA*pow(10,2)-Front)/(150-10);
 	parabolaC = (float)Back-parabolaA*pow(290,2)-parabolaB*290;
+	
 }
 float Hysteresis::ReportHisteresys_AxisY(float Position)
 {

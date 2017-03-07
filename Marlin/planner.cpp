@@ -566,7 +566,10 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 	{
 		fixed_pos[axis] = destination[axis];
 	}
-	float best_feedrate = feed_rate;	
+	if(hysteresis.parabolaA !=0.0){
+		hysteresis.SetAxis(Y_AXIS, hysteresis.ReportHisteresys_AxisY(current_position[Y_AXIS]));
+	}
+	float best_feedrate = feed_rate;
 	unsigned char direction_bits = calc_direction_bits( current_position, destination );
 	// if the direction has changed in any of the axis that need hysteresis corrections...
 	unsigned char direction_change_bits = (direction_bits ^ hysteresis.m_prev_direction_bits);
@@ -576,17 +579,19 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 		
 		for(int axis=0;axis<NUM_AXIS;++axis)
 		{
-			
 			// if this axis changed direction...
 			if( (1<<axis) )
 			{
-				//... add the hysteresis
+				
 				position[axis] += lround((((direction_bits&(1<<axis))!=0)?hysteresis.m_hysteresis_mm[axis]:-hysteresis.m_hysteresis_mm[axis])*axis_steps_per_unit[axis]);
+				Serial.println((((direction_bits&(1<<axis))!=0)?hysteresis.m_hysteresis_mm[axis]:-hysteresis.m_hysteresis_mm[axis]));
+				
 			}
 		}
+		
 		//float best_feedrate = calc_best_feedrate( current_position, destination );
 
-/*
+		/*
 		// debug output to display any hysteresis corrections.
 		SERIAL_PROTOCOLPGM("From=X");
 		SERIAL_PROTOCOL(current_position[X_AXIS]);
@@ -613,7 +618,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 		
 
 		SERIAL_PROTOCOLLN("");
-*/
+		*/
 		
 		hysteresis.m_prev_direction_bits = direction_bits; // need to set these now to avoid recursion as plan_buffer_line calls this function
 		

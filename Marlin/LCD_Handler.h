@@ -5397,7 +5397,6 @@ inline void ListFilesUpfunc(){
 					genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 					
 				}
-				Serial.println("HOLA DOWN");
 				jint++;
 			}
 			
@@ -5485,7 +5484,6 @@ inline void ListFilesDownfunc(){
 					genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 					
 				}
-				Serial.println("HOLA UP");
 				jint++;
 			}
 			

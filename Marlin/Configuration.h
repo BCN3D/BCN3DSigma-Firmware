@@ -378,6 +378,8 @@ your extruder heater takes 2 minutes to hit the target on heating.
 // uncomment the 2 defines below:
 
 // Parameters for the bed heater
+#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 1200 //in seconds
+#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 30 // in percentage
 //===========================================================================
 
 
@@ -1203,6 +1205,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 ///////	SMART PURGE SETUP 
 
 #define SMARTPURGE_SETUP_2
+
+#define WAITPERIOD_PRESS_BUTTON 200
 
 //#define SCREENTEST
 

@@ -1822,6 +1822,7 @@ void update_screen_noprinting(){
 	
 }
 void update_screen_sdcard(){
+	static uint32_t waitPeriod_input_button_command = millis();
 	
 	if(FLAG_ListFilesUp){
 		ListFilesDownfunc();
@@ -1839,7 +1840,39 @@ void update_screen_sdcard(){
 		ListFileListENTERBACKFORLDERSD();
 		FLAG_ListFileEnterBackFolder = false;
 	}
-	
+	if(millis() >= waitPeriod_input_button_command){
+		if(FLAG_ListFilesSelect0){
+			ListFileSelect0();
+			Serial.println("Select 0");
+			waitPeriod_input_button_command = 1000 + millis();
+		}
+		else if(FLAG_ListFilesSelect1){
+			ListFileSelect1();
+			Serial.println("Select 1");
+			waitPeriod_input_button_command = 1000 + millis();
+		}
+		else if(FLAG_ListFilesSelect2){
+			ListFileSelect2();
+			Serial.println("Select 2");
+			waitPeriod_input_button_command = 1000 + millis();
+		}
+		else if(FLAG_ListFilesSelect3){
+			ListFileSelect3();
+			Serial.println("Select 3");
+			waitPeriod_input_button_command = 1000 + millis();
+		}
+		else if(FLAG_ListFilesSelect4){
+			ListFileSelect4();
+			Serial.println("Select 4");
+			waitPeriod_input_button_command = 1000 + millis();
+		}
+		
+	}
+	FLAG_ListFilesSelect0 = false;
+	FLAG_ListFilesSelect1 = false;
+	FLAG_ListFilesSelect2 = false;
+	FLAG_ListFilesSelect3 = false;
+	FLAG_ListFilesSelect4 = false;
 }
 	
 

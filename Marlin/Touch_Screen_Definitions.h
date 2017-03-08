@@ -18,8 +18,8 @@
 	#define BUTTON_STOP_YES						1
 	#define BUTTON_STOP_NO						61
 	#define BUTTON_STOP_SAVE					88
-#define BUTTON_COOLDOWN_OK					3224
-#define BUTTON_COOLDOWN_OK					3224
+	#define BUTTON_COOLDOWN_OK					3224
+	#define BUTTON_COOLDOWN_OK					3224
 #define BUTTON_COOLDOWN_CANCEL				74
 #define STRING_VERSION								3
 /////////////////////////////////////////////////////

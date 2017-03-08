@@ -1405,7 +1405,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						if (millis() >= waitPeriod_button_press){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_MAINTENANCE, 0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 						
 						
@@ -1423,7 +1423,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							FLAG_GifHotent1 = false;
 							FLAG_GifBed = false;
 							surfing_temps = true;
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 						
 					}
@@ -1435,7 +1435,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							surfing_temps = false;
 							HeaterCooldownInactivity(true);
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_PREHEAT_LEXTR ){
@@ -1484,13 +1484,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_RECOVERY_PRINT_ASK_ACCEPT){
 						if (millis() >= waitPeriod_button_press){
 							enquecommand_P(PSTR("M34"));
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_RECOVERY_PRINT_ASK_CANCEL){
 						if (millis() >= waitPeriod_button_press){
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_TOBELOST,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_RECOVERY_TOBELOST_ACCEPT){
@@ -1498,12 +1498,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 							saved_print_flag = 888;
 							Config_StoreSettings();
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_RECOVERY_TOBELOST_BACK){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
 							card.initsd();
 							if (card.cardOK){
@@ -1534,7 +1534,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else if (Event.reportObject.index == Z_ADJUST){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							if(saved_print_flag==1888){
 								saved_print_flag = 888;
 								Config_StoreSettings();
@@ -1565,12 +1565,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (millis() >= waitPeriod_button_press){
 							
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_UTILITIES, 0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_AUTOTUNE_HOTENDS ){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_ADJUSTING_TEMPERATURES, 0);
 							FLAG_PIDautotune = true;
 							processing_adjusting = true;
@@ -1609,7 +1609,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							SERIAL_PROTOCOLPGM("Surfing 0 \n");
 							surfing_temps = false;
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -1626,7 +1626,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_SELECT,0);
 							
 							which_extruder = 255;
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					#pragma region Nylon
@@ -1640,7 +1640,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_SKIP, 0);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_GO, 0);
 							FLAG_NylonCleanMetode = false;
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_NYLON_SELECT_BACKMAINMENU ){
@@ -1657,7 +1657,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_SKIP, 0);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_GO, 0);
 							FLAG_NylonCleanMetode = false;
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_NYLON_SELECT_LEFT ){
@@ -1669,7 +1669,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_SKIP, 1);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_GO, 1);
 							which_extruder = 0;
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_NYLON_SELECT_RIGHT ){
@@ -1681,12 +1681,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_GO, 1);
 							which_extruder = 1;
 							
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_NYLON_SELECT_GO ){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							if(saved_print_flag==1888){
 								saved_print_flag = 888;
 								Config_StoreSettings();
@@ -1732,7 +1732,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if (Event.reportObject.index == BUTTON_NYLON_SELECT_SKIP ){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							if(saved_print_flag==1888){
 								saved_print_flag = 888;
 								Config_StoreSettings();
@@ -1835,13 +1835,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if(Event.reportObject.index == BUTTON_Z_BACK ){
 						if (millis() >= waitPeriod_button_press){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_MAINTENANCE, 0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_Z_ACCEPT ){
 						if (millis() >= waitPeriod_button_press){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_MAINTENANCE, 0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -1885,7 +1885,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								sprintf_P(buffer, PSTR("%3d %cC"),int(degHotend(0)),0x00B0);
 								genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 							}
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_PURGE_RIGHT ){
@@ -1924,7 +1924,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								sprintf_P(buffer, PSTR("%3d %cC"),int(degHotend(1)),0x00B0);
 								genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 							}
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_PURGE_TEMP_UP && purge_extruder_selected != -1){
@@ -2024,7 +2024,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);	Serial.println(buffer);
 							sprintf_P(buffer, PSTR("%3d %cC"),0,0x00B0);
 							genie.WriteStr(STRING_PURGE_SELECTED,buffer);	Serial.println(buffer);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 						
 					}
@@ -2037,7 +2037,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							//setTargetHotend0(0);
 							//setTargetHotend1(0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index	== BUTTON_PURGE_MENU){
@@ -2050,7 +2050,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							SERIAL_PROTOCOLPGM("Surfing 0 \n");
 							HeaterCooldownInactivity(true);
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -2193,7 +2193,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							FLAG_FilamentHome=false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_REMOVE_FIL){
@@ -2201,7 +2201,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							filament_mode = 'R';//Remove Mode
 							which_extruder = -1;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_INSERT_FIL)
@@ -2226,13 +2226,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
 							which_extruder = -1;
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_REMOVE_SELECT_LEFT || Event.reportObject.index == BUTTON_REMOVE_SELECT_RIGHT)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							if (Event.reportObject.index == BUTTON_REMOVE_SELECT_LEFT) //Left Nozzle
 							{
 								
@@ -2282,14 +2282,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (millis() >= waitPeriod_button_press){
 							
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_REMOVE_BACK_FILAMENT){
 						if (millis() >= waitPeriod_button_press){
 							
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_REMOVE_MENU_FILAMENT){
@@ -2300,7 +2300,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							SERIAL_PROTOCOLPGM("Surfing 0 \n");
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 							
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 
 					}
@@ -2312,14 +2312,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							surfing_temps = false;
 							SERIAL_PROTOCOLPGM("Surfing 0 \n");
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 
 					else if ((Event.reportObject.index == BUTTON_FILAMENT_NOZZLE1 || Event.reportObject.index == BUTTON_FILAMENT_NOZZLE2) && !Step_First_Start_Wizard)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							if (Event.reportObject.index == BUTTON_FILAMENT_NOZZLE1) //Left Nozzle
 							{
 								
@@ -2451,13 +2451,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								insertmetod();
 							}
 							
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
 					else if (Event.reportObject.index == BUTTON_ABS){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							saved_print_flag = 888;
 							if (which_extruder == 1) // Need to pause
 							{
@@ -2491,7 +2491,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if (Event.reportObject.index == BUTTON_PVA){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							saved_print_flag = 888;
 							if (which_extruder == 1) // Need to pause
 							{
@@ -2548,7 +2548,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								sprintf(buffer3, "%d %cC",custom_bed_temp,0x00B0);
 								genie.WriteStr(STRING_CUSTOM_BED,buffer3);
 							}
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -2590,7 +2590,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								which_extruder = -1;
 							}
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					/*else if (Event.reportObject.index == BUTTON_CUSTOM_MENU){
@@ -2667,7 +2667,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_CUSTOM_ACCEPT){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							saved_print_flag = 888;
 							if(which_extruder == 0){
@@ -2701,7 +2701,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 
 					else if(Event.reportObject.index == BUTTON_MOVE_INSERT){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							//ATTENTION : Order here is important
 							genie.WriteStr(STRING_CHANGE_FILAMENT_TEMPS,"0%");
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_CHANGE_FILAMENT_TEMPS,0);
@@ -2727,7 +2727,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if (Event.reportObject.index == BUTTON_INSERT ){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							if (filament_mode =='I')
 							{ //Inserting...
 								processing = true;
@@ -2760,7 +2760,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_REMOVE )
 					{// We should have already checked if filament is inserted
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							if (filament_mode =='R')
 							{ //Removing...
 								processing = true;
@@ -2790,7 +2790,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_NYLON_STEP0)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_TEMPS,0);
 							processing_nylon_temps = true;
 							int Tref = (int)degHotend(which_extruder);
@@ -2829,7 +2829,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_NYLON_STEP2)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							setTargetHotend(0.0,which_extruder);
 							if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
 							else digitalWrite(FAN2_PIN, 1);
@@ -2873,7 +2873,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_NYLON_STEP4)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
 							else digitalWrite(FAN2_PIN, 1);
 							
@@ -2949,13 +2949,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (millis() >= waitPeriod_button_press){
 							
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP6,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_NYLON_REPEAT)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							setTargetHotend(NYLON_TEMP_HEATUP_THRESHOLD,which_extruder);
 							
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_TEMPS,0);
@@ -2986,7 +2986,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_NYLON_SUCCESS)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							doblocking = false;
 							setTargetHotend0(0);
 							setTargetHotend1(0);
@@ -3008,7 +3008,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_ACCEPT_ADJUST && FLAG_FilamentAcceptOk == false)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							if(blocks_queued()) quickStop();
 							
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -3047,7 +3047,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_CAL_FULL)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							bed_calibration_times = 0;
 							if(saved_print_flag==1888){
 								saved_print_flag = 888;
@@ -3126,7 +3126,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,1);
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_MANUAL_FINE_CALIB,0);
 							genie.WriteStr(STRING_MANUAL_FINE_CALIB,buffer);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -3263,7 +3263,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Z_CAL_WIZARD)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							if(saved_print_flag==1888){
 								saved_print_flag = 888;
 								Config_StoreSettings();
@@ -3283,7 +3283,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_REDO_BED_CALIB )
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							processing = true;
 							doblocking = true;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -3299,7 +3299,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_BED_CALIB_SW3)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							char buffer[256];
 							if (vuitens3!=0){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_BED_SCREW3,0);
@@ -3354,7 +3354,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								if (sentit3>0){genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3);} //The direction is inverted in Sigma's bed screws
 								else{genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SCREW3,vuitens3+8);}
 							}
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -3363,7 +3363,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_BED_CALIB_SUCCESS )
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							processing_bed_success = false;
 							if(FLAG_PIDautotune){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_MAINTENANCE,0);
@@ -3397,7 +3397,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_SUCCESS_FILAMENT_OK)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							processing_success = false;
 							if(Step_First_Start_Wizard){
 								if(which_extruder == 0){
@@ -3470,7 +3470,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Serial.println(calculus);
 							extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 							Config_StoreSettings(); //Store data
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -3487,7 +3487,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Serial.println(calculus);
 							extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 							Config_StoreSettings(); //Store data
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -3504,7 +3504,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Serial.println(calculus);
 							extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -3521,7 +3521,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Serial.println(calculus);
 							extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 							Config_StoreSettings(); //Store data
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -3538,7 +3538,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Serial.println(calculus);
 							extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT6)
@@ -3554,7 +3554,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Serial.println(calculus);
 							extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -3571,7 +3571,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Serial.println(calculus);
 							extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -3588,7 +3588,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Serial.println(calculus);
 							extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -3610,7 +3610,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							//enquecommand_P((PSTR("M218 T1 X-0.5")));
 							Config_StoreSettings(); //Store changes
 							//genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -3627,7 +3627,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Serial.println(calculus);
 							extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -3642,7 +3642,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Serial.println(calculus);
 							extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -3658,7 +3658,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Serial.println(calculus);
 							extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 						
 					}
@@ -3668,14 +3668,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
 							redo_source = 1;
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT1)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
@@ -3723,7 +3723,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT2)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
@@ -3771,7 +3771,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT3)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
@@ -3818,7 +3818,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT4)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
@@ -3865,7 +3865,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT5)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
@@ -3912,7 +3912,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT6)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
@@ -3959,7 +3959,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT7)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
@@ -4006,7 +4006,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT8)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
@@ -4052,7 +4052,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT9)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
@@ -4098,7 +4098,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT10)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
@@ -4153,7 +4153,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Serial.println(calculus);
 							extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 						
 					}
@@ -4169,7 +4169,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Serial.println(calculus);
 							extruder_offset[Y_AXIS][RIGHT_EXTRUDER]=calculus;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 						
 					}
@@ -4178,7 +4178,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (millis() >= waitPeriod_button_press){
 							redo_source = 2;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -4191,7 +4191,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 							SERIAL_PROTOCOLPGM("Z position: ");
 							Serial.println(current_position[Z_AXIS]);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -4204,14 +4204,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							SERIAL_PROTOCOLPGM("Z position: ");
 							Serial.println(current_position[Z_AXIS]);
 							
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
 					else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_OK)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							processing_calib_ZL = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 							SERIAL_PROTOCOLPGM("OK first Extruder! \n");
@@ -4279,7 +4279,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_OK)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							processing_calib_ZR = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 							SERIAL_PROTOCOLLNPGM("OK second Extruder!");
@@ -4321,7 +4321,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (millis() >= waitPeriod_button_press){
 							
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_REDO_Z_TEST,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT1){
@@ -4334,7 +4334,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							active_extruder = RIGHT_EXTRUDER;
 							zprobe_zoffset+=0.05;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 						
 					}
@@ -4347,7 +4347,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							}
 							
 							active_extruder = RIGHT_EXTRUDER;
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 						
 						
@@ -4363,7 +4363,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							active_extruder = RIGHT_EXTRUDER;
 							zprobe_zoffset-=0.05;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT4){
@@ -4376,7 +4376,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							active_extruder = RIGHT_EXTRUDER;
 							zprobe_zoffset-=0.1;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT5){
@@ -4390,7 +4390,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							active_extruder = RIGHT_EXTRUDER;
 							zprobe_zoffset-=0.15;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 						
 					}
@@ -4399,14 +4399,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (millis() >= waitPeriod_button_press){
 							redo_source = 3;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 						
 					}
 					
 					else if(Event.reportObject.index == BUTTON_CLEAN_BED){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							doblocking = true;
 							if(redo_source == 0){		 //redo z test print
 								if (active_extruder==0){
@@ -4479,7 +4479,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_REDO_Z_1){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							redo_source = 0;
 							if (active_extruder == 0){
 								zprobe_zoffset+=0.1;
@@ -4505,7 +4505,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_REDO_Z_5){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							
 							redo_source = 0;
 							if (active_extruder == 0){
@@ -4530,7 +4530,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_REDO_Z){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							redo_source = 0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
 						}
@@ -4546,7 +4546,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							}
 							extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.05;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT2){
@@ -4556,7 +4556,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_X_SKIP,1);
 							}
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 						
 					}
@@ -4570,7 +4570,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.05;
 							Config_StoreSettings(); //Store changes
 							
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT4){
@@ -4583,7 +4583,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.1;
 							Config_StoreSettings(); //Store changes
 							
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT5){
@@ -4595,12 +4595,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							}
 							extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.15;
 							Config_StoreSettings(); //Store changes
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_ZL_GO){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							
 							doblocking=true;
 							
@@ -4708,12 +4708,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZR_SKIP,1);
 							}
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_ZR_GO){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							
 							doblocking=true;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -4821,12 +4821,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_X_SKIP,1);
 							}
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_X_GO){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 							processing_adjusting =  true;
@@ -4846,12 +4846,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,1);
 							}
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_Y_GO){
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 							processing_adjusting =  true;
@@ -4877,7 +4877,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 								processing_bed_success=true;
 							}
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_CLEAN_NOZZLE_L){
@@ -4888,7 +4888,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							//home_axis_from_code(true, true , false);
 							enquecommand_P(PSTR("G43"));
 							flag_continue_calib = false;
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_CLEAN_NOZZLE_R){
@@ -4899,7 +4899,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							//home_axis_from_code(true, true , false);
 							enquecommand_P(PSTR("G43"));
 							flag_continue_calib = false;
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -5016,7 +5016,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							offset_calib_manu[2]=0.0;
 							offset_calib_manu[3]=0.0;
 							calib_value_selected = 0;
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_MENU){
@@ -5032,13 +5032,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							surfing_utilities=false;
 							surfing_temps = false;
 							SERIAL_PROTOCOLPGM("Surfing 0 \n");
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_OK){
 						if (millis() >= waitPeriod_button_press){
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_MANUAL_FINE_CALIB_SAVE,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_X){
@@ -5055,7 +5055,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_UP,1);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,1);
 							genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_Y){
@@ -5072,7 +5072,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_UP,0);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,0);
 							genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 						
 					}
@@ -5090,7 +5090,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_UP,0);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,0);
 							genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_ZR){
@@ -5108,7 +5108,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,0);
 							
 							genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_UP){
@@ -5153,7 +5153,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							calib_value_selected = 0;
 							Config_StoreSettings();
 							Config_PrintSettings();
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_SAVE_NOT){
@@ -5165,7 +5165,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							offset_calib_manu[2]=0.0;
 							offset_calib_manu[3]=0.0;
 							calib_value_selected = 0;
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -5185,7 +5185,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (millis() >= waitPeriod_button_press){
 							
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					
@@ -5194,10 +5194,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_SKIP_BED)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							
 							processing_bed = false;
 							processing_bed_first = false;
+							st_synchronize();
 							if (FLAG_CalibFull){
 								bed_calibration_times = 0;
 								
@@ -5233,7 +5234,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_ERROR_OK)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							
 							if(printing_error_temps){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -5275,7 +5276,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM,FORN_FIRST_RUN_WIZARD_STEP_1,0);
 							Config_ResetDefault();
 							Config_StoreSettings();
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_FIRST_RUN_WIZARD_SKIP)
@@ -5286,7 +5287,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							Step_First_Start_Wizard = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 							Config_StoreSettings();
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_FIRST_RUN_WIZARD_STEP_NEXT_1)
@@ -5305,13 +5306,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PVA, 1);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_CUST, 1);
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SELECT_EXTRUDER, 1);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if (Event.reportObject.index == BUTTON_FIRST_RUN_WIZARD_STEP_NEXT_2)
 					{
 						if (millis() >= waitPeriod_button_press){
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							
 							SERIAL_PROTOCOLPGM("INFO: BED CALIB - ");
 							Serial.println(FLAG_CalibBedDone);
@@ -5346,7 +5347,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								
 							}
 							genie.WriteObject(GENIE_OBJ_FORM,FORN_FIRST_RUN_WIZARD_YESNOT,0);
-							waitPeriod_button_press = millis() +1000;
+							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					#pragma endregion Setup Assistant
@@ -5368,7 +5369,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_FOLDER_FILE,0);
 						screen_sdcard = true;
 						FLAG_ListFilesInit = true;
-						waitPeriod_button_press = millis() +1000;
+						waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 					}
 				}
 				
@@ -5380,7 +5381,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						surfing_utilities = false;
 						genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
 						FLAG_DataRefresh = true;
-						waitPeriod_button_press = millis() +1000;
+						waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 					}
 				}
 				else if (Event.reportObject.index == FORM_MAIN_SCREEN)
@@ -5391,7 +5392,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						surfing_utilities=false;
 						surfing_temps = false;
 						SERIAL_PROTOCOLPGM("Surfing 0 \n");
-						waitPeriod_button_press = millis() +1000;
+						waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 					}
 				}
 				
@@ -5401,14 +5402,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						surfing_utilities=true;
 						SERIAL_PROTOCOLPGM("Surfing 1 \n");
-						waitPeriod_button_press = millis() +1000;
+						waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 					}
 				}
 				else if (Event.reportObject.index == FORM_TEMP_MENU){
 					if (millis() >= waitPeriod_button_press){
 						
 						surfing_temps = true;
-						waitPeriod_button_press = millis() +1000;
+						waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 					}
 				}
 				
@@ -5431,7 +5432,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);	Serial.println(buffer);
 						sprintf_P(buffer, PSTR("%3d %cC"),int(degHotend(1)),0x00B0);
 						genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);	Serial.println(buffer);
-						waitPeriod_button_press = millis() +1000;
+						waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 					}
 				}
 				else if (Event.reportObject.index == FORM_PREHEAT_SETTINGS)
@@ -5484,7 +5485,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						sprintf(buffer, "%d h",log_hours_print);
 						//Serial.println(buffer);
 						genie.WriteStr(STRING_INFO_PRINTINGTIME,buffer);
-						waitPeriod_button_press = millis() +1000;
+						waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 					}
 				}
 			}

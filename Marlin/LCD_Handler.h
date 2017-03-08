@@ -5198,7 +5198,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							processing_bed = false;
 							processing_bed_first = false;
-							st_synchronize();
+							touchscreen_update();
 							if (FLAG_CalibFull){
 								bed_calibration_times = 0;
 								

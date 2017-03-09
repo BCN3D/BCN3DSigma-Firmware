@@ -28,7 +28,7 @@
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
 #define VERSION_STRING  "01-1.2.2_devL"
-#define BUILD_DATE  "|M02.27"
+#define BUILD_DATE  "|M03.09"
 #define VERSION_NUMBER  122
 #define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
@@ -686,7 +686,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //Rapduch
 //Insert Filament parameters
-#define BOWDEN_LENGTH 875
+#define BOWDEN_LENGTH 1025
 #define EXTRUDER_LENGTH 50
 #define INSERT_FAST_SPEED 5000	
 #define INSERT_SLOW_SPEED 150

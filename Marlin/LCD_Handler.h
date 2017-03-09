@@ -4213,6 +4213,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (millis() >= waitPeriod_button_press){
 							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							processing_calib_ZL = false;
+							touchscreen_update();
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 							SERIAL_PROTOCOLPGM("OK first Extruder! \n");
 							//We have to override z_prove_offset
@@ -4244,6 +4245,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							}
 							processing_adjusting = false;
 							//delay(6000);
+							touchscreen_update();
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 							processing_test = true;
 							home_axis_from_code(false,true,true);
@@ -4282,6 +4284,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 							processing_calib_ZR = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+							touchscreen_update();
 							SERIAL_PROTOCOLLNPGM("OK second Extruder!");
 							extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=(current_position[Z_AXIS]);//Add the difference to the current offset value
 							SERIAL_PROTOCOLPGM("Z2 Offset: ");
@@ -4308,6 +4311,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							//delay(6000);
 							
 							processing_adjusting = false;
+							touchscreen_update();
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 							processing_test = true;
 							home_axis_from_code(false,true,true);

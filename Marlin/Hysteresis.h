@@ -32,6 +32,7 @@ public:
   void InsertCorrection(const float &x, const float &y, const float &z, const float &e);
   float         m_hysteresis_mm[NUM_AXIS];
   float parabolaA, parabolaB, parabolaC;
+  float         m_last_hysteresis[NUM_AXIS];
   float ReportHisteresys_AxisY(float Position);
   unsigned char m_prev_direction_bits;
   unsigned char m_hysteresis_bits;

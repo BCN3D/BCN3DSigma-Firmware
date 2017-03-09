@@ -583,9 +583,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 			if( (1<<axis) )
 			{
 				
-				position[axis] += lround((((direction_bits&(1<<axis))!=0)?hysteresis.m_hysteresis_mm[axis]:-hysteresis.m_hysteresis_mm[axis])*axis_steps_per_unit[axis]);
-				Serial.println((((direction_bits&(1<<axis))!=0)?hysteresis.m_hysteresis_mm[axis]:-hysteresis.m_hysteresis_mm[axis]));
-				
+				position[axis] += lround((((direction_bits&(1<<axis))!=0)?hysteresis.m_hysteresis_mm[axis]:-hysteresis.m_last_hysteresis[axis])*axis_steps_per_unit[axis]);				
+				Serial.println((((direction_bits&(1<<axis))!=0)?hysteresis.m_hysteresis_mm[axis]:-hysteresis.m_last_hysteresis[axis]));
+				hysteresis.m_last_hysteresis[axis] = hysteresis.m_hysteresis_mm[axis];
 			}
 		}
 		

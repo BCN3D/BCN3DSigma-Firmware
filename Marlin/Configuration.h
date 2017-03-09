@@ -28,7 +28,7 @@
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
 #define VERSION_STRING  "01-1.2.3_dev"
-#define BUILD_DATE  "|M03.07"
+#define BUILD_DATE  "|M03.09"
 #define VERSION_NUMBER  123
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
@@ -1207,7 +1207,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define SMARTPURGE_SETUP_2
 
 #define WAITPERIOD_PRESS_BUTTON 200
-
+#define WAITPERIOD_PRESS_BUTTON2 400
 //#define SCREENTEST
 
 //#define ErroWindowEnable

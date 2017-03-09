@@ -4576,7 +4576,8 @@ if (aprox2==0 && aprox3==0) //If the calibration it's ok
 		flag_continue_calib = true;							
 	}
 	else{
-		processing = false;						
+		processing = false;	
+		touchscreen_update();					
 		#ifdef SIGMA_TOUCH_SCREEN
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 			processing_bed_success = true;

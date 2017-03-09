@@ -1,4 +1,4 @@
-﻿[![Gitter](https://badges.gitter.im/BCN3D/BCN3DSigma-Electronics.svg)](https://gitter.im/BCN3D/BCN3DSigma-Electronics?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Gitter](https://badges.gitter.im/BCN3D/BCN3DSigma-Firmware.svg)](https://gitter.im/BCN3D/BCN3DSigma-Firmware?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
  
  # BCN3D Sigma Firmware based on Marlin
 

@@ -674,6 +674,7 @@ void CardReader::printingHasFinished()
 	doblocking=false;
 	log_prints_finished++;
 	Config_StoreSettings();
+	acceleration = acceleration_old;
 	enquecommand_P(PSTR("M107"));	
     st_synchronize();
     if(file_subcall_ctr>0) //heading up to a parent file that called current as a procedure.

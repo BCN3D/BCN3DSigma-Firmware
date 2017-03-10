@@ -36,6 +36,10 @@ Hysteresis::Hysteresis( float x_mm, float y_mm, float z_mm, float e_mm )
   m_prev_direction_bits = 0;
   Set( x_mm, y_mm, z_mm, e_mm );
   Parabola( 0.0, 0.0, 0.0);
+  m_last_hysteresis[0]= 0.0;
+  m_last_hysteresis[1]= 0.0;
+  m_last_hysteresis[2]= 0.0;
+  m_last_hysteresis[3]= 0.0;
 }
 
 //===========================================================================

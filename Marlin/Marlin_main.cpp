@@ -3156,6 +3156,10 @@ inline void gcode_G11(){
 	#endif //FWRETRACT
 }
 inline void gcode_G28(){
+	if(card.sdprinting){
+		doblocking = true;
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
+	}
 	saved_doblocking = doblocking;
 	doblocking = true;
 	time_inactive_extruder[0] = 0;
@@ -3479,6 +3483,7 @@ inline void gcode_G40(){
 		if(processing_error)return;
 	}
 	processing_adjusting =  false;
+	touchscreen_update();
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 	processing_test = true;
 	
@@ -3647,6 +3652,7 @@ inline void gcode_G40(){
 	//Go to Calibration select screen
 	processing_test = false;
 	doblocking = false;
+	enquecommand_P(PSTR("M84"));
 	if(processing_error)return;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_X_CALIB_SELECT,0);
 
@@ -3670,6 +3676,7 @@ inline void gcode_G41(){
 	}
 	//delay(5000);
 	processing_adjusting =  false;
+	touchscreen_update();
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 	processing_test = true;
 	//Raise for a layer of Z=0.2
@@ -3837,6 +3844,7 @@ inline void gcode_G41(){
 	
 	processing_test = false;
 	doblocking = false;
+	enquecommand_P(PSTR("M84"));
 	//Go to Calibration select screen
 	if(processing_error)return;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_Y_CALIB_SELECT,0);
@@ -3868,6 +3876,8 @@ inline void gcode_G43(){
 	st_synchronize();
 		if(processing_error)return;
 	//Go to Z Calibration select screen if first time!
+	processing =  false;
+	touchscreen_update();
 	if (active_extruder==LEFT_EXTRUDER) {
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER1,0);
 		processing_calib_ZL = true;
@@ -3875,7 +3885,7 @@ inline void gcode_G43(){
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER2,0);
 		processing_calib_ZR = true;
 	}
-	processing =  false;
+	
 	
 	
 #endif //EXTRUDER_CALIBRATION_WIZARD

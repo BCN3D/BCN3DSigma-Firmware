@@ -3273,9 +3273,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							bed_calibration_times = 0;
 							FLAG_CalibFull = false;
-							home_axis_from_code(true,true,true);
-							enquecommand_P(PSTR("T0"));
+							home_axis_from_code(true,true,true);							
 							enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
+							changeTool(0);
 							previous_state = FORM_CALIBRATION;
 						}
 					}
@@ -3288,7 +3288,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							doblocking = true;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							home_axis_from_code(true,true,false);
-							enquecommand_P((PSTR("T0")));
+							changeTool(0);
 							enquecommand_P((PSTR("G34")));
 							previous_state = FORM_CALIBRATION;
 							FLAG_CalibBedDone = true;
@@ -3312,7 +3312,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								doblocking = true;
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 								home_axis_from_code(true,true,false);
-								enquecommand_P((PSTR("T0")));
+								changeTool(0);
 								enquecommand_P((PSTR("G34")));
 								previous_state = FORM_CALIBRATION;
 								
@@ -4440,7 +4440,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								current_position[Z_AXIS] = 0.2;
 								plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 								enquecommand_P(PSTR("G40"));
-								enquecommand_P(PSTR("M84"));
 							}
 							else if(redo_source == 2){ //redo y test print
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
@@ -4449,7 +4448,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								current_position[Z_AXIS] = 0.3;
 								plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 								enquecommand_P(PSTR("G41"));
-								enquecommand_P(PSTR("M84"));
+								
 							}
 							else if(redo_source == 3){	//recalibrate
 								if (active_extruder == 0){
@@ -4839,7 +4838,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if(processing_error)return;
 							changeTool(0);
 							enquecommand_P(PSTR("G40"));
-							enquecommand_P(PSTR("M84"));
 							if(processing_error)return;
 						}
 					}
@@ -4863,7 +4861,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							home_axis_from_code(true,true,false);
 							changeTool(0);
 							enquecommand_P(PSTR("G41"));
-							enquecommand_P(PSTR("M84"));
 							st_synchronize();
 							if(processing_error)return;
 						}
@@ -5593,11 +5590,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				while(jint < SDFILES_LIST_NUM){
 					Serial.println("Dentro");
-					if(fileCnt > filepointer +  jint){
+					if(fileCnt > filepointer +  jint){						
 						
-						
-						vecto = filepointer + jint;
-						
+						vecto = filepointer + jint;					
 						
 						
 						card.getfilename(vecto);

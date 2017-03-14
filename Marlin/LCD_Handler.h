@@ -1341,23 +1341,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if(card.cardOK)
 							{
 								//doblocking = true;
-								setTargetBed(0);
-								setTargetHotend0(0);
-								setTargetHotend1(0);
-								feedmultiply = 100;
-								x0mmdone = 0;
-								x1mmdone = 0;
-								ymmdone = 0;
-								e0mmdone = 0;
-								e1mmdone = 0;
-								log_prints++;
-								log_min_print = 0;
-								saved_print_flag = 888;
-								acceleration_old = acceleration;
-								Config_StoreSettings();
-								//gcode_T0_T1_auto(0);
-								//st_synchronize();
-								screen_printing_pause_form = screen_printing_pause_form0;
+								
 								if (!card.filenameIsDir){ //If the filename is a gcode we start printing
 									char cmd[30];
 									char* c;
@@ -1369,7 +1353,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 									}
 									enquecommand(cmd);
 									
-									is_on_printing_screen=true;//We are entering printing screen
+									
 									enquecommand_P(PSTR("M24")); // It also sends you to PRINTING screen
 									
 									screen_status="Ready...";//Write the selected SD file to all strings
@@ -5616,7 +5600,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						else{
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
-							listsd.get_lineduration();
+							listsd.get_lineduration(true, NULL);
 							if(listsd.get_minutes() == -1){
 								sprintf_P(listsd.commandline2, "");
 							}
@@ -5703,7 +5687,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						else{
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
-							listsd.get_lineduration();
+							listsd.get_lineduration(true, NULL);
 							if(listsd.get_minutes() == -1){
 								sprintf_P(listsd.commandline2, "");
 							}
@@ -5775,7 +5759,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
-						listsd.get_lineduration();
+						listsd.get_lineduration(true, NULL);
 						if(listsd.get_minutes() == -1){
 							sprintf_P(listsd.commandline2, "");
 						}
@@ -5821,7 +5805,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			if (!card.filenameIsDir){
 				folder_navigation_register(true);
 				genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
-				listsd.get_lineduration();
+				listsd.get_lineduration(true, NULL);
 				if(listsd.get_minutes() == -1){
 					sprintf_P(listsd.commandline2, PSTR(""));
 				}
@@ -5860,7 +5844,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (!card.filenameIsDir){
 					folder_navigation_register(true);
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
-					listsd.get_lineduration();
+					listsd.get_lineduration(true, NULL);
 					if(listsd.get_minutes() == -1){
 						sprintf_P(listsd.commandline2, PSTR(""));
 					}
@@ -5906,7 +5890,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (!card.filenameIsDir){
 					folder_navigation_register(true);
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
-					listsd.get_lineduration();
+					listsd.get_lineduration(true, NULL);
 					if(listsd.get_minutes() == -1){
 						sprintf_P(listsd.commandline2, PSTR(""));
 					}
@@ -5956,7 +5940,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (!card.filenameIsDir){
 					folder_navigation_register(true);
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
-					listsd.get_lineduration();
+					listsd.get_lineduration(true, NULL);
 					if(listsd.get_minutes() == -1){
 						sprintf_P(listsd.commandline2, PSTR(""));
 					}
@@ -6010,7 +5994,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (!card.filenameIsDir){
 					folder_navigation_register(true);
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
-					listsd.get_lineduration();
+					listsd.get_lineduration(true, NULL);
 					if(listsd.get_minutes() == -1){
 						sprintf_P(listsd.commandline2, PSTR(""));
 					}
@@ -6067,7 +6051,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (!card.filenameIsDir){
 					folder_navigation_register(true);
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
-					listsd.get_lineduration();
+					listsd.get_lineduration(true, NULL);
 					if(listsd.get_minutes() == -1){
 						sprintf_P(listsd.commandline2, PSTR(""));
 					}
@@ -6138,7 +6122,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
-						listsd.get_lineduration();
+						listsd.get_lineduration(true, NULL);
 						if(listsd.get_minutes() == -1){
 							sprintf_P(listsd.commandline2, "");
 						}

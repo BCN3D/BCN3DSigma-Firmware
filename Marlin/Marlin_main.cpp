@@ -875,7 +875,7 @@ void setup()
 					if(successSD){
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
-						listsd.get_lineduration();
+						listsd.get_lineduration(true, NULL);
 						if(listsd.get_minutes() == -1){
 							sprintf_P(listsd.commandline2, "");
 						}
@@ -5118,7 +5118,10 @@ inline void gcode_M23(){
 	#ifdef SDSUPPORT
 	starpos = (strchr(strchr_pointer + 4,'*'));
 	if(starpos!=NULL)	*(starpos)='\0';
+	listsd.get_lineduration(false, strchr_pointer + 4);
 	card.openFile(strchr_pointer + 4,true);
+	card.getAbsFilename(strchr_pointer + 4);
+	Serial.println(card.longFilename);
 	#endif //SDSUPPORT
 }
 inline void gcode_M24(){
@@ -5127,10 +5130,29 @@ inline void gcode_M24(){
 	card.startFileprint();
 	starttime=millis();
 	//Rapduch
+	setTargetBed(0);
+	setTargetHotend0(0);
+	setTargetHotend1(0);
+	feedmultiply = 100;
+	x0mmdone = 0;
+	x1mmdone = 0;
+	ymmdone = 0;
+	e0mmdone = 0;
+	e1mmdone = 0;
+	log_prints++;
+	log_min_print = 0;
+	saved_print_flag = 888;
+	acceleration_old = acceleration;
+	Config_StoreSettings();
+	//gcode_T0_T1_auto(0);
+	//st_synchronize();
+	screen_printing_pause_form = screen_printing_pause_form0;
 	#ifdef SIGMA_TOUCH_SCREEN
 	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,0);
+	is_on_printing_screen=true;//We are entering printing screen
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 	FLAG_DataRefresh = true;
+	
 	//char buffer[13];
 	memset(namefilegcode, '\0', sizeof(namefilegcode) );
 	if (String(card.longFilename).length()>12){
@@ -5321,7 +5343,7 @@ inline void gcode_M34(){
 		if (card.cardOK){
 			
 			waiting_temps = true;
-			listsd.get_lineduration();
+			listsd.get_lineduration(true, NULL);
 			card.openFile(card.filename,true);
 			
 			gcode_M24();

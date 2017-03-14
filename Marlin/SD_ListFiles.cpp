@@ -23,9 +23,13 @@ Listfiles::Listfiles(){
 }
 
 
-void Listfiles::get_lineduration(void){
-	
-	card.openFile(card.filename, true);
+void Listfiles::get_lineduration(bool fromfilepoiter, char* name){
+	if(!fromfilepoiter){
+		card.openFile(name, true);
+	}else{
+		card.openFile(card.filename, true);
+	}
+	//card.openFile(card.filename, true);
 	dias=-1, horas=-1, minutos=-1;
 	char serial_char='\0';
 	int posi = 0;

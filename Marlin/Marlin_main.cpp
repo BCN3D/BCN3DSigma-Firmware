@@ -5120,7 +5120,6 @@ inline void gcode_M23(){
 	if(starpos!=NULL)	*(starpos)='\0';
 	listsd.get_lineduration(false, strchr_pointer + 4);
 	card.openFile(strchr_pointer + 4,true);
-	card.getAbsFilename(strchr_pointer + 4);
 	Serial.println(card.longFilename);
 	#endif //SDSUPPORT
 }

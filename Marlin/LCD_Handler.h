@@ -3109,7 +3109,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_UP,1);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,1);
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_MANUAL_FINE_CALIB,0);
-							genie.WriteStr(STRING_MANUAL_FINE_CALIB,buffer);
+							genie.WriteStr(STRING_MANUAL_FINE_CALIB,manual_fine_calib_offset[0],3);
 							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON2;
 						}
 					}
@@ -3257,7 +3257,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							bed_calibration_times = 0;
 							FLAG_CalibFull = false;
-							home_axis_from_code(true,true,true);							
+							home_axis_from_code(true,true,true);
 							enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 							changeTool(0);
 							previous_state = FORM_CALIBRATION;
@@ -3443,7 +3443,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT1)
 					{
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[0]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,1);
@@ -3461,7 +3461,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT2)
 					{
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[0]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,1);
@@ -3478,7 +3478,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT3)
 					{
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[0]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,1);
@@ -3495,7 +3495,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT4)
 					{
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[0]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,1);
@@ -3512,7 +3512,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT5)
 					{
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[0]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,1);
@@ -3528,7 +3528,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT6)
 					{
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[0]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,1);
@@ -3545,7 +3545,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT7)
 					{
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[0]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,1);
@@ -3562,7 +3562,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT8)
 					{
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[0]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,1);
@@ -3579,7 +3579,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT9)
 					{
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[0]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,1);
@@ -3601,7 +3601,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT10)
 					{
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[0]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_Y_SKIP,1);
@@ -3663,7 +3663,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
-							
+							manual_fine_calib_offset[1]=0.0;
 							if (!Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 								processing_bed_success=true;
@@ -3711,7 +3711,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
-							
+							manual_fine_calib_offset[1]=0.0;
 							if (!Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 								processing_bed_success=true;
@@ -3759,7 +3759,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
-							
+							manual_fine_calib_offset[1]=0.0;
 							if (!Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 								processing_bed_success=true;
@@ -3806,7 +3806,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
-							
+							manual_fine_calib_offset[1]=0.0;
 							if (!Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 								processing_bed_success=true;
@@ -3853,7 +3853,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
-							
+							manual_fine_calib_offset[1]=0.0;
 							if (!Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 								processing_bed_success=true;
@@ -3900,7 +3900,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
-							
+							manual_fine_calib_offset[1]=0.0;
 							if (!Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 								processing_bed_success=true;
@@ -3947,7 +3947,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
-							
+							manual_fine_calib_offset[1]=0.0;
 							if (!Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 								processing_bed_success=true;
@@ -3994,7 +3994,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
-							
+							manual_fine_calib_offset[1]=0.0;
 							if (!Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 								processing_bed_success=true;
@@ -4040,7 +4040,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
-							
+							manual_fine_calib_offset[1]=0.0;
 							if (!Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 								processing_bed_success=true;
@@ -4086,7 +4086,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							setTargetHotend0(0);
 							setTargetHotend1(0);
 							setTargetBed(0);
-							
+							manual_fine_calib_offset[1]=0.0;
 							if (!Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
 								processing_bed_success=true;
@@ -4314,7 +4314,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT1){
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[2]=0.0;
+							manual_fine_calib_offset[3]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZR_SKIP,1);
@@ -4328,7 +4329,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT2){
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[2]=0.0;
+							manual_fine_calib_offset[3]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZR_SKIP,1);
@@ -4342,7 +4344,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT3){
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[2]=0.0;
+							manual_fine_calib_offset[3]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZR_SKIP,1);
@@ -4356,7 +4359,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT4){
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[2]=0.0;
+							manual_fine_calib_offset[3]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZR_SKIP,1);
@@ -4369,7 +4373,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_Z_LEFT_SELECT5){
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[2]=0.0;
+							manual_fine_calib_offset[3]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZR,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZR_SKIP,1);
@@ -4471,7 +4476,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if (active_extruder == 0){
 								zprobe_zoffset+=0.1;
 								Config_StoreSettings(); //Store changes
-								enquecommand_P(PSTR("T1"));
+								gcode_T0_T1_auto(1);
 								enquecommand_P(PSTR("T0"));
 								st_synchronize();
 								if(processing_error)return;
@@ -4480,7 +4485,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							else{
 								extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.1;
 								Config_StoreSettings(); //Store changes
-								enquecommand_P(PSTR("T0"));
+								gcode_T0_T1_auto(0);
 								enquecommand_P(PSTR("T1"));
 								st_synchronize();
 								if(processing_error)return;
@@ -4499,7 +4504,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								
 								zprobe_zoffset-=0.1;
 								Config_StoreSettings(); //Store changes
-								enquecommand_P(PSTR("T1"));
+								gcode_T0_T1_auto(1);
 								enquecommand_P(PSTR("T0"));
 								st_synchronize();
 								if(processing_error)return;
@@ -4507,7 +4512,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							else{
 								extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.1;
 								Config_StoreSettings(); //Store changes
-								enquecommand_P(PSTR("T0"));
+								gcode_T0_T1_auto(0);
 								enquecommand_P(PSTR("T1"));
 								st_synchronize();
 								if(processing_error)return;
@@ -4526,7 +4531,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT1){
 						if (millis() >= waitPeriod_button_press){
 							
-							
+							manual_fine_calib_offset[3]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_X,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_X_SKIP,1);
@@ -4538,7 +4543,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT2){
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[3]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_X,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_X_SKIP,1);
@@ -4549,7 +4554,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT3){
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[3]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_X,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_X_SKIP,1);
@@ -4562,7 +4567,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT4){
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[3]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_X,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_X_SKIP,1);
@@ -4575,7 +4580,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_Z_RIGHT_SELECT5){
 						if (millis() >= waitPeriod_button_press){
-							
+							manual_fine_calib_offset[3]=0.0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_X,0);
 							if(Step_First_Start_Wizard){
 								genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_X_SKIP,1);
@@ -5039,7 +5044,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_LEFT,0);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_UP,1);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,1);
-							genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3);
+							float value = 0.0;
+							value = manual_fine_calib_offset[calib_value_selected] + offset_calib_manu[calib_value_selected];
+							genie.WriteStr(STRING_MANUAL_FINE_CALIB,value,3);
 							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
@@ -5056,7 +5063,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_LEFT,1);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_UP,0);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,0);
-							genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3);
+							float value = 0.0;
+							value = manual_fine_calib_offset[calib_value_selected] + offset_calib_manu[calib_value_selected];
+							genie.WriteStr(STRING_MANUAL_FINE_CALIB,value,3);
 							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 						
@@ -5074,13 +5083,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_LEFT,1);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_UP,0);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,0);
-							genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3);
+							float value = 0.0;
+							value = manual_fine_calib_offset[calib_value_selected] + offset_calib_manu[calib_value_selected];
+							genie.WriteStr(STRING_MANUAL_FINE_CALIB,value,3);
 							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_ZR){
 						if (millis() >= waitPeriod_button_press){
-							
 							calib_value_selected = 3;
 							genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_MANUAL_FINE_CALIB,2);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZR,1);
@@ -5091,12 +5101,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_LEFT,1);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_UP,0);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,0);
-							
-							genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3);
+							float value = 0.0;
+							value = manual_fine_calib_offset[calib_value_selected] + offset_calib_manu[calib_value_selected];
+							genie.WriteStr(STRING_MANUAL_FINE_CALIB,value,3);
 							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 						}
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_UP){
+						
+						float value = 0.0;
 						
 						if(calib_value_selected == 1 || calib_value_selected == 0){
 							if(offset_calib_manu[calib_value_selected] < 1.975) offset_calib_manu[calib_value_selected] += 0.025;
@@ -5105,12 +5118,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if(offset_calib_manu[calib_value_selected] < 0.200) offset_calib_manu[calib_value_selected] += 0.025;
 						}
 						
+						value = offset_calib_manu[calib_value_selected]+manual_fine_calib_offset[calib_value_selected];
 						
-						
-						genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3);
+						genie.WriteStr(STRING_MANUAL_FINE_CALIB,value,3);
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_DOWN){
-						
+						float value = 0.0;
 						
 						if(calib_value_selected == 1 || calib_value_selected == 0){
 							if(offset_calib_manu[calib_value_selected] > -1.975) offset_calib_manu[calib_value_selected] -= 0.025;
@@ -5118,13 +5131,18 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else{
 							if(offset_calib_manu[calib_value_selected] > -0.200) offset_calib_manu[calib_value_selected] -= 0.025;
 						}
+						value = offset_calib_manu[calib_value_selected]+manual_fine_calib_offset[calib_value_selected];
 						
-						
-						genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3);
+						genie.WriteStr(STRING_MANUAL_FINE_CALIB,value,3);
 					}
 					
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_SAVE_OK){
 						if (millis() >= waitPeriod_button_press){
+							
+							manual_fine_calib_offset[0] += offset_calib_manu[0];
+							manual_fine_calib_offset[1] += offset_calib_manu[1];
+							manual_fine_calib_offset[2] += offset_calib_manu[2];
+							manual_fine_calib_offset[3] += offset_calib_manu[3] - offset_calib_manu[2];
 							
 							extruder_offset[X_AXIS][RIGHT_EXTRUDER]+= offset_calib_manu[0];
 							extruder_offset[Y_AXIS][RIGHT_EXTRUDER]+= offset_calib_manu[1];
@@ -5574,9 +5592,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				while(jint < SDFILES_LIST_NUM){
 					Serial.println("Dentro");
-					if(fileCnt > filepointer +  jint){						
+					if(fileCnt > filepointer +  jint){
 						
-						vecto = filepointer + jint;					
+						vecto = filepointer + jint;
 						
 						
 						card.getfilename(vecto);

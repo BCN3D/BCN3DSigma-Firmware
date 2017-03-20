@@ -752,7 +752,7 @@ void setup()
 	SERIAL_PROTOCOLLNPGM(VERSION_STRING);
 	SERIAL_ECHO_START;
 	SERIAL_PROTOCOLLNPGM("start");
-	Serial.println("BCN3D Sigma");
+	SERIAL_PROTOCOLLNPGM("BCN3D Sigma");
 	
 	//LCD START routine
 	
@@ -1848,27 +1848,22 @@ void update_screen_sdcard(){
 	if(millis() >= waitPeriod_input_button_command){
 		if(FLAG_ListFilesSelect0){
 			ListFileSelect0();
-			Serial.println("Select 0");
 			waitPeriod_input_button_command = 1000 + millis();
 		}
 		else if(FLAG_ListFilesSelect1){
 			ListFileSelect1();
-			Serial.println("Select 1");
 			waitPeriod_input_button_command = 1000 + millis();
 		}
 		else if(FLAG_ListFilesSelect2){
 			ListFileSelect2();
-			Serial.println("Select 2");
 			waitPeriod_input_button_command = 1000 + millis();
 		}
 		else if(FLAG_ListFilesSelect3){
 			ListFileSelect3();
-			Serial.println("Select 3");
 			waitPeriod_input_button_command = 1000 + millis();
 		}
 		else if(FLAG_ListFilesSelect4){
 			ListFileSelect4();
-			Serial.println("Select 4");
 			waitPeriod_input_button_command = 1000 + millis();
 		}
 		
@@ -2614,27 +2609,27 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
 	float probe_y1 = Y_SIGMA_PROBE_1_RIGHT_EXTR;
 	vector_3 pt1 = vector_3(probe_x1, probe_y1, z_at_pt_1);
 	//Rapduch
-	Serial.print("Setting Vector1 X:");
+	SERIAL_PROTOCOLPGM("Setting Vector1 X:");
 	Serial.print(probe_x1);
-	Serial.print(", Y:");
+	SERIAL_PROTOCOLPGM(", Y:");
 	Serial.print(probe_y1);
-	Serial.print(", Z:");
+	SERIAL_PROTOCOLPGM(", Z:");
 	Serial.println(z_at_pt_1);
 	vector_3 pt2 = vector_3(X_SIGMA_PROBE_2_LEFT_EXTR, Y_SIGMA_PROBE_2_LEFT_EXTR, z_at_pt_2);
 	//Rapduch
-	Serial.print("Setting Vector2 X:");
+	SERIAL_PROTOCOLPGM("Setting Vector2 X:");
 	Serial.print(X_SIGMA_PROBE_2_LEFT_EXTR);
-	Serial.print(", Y:");
+	SERIAL_PROTOCOLPGM(", Y:");
 	Serial.print(Y_SIGMA_PROBE_2_LEFT_EXTR);
-	Serial.print(", Z:");
+	SERIAL_PROTOCOLPGM(", Z:");
 	Serial.println(z_at_pt_2);
 	vector_3 pt3 = vector_3(X_SIGMA_PROBE_3_LEFT_EXTR, Y_SIGMA_PROBE_3_LEFT_EXTR, z_at_pt_3);
 	//Rapduch
-	Serial.print("Setting Vector3 X:");
+	SERIAL_PROTOCOLPGM("Setting Vector3 X:");
 	Serial.print(X_SIGMA_PROBE_3_LEFT_EXTR);
-	Serial.print(", Y:");
+	SERIAL_PROTOCOLPGM(", Y:");
 	Serial.print(Y_SIGMA_PROBE_3_LEFT_EXTR);
-	Serial.print(", Z:");
+	SERIAL_PROTOCOLPGM(", Z:");
 	Serial.println(z_at_pt_3);
 	#else
 	vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
@@ -2940,7 +2935,7 @@ static void homeaxis(int axis) {
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
 		destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
-		Serial.print("Move to: "); Serial.print(axis); Serial.print(" "); Serial.println(destination[axis]);
+		SERIAL_PROTOCOLPGM("Move to: "); Serial.print(axis); SERIAL_PROTOCOLPGM(" "); Serial.println(destination[axis]);
 		feedrate = homing_feedrate[axis];
 		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
 		st_synchronize();
@@ -3299,7 +3294,6 @@ inline void gcode_G28(){
 			active_extruder=LEFT_EXTRUDER;
 			axis_is_at_home(X_AXIS);
 			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
-			Serial.println("CAMBIADO");
 		}
 		
 		feedrate = SIGMA_Z_HOME_TRAVEL_SPEED;
@@ -3320,7 +3314,7 @@ inline void gcode_G28(){
 		current_position[Y_AXIS] = destination[Y_AXIS];
 		HOMEAXIS(Z);
 		
-		Serial.println("Z SIGMA Homed");
+		SERIAL_PROTOCOLLNPGM("Z SIGMA Homed");
 		home_made_Z =  true;
 		//At this point our probe is homed, no offset is added.
 
@@ -3455,7 +3449,7 @@ inline void gcode_G28(){
 		if(saved_active_extruder==RIGHT_EXTRUDER)
 		{
 			changeToolSigma(RIGHT_EXTRUDER); //Get again the same tool
-			Serial.print("Extruder released active: ");
+			SERIAL_PROTOCOLPGM("Extruder released active: ");
 			Serial.println(saved_active_extruder);
 		}
 		////Activate Probing sequence
@@ -3475,7 +3469,7 @@ inline void gcode_G28(){
 inline void gcode_G40(){
 	#ifdef EXTRUDER_CALIBRATION_WIZARD
 	
-	Serial.println("Starting X Calibration Wizard");
+	SERIAL_PROTOCOLLNPGM("Starting X Calibration Wizard");
 	//1) Set temps and wait
 	setTargetHotend0(print_temp_l);
 	setTargetHotend1(print_temp_r);
@@ -3667,7 +3661,7 @@ inline void gcode_G40(){
 inline void gcode_G41(){
 	#ifdef EXTRUDER_CALIBRATION_WIZARD
 	
-	Serial.println("Starting Y Calibration Wizard");
+	SERIAL_PROTOCOLLNPGM("Starting Y Calibration Wizard");
 	//1) Set temps and wait
 	setTargetHotend0(print_temp_l);
 	setTargetHotend1(print_temp_r);
@@ -3819,7 +3813,7 @@ inline void gcode_G41(){
 		
 		current_position[E_AXIS]+=4.1;
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
-		Serial.println("We are restoring Retract");
+		SERIAL_PROTOCOLLNPGM("We are restoring Retract");
 		st_synchronize();
 		if(processing_error)return;
 		current_position[X_AXIS]=mm_right_lines_y_l;
@@ -3861,7 +3855,7 @@ inline void gcode_G41(){
 inline void gcode_G43(){
 	#ifdef EXTRUDER_CALIBRATION_WIZARD
 	processing =  true;
-	Serial.println("Starting Z Calibration Wizard");
+	SERIAL_PROTOCOLLNPGM("Starting Z Calibration Wizard");
 	//Raise to correct
 	
 	current_position[Y_AXIS]=Y_MAX_POS/2;
@@ -3906,7 +3900,7 @@ inline void gcode_G33(){
 	
 	//WARNING: T0 (LEFT_EXTRUDER) MUST BE SELECTED!
 	if (active_extruder==RIGHT_EXTRUDER){
-		Serial.println("Error: Left Extruder MUST BE ACTIVE");
+		SERIAL_PROTOCOLLNPGM("Error: Left Extruder MUST BE ACTIVE");
 		return; //An error message should show up on screen
 	}
 	
@@ -3965,7 +3959,7 @@ inline void gcode_G33(){
 	// Probe at 3 arbitrary points
 	// probe left extruder
 	
-	Serial.print("Zvalue after home:");
+	SERIAL_PROTOCOLPGM("Zvalue after home:");
 	Serial.println(current_position[Z_AXIS]);
 	
 	float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
@@ -3984,13 +3978,13 @@ inline void gcode_G33(){
 	
 	//Now the right extruder joins the party!
 	active_extruder=RIGHT_EXTRUDER;
-	Serial.print("Zvalue at start:");
+	SERIAL_PROTOCOLPGM("Zvalue at start:");
 	Serial.println(current_position[Z_AXIS]);
 	axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the right extruder
 	current_position[X_AXIS]-=15;
-	Serial.print("Zvalue before:");
+	SERIAL_PROTOCOLPGM("Zvalue before:");
 	Serial.println(current_position[Z_AXIS]);
-	Serial.print("Zvalue after:");
+	SERIAL_PROTOCOLPGM("Zvalue after:");
 	Serial.println(current_position[Z_AXIS]);
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
 	
@@ -4026,11 +4020,11 @@ inline void gcode_G33(){
 	float z_final_probe_2 = (z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower right
 	float z_final_probe_3 = (z_at_pt_3+z2_at_pt_2)/2; //lower right, lower left
 	
-	Serial.print("Probe 1: ");
+	SERIAL_PROTOCOLPGM("Probe 1: ");
 	Serial.println(z_final_probe_1);
-	Serial.print("Probe 2: ");
+	SERIAL_PROTOCOLPGM("Probe 2: ");
 	Serial.println(z_final_probe_2);
-	Serial.print("Probe 3: ");
+	SERIAL_PROTOCOLPGM("Probe 3: ");
 	Serial.println(z_final_probe_3);
 	
 	//Rapduch: We negated the Z points passed on this functions because the actual correction was inverted
@@ -4042,7 +4036,7 @@ inline void gcode_G33(){
 	// The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend.
 	// When the bed is uneven, this height must be corrected.
 	real_z = float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
-	Serial.print("Real_Z: ");
+	SERIAL_PROTOCOLPGM("Real_Z: ");
 	Serial.println(real_z);
 	
 	x_tmp = current_position[X_AXIS] + X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER;
@@ -4051,7 +4045,7 @@ inline void gcode_G33(){
 
 	apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction, we sent the z_offset as current position
 	current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
-	Serial.print("Current Z after setting: ");
+	SERIAL_PROTOCOLPGM("Current Z after setting: ");
 	Serial.println(current_position[Z_AXIS]);
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
@@ -4091,7 +4085,7 @@ inline void gcode_G33(){
 	if(saved_active_extruder==LEFT_EXTRUDER)
 	{
 		//changeToolSigma(LEFT_EXTRUDER); //Get again the same tool
-		Serial.print("Extruder active: ");
+		SERIAL_PROTOCOLPGM("Extruder active: ");
 		Serial.println(saved_active_extruder);
 		}else{
 		
@@ -4375,7 +4369,7 @@ inline void gcode_G34(){
 	// Probe at 3 arbitrary points
 	// probe left extruder
 	
-	Serial.print("Zvalue after home:");
+	SERIAL_PROTOCOLPGM("Zvalue after home:");
 	Serial.println(current_position[Z_AXIS]);
 
 	float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
@@ -4425,11 +4419,11 @@ inline void gcode_G34(){
 	float z_final_probe_2 = z_at_pt_2 - ((z2_at_pt_2-z_at_pt_3)+(z2_at_pt_3-z_at_pt_2))/2 ;//(z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
 	float z_final_probe_3 = z_at_pt_3 - ((z2_at_pt_2-z_at_pt_3)+(z2_at_pt_3-z_at_pt_2))/2 ;//(z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right
 	
-	Serial.print("Probe 1: ");
+	SERIAL_PROTOCOLPGM("Probe 1: ");
 	Serial.println(z_final_probe_1);
-	Serial.print("Probe 2: ");
+	SERIAL_PROTOCOLPGM("Probe 2: ");
 	Serial.println(z_final_probe_2);
-	Serial.print("Probe 3: ");
+	SERIAL_PROTOCOLPGM("Probe 3: ");
 	Serial.println(z_final_probe_3);
 
 	///Alejandro
@@ -4442,9 +4436,9 @@ inline void gcode_G34(){
 	float pas_M5 = PAS_M5;
 
 
-	Serial.print("Valor dZ2:  ");
+	SERIAL_PROTOCOLPGM("Valor dZ2:  ");
 	Serial.println(dz2);
-	Serial.print("Valor dZ3:  ");
+	SERIAL_PROTOCOLPGM("Valor dZ3:  ");
 	Serial.println(dz3);
 	
 
@@ -4496,21 +4490,21 @@ inline void gcode_G34(){
 	}
 
 	
-	Serial.print("Voltes2:  ");
+	SERIAL_PROTOCOLPGM("Voltes2:  ");
 	Serial.println(voltes2);
-	Serial.print("Aprox2:  ");
+	SERIAL_PROTOCOLPGM("Aprox2:  ");
 	Serial.println(aprox2);
-	Serial.print("Vuitens2:  ");
+	SERIAL_PROTOCOLPGM("Vuitens2:  ");
 	Serial.println(vuitens2);
-	Serial.println("");
+	SERIAL_PROTOCOLLNPGM("");
 	
-	Serial.print("Voltes3:  ");
+	SERIAL_PROTOCOLPGM("Voltes3:  ");
 	Serial.println(voltes3);
-	Serial.print("Aprox3:  ");
+	SERIAL_PROTOCOLPGM("Aprox3:  ");
 	Serial.println(aprox3);
-	Serial.print("Vuitens3:  ");
+	SERIAL_PROTOCOLPGM("Vuitens3:  ");
 	Serial.println(vuitens3);
-	Serial.println("");
+	SERIAL_PROTOCOLLNPGM("");
 	home_axis_from_code(true,true,false);
 	doblocking= false;
 	if (aprox2==0 && aprox3==0) //If the calibration it's ok
@@ -4671,7 +4665,7 @@ inline void gcode_G34(){
 }
 inline void gcode_G69(){
 	#ifdef ENABLE_AUTO_BED_LEVELING
-	Serial.println("G69 ACTIVATED");
+	SERIAL_PROTOCOLLNPGM("G69 ACTIVATED");
 	////*******SAVE ACTUIAL POSITION
 	saved_position[X_AXIS] = current_position[X_AXIS];
 	saved_position[Y_AXIS] = current_position[Y_AXIS];
@@ -5165,11 +5159,11 @@ inline void gcode_M24(){
 		}
 		namefilegcode[12]='\0';
 		char* buffer2 = strcat(namefilegcode,"...\0");
-		Serial.print("Card Name: ");
+		SERIAL_PROTOCOLPGM("Card Name: ");
 		Serial.println(card.longFilename);
-		Serial.print("Buffer1: ");
+		SERIAL_PROTOCOLPGM("Buffer1: ");
 		Serial.println(namefilegcode);
-		Serial.print("buffer out: ");
+		SERIAL_PROTOCOLPGM("buffer out: ");
 		Serial.println(buffer2);
 		genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
 		}else{
@@ -5916,7 +5910,7 @@ inline void gcode_M190(){
 	}
 	waiting_temps = false;
 	doblocking = true;
-	Serial.println("Bed Heated");
+	SERIAL_PROTOCOLLNPGM("Bed Heated");
 	LCD_MESSAGEPGM(MSG_BED_DONE);
 	previous_millis_cmd = millis();
 	#endif
@@ -6130,7 +6124,7 @@ inline void gcode_M109(){
 	}
 	#endif //TEMP_RESIDENCY_TIME
 	waiting_temps = false;
-	Serial.println("Extruder Heated");
+	SERIAL_PROTOCOLLNPGM("Extruder Heated");
 	LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
 	starttime=millis();
 	previous_millis_cmd = millis();
@@ -7376,9 +7370,9 @@ inline void gcode_M800(){ //Smart purge smartPurge_Distant(double A, double B, d
 		if(purge_distance_max < purge_distance){
 		purge_distance = purge_distance_max;
 		}
-		Serial.println("Purge distance");
+		SERIAL_PROTOCOLLNPGM("Purge distance");
 		Serial.println(purge_distance);
-		Serial.println("Time inactive");
+		SERIAL_PROTOCOLLNPGM("Time inactive");
 		Serial.println(time_inactive_extruder[active_extruder]);
 		current_position[E_AXIS]+=purge_distance;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], Speed/60, active_extruder);//Purge
@@ -7502,7 +7496,7 @@ inline void gcode_T0_T1(){
 				st_synchronize();
 				//current_position[Z_AXIS]= current_position[Z_AXIS]+TOOLCHANGE_PARK_ZLIFT;
 			}
-			Serial.print("POSITION HOME: ");
+			SERIAL_PROTOCOLPGM("POSITION HOME: ");
 			Serial.println(x_home_pos(active_extruder));
 
 			// apply Y & Z extruder offset (x offset is already used in determining home pos)
@@ -7609,7 +7603,7 @@ void gcode_T0_T1_auto(int code){
 				st_synchronize();
 				//current_position[Z_AXIS]= current_position[Z_AXIS]+TOOLCHANGE_PARK_ZLIFT;
 			}
-			Serial.print("POSITION HOME: ");
+			SERIAL_PROTOCOLPGM("POSITION HOME: ");
 			Serial.println(x_home_pos(active_extruder));
 
 			// apply Y & Z extruder offset (x offset is already used in determining home pos)
@@ -8180,7 +8174,7 @@ void process_commands()
 			gcode_M506();
 			break;
 			
-			case 507: // M503 print settings currently in memory
+			case 507: 
 			gcode_M507();
 			break;
 			
@@ -8894,7 +8888,7 @@ void manage_inactivity()
 	if(HeaterInactivity){
 		if(TimerCooldownInactivity(true)==1){
 			HeaterCooldownInactivity(false);
-			Serial.println("Cooling Down Heater");
+			SERIAL_PROTOCOLLNPGM("Cooling Down Heater");
 		}
 	}
 	
@@ -9246,7 +9240,7 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 
 	#ifdef Z_SIGMA_HOME
 	int saved_active_extruder = active_extruder;
-	Serial.print("Extruder active: ");
+	SERIAL_PROTOCOLPGM("Extruder active: ");
 	Serial.println(saved_active_extruder);
 	#endif
 	
@@ -9358,7 +9352,6 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 			active_extruder=LEFT_EXTRUDER;
 			axis_is_at_home(X_AXIS);
 			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
-			Serial.println("CAMBIADO");
 		}
 		feedrate = SIGMA_Z_HOME_TRAVEL_SPEED;
 		current_position[Z_AXIS] = 0;
@@ -9377,7 +9370,7 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 		current_position[Y_AXIS] = destination[Y_AXIS];
 		HOMEAXIS(Z);
 		
-		Serial.println("Z SIGMA Homed");
+		SERIAL_PROTOCOLLNPGM("Z SIGMA Homed");
 		home_made_Z = true;
 		//At this point our probe is homed, no offset is added.
 
@@ -9505,7 +9498,7 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 		if(saved_active_extruder==RIGHT_EXTRUDER)
 		{
 			changeToolSigma(RIGHT_EXTRUDER); //Get again the same tool
-			Serial.print("Extruder released active: ");
+			SERIAL_PROTOCOLPGM("Extruder released active: ");
 			Serial.println(saved_active_extruder);
 		}
 		////Activate Probing sequence

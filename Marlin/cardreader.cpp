@@ -208,7 +208,7 @@ void CardReader::startFileprint()
 {
 	if(cardOK)
 	{
-		Serial.print("zprobe: ");
+		SERIAL_PROTOCOLPGM("zprobe: ");
 		Serial.println(zprobe_zoffset);
 		sdprinting = true;
 		//Rapduch

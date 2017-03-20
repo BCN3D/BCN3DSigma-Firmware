@@ -326,44 +326,44 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
 				}
 				else
 				{
-					//SERIAL_ECHOLN("dive ok");					
+					//SERIAL_ECHOLN("dive ok");
 				}
 				
 				curDir=&myDir;
 				dirname_start=dirname_end+1;
-				char cmd[30];
-				char* c;
-							
-				
-				lsAction=LS_Count;
-				nrFiles=0;
-				curDir->rewind();
-				lsDive("",myDir);
-				int16_t num_files;
-				num_files = nrFiles;
-				
-				memset(cmd, '\0', sizeof(cmd) );
-				sprintf(cmd, filename);
-				for(c = &cmd[0]; *c; c++)
-				{
-					*c = tolower(*c);
-				}
-				int i=0;
-				while(strcmp(cmd, dirname_start )!=0 && i< num_files){
-					lsAction=LS_GetFilename;
-					nrFiles=i;
+				if(!screen_sdcard){
+					char cmd[30];
+					char* c;
+					
+					lsAction=LS_Count;
+					nrFiles=0;
 					curDir->rewind();
 					lsDive("",myDir);
+					int16_t num_files;
+					num_files = nrFiles;
+					
 					memset(cmd, '\0', sizeof(cmd) );
 					sprintf(cmd, filename);
 					for(c = &cmd[0]; *c; c++)
 					{
 						*c = tolower(*c);
 					}
-					i++;
+					int i=0;
+					while(strcmp(cmd, dirname_start )!=0 && i< num_files){
+						lsAction=LS_GetFilename;
+						nrFiles=i;
+						curDir->rewind();
+						lsDive("",myDir);
+						memset(cmd, '\0', sizeof(cmd) );
+						sprintf(cmd, filename);
+						for(c = &cmd[0]; *c; c++)
+						{
+							*c = tolower(*c);
+						}
+						i++;
+					}
+					nrFiles = 0;
 				}
-				nrFiles = 0;
-				
 			}
 			else // the reminder after all /fsa/fdsa/ is the filename
 			{
@@ -378,6 +378,31 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
 	else //relative path
 	{
 		curDir=&workDir;
+		
+		if(!screen_sdcard){
+			char cmd[30];
+			char* c;
+			int16_t num_files;
+			num_files = getnrfilenames();
+			memset(cmd, '\0', sizeof(cmd) );
+			sprintf(cmd, filename);
+			for(c = &cmd[0]; *c; c++)
+			{
+				*c = tolower(*c);
+			}
+			int i=0;
+			while(strcmp(cmd, fname)!=0 && i< num_files){
+				getfilename(i);
+				memset(cmd, '\0', sizeof(cmd) );
+				sprintf(cmd, filename);
+				for(c = &cmd[0]; *c; c++)
+				{
+					*c = tolower(*c);
+				}
+				i++;
+			}
+			nrFiles = 0;
+		}
 	}
 	if(read)
 	{
@@ -388,7 +413,7 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
 			SERIAL_PROTOCOL(fname);
 			SERIAL_PROTOCOLPGM(MSG_SD_SIZE);
 			SERIAL_PROTOCOLLN(filesize);
-			sdpos = 0;		
+			sdpos = 0;
 			
 			
 			SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);

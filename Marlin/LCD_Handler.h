@@ -1275,27 +1275,27 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if ((Event.reportObject.index == BUTTON_SD_SELECTED0) && FLAG_FilesUpDown)
 					{
 						FLAG_ListFilesSelect0 = true;
-						Serial.println("Select 0");
+						SERIAL_PROTOCOLLNPGM("Select 0");
 					}
 					else if ((Event.reportObject.index == BUTTON_SD_SELECTED1) && FLAG_FilesUpDown)
 					{
 						FLAG_ListFilesSelect1 = true;
-						Serial.println("Select 1");
+						SERIAL_PROTOCOLLNPGM("Select 1");
 					}
 					else if ((Event.reportObject.index == BUTTON_SD_SELECTED2) && FLAG_FilesUpDown)
 					{
 						FLAG_ListFilesSelect2 = true;
-						Serial.println("Select 2");
+						SERIAL_PROTOCOLLNPGM("Select 2");
 					}
 					else if ((Event.reportObject.index == BUTTON_SD_SELECTED3) && FLAG_FilesUpDown)
 					{
 						FLAG_ListFilesSelect3 = true;
-						Serial.println("Select 3");
+						SERIAL_PROTOCOLLNPGM("Select 3");
 					}
 					else if ((Event.reportObject.index == BUTTON_SD_SELECTED4) && FLAG_FilesUpDown)
 					{
 						FLAG_ListFilesSelect4 = true;
-						Serial.println("Select 4");
+						SERIAL_PROTOCOLLNPGM("Select 4");
 					}
 					else if ((Event.reportObject.index == BUTTON_SD_SELECTED5) && FLAG_FilesUpDown)
 					{
@@ -5591,7 +5591,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				
 				while(jint < SDFILES_LIST_NUM){
-					Serial.println("Dentro");
 					if(fileCnt > filepointer +  jint){
 						
 						vecto = filepointer + jint;
@@ -5676,7 +5675,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				
 				while(jint < SDFILES_LIST_NUM){
-					Serial.println("Dentro");
 					if(fileCnt > filepointer +  jint){
 						
 						
@@ -5736,7 +5734,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 	}
 	inline void ListFileListINITSD(){
 		genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,0);
-		Serial.println("Form 2!");
+		SERIAL_PROTOCOLLNPGM("Form 2!");
 		////Check sdcardFiles
 		filepointer = 0;
 		int vecto = 0;

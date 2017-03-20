@@ -21,7 +21,7 @@ class Listfiles
 {
 	public:
 	Listfiles();
-	void get_lineduration(void);
+	void get_lineduration(bool fromfilepoiter, char* name);
 	int get_hours(void);
 	int get_minutes(void);
 	int get_filmetros1(void);

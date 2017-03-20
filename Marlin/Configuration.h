@@ -27,8 +27,8 @@
 //This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
-#define VERSION_STRING  "01-1.2.3_dev"
-#define BUILD_DATE  "|M03.13"
+#define VERSION_STRING  "01-1.2.3RC"
+#define BUILD_DATE  "|M03.17"
 #define VERSION_NUMBER  123
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
@@ -1204,7 +1204,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 ///////	SMART PURGE SETUP 
 
-#define SMARTPURGE_SETUP_2
+#define SMARTPURGE_SETUP_1
 
 #define WAITPERIOD_PRESS_BUTTON 200
 #define WAITPERIOD_PRESS_BUTTON2 400

@@ -4476,8 +4476,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if (active_extruder == 0){
 								zprobe_zoffset+=0.1;
 								Config_StoreSettings(); //Store changes
-								gcode_T0_T1_auto(1);
-								enquecommand_P(PSTR("T0"));
+								gcode_T0_T1_auto(0);
 								st_synchronize();
 								if(processing_error)return;
 								
@@ -4485,8 +4484,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							else{
 								extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+=0.1;
 								Config_StoreSettings(); //Store changes
-								gcode_T0_T1_auto(0);
-								enquecommand_P(PSTR("T1"));
+								gcode_T0_T1_auto(1);
 								st_synchronize();
 								if(processing_error)return;
 								
@@ -4504,16 +4502,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								
 								zprobe_zoffset-=0.1;
 								Config_StoreSettings(); //Store changes
-								gcode_T0_T1_auto(1);
-								enquecommand_P(PSTR("T0"));
+								gcode_T0_T1_auto(0);
 								st_synchronize();
 								if(processing_error)return;
 							}
 							else{
 								extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=0.1;
 								Config_StoreSettings(); //Store changes
-								gcode_T0_T1_auto(0);
-								enquecommand_P(PSTR("T1"));
+								gcode_T0_T1_auto(1);
 								st_synchronize();
 								if(processing_error)return;
 							}

@@ -6227,8 +6227,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 		if(!card.sdispaused){
 			//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 			doblocking = true;
-			if (!home_made) home_axis_from_code(true,true,true);
-			
+			if(Step_First_Start_Wizard){
+				home_axis_from_code(false,true,false);
+				home_axis_from_code(true,false,true);
+				}else{
+				if (!home_made) home_axis_from_code(true,true,true);
+			}
 			int feedrate;
 			if (!FLAG_FilamentHome){
 				

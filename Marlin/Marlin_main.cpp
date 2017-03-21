@@ -7357,12 +7357,12 @@ inline void gcode_M800(){ //Smart purge smartPurge_Distant(double A, double B, d
 	
 	
 	#ifdef SMARTPURGE_SETUP_1
-	float Speed=0.0, Slope=0.0, purge_distance_max = 0.0, purge_distance = 0.0, purge_distance_min = 0.0;
+	float Speed=-0.01, Slope=-0.01, purge_distance_max = -0.01, purge_distance = -0.01, purge_distance_min = -0.01;
 	if(code_seen('F')) Speed = code_value();	
 	if(code_seen('S')) Slope = code_value();
 	if(code_seen('E')) purge_distance_max = code_value();
 	if(code_seen('P')) purge_distance_min = code_value();
-	if (Speed > 0.0 && Slope > 0.0 && purge_distance_max > 0.0 && purge_distance_min >= 0.0){
+	if (Speed >= 0.0 && Slope >= 0.0 && purge_distance_max >= 0.0 && purge_distance_min >= 0.0){
 		purge_distance = time_inactive_extruder[active_extruder]*Slope;
 		if(purge_distance_min > purge_distance){
 			purge_distance = purge_distance_min;

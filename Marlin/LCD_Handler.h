@@ -1480,6 +1480,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_RECOVERY_TOBELOST_ACCEPT){
 						if (millis() >= waitPeriod_button_press){
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+							screen_sdcard = false;
+							surfing_utilities=false;
+							SERIAL_PROTOCOLPGM("Surfing 0 \n");
+							surfing_temps = false;
 							saved_print_flag = 888;
 							Config_StoreSettings();
 							waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;

@@ -760,6 +760,7 @@ void CardReader::printingHasFinished()
 		setTargetHotend0(0);
 		setTargetHotend1(0);
 		setTargetBed(0);
+		saved_print_smartpurge_flag = false;
 		screen_sdcard = false;
 		surfing_utilities=false;
 		surfing_temps = false;

@@ -390,6 +390,7 @@ extern int saved_tempbed;
 extern int saved_feedmulti;
 extern int saved_fanlayer;
 extern int saved_print_flag;	
+extern bool saved_print_smartpurge_flag;
 extern int workDir_vector[MAX_DIR_DEPTH];
 extern uint8_t workDir_vector_lenght;
 extern int saved_workDir_vector[MAX_DIR_DEPTH];

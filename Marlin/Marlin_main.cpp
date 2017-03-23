@@ -274,6 +274,7 @@ int saved_feedmulti;
 int saved_workDir_vector[MAX_DIR_DEPTH];
 uint8_t saved_workDir_vector_lenght=0;
 int saved_print_flag = 888;
+bool saved_print_smartpurge_flag = false;
 #endif
 int workDir_vector[MAX_DIR_DEPTH];
 uint8_t workDir_vector_lenght=0;
@@ -878,7 +879,7 @@ void setup()
 			
 		}
 		if(successSD){
-			
+			screen_sdcard = true;
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
 			listsd.get_lineduration(true, NULL);
 			if(listsd.get_minutes() == -1){
@@ -2230,6 +2231,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		}
 		else{
 			back_home = false;
+			saved_print_smartpurge_flag = false;
 			gcode_T0_T1_auto(0);
 			st_synchronize();
 			if(SD_FINISHED_STEPPERRELEASE)
@@ -5426,7 +5428,7 @@ inline void gcode_M34(){
 			}
 			Serial.println(current_position[Y_AXIS]);
 			waiting_temps = false;
-			
+			saved_print_smartpurge_flag = true;
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
 		}
 		#endif //SDSUPPORT
@@ -7338,7 +7340,16 @@ inline void gcode_M351(){
 	#endif
 }
 inline void gcode_M800(){ //Smart purge smartPurge_Distant(double A, double B, double T, double P, double E, int timeIdle)
-	
+	if(saved_print_smartpurge_flag){
+		current_position[E_AXIS]+=9;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
+		st_synchronize();
+		plan_set_e_position(current_position[E_AXIS]);
+		current_position[E_AXIS]-=4;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 2400/60, active_extruder);//Purge
+		st_synchronize();
+		saved_print_smartpurge_flag = false;
+	}else{
 	#ifdef SMARTPURGE_SETUP_2
 	float Speed=0.0, A=0.0, B=0.0, T=0.0, P=0.0, E=0.0, purge_distance = 0.0;
 	if(code_seen('F')) Speed = code_value();
@@ -7354,8 +7365,7 @@ inline void gcode_M800(){ //Smart purge smartPurge_Distant(double A, double B, d
 	st_synchronize();
 	time_inactive_extruder[active_extruder] = 0;
 	#endif
-	
-	
+		
 	#ifdef SMARTPURGE_SETUP_1
 	float Speed=-0.01, Slope=-0.01, purge_distance_max = -0.01, purge_distance = -0.01, purge_distance_min = -0.01;
 	if(code_seen('F')) Speed = code_value();	
@@ -7408,6 +7418,7 @@ inline void gcode_M800(){ //Smart purge smartPurge_Distant(double A, double B, d
 		st_synchronize();
 	}
 	#endif
+	}	
 }
 inline void gcode_M999(){
 	Stopped = false;

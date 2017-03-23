@@ -201,7 +201,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						waitPeriod_button_press=millis()+WAITPERIOD_PRESS_BUTTON;
 					}
 				}
-				else if (Event.reportObject.index == BUTTON_STOP_SAVE && !waiting_temps)
+				else if (Event.reportObject.index == BUTTON_STOP_SAVE && !waiting_temps && !card.sdispaused)
 				{
 					if (millis() >= waitPeriod_button_press){
 						

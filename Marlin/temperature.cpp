@@ -1663,15 +1663,25 @@ ISR(TIMER0_COMPB_vect)
     if(soft_pwm_fan > 0){
 		//Rapduch
 	    #if MOTHERBOARD == BCN3D_BOARD
+		if(extruder_duplication_enabled){
+			WRITE(FAN_PIN,1);
+			WRITE(FAN2_PIN,1);
+		}else{
 	    if (active_extruder == LEFT_EXTRUDER){WRITE(FAN_PIN,1);}
 	    if (active_extruder == RIGHT_EXTRUDER){WRITE(FAN2_PIN,1);}
+		}
 	    #else
 	    WRITE(FAN_PIN,1);
 	    #endif
 	    }else{
 	    #if MOTHERBOARD == BCN3D_BOARD
+		if(extruder_duplication_enabled){
+			WRITE(FAN_PIN,0);
+			WRITE(FAN2_PIN,0);
+		}else{
 	    if (active_extruder == LEFT_EXTRUDER){WRITE(FAN_PIN,0);}
 	    if (active_extruder == RIGHT_EXTRUDER){WRITE(FAN2_PIN,0);}
+		}
 	    #else
 	    WRITE(FAN_PIN,0);
 	    #endif

@@ -515,12 +515,19 @@ void check_axes_activity()
   
   //Rapduch
   #if MOTHERBOARD == BCN3D_BOARD
-	if (active_extruder == LEFT_EXTRUDER){
+	if(extruder_duplication_enabled){
 		analogWrite(FAN_PIN,tail_fan_speed);
-		analogWrite(FAN2_PIN,0);
-	}else if (active_extruder == RIGHT_EXTRUDER){ 
-		analogWrite(FAN_PIN,0);
 		analogWrite(FAN2_PIN,tail_fan_speed);
+	}
+	else{
+		if (active_extruder == LEFT_EXTRUDER){
+			analogWrite(FAN_PIN,tail_fan_speed);
+			analogWrite(FAN2_PIN,0);
+		}
+		else if (active_extruder == RIGHT_EXTRUDER){
+			analogWrite(FAN_PIN,0);
+			analogWrite(FAN2_PIN,tail_fan_speed);
+		}
 	}
 	
 	//analogWrite(FAN_PIN,tail_fan_speed);

@@ -173,6 +173,15 @@ static bool thermal_runaway = false;
   #endif
 #endif
 
+FORCE_INLINE void ResetTimer_TRunaway_BED(){	
+	thermal_runaway_bed_state_machine = 0;
+}
+FORCE_INLINE void ResetTimer_TRunaway_Hotends(){
+	thermal_runaway_state_machine[0] = 0;
+	thermal_runaway_state_machine[1] = 0;
+	thermal_runaway_state_machine[2] = 0;
+}
+
 FORCE_INLINE void autotempShutdown(){
  #ifdef AUTOTEMP
  if(autotemp_enabled)

@@ -8596,7 +8596,6 @@ void prepare_move()
 			}
 			st_synchronize();
 			active_extruder_parked = false;
-			SERIAL_PROTOCOLLNPGM("Dual Mode OFF");
 		}
 		
 		if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0)
@@ -8609,7 +8608,6 @@ void prepare_move()
 			st_synchronize();
 			extruder_duplication_enabled = true;
 			active_extruder_parked = false;
-			SERIAL_PROTOCOLLNPGM("Dual Mode ON");
 		}
 		else if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE) // handle unparking of head
 		{

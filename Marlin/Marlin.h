@@ -193,7 +193,6 @@ void calculate_SCARA_forward_Transform(float f_scara[3]);
 void prepare_move();
 void kill();
 void Stop();
-
 bool IsStopped();
 
 void enquecommand(const char *cmd); //put an ASCII command at the end of the current buffer.
@@ -434,6 +433,7 @@ extern bool screen_change_nozz1down;
 extern bool screen_change_nozz2down;
 extern bool screen_change_beddown;
 extern bool screen_change_speeddown;
+extern void set_dual_x_carriage_mode(int mode);
 extern void checkMaxTemps();
 extern void gcode_T0_T1_auto(int code);
 extern void Config_Reset_Statistics(int data);

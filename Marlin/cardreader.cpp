@@ -757,6 +757,7 @@ void CardReader::printingHasFinished()
 		enquecommand_P(PSTR("T0"));
 		st_synchronize();
 		enquecommand_P(PSTR("M107"));
+		set_dual_x_carriage_mode(DEFAULT_DUAL_X_CARRIAGE_MODE);
 		setTargetHotend0(0);
 		setTargetHotend1(0);
 		setTargetBed(0);

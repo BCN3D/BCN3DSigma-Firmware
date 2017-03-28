@@ -2239,6 +2239,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
 			}
 			quickStop();
+			set_dual_x_carriage_mode(DEFAULT_DUAL_X_CARRIAGE_MODE);
 			autotempShutdown();
 			setTargetHotend0(0);
 			setTargetHotend1(0);
@@ -2524,6 +2525,11 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 #define DXC_AUTO_PARK_MODE    1
 #define DXC_DUPLICATION_MODE  2
 static int dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+void set_dual_x_carriage_mode(int mode);
+
+void set_dual_x_carriage_mode(int mode){
+	dual_x_carriage_mode = mode;
+}
 
 float x_home_pos(int extruder) {
 	if (extruder == 0)
@@ -8596,18 +8602,22 @@ void prepare_move()
 			}
 			st_synchronize();
 			active_extruder_parked = false;
+			SERIAL_PROTOCOLLNPGM("Dual Mode OFF");
 		}
 		
 		if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0)
 		{
+			
 			// move duplicate extruder into correct duplication position.
-			plan_set_position(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			plan_set_position(extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 			plan_buffer_line(current_position[X_AXIS] + duplicate_extruder_x_offset, current_position[Y_AXIS], current_position[Z_AXIS],
 			current_position[E_AXIS], max_feedrate[X_AXIS], 1);
 			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 			st_synchronize();
 			extruder_duplication_enabled = true;
 			active_extruder_parked = false;
+			
+			SERIAL_PROTOCOLLNPGM("Dual Mode ON");
 		}
 		else if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE) // handle unparking of head
 		{

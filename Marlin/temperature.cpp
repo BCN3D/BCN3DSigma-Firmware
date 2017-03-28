@@ -40,6 +40,8 @@
 //===========================================================================
 //=============================public variables============================
 //===========================================================================
+bool thermal_runaway_reset_bed_state = false;
+bool thermal_runaway_reset_hotend_state = false;
 int target_temperature[EXTRUDERS] = { 0 };
 int target_temperature_bed = 0;
 int current_temperature_raw[EXTRUDERS] = { 0 };
@@ -618,6 +620,7 @@ void manage_heater()
   {
 
 	#ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+		if(thermal_runaway_reset_hotend_state) thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], 0, e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
 		thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
 	#endif
 
@@ -711,8 +714,9 @@ void manage_heater()
         #endif
       }
     #endif
+	
   } // End extruder for loop
-
+	thermal_runaway_reset_hotend_state = false;
   #if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
       (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1) || \
       (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1)
@@ -732,9 +736,11 @@ void manage_heater()
   #if TEMP_SENSOR_BED != 0
   
     #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+	if(thermal_runaway_reset_bed_state) thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, 0, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS*target_temperature_bed/100);
+	thermal_runaway_reset_bed_state = false;
       thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS*target_temperature_bed/100);
     #endif
-
+	
   #ifdef PIDTEMPBED
     pid_input = current_temperature_bed;
 
@@ -1406,7 +1412,7 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
 	SERIAL_ECHO(" ;  Target Temp:");
 	SERIAL_ECHO(target_temperature);
 	SERIAL_ECHOLN("");  */
-
+	
 	if ((target_temperature == 0) || thermal_runaway)
 	{
 		*state = 0;
@@ -1663,25 +1669,15 @@ ISR(TIMER0_COMPB_vect)
     if(soft_pwm_fan > 0){
 		//Rapduch
 	    #if MOTHERBOARD == BCN3D_BOARD
-		if(extruder_duplication_enabled){
-			WRITE(FAN_PIN,1);
-			WRITE(FAN2_PIN,1);
-		}else{
 	    if (active_extruder == LEFT_EXTRUDER){WRITE(FAN_PIN,1);}
 	    if (active_extruder == RIGHT_EXTRUDER){WRITE(FAN2_PIN,1);}
-		}
 	    #else
 	    WRITE(FAN_PIN,1);
 	    #endif
 	    }else{
-	    #if MOTHERBOARD == BCN3D_BOARD
-		if(extruder_duplication_enabled){
-			WRITE(FAN_PIN,0);
-			WRITE(FAN2_PIN,0);
-		}else{
+	    #if MOTHERBOARD == BCN3D_BOARD		
 	    if (active_extruder == LEFT_EXTRUDER){WRITE(FAN_PIN,0);}
-	    if (active_extruder == RIGHT_EXTRUDER){WRITE(FAN2_PIN,0);}
-		}
+	    if (active_extruder == RIGHT_EXTRUDER){WRITE(FAN2_PIN,0);}		
 	    #else
 	    WRITE(FAN_PIN,0);
 	    #endif

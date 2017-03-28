@@ -5792,14 +5792,14 @@ inline void gcode_M104(){
 	setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
 	#endif
 	setWatch();
-	ResetTimer_TRunaway_Hotends();
+	thermal_runaway_reset_hotend_state = true;
 }
 inline void gcode_M112(){
 	kill();
 }
 inline void gcode_M140(){
 	if (code_seen('S')) setTargetBed(code_value());
-	ResetTimer_TRunaway_BED();
+	thermal_runaway_reset_bed_state = true;
 }
 inline void gcode_M105(){
 	if(setTargetedHotend(105)){
@@ -5884,7 +5884,7 @@ inline void gcode_M190(){
 	
 	cancel_heatup = false;
 	target_direction = isHeatingBed(); // true if heating, false if cooling
-	ResetTimer_TRunaway_BED();
+	thermal_runaway_reset_bed_state = true;
 	while ( (target_direction)&&(!cancel_heatup) ? (isHeatingBed()) : (isCoolingBed()&&(CooldownNoWait==false)) )
 	{
 		if(( millis() - codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
@@ -6028,7 +6028,7 @@ inline void gcode_M109(){
 	residencyStart = -1;
 	/* continue to loop until we have reached the target temp
 	_and_ until TEMP_RESIDENCY_TIME hasn't passed since we reached it */
-	ResetTimer_TRunaway_Hotends();
+	thermal_runaway_reset_hotend_state = true;
 	while((!cancel_heatup)&&((residencyStart == -1) || (residencyStart >= 0 && (((unsigned int) (millis() - residencyStart)) < (TEMP_RESIDENCY_TIME * 1000UL)))) ) {
 		if( (millis() - codenum) > 1000UL )
 		{ //Print Temp Reading and remaining time every 1 second while heating up/cooling down
@@ -8596,7 +8596,6 @@ void prepare_move()
 			}
 			st_synchronize();
 			active_extruder_parked = false;
-			SERIAL_PROTOCOLLNPGM("Dual Mode OFF");
 		}
 		
 		if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0)
@@ -8609,7 +8608,6 @@ void prepare_move()
 			st_synchronize();
 			extruder_duplication_enabled = true;
 			active_extruder_parked = false;
-			SERIAL_PROTOCOLLNPGM("Dual Mode ON");
 		}
 		else if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE) // handle unparking of head
 		{

@@ -4709,7 +4709,19 @@ inline void gcode_G69(){
 	
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, INSERT_FAST_SPEED/60, active_extruder);	//Retract
 	st_synchronize();
-	
+	if(dual_x_carriage_mode == DXC_DUPLICATION_MODE){
+		feedrate=homing_feedrate[X_AXIS];
+		extruder_duplication_enabled = false;
+		
+		current_position[X_AXIS] = 0;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+		
+		plan_set_position(duplicate_extruder_x_offset+saved_position[X_AXIS]-PAUSE_G69_XYMOVE, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		plan_buffer_line(extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		
+		
+	}else if(dual_x_carriage_mode == DXC_FULL_SIGMA_MODE){	
 	feedrate=homing_feedrate[X_AXIS];
 	if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
 		current_position[X_AXIS] = 0;
@@ -4719,13 +4731,13 @@ inline void gcode_G69(){
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 	}
 	st_synchronize();
+	}
+	
+	
 	//*********************************//
 	FLAG_PausePause = false;
 	doblocking = true;
-	processing = false;
-	/*genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,1);
-	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
-	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,1);*/
+	processing = false;	
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
 	screen_printing_pause_form = screen_printing_pause_form1;
 	genie.WriteStr(STRINGS_PRINTING_GCODE_PAUSE,namefilegcode);
@@ -4753,6 +4765,8 @@ inline void gcode_G70(){
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);//Purge
 	st_synchronize();
 	
+	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
+	
 	current_position[E_AXIS]+=PAUSE_G70_PURGE;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
 	st_synchronize();
@@ -4760,12 +4774,22 @@ inline void gcode_G70(){
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Purge
 	st_synchronize();
 	
+	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =false;
 	
 	current_position[X_AXIS] = saved_position[X_AXIS];
 	
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
+	
+	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE){
+		plan_set_position(extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		plan_buffer_line(current_position[X_AXIS]+duplicate_extruder_x_offset, current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 200, RIGHT_EXTRUDER);
+		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	} 
+	
+	
 	st_synchronize();
 	
+	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
 	
 	current_position[Z_AXIS] = saved_position[Z_AXIS];
 	feedrate=homing_feedrate[Z_AXIS];
@@ -4779,13 +4803,8 @@ inline void gcode_G70(){
 	
 	current_position[E_AXIS] = saved_position[E_AXIS];
 	plan_set_e_position(current_position[E_AXIS]);
-	/*
-	current_position[E_AXIS]+=0; //2
-	feedrate=20*60;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-	st_synchronize();*/
 	
-	
+		
 	//*********************************//
 	
 	feedrate = saved_feedrate;

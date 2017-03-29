@@ -185,6 +185,8 @@ void Config_StoreSettings()
 	EEPROM_WRITE_VAR(i,manual_fine_calib_offset[1]);
 	EEPROM_WRITE_VAR(i,manual_fine_calib_offset[2]);
 	EEPROM_WRITE_VAR(i,manual_fine_calib_offset[3]);
+	EEPROM_WRITE_VAR(i,saved_dual_x_carriage_mode);
+	EEPROM_WRITE_VAR(i,saved_duplicate_extruder_x_offset);
 	#endif
 	char ver2[4]=EEPROM_VERSION;
 	i=EEPROM_OFFSET;
@@ -507,6 +509,8 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,manual_fine_calib_offset[1]);
 		EEPROM_READ_VAR(i,manual_fine_calib_offset[2]);
 		EEPROM_READ_VAR(i,manual_fine_calib_offset[3]);
+		EEPROM_READ_VAR(i,saved_dual_x_carriage_mode);
+		EEPROM_READ_VAR(i,saved_duplicate_extruder_x_offset);
 		#endif RECOVERY_PRINT
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();

@@ -275,6 +275,8 @@ int saved_workDir_vector[MAX_DIR_DEPTH];
 uint8_t saved_workDir_vector_lenght=0;
 int saved_print_flag = 888;
 bool saved_print_smartpurge_flag = false;
+int saved_dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+float saved_duplicate_extruder_x_offset = DEFAULT_DUPLICATION_X_OFFSET;
 #endif
 int workDir_vector[MAX_DIR_DEPTH];
 uint8_t workDir_vector_lenght=0;
@@ -2526,10 +2528,16 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 #define DXC_DUPLICATION_MODE  2
 static int dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 void set_dual_x_carriage_mode(int mode);
+int get_dual_x_carriage_mode();
 
 void set_dual_x_carriage_mode(int mode){
 	dual_x_carriage_mode = mode;
 }
+
+int get_dual_x_carriage_mode(){
+	return dual_x_carriage_mode;
+}
+
 
 float x_home_pos(int extruder) {
 	if (extruder == 0)
@@ -2553,7 +2561,19 @@ static unsigned long delayed_move_time = 0; // used in mode 1
 static float duplicate_extruder_x_offset = DEFAULT_DUPLICATION_X_OFFSET; // used in mode 2
 static float duplicate_extruder_temp_offset = 0; // used in mode 2
 bool extruder_duplication_enabled = false; // used in mode 2
+void set_duplicate_extruder_x_offset(int offset);
+
+void set_duplicate_extruder_x_offset(int offset){
+	duplicate_extruder_x_offset = offset;
+}
+float get_duplicate_extruder_x_offset();
+
+float get_duplicate_extruder_x_offset(){
+	return duplicate_extruder_x_offset;
+}
 #endif //DUAL_X_CARRIAGE
+
+
 
 static void axis_is_at_home(int axis) {
 	#ifdef DUAL_X_CARRIAGE
@@ -5339,6 +5359,8 @@ inline void gcode_M33(){
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, 400, active_extruder);	//Retract
 		st_synchronize();
 		
+		if(dual_x_carriage_mode == DXC_DUPLICATION_MODE)	extruder_duplication_enabled =false;
+		
 		feedrate=homing_feedrate[X_AXIS];
 		if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
 			current_position[X_AXIS] = 0;
@@ -5346,6 +5368,13 @@ inline void gcode_M33(){
 			}else{
 			current_position[X_AXIS] = extruder_offset[X_AXIS][1];
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		}
+		if(dual_x_carriage_mode == DXC_DUPLICATION_MODE){
+			
+			plan_set_position(extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			plan_buffer_line(current_position[X_AXIS]+duplicate_extruder_x_offset, current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			
 		}
 		st_synchronize();
 		
@@ -5393,6 +5422,8 @@ inline void gcode_M34(){
 			z_restaurada = current_position[Z_AXIS];
 			
 			doblocking = true;
+			set_dual_x_carriage_mode(saved_dual_x_carriage_mode);
+			set_duplicate_extruder_x_offset(saved_duplicate_extruder_x_offset);
 			
 			home_axis_from_code(true, true, false);
 			
@@ -5416,6 +5447,7 @@ inline void gcode_M34(){
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 			st_synchronize();
 			
+			if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
 			
 			current_position[E_AXIS]+=PAUSE_G70_PURGE;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
@@ -5425,22 +5457,23 @@ inline void gcode_M34(){
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
 			st_synchronize();
 			
-			if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
-				current_position[X_AXIS] = saved_x_position;
-				feedrate=200*60;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-				st_synchronize();
-				}else{
-				current_position[X_AXIS] = extruder_offset[X_AXIS][1];
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-			}
-			st_synchronize();
-			
+			if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =false;
 			
 			current_position[X_AXIS] = saved_x_position;
 			feedrate=200*60;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+			
+			
+			if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE){
+				
+				plan_set_position(extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+				plan_buffer_line(current_position[X_AXIS]+duplicate_extruder_x_offset, current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 200, RIGHT_EXTRUDER);
+				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+				
+			}		
 			st_synchronize();
+			if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
+			
 			
 			current_position[E_AXIS] = saved_e_position;
 			plan_set_e_position(current_position[E_AXIS]);

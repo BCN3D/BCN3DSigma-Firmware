@@ -1669,7 +1669,7 @@ ISR(TIMER0_COMPB_vect)
     if(soft_pwm_fan > 0){
 		//Rapduch
 	    #if MOTHERBOARD == BCN3D_BOARD
-		if(extruder_duplication_enabled){
+		if(extruder_duplication_enabled || extruder_duplication_mirror_enabled){
 			WRITE(FAN_PIN,1);
 			WRITE(FAN2_PIN,1);
 			}else{
@@ -1681,7 +1681,7 @@ ISR(TIMER0_COMPB_vect)
 	    #endif
 	    }else{
 	    #if MOTHERBOARD == BCN3D_BOARD
-		if(extruder_duplication_enabled){
+		if(extruder_duplication_enabled || extruder_duplication_mirror_enabled){
 			WRITE(FAN_PIN,0);
 			WRITE(FAN2_PIN,0);
 			}else{		

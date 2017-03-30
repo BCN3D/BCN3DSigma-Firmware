@@ -357,8 +357,10 @@ ISR(TIMER1_COMPA_vect)
         if (extruder_duplication_enabled){
           WRITE(X_DIR_PIN, INVERT_X_DIR);
           WRITE(X2_DIR_PIN, INVERT_X_DIR);
-        }
-        else{
+        }else if(extruder_duplication_mirror_enabled){
+			WRITE(X_DIR_PIN, INVERT_X_DIR);
+			WRITE(X2_DIR_PIN, !INVERT_X_DIR);
+		}else{
           if (current_block->active_extruder != 0)
             WRITE(X2_DIR_PIN, INVERT_X_DIR);
           else
@@ -374,8 +376,10 @@ ISR(TIMER1_COMPA_vect)
         if (extruder_duplication_enabled){
           WRITE(X_DIR_PIN, !INVERT_X_DIR);
           WRITE(X2_DIR_PIN, !INVERT_X_DIR);
-        }
-        else{
+        }else if(extruder_duplication_mirror_enabled){
+		WRITE(X_DIR_PIN, !INVERT_X_DIR);
+        WRITE(X2_DIR_PIN, INVERT_X_DIR);
+        }else{
           if (current_block->active_extruder != 0)
             WRITE(X2_DIR_PIN, !INVERT_X_DIR);
           else
@@ -638,6 +642,9 @@ ISR(TIMER1_COMPA_vect)
           if (extruder_duplication_enabled){
             WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
             WRITE(X2_STEP_PIN, !INVERT_X_STEP_PIN);
+          }else if(extruder_duplication_mirror_enabled){
+          WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
+          WRITE(X2_STEP_PIN, !INVERT_X_STEP_PIN);
           }
           else {
             if (current_block->active_extruder != 0)
@@ -654,6 +661,9 @@ ISR(TIMER1_COMPA_vect)
           if (extruder_duplication_enabled){
             WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
             WRITE(X2_STEP_PIN, INVERT_X_STEP_PIN);
+          }else if(extruder_duplication_mirror_enabled){
+			WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
+			WRITE(X2_STEP_PIN, INVERT_X_STEP_PIN);
           }
           else {
             if (current_block->active_extruder != 0)

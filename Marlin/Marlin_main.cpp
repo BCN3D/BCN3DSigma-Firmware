@@ -2526,6 +2526,7 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 #define DXC_FULL_CONTROL_MODE 0
 #define DXC_AUTO_PARK_MODE    1
 #define DXC_DUPLICATION_MODE  2
+#define DXC_DUPLICATION_MIRROR_MODE  4
 static int dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 void set_dual_x_carriage_mode(int mode);
 int get_dual_x_carriage_mode();
@@ -2561,6 +2562,7 @@ static unsigned long delayed_move_time = 0; // used in mode 1
 static float duplicate_extruder_x_offset = DEFAULT_DUPLICATION_X_OFFSET; // used in mode 2
 static float duplicate_extruder_temp_offset = 0; // used in mode 2
 bool extruder_duplication_enabled = false; // used in mode 2
+bool extruder_duplication_mirror_enabled = false; // used in mode 4
 void set_duplicate_extruder_x_offset(int offset);
 
 void set_duplicate_extruder_x_offset(int offset){
@@ -3232,6 +3234,7 @@ inline void gcode_G28(){
 		#else
 		int x_axis_home_dir = x_home_dir(active_extruder);
 		extruder_duplication_enabled = false;
+		extruder_duplication_mirror_enabled = false;
 		#endif
 
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -3281,6 +3284,7 @@ inline void gcode_G28(){
 		#endif
 		int tmp_extruder = active_extruder;
 		extruder_duplication_enabled = false;
+		extruder_duplication_mirror_enabled = false;
 		active_extruder = !active_extruder;
 		HOMEAXIS(X);
 		inactive_extruder_x_pos = current_position[X_AXIS];
@@ -4732,6 +4736,7 @@ inline void gcode_G69(){
 	if(dual_x_carriage_mode == DXC_DUPLICATION_MODE){
 		feedrate=homing_feedrate[X_AXIS];
 		extruder_duplication_enabled = false;
+		extruder_duplication_mirror_enabled = false;
 		
 		current_position[X_AXIS] = 0;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
@@ -4741,7 +4746,7 @@ inline void gcode_G69(){
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 		
 		
-	}else if(dual_x_carriage_mode == DXC_FULL_SIGMA_MODE){	
+	}else if(dual_x_carriage_mode == DXC_FULL_SIGMA_MODE || dual_x_carriage_mode == DXC_DUPLICATION_MIRROR_MODE){	
 	feedrate=homing_feedrate[X_AXIS];
 	if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
 		current_position[X_AXIS] = 0;
@@ -4752,7 +4757,7 @@ inline void gcode_G69(){
 	}
 	st_synchronize();
 	}
-	
+	if(dual_x_carriage_mode ==DXC_DUPLICATION_MIRROR_MODE)	extruder_duplication_mirror_enabled =false;
 	
 	//*********************************//
 	FLAG_PausePause = false;
@@ -4786,6 +4791,7 @@ inline void gcode_G70(){
 	st_synchronize();
 	
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
+	if(dual_x_carriage_mode ==DXC_DUPLICATION_MIRROR_MODE)	extruder_duplication_mirror_enabled =true;
 	
 	current_position[E_AXIS]+=PAUSE_G70_PURGE;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
@@ -7336,13 +7342,13 @@ inline void gcode_M605(){
 		SERIAL_ECHO(",");
 		SERIAL_ECHOLN(extruder_offset[Y_AXIS][1]);
 	}
-	else if (dual_x_carriage_mode != DXC_FULL_CONTROL_MODE && dual_x_carriage_mode != DXC_AUTO_PARK_MODE)
+	else if (dual_x_carriage_mode != DXC_FULL_CONTROL_MODE && dual_x_carriage_mode != DXC_AUTO_PARK_MODE && dual_x_carriage_mode != DXC_DUPLICATION_MIRROR_MODE)
 	{
 		dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 	}
-
 	active_extruder_parked = false;
 	extruder_duplication_enabled = false;
+	extruder_duplication_mirror_enabled = false;
 	delayed_move_time = 0;
 	#endif //DUAL_X_CARRIAGE
 	
@@ -7599,6 +7605,12 @@ inline void gcode_T0_T1(){
 				inactive_extruder_x_pos = destination[X_AXIS];
 				extruder_duplication_enabled = false;
 			}
+			else if (dual_x_carriage_mode == DXC_DUPLICATION_MIRROR_MODE)
+			{
+				active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
+				memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+				extruder_duplication_mirror_enabled = false;
+			}
 			else
 			{
 				// record raised toolhead position for use by unpark
@@ -7704,6 +7716,12 @@ void gcode_T0_T1_auto(int code){
 				if (active_extruder == 0 || active_extruder_parked) current_position[X_AXIS] = inactive_extruder_x_pos;
 				else current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
 				inactive_extruder_x_pos = destination[X_AXIS];
+				extruder_duplication_enabled = false;
+			}
+			else if (dual_x_carriage_mode == DXC_DUPLICATION_MIRROR_MODE)
+			{
+				active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
+				memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
 				extruder_duplication_enabled = false;
 			}
 			else
@@ -8670,6 +8688,12 @@ void prepare_move()
 			active_extruder_parked = false;
 			
 			SERIAL_PROTOCOLLNPGM("Dual Mode ON");
+		}else if (dual_x_carriage_mode == DXC_DUPLICATION_MIRROR_MODE && active_extruder == 0)
+		{
+			extruder_duplication_mirror_enabled = true;
+			active_extruder_parked = false;
+			
+			SERIAL_PROTOCOLLNPGM("Dual Mirror Mode ON");
 		}
 		else if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE) // handle unparking of head
 		{
@@ -9350,6 +9374,7 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 		#else
 		int x_axis_home_dir = x_home_dir(active_extruder);
 		extruder_duplication_enabled = false;
+		extruder_duplication_mirror_enabled = false;
 		#endif
 
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -9398,6 +9423,7 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 		#endif
 		int tmp_extruder = active_extruder;
 		extruder_duplication_enabled = false;
+		extruder_duplication_mirror_enabled = false;
 		active_extruder = !active_extruder;
 		HOMEAXIS(X);
 		inactive_extruder_x_pos = current_position[X_AXIS];

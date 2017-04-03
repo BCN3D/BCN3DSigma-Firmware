@@ -8682,7 +8682,11 @@ void prepare_move()
 			plan_set_position(extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 			plan_buffer_line(current_position[X_AXIS] + duplicate_extruder_x_offset, current_position[Y_AXIS], current_position[Z_AXIS],
 			current_position[E_AXIS], max_feedrate[X_AXIS], 1);
-			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]>0.0){
+				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]-extruder_offset[Z_AXIS][RIGHT_EXTRUDER], current_position[E_AXIS]);
+			}else{
+				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			}
 			st_synchronize();
 			extruder_duplication_enabled = true;
 			active_extruder_parked = false;
@@ -8690,6 +8694,11 @@ void prepare_move()
 			SERIAL_PROTOCOLLNPGM("Dual Mode ON");
 		}else if (dual_x_carriage_mode == DXC_DUPLICATION_MIRROR_MODE && active_extruder == 0)
 		{
+			if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]>0.0){
+				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]-extruder_offset[Z_AXIS][RIGHT_EXTRUDER], current_position[E_AXIS]);
+				}else{
+				plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			}
 			extruder_duplication_mirror_enabled = true;
 			active_extruder_parked = false;
 			

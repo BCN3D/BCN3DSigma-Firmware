@@ -6,22 +6,22 @@
 
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size)
 {
-    do
-    {
-        eeprom_write_byte((unsigned char*)pos, *value);
-        pos++;
-        value++;
-    }while(--size);
+	do
+	{
+		eeprom_write_byte((unsigned char*)pos, *value);
+		pos++;
+		value++;
+	}while(--size);
 }
 #define EEPROM_WRITE_VAR(pos, value) _EEPROM_writeData(pos, (uint8_t*)&value, sizeof(value))
 void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 {
-    do
-    {
-        *value = eeprom_read_byte((unsigned char*)pos);
-        pos++;
-        value++;
-    }while(--size);
+	do
+	{
+		*value = eeprom_read_byte((unsigned char*)pos);
+		pos++;
+		value++;
+	}while(--size);
 }
 #define EEPROM_READ_VAR(pos, value) _EEPROM_readData(pos, (uint8_t*)&value, sizeof(value))
 //======================================================================================
@@ -40,134 +40,134 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 
 #define EEPROM_VERSION "V12"
 /*#ifdef DELTA
-	#undef EEPROM_VERSION
-	#define EEPROM_VERSION "V11"
+#undef EEPROM_VERSION
+#define EEPROM_VERSION "V11"
 #endif
 #ifdef SCARA
-	#undef EEPROM_VERSION
-	#define EEPROM_VERSION "V12"
+#undef EEPROM_VERSION
+#define EEPROM_VERSION "V12"
 #endif*/
 
 #ifdef EEPROM_SETTINGS
-void Config_StoreSettings() 
+void Config_StoreSettings()
 {
-  char ver[4]= "000";
-  int i=EEPROM_OFFSET;
-  EEPROM_WRITE_VAR(i,ver); // invalidate data first 
-  EEPROM_WRITE_VAR(i,axis_steps_per_unit);
-  EEPROM_WRITE_VAR(i,max_feedrate);  
-  EEPROM_WRITE_VAR(i,max_acceleration_units_per_sq_second);
-  EEPROM_WRITE_VAR(i,acceleration);
-  EEPROM_WRITE_VAR(i,retract_acceleration);
-  EEPROM_WRITE_VAR(i,minimumfeedrate);
-  EEPROM_WRITE_VAR(i,mintravelfeedrate);
-  EEPROM_WRITE_VAR(i,minsegmenttime);
-  EEPROM_WRITE_VAR(i,max_xy_jerk);
-  EEPROM_WRITE_VAR(i,max_z_jerk);
-  EEPROM_WRITE_VAR(i,max_e_jerk);
-  EEPROM_WRITE_VAR(i,add_homing);
-  #ifdef DELTA
-  EEPROM_WRITE_VAR(i,endstop_adj);
-  EEPROM_WRITE_VAR(i,delta_radius);
-  EEPROM_WRITE_VAR(i,delta_diagonal_rod);
-  EEPROM_WRITE_VAR(i,delta_segments_per_second);
-  #endif
-  #ifndef ULTIPANEL
-  int plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP, plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP, plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
-  int absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP, absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP, absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
-  #endif
-  EEPROM_WRITE_VAR(i,plaPreheatHotendTemp);
-  EEPROM_WRITE_VAR(i,plaPreheatHPBTemp);
-  EEPROM_WRITE_VAR(i,plaPreheatFanSpeed);
-  EEPROM_WRITE_VAR(i,absPreheatHotendTemp);
-  EEPROM_WRITE_VAR(i,absPreheatHPBTemp);
-  EEPROM_WRITE_VAR(i,absPreheatFanSpeed);
-  EEPROM_WRITE_VAR(i,zprobe_zoffset);
-  
-  //Extruder Offset
-  EEPROM_WRITE_VAR(i,extruder_offset[X_AXIS][RIGHT_EXTRUDER]);
-  EEPROM_WRITE_VAR(i,extruder_offset[Y_AXIS][RIGHT_EXTRUDER]);
-  EEPROM_WRITE_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);   
-  
-  //Quick Start Guide
-  //EEPROM_WRITE_VAR(i,quick_guide);
-  EEPROM_WRITE_VAR(i,print_temp_l);
-  EEPROM_WRITE_VAR(i,insert_temp_l);
-  EEPROM_WRITE_VAR(i,remove_temp_l);
-  EEPROM_WRITE_VAR(i,bed_temp_l);
-  EEPROM_WRITE_VAR(i,old_print_temp_l);
-  EEPROM_WRITE_VAR(i,old_insert_temp_l);
-  EEPROM_WRITE_VAR(i,old_remove_temp_l); 
-  EEPROM_WRITE_VAR(i,old_bed_temp_l);
-  
-   EEPROM_WRITE_VAR(i,print_temp_r);
-   EEPROM_WRITE_VAR(i,insert_temp_r);
-   EEPROM_WRITE_VAR(i,remove_temp_r);
-   EEPROM_WRITE_VAR(i,bed_temp_r);
-   EEPROM_WRITE_VAR(i,old_print_temp_r);
-   EEPROM_WRITE_VAR(i,old_insert_temp_r);
-   EEPROM_WRITE_VAR(i,old_remove_temp_r);
-   EEPROM_WRITE_VAR(i,old_bed_temp_r);
-  
-  
-  //Language
-//  EEPROM_WRITE_VAR(i,language);
+	char ver[4]= "000";
+	int i=EEPROM_OFFSET;
+	EEPROM_WRITE_VAR(i,ver); // invalidate data first
+	EEPROM_WRITE_VAR(i,axis_steps_per_unit);
+	EEPROM_WRITE_VAR(i,max_feedrate);
+	EEPROM_WRITE_VAR(i,max_acceleration_units_per_sq_second);
+	EEPROM_WRITE_VAR(i,acceleration);
+	EEPROM_WRITE_VAR(i,retract_acceleration);
+	EEPROM_WRITE_VAR(i,minimumfeedrate);
+	EEPROM_WRITE_VAR(i,mintravelfeedrate);
+	EEPROM_WRITE_VAR(i,minsegmenttime);
+	EEPROM_WRITE_VAR(i,max_xy_jerk);
+	EEPROM_WRITE_VAR(i,max_z_jerk);
+	EEPROM_WRITE_VAR(i,max_e_jerk);
+	EEPROM_WRITE_VAR(i,add_homing);
+	#ifdef DELTA
+	EEPROM_WRITE_VAR(i,endstop_adj);
+	EEPROM_WRITE_VAR(i,delta_radius);
+	EEPROM_WRITE_VAR(i,delta_diagonal_rod);
+	EEPROM_WRITE_VAR(i,delta_segments_per_second);
+	#endif
+	#ifndef ULTIPANEL
+	int plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP, plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP, plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
+	int absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP, absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP, absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
+	#endif
+	EEPROM_WRITE_VAR(i,plaPreheatHotendTemp);
+	EEPROM_WRITE_VAR(i,plaPreheatHPBTemp);
+	EEPROM_WRITE_VAR(i,plaPreheatFanSpeed);
+	EEPROM_WRITE_VAR(i,absPreheatHotendTemp);
+	EEPROM_WRITE_VAR(i,absPreheatHPBTemp);
+	EEPROM_WRITE_VAR(i,absPreheatFanSpeed);
+	EEPROM_WRITE_VAR(i,zprobe_zoffset);
+	
+	//Extruder Offset
+	EEPROM_WRITE_VAR(i,extruder_offset[X_AXIS][RIGHT_EXTRUDER]);
+	EEPROM_WRITE_VAR(i,extruder_offset[Y_AXIS][RIGHT_EXTRUDER]);
+	EEPROM_WRITE_VAR(i,extruder_offset[Z_AXIS][RIGHT_EXTRUDER]);
+	
+	//Quick Start Guide
+	//EEPROM_WRITE_VAR(i,quick_guide);
+	EEPROM_WRITE_VAR(i,print_temp_l);
+	EEPROM_WRITE_VAR(i,insert_temp_l);
+	EEPROM_WRITE_VAR(i,remove_temp_l);
+	EEPROM_WRITE_VAR(i,bed_temp_l);
+	EEPROM_WRITE_VAR(i,old_print_temp_l);
+	EEPROM_WRITE_VAR(i,old_insert_temp_l);
+	EEPROM_WRITE_VAR(i,old_remove_temp_l);
+	EEPROM_WRITE_VAR(i,old_bed_temp_l);
+	
+	EEPROM_WRITE_VAR(i,print_temp_r);
+	EEPROM_WRITE_VAR(i,insert_temp_r);
+	EEPROM_WRITE_VAR(i,remove_temp_r);
+	EEPROM_WRITE_VAR(i,bed_temp_r);
+	EEPROM_WRITE_VAR(i,old_print_temp_r);
+	EEPROM_WRITE_VAR(i,old_insert_temp_r);
+	EEPROM_WRITE_VAR(i,old_remove_temp_r);
+	EEPROM_WRITE_VAR(i,old_bed_temp_r);
+	
+	
+	//Language
+	//  EEPROM_WRITE_VAR(i,language);
 
-  
-  #ifdef PIDTEMP
-    EEPROM_WRITE_VAR(i,Kp[0]);
-    EEPROM_WRITE_VAR(i,Ki[0]);
-    EEPROM_WRITE_VAR(i,Kd[0]);
+	
+	#ifdef PIDTEMP
+	EEPROM_WRITE_VAR(i,Kp[0]);
+	EEPROM_WRITE_VAR(i,Ki[0]);
+	EEPROM_WRITE_VAR(i,Kd[0]);
 	EEPROM_WRITE_VAR(i,Kp[1]);
 	EEPROM_WRITE_VAR(i,Ki[1]);
 	EEPROM_WRITE_VAR(i,Kd[1]);
-  /*#else
-		float dummy = 3000.0f;
-    EEPROM_WRITE_VAR(i,dummy);
-		dummy = 0.0f;
-    EEPROM_WRITE_VAR(i,dummy);
-    EEPROM_WRITE_VAR(i,dummy);*/  
-  #endif
-  EEPROM_WRITE_VAR(i,log_prints);
-  EEPROM_WRITE_VAR(i,log_prints_finished);
-  EEPROM_WRITE_VAR(i,log_max_temp_l);
-  EEPROM_WRITE_VAR(i,log_max_temp_r);
-  EEPROM_WRITE_VAR(i,log_hours_print);
-  EEPROM_WRITE_VAR(i,log_max_bed);
-  
-  #ifndef DOGLCD
-    int lcd_contrast = 32;
-  #endif
-  EEPROM_WRITE_VAR(i,lcd_contrast);
-  #ifdef SCARA
-  EEPROM_WRITE_VAR(i,axis_scaling);        
-  #endif
-  EEPROM_WRITE_VAR(i,UI_SerialID0);        
-  EEPROM_WRITE_VAR(i,UI_SerialID1);        
-  EEPROM_WRITE_VAR(i,UI_SerialID2);        
-  EEPROM_WRITE_VAR(i,log_minutes_lastprint);        
-  EEPROM_WRITE_VAR(i,log_hours_lastprint);  
-  EEPROM_WRITE_VAR(i,log_X0_mmdone);
-  EEPROM_WRITE_VAR(i,log_X1_mmdone);
-  EEPROM_WRITE_VAR(i,log_Y_mmdone);
-  EEPROM_WRITE_VAR(i,log_E0_mmdone);
-  EEPROM_WRITE_VAR(i,log_E1_mmdone);
-  EEPROM_WRITE_VAR(i,FLAG_First_Start_Wizard);
-  #ifdef RECOVERY_PRINT
+	/*#else
+	float dummy = 3000.0f;
+	EEPROM_WRITE_VAR(i,dummy);
+	dummy = 0.0f;
+	EEPROM_WRITE_VAR(i,dummy);
+	EEPROM_WRITE_VAR(i,dummy);*/
+	#endif
+	EEPROM_WRITE_VAR(i,log_prints);
+	EEPROM_WRITE_VAR(i,log_prints_finished);
+	EEPROM_WRITE_VAR(i,log_max_temp_l);
+	EEPROM_WRITE_VAR(i,log_max_temp_r);
+	EEPROM_WRITE_VAR(i,log_hours_print);
+	EEPROM_WRITE_VAR(i,log_max_bed);
+	
+	#ifndef DOGLCD
+	int lcd_contrast = 32;
+	#endif
+	EEPROM_WRITE_VAR(i,lcd_contrast);
+	#ifdef SCARA
+	EEPROM_WRITE_VAR(i,axis_scaling);
+	#endif
+	EEPROM_WRITE_VAR(i,UI_SerialID0);
+	EEPROM_WRITE_VAR(i,UI_SerialID1);
+	EEPROM_WRITE_VAR(i,UI_SerialID2);
+	EEPROM_WRITE_VAR(i,log_minutes_lastprint);
+	EEPROM_WRITE_VAR(i,log_hours_lastprint);
+	EEPROM_WRITE_VAR(i,log_X0_mmdone);
+	EEPROM_WRITE_VAR(i,log_X1_mmdone);
+	EEPROM_WRITE_VAR(i,log_Y_mmdone);
+	EEPROM_WRITE_VAR(i,log_E0_mmdone);
+	EEPROM_WRITE_VAR(i,log_E1_mmdone);
+	EEPROM_WRITE_VAR(i,FLAG_First_Start_Wizard);
+	#ifdef RECOVERY_PRINT
 	EEPROM_WRITE_VAR(i,saved_print_flag);
-    EEPROM_WRITE_VAR(i,saved_x_position);
-    EEPROM_WRITE_VAR(i,saved_y_position);
-    EEPROM_WRITE_VAR(i,saved_z_position);
-    EEPROM_WRITE_VAR(i,saved_tool_active);
-    EEPROM_WRITE_VAR(i,saved_e_position);
-    EEPROM_WRITE_VAR(i,saved_fileposition);
-    EEPROM_WRITE_VAR(i,saved_temp1);
-    EEPROM_WRITE_VAR(i,saved_temp0);
-    EEPROM_WRITE_VAR(i,saved_tempbed);
-    EEPROM_WRITE_VAR(i,saved_fanlayer);
+	EEPROM_WRITE_VAR(i,saved_x_position);
+	EEPROM_WRITE_VAR(i,saved_y_position);
+	EEPROM_WRITE_VAR(i,saved_z_position);
+	EEPROM_WRITE_VAR(i,saved_tool_active);
+	EEPROM_WRITE_VAR(i,saved_e_position);
+	EEPROM_WRITE_VAR(i,saved_fileposition);
+	EEPROM_WRITE_VAR(i,saved_temp1);
+	EEPROM_WRITE_VAR(i,saved_temp0);
+	EEPROM_WRITE_VAR(i,saved_tempbed);
+	EEPROM_WRITE_VAR(i,saved_fanlayer);
 	EEPROM_WRITE_VAR(i,saved_feedmulti);
-    EEPROM_WRITE_VAR(i,saved_workDir_vector_lenght);
-    EEPROM_WRITE_VAR(i,saved_workDir_vector[0]);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector_lenght);
+	EEPROM_WRITE_VAR(i,saved_workDir_vector[0]);
 	EEPROM_WRITE_VAR(i,saved_workDir_vector[1]);
 	EEPROM_WRITE_VAR(i,saved_workDir_vector[2]);
 	EEPROM_WRITE_VAR(i,saved_workDir_vector[3]);
@@ -181,12 +181,16 @@ void Config_StoreSettings()
 	EEPROM_WRITE_VAR(i,version_number);
 	EEPROM_WRITE_VAR(i,bed_offset_left_screw);
 	EEPROM_WRITE_VAR(i,bed_offset_right_screw);
-   #endif 
-  char ver2[4]=EEPROM_VERSION;
-  i=EEPROM_OFFSET;
-  EEPROM_WRITE_VAR(i,ver2); // validate data
-  SERIAL_ECHO_START;
-  SERIAL_ECHOLNPGM("Settings Stored");
+	EEPROM_WRITE_VAR(i,manual_fine_calib_offset[0]);
+	EEPROM_WRITE_VAR(i,manual_fine_calib_offset[1]);
+	EEPROM_WRITE_VAR(i,manual_fine_calib_offset[2]);
+	EEPROM_WRITE_VAR(i,manual_fine_calib_offset[3]);
+	#endif
+	char ver2[4]=EEPROM_VERSION;
+	i=EEPROM_OFFSET;
+	EEPROM_WRITE_VAR(i,ver2); // validate data
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Settings Stored");
 }
 #endif //EEPROM_SETTINGS
 
@@ -194,145 +198,145 @@ void Config_StoreSettings()
 #ifndef DISABLE_M503
 void Config_PrintSettings()
 {  // Always have this function, even with EEPROM_SETTINGS disabled, the current values will be shown
-    SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM("Steps per unit:");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M92 X",axis_steps_per_unit[0]);
-    SERIAL_ECHOPAIR(" Y",axis_steps_per_unit[1]);
-    SERIAL_ECHOPAIR(" Z",axis_steps_per_unit[2]);
-    SERIAL_ECHOPAIR(" E",axis_steps_per_unit[3]);
-    SERIAL_ECHOLN("");
-      
-    SERIAL_ECHO_START;
-#ifdef SCARA
-SERIAL_ECHOLNPGM("Scaling factors:");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M365 X",axis_scaling[0]);
-    SERIAL_ECHOPAIR(" Y",axis_scaling[1]);
-    SERIAL_ECHOPAIR(" Z",axis_scaling[2]);
-    SERIAL_ECHOLN("");
-      
-    SERIAL_ECHO_START;
-#endif
-    SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M203 X",max_feedrate[0]);
-    SERIAL_ECHOPAIR(" Y",max_feedrate[1] ); 
-    SERIAL_ECHOPAIR(" Z", max_feedrate[2] ); 
-    SERIAL_ECHOPAIR(" E", max_feedrate[3]);
-    SERIAL_ECHOLN("");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Steps per unit:");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR("  M92 X",axis_steps_per_unit[0]);
+	SERIAL_ECHOPAIR(" Y",axis_steps_per_unit[1]);
+	SERIAL_ECHOPAIR(" Z",axis_steps_per_unit[2]);
+	SERIAL_ECHOPAIR(" E",axis_steps_per_unit[3]);
+	SERIAL_ECHOLN("");
+	
+	SERIAL_ECHO_START;
+	#ifdef SCARA
+	SERIAL_ECHOLNPGM("Scaling factors:");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR("  M365 X",axis_scaling[0]);
+	SERIAL_ECHOPAIR(" Y",axis_scaling[1]);
+	SERIAL_ECHOPAIR(" Z",axis_scaling[2]);
+	SERIAL_ECHOLN("");
+	
+	SERIAL_ECHO_START;
+	#endif
+	SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR("  M203 X",max_feedrate[0]);
+	SERIAL_ECHOPAIR(" Y",max_feedrate[1] );
+	SERIAL_ECHOPAIR(" Z", max_feedrate[2] );
+	SERIAL_ECHOPAIR(" E", max_feedrate[3]);
+	SERIAL_ECHOLN("");
 
-    SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM("Maximum Acceleration (mm/s2):");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M201 X" ,max_acceleration_units_per_sq_second[0] ); 
-    SERIAL_ECHOPAIR(" Y" , max_acceleration_units_per_sq_second[1] ); 
-    SERIAL_ECHOPAIR(" Z" ,max_acceleration_units_per_sq_second[2] );
-    SERIAL_ECHOPAIR(" E" ,max_acceleration_units_per_sq_second[3]);
-    SERIAL_ECHOLN("");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM("Acceleration: S=acceleration, T=retract acceleration");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M204 S",acceleration ); 
-    SERIAL_ECHOPAIR(" T" ,retract_acceleration);
-    SERIAL_ECHOLN("");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Maximum Acceleration (mm/s2):");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR("  M201 X" ,max_acceleration_units_per_sq_second[0] );
+	SERIAL_ECHOPAIR(" Y" , max_acceleration_units_per_sq_second[1] );
+	SERIAL_ECHOPAIR(" Z" ,max_acceleration_units_per_sq_second[2] );
+	SERIAL_ECHOPAIR(" E" ,max_acceleration_units_per_sq_second[3]);
+	SERIAL_ECHOLN("");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Acceleration: S=acceleration, T=retract acceleration");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR("  M204 S",acceleration );
+	SERIAL_ECHOPAIR(" T" ,retract_acceleration);
+	SERIAL_ECHOLN("");
 
-    SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum XY jerk (mm/s),  Z=maximum Z jerk (mm/s),  E=maximum E jerk (mm/s)");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M205 S",minimumfeedrate ); 
-    SERIAL_ECHOPAIR(" T" ,mintravelfeedrate ); 
-    SERIAL_ECHOPAIR(" B" ,minsegmenttime ); 
-    SERIAL_ECHOPAIR(" X" ,max_xy_jerk ); 
-    SERIAL_ECHOPAIR(" Z" ,max_z_jerk);
-    SERIAL_ECHOPAIR(" E" ,max_e_jerk);
-    SERIAL_ECHOLN(""); 
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum XY jerk (mm/s),  Z=maximum Z jerk (mm/s),  E=maximum E jerk (mm/s)");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR("  M205 S",minimumfeedrate );
+	SERIAL_ECHOPAIR(" T" ,mintravelfeedrate );
+	SERIAL_ECHOPAIR(" B" ,minsegmenttime );
+	SERIAL_ECHOPAIR(" X" ,max_xy_jerk );
+	SERIAL_ECHOPAIR(" Z" ,max_z_jerk);
+	SERIAL_ECHOPAIR(" E" ,max_e_jerk);
+	SERIAL_ECHOLN("");
 
-    SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM("Home offset (mm):");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M206 X",add_homing[0] );
-    SERIAL_ECHOPAIR(" Y" ,add_homing[1] );
-    SERIAL_ECHOPAIR(" Z" ,add_homing[2] );
-    SERIAL_ECHOLN("");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Home offset (mm):");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR("  M206 X",add_homing[0] );
+	SERIAL_ECHOPAIR(" Y" ,add_homing[1] );
+	SERIAL_ECHOPAIR(" Z" ,add_homing[2] );
+	SERIAL_ECHOLN("");
 
-#ifdef PIDTEMP
-    SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM("PID settings:");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR(" M301 LEFT P",Kp[0]); 
-    SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki[0])); 
-    SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd[0]));
+	#ifdef PIDTEMP
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("PID settings:");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR(" M301 LEFT P",Kp[0]);
+	SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki[0]));
+	SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd[0]));
 	SERIAL_ECHOPAIR(" - M301 RIGHT P",Kp[1]);
 	SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki[1]));
 	SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd[1]));
-    SERIAL_ECHOLN(""); 
-#endif
+	SERIAL_ECHOLN("");
+	#endif
 
-	 SERIAL_ECHO_START;
-	 SERIAL_ECHOLNPGM("Offsets (mm):");
-	 SERIAL_ECHO_START;
-	 SERIAL_ECHOPAIR(" X ",extruder_offset[X_AXIS][1] );
-	 SERIAL_ECHOPAIR(" Y " ,extruder_offset[Y_AXIS][1]  );
-	 SERIAL_ECHOPAIR(" Z " ,extruder_offset[Z_AXIS][1]  );
-	 SERIAL_ECHOPAIR(" Z probe" ,zprobe_zoffset  );
-	 SERIAL_ECHOLN("");
-	 SERIAL_ECHO_START;
-	 SERIAL_ECHOLNPGM("Bed Offsets (mm):");
-	 SERIAL_ECHO_START;
-	 SERIAL_ECHOPAIR(" Bed left screw ",bed_offset_left_screw);
-	 SERIAL_ECHOPAIR(" Bed right screw " ,bed_offset_right_screw);
-	 SERIAL_ECHOLN("");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Offsets (mm):");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR(" X ",extruder_offset[X_AXIS][1] );
+	SERIAL_ECHOPAIR(" Y " ,extruder_offset[Y_AXIS][1]  );
+	SERIAL_ECHOPAIR(" Z " ,extruder_offset[Z_AXIS][1]  );
+	SERIAL_ECHOPAIR(" Z probe" ,zprobe_zoffset  );
+	SERIAL_ECHOLN("");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Bed Offsets (mm):");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR(" Bed left screw ",bed_offset_left_screw);
+	SERIAL_ECHOPAIR(" Bed right screw " ,bed_offset_right_screw);
+	SERIAL_ECHOLN("");
 	
-	 SERIAL_ECHO_START;
-	 SERIAL_ECHOLNPGM("Temp (C):");
-	 SERIAL_ECHO_START;
-	 SERIAL_ECHOPAIR(" L_INSERT: ",(unsigned long)insert_temp_l);
-	 SERIAL_ECHOPAIR(" C, L_REMOVE: " ,(unsigned long)remove_temp_l);
-	 SERIAL_ECHOPAIR(" C, L_BED: " ,(unsigned long)bed_temp_l);
-	 SERIAL_ECHOPAIR(" C, L_PRINT: " ,(unsigned long)print_temp_l);
-	 SERIAL_ECHOLN(" C");
-	 
-	 SERIAL_ECHO_START;
-	 SERIAL_ECHOLNPGM("Temp (C):");
-	 SERIAL_ECHO_START;
-	 SERIAL_ECHOPAIR(" R_INSERT: ",(unsigned long)insert_temp_r);
-	 SERIAL_ECHOPAIR(" C, R_REMOVE: " ,(unsigned long)remove_temp_r);
-	 SERIAL_ECHOPAIR(" C, R_BED: " ,(unsigned long)bed_temp_r);
-	 SERIAL_ECHOPAIR(" C, R_PRINT: " ,(unsigned long)print_temp_r);
-	 SERIAL_ECHOLN(" C");
-	 
-	 SERIAL_ECHO_START;
-	 SERIAL_ECHOLNPGM("STATS:");
-	 SERIAL_ECHO_START;
-	 SERIAL_ECHOPAIR(" prints: ",(unsigned long)log_prints);
-	 SERIAL_ECHOPAIR(", printing time: " ,(unsigned long)log_hours_print);
-	 SERIAL_ECHOPAIR("h, prints finished: " ,(unsigned long)log_prints_finished);
-	 SERIAL_ECHOPAIR(", max temp L: " ,(unsigned long)log_max_temp_l);
-	 SERIAL_ECHOPAIR(" C, max temp R: " ,(unsigned long)log_max_temp_r);
-	 SERIAL_ECHOPAIR(" C, max temp B: " ,(unsigned long)log_max_bed);
-	 SERIAL_ECHOPAIR(" C,\n X0 print distance: " ,(float)log_X0_mmdone/1000000);
-	 SERIAL_ECHOPAIR(" km, X1 print distance: " ,(float)log_X1_mmdone/1000000);
-	 SERIAL_ECHOPAIR(" km, Y print distance: " ,(float)log_Y_mmdone/1000000);
-	 SERIAL_ECHOPAIR(" km, E0 print distance: " ,(float)log_E0_mmdone/1000);
-	 SERIAL_ECHOPAIR(" m, E1 print distance: " ,(float)log_E1_mmdone/1000);
-	 SERIAL_ECHOLN(" m");
-	 
-	  SERIAL_ECHO_START;
-	  SERIAL_ECHOLNPGM("UI Information Serial Number:");
-	  SERIAL_ECHO_START;
-	  SERIAL_ECHOPAIR(" First ID number: ",(unsigned long)UI_SerialID0);
-	  SERIAL_ECHOPAIR(", Second ID number: " ,(unsigned long)UI_SerialID1);
-	  SERIAL_ECHOPAIR(", Third ID number " ,(unsigned long)UI_SerialID2);
-	  SERIAL_ECHOLN("");
-	  SERIAL_ECHO_START;
-	  SERIAL_ECHOLNPGM("Last print duration");
-	  SERIAL_ECHO_START;
-	  SERIAL_ECHOPAIR(" Last print time-> Hours :",(unsigned long)log_hours_lastprint);
-	  SERIAL_ECHOPAIR(" Minutes :" ,(unsigned long)log_minutes_lastprint);
-	  SERIAL_ECHOLN("");
-	 
-	} 
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Temp (C):");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR(" L_INSERT: ",(unsigned long)insert_temp_l);
+	SERIAL_ECHOPAIR(" C, L_REMOVE: " ,(unsigned long)remove_temp_l);
+	SERIAL_ECHOPAIR(" C, L_BED: " ,(unsigned long)bed_temp_l);
+	SERIAL_ECHOPAIR(" C, L_PRINT: " ,(unsigned long)print_temp_l);
+	SERIAL_ECHOLN(" C");
+	
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Temp (C):");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR(" R_INSERT: ",(unsigned long)insert_temp_r);
+	SERIAL_ECHOPAIR(" C, R_REMOVE: " ,(unsigned long)remove_temp_r);
+	SERIAL_ECHOPAIR(" C, R_BED: " ,(unsigned long)bed_temp_r);
+	SERIAL_ECHOPAIR(" C, R_PRINT: " ,(unsigned long)print_temp_r);
+	SERIAL_ECHOLN(" C");
+	
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("STATS:");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR(" prints: ",(unsigned long)log_prints);
+	SERIAL_ECHOPAIR(", printing time: " ,(unsigned long)log_hours_print);
+	SERIAL_ECHOPAIR("h, prints finished: " ,(unsigned long)log_prints_finished);
+	SERIAL_ECHOPAIR(", max temp L: " ,(unsigned long)log_max_temp_l);
+	SERIAL_ECHOPAIR(" C, max temp R: " ,(unsigned long)log_max_temp_r);
+	SERIAL_ECHOPAIR(" C, max temp B: " ,(unsigned long)log_max_bed);
+	SERIAL_ECHOPAIR(" C,\n X0 print distance: " ,(float)log_X0_mmdone/1000000);
+	SERIAL_ECHOPAIR(" km, X1 print distance: " ,(float)log_X1_mmdone/1000000);
+	SERIAL_ECHOPAIR(" km, Y print distance: " ,(float)log_Y_mmdone/1000000);
+	SERIAL_ECHOPAIR(" km, E0 print distance: " ,(float)log_E0_mmdone/1000);
+	SERIAL_ECHOPAIR(" m, E1 print distance: " ,(float)log_E1_mmdone/1000);
+	SERIAL_ECHOLN(" m");
+	
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("UI Information Serial Number:");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR(" First ID number: ",(unsigned long)UI_SerialID0);
+	SERIAL_ECHOPAIR(", Second ID number: " ,(unsigned long)UI_SerialID1);
+	SERIAL_ECHOPAIR(", Third ID number " ,(unsigned long)UI_SerialID2);
+	SERIAL_ECHOLN("");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Last print duration");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR(" Last print time-> Hours :",(unsigned long)log_hours_lastprint);
+	SERIAL_ECHOPAIR(" Minutes :" ,(unsigned long)log_minutes_lastprint);
+	SERIAL_ECHOLN("");
+	
+}
 #endif
 #ifndef DISABLE_M503
 void Config_PrintSAVESettings()
@@ -499,6 +503,10 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,version_number);
 		EEPROM_READ_VAR(i,bed_offset_left_screw);
 		EEPROM_READ_VAR(i,bed_offset_right_screw);
+		EEPROM_READ_VAR(i,manual_fine_calib_offset[0]);
+		EEPROM_READ_VAR(i,manual_fine_calib_offset[1]);
+		EEPROM_READ_VAR(i,manual_fine_calib_offset[2]);
+		EEPROM_READ_VAR(i,manual_fine_calib_offset[3]);
 		#endif RECOVERY_PRINT
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
@@ -511,11 +519,18 @@ void Config_RetrieveSettings()
 		if (bed_offset_left_screw <= -1.0 || bed_offset_left_screw >= 1.0 || bed_offset_right_screw >= 1.0 || bed_offset_right_screw <= -1.0){
 			bed_offset_left_screw = 0.0;
 			bed_offset_right_screw = 0.0;
-		}else if(isnan(bed_offset_left_screw) || isnan(bed_offset_right_screw)  ){
+			}else if(isnan(bed_offset_left_screw) || isnan(bed_offset_right_screw)  ){
 			bed_offset_left_screw = 0.0;
 			bed_offset_right_screw = 0.0;
 		}
-		
+		if(isnan(manual_fine_calib_offset[0]) || isnan(manual_fine_calib_offset[1])  || isnan(manual_fine_calib_offset [2]) || isnan(manual_fine_calib_offset[3]))
+		{
+			manual_fine_calib_offset[0] = 0.0;
+			manual_fine_calib_offset[1] = 0.0;
+			manual_fine_calib_offset[2] = 0.0;
+			manual_fine_calib_offset[3] = 0.0;
+			Config_StoreSettings();
+		}
 		SERIAL_ECHOLNPGM("Stored settings retrieved");
 	}
 	else
@@ -532,31 +547,31 @@ void Config_RetrieveSettings()
 
 void Config_ResetDefault()
 {
-    float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
-    float tmp2[]=DEFAULT_MAX_FEEDRATE;
-    long tmp3[]=DEFAULT_MAX_ACCELERATION;
-    for (short i=0;i<4;i++) 
-    {
-        axis_steps_per_unit[i]=tmp1[i];  
-        max_feedrate[i]=tmp2[i];  
-        max_acceleration_units_per_sq_second[i]=tmp3[i];
+	float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
+	float tmp2[]=DEFAULT_MAX_FEEDRATE;
+	long tmp3[]=DEFAULT_MAX_ACCELERATION;
+	for (short i=0;i<4;i++)
+	{
+		axis_steps_per_unit[i]=tmp1[i];
+		max_feedrate[i]=tmp2[i];
+		max_acceleration_units_per_sq_second[i]=tmp3[i];
 		#ifdef SCARA
 		axis_scaling[i]=1;
 		#endif
-    }
-    
-    // steps per sq second need to be updated to agree with the units per sq second
-    reset_acceleration_rates();
-    
-    acceleration=DEFAULT_ACCELERATION;
-    retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
-    minimumfeedrate=DEFAULT_MINIMUMFEEDRATE;
-    minsegmenttime=DEFAULT_MINSEGMENTTIME;       
-    mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE;
-    max_xy_jerk=DEFAULT_XYJERK;
-    max_z_jerk=DEFAULT_ZJERK;
-    max_e_jerk=DEFAULT_EJERK;
-    add_homing[0] = add_homing[1] = add_homing[2] = 0;
+	}
+	
+	// steps per sq second need to be updated to agree with the units per sq second
+	reset_acceleration_rates();
+	
+	acceleration=DEFAULT_ACCELERATION;
+	retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
+	minimumfeedrate=DEFAULT_MINIMUMFEEDRATE;
+	minsegmenttime=DEFAULT_MINSEGMENTTIME;
+	mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE;
+	max_xy_jerk=DEFAULT_XYJERK;
+	max_z_jerk=DEFAULT_ZJERK;
+	max_e_jerk=DEFAULT_EJERK;
+	add_homing[0] = add_homing[1] = add_homing[2] = 0;
 	//quick_guide = DEFAULT_QUICK_GUIDE;
 	print_temp_l = DEFAULT_PRINT_TEMP;
 	insert_temp_l=DEFAULT_INSERT_TEMP;
@@ -576,19 +591,19 @@ void Config_ResetDefault()
 	old_bed_temp_r = DEFAULT_OLD_BED_TEMP;
 	
 	#ifdef DELTA
-		endstop_adj[0] = endstop_adj[1] = endstop_adj[2] = 0;
-		delta_radius= DELTA_RADIUS;
-		delta_diagonal_rod= DELTA_DIAGONAL_ROD;
-		delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;
-		recalc_delta_settings(delta_radius, delta_diagonal_rod);
+	endstop_adj[0] = endstop_adj[1] = endstop_adj[2] = 0;
+	delta_radius= DELTA_RADIUS;
+	delta_diagonal_rod= DELTA_DIAGONAL_ROD;
+	delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;
+	recalc_delta_settings(delta_radius, delta_diagonal_rod);
 	#endif
 	#ifdef ULTIPANEL
-		plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP;
-		plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP;
-		plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
-		absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP;
-		absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
-		absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
+	plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP;
+	plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP;
+	plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
+	absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP;
+	absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
+	absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
 	#endif
 	
 	if (UI_SerialID0 <= 0 || UI_SerialID0 >= 123 || UI_SerialID2 >= 9999 || UI_SerialID1 >= 999999 || UI_SerialID2 <= 0 || UI_SerialID1 <= 0){
@@ -602,28 +617,29 @@ void Config_ResetDefault()
 	log_Y_mmdone = 0;
 	log_X0_mmdone = 0;
 	FLAG_First_Start_Wizard = 1888;
-/*
+	
+	/*
 	//Extruder Offset
 	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
 	extruder_offset[X_AXIS][RIGHT_EXTRUDER] = X2_MAX_POS;
 	extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = -0.15;
 	extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = -0.1;
 
-#ifdef DOGLCD
-    lcd_contrast = DEFAULT_LCD_CONTRAST;
-#endif
-#ifdef PIDTEMP
-    Kp = DEFAULT_Kp;
-    Ki = scalePID_i(DEFAULT_Ki);
-    Kd = scalePID_d(DEFAULT_Kd);
-    
-    // call updatePID (similar to when we have processed M301)
-    updatePID();
-    
+	#ifdef DOGLCD
+	lcd_contrast = DEFAULT_LCD_CONTRAST;
+	#endif
+	#ifdef PIDTEMP
+	Kp = DEFAULT_Kp;
+	Ki = scalePID_i(DEFAULT_Ki);
+	Kd = scalePID_d(DEFAULT_Kd);
+	
+	// call updatePID (similar to when we have processed M301)
+	updatePID();
+	
 	#ifdef PID_ADD_EXTRUSION_RATE
-		Kc = DEFAULT_Kc;
+	Kc = DEFAULT_Kc;
 	#endif//PID_ADD_EXTRUSION_RATE
-#endif//PIDTEMP*/
+	#endif//PIDTEMP*/
 
 	#ifdef DOGLCD
 	lcd_contrast = DEFAULT_LCD_CONTRAST;
@@ -634,37 +650,41 @@ void Config_ResetDefault()
 }
 
 void Config_Reset_Calib(){
-		//Extruder Offset
-		//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
-		extruder_offset[X_AXIS][RIGHT_EXTRUDER] = X2_MAX_POS;
-		extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = 0.25;
-		extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = 0.08;
-		#ifdef ENABLE_AUTO_BED_LEVELING
-		zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
-		#endif
-		#ifdef Z_SIGMA_HOME
-		zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
-		#endif
-		
-		#ifdef PIDTEMP
-			Kp[0] = DEFAULT_Kp;
-			Ki[0] = scalePID_i(DEFAULT_Ki);
-			Kd[0] = scalePID_d(DEFAULT_Kd);
-			Kp[1] = DEFAULT_Kp;
-			Ki[1] = scalePID_i(DEFAULT_Ki);
-			Kd[1] = scalePID_d(DEFAULT_Kd);
-					
-			// call updatePID (similar to when we have processed M301)
-			//updatePID();
-		
-			#ifdef PID_ADD_EXTRUSION_RATE
-				Kc[0] = DEFAULT_Kc;
-				Kc[1] = DEFAULT_Kc;
-			#endif//PID_ADD_EXTRUSION_RATE
-		#endif//PIDTEMP
-		
-		SERIAL_ECHO_START;
-		SERIAL_ECHOLNPGM("Hardcoded Calib and PID Default Settings Loaded");
+	//Extruder Offset
+	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
+	manual_fine_calib_offset[0] = 0.0;
+	manual_fine_calib_offset[1] = 0.0;
+	manual_fine_calib_offset[2] = 0.0;
+	manual_fine_calib_offset[3] = 0.0;
+	extruder_offset[X_AXIS][RIGHT_EXTRUDER] = X2_MAX_POS;
+	extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = 0.25;
+	extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = 0.08;
+	#ifdef ENABLE_AUTO_BED_LEVELING
+	zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+	#endif
+	#ifdef Z_SIGMA_HOME
+	zprobe_zoffset = -Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER; //Overrides zprove_zoffset
+	#endif
+	
+	#ifdef PIDTEMP
+	Kp[0] = DEFAULT_Kp;
+	Ki[0] = scalePID_i(DEFAULT_Ki);
+	Kd[0] = scalePID_d(DEFAULT_Kd);
+	Kp[1] = DEFAULT_Kp;
+	Ki[1] = scalePID_i(DEFAULT_Ki);
+	Kd[1] = scalePID_d(DEFAULT_Kd);
+	
+	// call updatePID (similar to when we have processed M301)
+	//updatePID();
+	
+	#ifdef PID_ADD_EXTRUSION_RATE
+	Kc[0] = DEFAULT_Kc;
+	Kc[1] = DEFAULT_Kc;
+	#endif//PID_ADD_EXTRUSION_RATE
+	#endif//PIDTEMP
+	
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Hardcoded Calib and PID Default Settings Loaded");
 }
 
 void Config_Reset_Statistics(int data){
@@ -683,7 +703,7 @@ void Config_Reset_Statistics(int data){
 		log_E1_mmdone = 0;
 		FLAG_First_Start_Wizard = 1888;
 		SERIAL_PROTOCOLLNPGM("STATISTICS RESET");
-	}	
+	}
 }
 void Config_Set_UISerialNumber(int input0, long input1, int input2){
 	if(input0 && input1 && input2 && !(input0 <= 0 || input0 >= 123 || input2 >= 9999 || input1 >= 999999 || input2 <= 0 || input1 <= 0)){
@@ -696,7 +716,7 @@ void Config_Set_UISerialNumber(int input0, long input1, int input2){
 	}
 }
 void Change_ConfigTemp_LeftHotend(int i_temp_l, int r_temp_l, int p_temp_l, int b_temp_l){
-		
+	
 	if (i_temp_l > HEATER_0_MAXTEMP ||  i_temp_l < EXTRUDE_MINTEMP){
 		SERIAL_PROTOCOLLNPGM("Values out of range");
 	}
@@ -720,7 +740,7 @@ void Change_ConfigTemp_LeftHotend(int i_temp_l, int r_temp_l, int p_temp_l, int 
 		SERIAL_PROTOCOLLNPGM("SUCCESS");
 		
 	}
-		
+	
 	
 	
 }
@@ -741,10 +761,10 @@ void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int
 	else{
 		
 		
-			insert_temp_r =i_temp_r;
-			remove_temp_r = r_temp_r;
-			print_temp_r = p_temp_r;
-			bed_temp_r = b_temp_r;
+		insert_temp_r =i_temp_r;
+		remove_temp_r = r_temp_r;
+		print_temp_r = p_temp_r;
+		bed_temp_r = b_temp_r;
 		SERIAL_PROTOCOLLNPGM("SUCCESS");
 		
 		
@@ -766,7 +786,7 @@ void Change_ConfigBed_offset(float bed_left, float bed_right){
 	if (bed_left <= -1.0 || bed_left >= 1.0 || bed_right >= 1.0 || bed_right <= -1.0){
 		bed_offset_left_screw = bed_offset_left_screw;
 		bed_offset_right_screw = bed_offset_right_screw;
-	}else{
+		}else{
 		bed_offset_left_screw = bed_left;
 		bed_offset_right_screw = bed_right;
 	}

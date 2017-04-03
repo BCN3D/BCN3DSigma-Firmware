@@ -27,9 +27,9 @@
 //This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
-#define VERSION_STRING  "01-1.2.2"
-//#define BUILD_DATE  "|M02.22"
-#define VERSION_NUMBER  122
+#define VERSION_STRING  "01-1.2.3"
+//#define BUILD_DATE  "|M04.03"
+#define VERSION_NUMBER  123
 #define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
 //#define DEFAULT_QUICK_GUIDE  0;
@@ -378,8 +378,8 @@ your extruder heater takes 2 minutes to hit the target on heating.
 // uncomment the 2 defines below:
 
 // Parameters for the bed heater
-#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 600 //in seconds
-#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 10 // in degree Celsius
+#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 1200 //in seconds
+#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 30 // in percentage
 //===========================================================================
 
 
@@ -873,7 +873,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_MAX_FEEDRATE          {200, 200, 15, 60}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {2250,2250,80,800}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 #define DEFAULT_HYSTERESIS_MM         0, 0, 0, 0  // X, Y, Z, E hysteresis in mm. These are the extra distances that are performed when an axis changes direction to compensate for any mechanical hysteresis your printer has.
-//#define DEFAULT_HYSTERESIS
+#define DEFAULT_HYSTERESIS
 //#define DEFAULT_MAX_ACCELERATION      {2000,2000,50,1000}
 //#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.5, 50}    // (mm/sec)
 //#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,100}    // X, Y, Z, E maximum star
@@ -1202,7 +1202,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define GIF_FRAMES_PREHEAT				41
 #define GIF_FRAMES_INIT_FIRST_RUN		124
 
+///////	SMART PURGE SETUP 
 
+#define SMARTPURGE_SETUP_1
+
+#define WAITPERIOD_PRESS_BUTTON 200
+#define WAITPERIOD_PRESS_BUTTON2 400
 //#define SCREENTEST
 
 //#define ErroWindowEnable

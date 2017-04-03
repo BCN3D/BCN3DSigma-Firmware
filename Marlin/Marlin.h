@@ -310,6 +310,7 @@ extern void home_axis_from_code(bool x_c, bool y_c, bool z_c);
 extern float saved_position[NUM_AXIS];
 extern bool flag_continue_calib;
 extern int purge_extruder_selected;
+extern float manual_fine_calib_offset[4];
 //extern bool quick_guide;
 //extern int language;
 //extern const char idiom[50][50]; 
@@ -339,6 +340,9 @@ extern bool processing_error;
 extern bool processing_bed_first;
 extern bool processing_test;
 extern int FLAG_First_Start_Wizard;
+extern bool FLAG_thermal_runaway;
+extern bool FLAG_thermal_runaway_screen;
+extern int ID_thermal_runaway;
 extern bool Step_First_Start_Wizard;
 /////// end Processing Gifs	/////////
 
@@ -386,6 +390,7 @@ extern int saved_tempbed;
 extern int saved_feedmulti;
 extern int saved_fanlayer;
 extern int saved_print_flag;	
+extern bool saved_print_smartpurge_flag;
 extern int workDir_vector[MAX_DIR_DEPTH];
 extern uint8_t workDir_vector_lenght;
 extern int saved_workDir_vector[MAX_DIR_DEPTH];

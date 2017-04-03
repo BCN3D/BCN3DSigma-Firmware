@@ -172,6 +172,8 @@ static bool thermal_runaway = false;
     static unsigned long thermal_runaway_bed_timer;
   #endif
 #endif
+extern bool thermal_runaway_reset_hotend_state;
+extern bool thermal_runaway_reset_bed_state;
 
 FORCE_INLINE void autotempShutdown(){
  #ifdef AUTOTEMP

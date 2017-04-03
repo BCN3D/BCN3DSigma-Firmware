@@ -40,6 +40,8 @@
 //===========================================================================
 //=============================public variables============================
 //===========================================================================
+bool thermal_runaway_reset_bed_state = false;
+bool thermal_runaway_reset_hotend_state = false;
 int target_temperature[EXTRUDERS] = { 0 };
 int target_temperature_bed = 0;
 int current_temperature_raw[EXTRUDERS] = { 0 };
@@ -618,6 +620,7 @@ void manage_heater()
   {
 
 	#ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+		if(thermal_runaway_reset_hotend_state) thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], 0, e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
 		thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
 	#endif
 
@@ -711,8 +714,9 @@ void manage_heater()
         #endif
       }
     #endif
+	
   } // End extruder for loop
-
+	thermal_runaway_reset_hotend_state = false;
   #if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
       (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1) || \
       (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1)
@@ -732,9 +736,11 @@ void manage_heater()
   #if TEMP_SENSOR_BED != 0
   
     #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
-      thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS);
+	if(thermal_runaway_reset_bed_state) thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, 0, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS*target_temperature_bed/100);
+	thermal_runaway_reset_bed_state = false;
+      thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS*target_temperature_bed/100);
     #endif
-
+	
   #ifdef PIDTEMPBED
     pid_input = current_temperature_bed;
 
@@ -1393,75 +1399,86 @@ void setWatch()
 #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
 void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, unsigned long period_seconds, int hysteresis_degc)
 {
-/*
-      SERIAL_ECHO_START;
-      SERIAL_ECHO("Thermal Thermal Runaway Running. Heater ID:");
-      SERIAL_ECHO(heater_id);
-      SERIAL_ECHO(" ;  State:");
-      SERIAL_ECHO(*state);
-      SERIAL_ECHO(" ;  Timer:");
-      SERIAL_ECHO(*timer);
-      SERIAL_ECHO(" ;  Temperature:");
-      SERIAL_ECHO(temperature);
-      SERIAL_ECHO(" ;  Target Temp:");
-      SERIAL_ECHO(target_temperature);
-      SERIAL_ECHOLN("");  */  
-
-  if ((target_temperature == 0) || thermal_runaway)
-  {
-    *state = 0;
-    *timer = 0;
-    return;
-  }
-  switch (*state)
-  {
-    case 0: // "Heater Inactive" state
-      if (target_temperature > 0) *state = 1;
-      break;
-    case 1: // "First Heating" state
-      if (temperature >= target_temperature) *state = 2;
-      break;
-    case 2: // "Temperature Stable" state
-      if (temperature >= (target_temperature - hysteresis_degc))
-      {
-        *timer = millis();
-      } 
-      else if ( (millis() - *timer) > period_seconds*1000)
-      {
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM("Thermal Runaway, system stopped! Heater_ID: ");
-        SERIAL_ERRORLN((int)heater_id);
-        LCD_ALERTMESSAGEPGM("THERMAL RUNAWAY");
-        thermal_runaway = true;
-        
-          disable_heater();
-          disable_x();
-          disable_y();
-          disable_z();
-          disable_e0();
-          disable_e1();
-          disable_e2();
-         // manage_heater();
-          //lcd_update();
-		  #ifdef SIGMA_TOUCH_SCREEN
-		  char thermal_message[50];
-		  
-		  sprintf(thermal_message, "Error(88): Thermal runaway protection \n System stopped Heater_ID: %d",(int)heater_id);
-		  genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-		  genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-		  
-		 // touchscreen_update();
-		  processing_error = true;
-		  
-		  
-		  while(processing_error){
-			  touchscreen_update();
-		  }
-		  #endif
-        
-      }
-      break;
-  }
+	/*
+	SERIAL_ECHO_START;
+	SERIAL_ECHO("Thermal Thermal Runaway Running. Heater ID:");
+	SERIAL_ECHO(heater_id);
+	SERIAL_ECHO(" ;  State:");
+	SERIAL_ECHO(*state);
+	SERIAL_ECHO(" ;  Timer:");
+	SERIAL_ECHO(*timer);
+	SERIAL_ECHO(" ;  Temperature:");
+	SERIAL_ECHO(temperature);
+	SERIAL_ECHO(" ;  Target Temp:");
+	SERIAL_ECHO(target_temperature);
+	SERIAL_ECHOLN("");  */
+	
+	if ((target_temperature == 0) || thermal_runaway)
+	{
+		*state = 0;
+		*timer = 0;
+		thermal_runaway = false;
+		return;
+	}
+	switch (*state)
+	{
+		case 0: // "Heater Inactive" state
+		if (target_temperature > 0) *state = 1;
+		break;
+		case 1: // "First Heating" state
+		if (temperature >= target_temperature) *state = 2;
+		break;
+		case 2: // "Temperature Stable" state
+		if (temperature >= (target_temperature - hysteresis_degc))
+		{
+			*timer = millis();
+		}
+		else if ( (millis() - *timer) > period_seconds*1000)
+		{
+			*timer = millis();
+			
+			char thermal_message[50];
+			SERIAL_ERROR_START;
+			SERIAL_ERRORLNPGM("Thermal runaway protection by Heater_ID:");
+			SERIAL_ERRORLN((int)heater_id);
+			SERIAL_ERROR_START;
+			SERIAL_ERRORLNPGM("Hysteresis temperature");
+			SERIAL_ERRORLN((int)hysteresis_degc);
+			
+			
+			if(!(card.sdprinting || card.sdispaused) && surfing_utilities){
+				
+				thermal_runaway = true;
+				
+				disable_heater();
+				disable_x();
+				disable_y();
+				disable_z();
+				disable_e0();
+				disable_e1();
+				disable_e2();
+				sprintf(thermal_message, "ERROR(88): Temperature not reached by Heater_ID: %d",(int)heater_id);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+				genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+				processing_error = true;
+				
+				}
+				else if(!(card.sdprinting || card.sdispaused) && !surfing_utilities){
+					sprintf(thermal_message, "ERROR(88): Temperature not reached by Heater_ID: %d",(int)heater_id);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+					processing_error = true;
+				}
+				else{
+				ID_thermal_runaway = (int)heater_id;
+				FLAG_thermal_runaway = true;
+			}
+		}
+		
+		
+		
+		break;
+	}
 }
 #endif
 
@@ -1658,9 +1675,9 @@ ISR(TIMER0_COMPB_vect)
 	    WRITE(FAN_PIN,1);
 	    #endif
 	    }else{
-	    #if MOTHERBOARD == BCN3D_BOARD
+	    #if MOTHERBOARD == BCN3D_BOARD		
 	    if (active_extruder == LEFT_EXTRUDER){WRITE(FAN_PIN,0);}
-	    if (active_extruder == RIGHT_EXTRUDER){WRITE(FAN2_PIN,0);}
+	    if (active_extruder == RIGHT_EXTRUDER){WRITE(FAN2_PIN,0);}		
 	    #else
 	    WRITE(FAN_PIN,0);
 	    #endif

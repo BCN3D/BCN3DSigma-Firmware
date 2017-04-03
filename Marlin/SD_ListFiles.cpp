@@ -1,6 +1,6 @@
-// 
-// 
-// 
+//
+//
+//
 
 #include "SD_ListFiles.h"
 
@@ -23,9 +23,13 @@ Listfiles::Listfiles(){
 }
 
 
-void Listfiles::get_lineduration(void){
-	
-	card.openFile(card.filename, true);
+void Listfiles::get_lineduration(bool fromfilepoiter, char* name){
+	if(!fromfilepoiter){
+		card.openFile(name, true);
+	}else{
+		card.openFile(card.filename, true);
+	}
+	//card.openFile(card.filename, true);
 	dias=-1, horas=-1, minutos=-1;
 	char serial_char='\0';
 	int posi = 0;
@@ -46,8 +50,15 @@ void Listfiles::get_lineduration(void){
 				posi++;
 			}
 			exit++;
-			if(exit>20){
+			if(exit>20 || card.isEndFile()){
 				linecomepoint = 5;
+				dias=0;
+				horas=0;
+				minutos = 1;
+				filgramos1 = 0;
+				filgramos2 = 0;
+				card.closefile();
+				return;
 			}
 		}
 		if(linecomepoint == 0){
@@ -59,16 +70,17 @@ void Listfiles::get_lineduration(void){
 			else{
 				simplify3D = 0;
 			}
-		}else{
+		}
+		else{
 			extract_data();
 			if (minutos !=-1 ){
 				linecomepoint = 5;
 			}
 		}
+		
 		linecomepoint++;
 	}
-	
-	Serial.println(simplify3D);
+	//Serial.println(simplify3D);
 	if(simplify3D == 0){
 		
 		memset(commandline, '\0', sizeof(commandline) );
@@ -80,12 +92,17 @@ void Listfiles::get_lineduration(void){
 			int16_t n=card.get();
 			serial_char = (char)n;
 			commandline[posi]=serial_char;
-			
-			
 			posi++;
 		}
 		extract_data1();
-		card.closefile();
+		//card.closefile();
+		if(minutos == -1){
+			dias=0;
+			horas=0;
+			minutos = 1;
+			filgramos1 = 0;
+			filgramos2 = 0;
+		}
 		memset(commandline, '\0', sizeof(commandline) );
 	}
 	else if (simplify3D == 1){
@@ -93,9 +110,8 @@ void Listfiles::get_lineduration(void){
 		card.sdfinalline();
 		memset(commandline, '\0', sizeof(commandline) );
 		
-		
-		
 		linecomepoint=0;
+		exit = 0;
 		while(linecomepoint < 2 && !card.isEndFile()){
 			memset(commandline, '\0', sizeof(commandline) );
 			while(commandline[0]!=';' && !card.isEndFile()){
@@ -107,8 +123,18 @@ void Listfiles::get_lineduration(void){
 					serial_char = (char)n;
 					commandline[posi]=serial_char;
 					
-					
 					posi++;
+				}
+				exit++;
+				if(exit>20 || card.isEndFile()){
+					linecomepoint = 5;
+					dias=0;
+					horas=0;
+					minutos = 1;
+					filgramos1 = 0;
+					filgramos2 = 0;
+					card.closefile();
+					return;
 				}
 				
 			}
@@ -120,6 +146,7 @@ void Listfiles::get_lineduration(void){
 		posi = 0;
 		serial_char='\0';
 		linecomepoint = 0;
+		exit = 0;
 		while(linecomepoint < 3 && !card.isEndFile()){
 			memset(commandline, '\0', sizeof(commandline) );
 			while(commandline[0]!=';' && !card.isEndFile()){
@@ -131,17 +158,28 @@ void Listfiles::get_lineduration(void){
 					serial_char = (char)n;
 					commandline[posi]=serial_char;
 					
-					
 					posi++;
 				}
-			
+				exit++;
+				if(exit>20 || card.isEndFile()){
+					linecomepoint = 5;
+					dias=0;
+					horas=0;
+					minutos = 1;
+					filgramos1 = 0;
+					filgramos2 = 0;
+					card.closefile();
+					return;
+				}
 			}
 			linecomepoint++;
 		}
 		extract_data1();
-		card.closefile();
+		//card.closefile();
 		memset(commandline, '\0', sizeof(commandline) );
 	}
+	card.closefile();
+	
 	
 	
 }
@@ -156,19 +194,19 @@ int Listfiles::extract_data_fromCura(void){
 	return Symplify_ok;
 }
 void Listfiles::extract_data(void){
-	dias=-1, horas=-1;
+	dias=-1, horas=-1, minutos -1;
 	if (simplify3D == 0){
 		sscanf_P( commandline, PSTR(";Print time: %d days %d hours %d minutes"), &dias, &horas, &minutos);
 		if(horas == -1){
-		sscanf_P( commandline, PSTR(";Print time: %d day %d hours %d minutes"), &dias, &horas, &minutos);
-		if(minutos == -1){
-		sscanf_P( commandline, PSTR(";Print time: %d day %d hour %d minutes"), &dias, &horas, &minutos);
-		}
+			sscanf_P( commandline, PSTR(";Print time: %d day %d hours %d minutes"), &dias, &horas, &minutos);
+			if(minutos == -1){
+				sscanf_P( commandline, PSTR(";Print time: %d day %d hour %d minutes"), &dias, &horas, &minutos);
+			}
 		}
 		else{
-		if(minutos == -1){
-		sscanf_P( commandline, PSTR(";Print time: %d days %d hour %d minutes"), &dias, &horas, &minutos);
-		}
+			if(minutos == -1){
+				sscanf_P( commandline, PSTR(";Print time: %d days %d hour %d minutes"), &dias, &horas, &minutos);
+			}
 		}
 		if(minutos ==-1 && horas ==-1){
 			dias = 0;
@@ -216,14 +254,14 @@ void Listfiles::extract_data1(void){
 	filgramos1 = 0;
 	filgramos2 = 0;
 	if(simplify3D == 0){
-	sscanf_P(commandline, PSTR(";Filament used: %d.%dm %d.%dg"), &filmetros1, &filmetros2, &filgramos1, &filgramos2);
+		sscanf_P(commandline, PSTR(";Filament used: %d.%dm %d.%dg"), &filmetros1, &filmetros2, &filgramos1, &filgramos2);
 	}
 	else if ( simplify3D == 1){
 		sscanf_P(commandline, PSTR(";   Plastic weight: %d.%dg"), &filgramos1, &filgramos2);
 	}
 
 }
-	
+
 int Listfiles::get_hours(){
 	int hours = 0;
 	if(dias>0){

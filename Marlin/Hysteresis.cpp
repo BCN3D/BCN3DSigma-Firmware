@@ -35,6 +35,11 @@ Hysteresis::Hysteresis( float x_mm, float y_mm, float z_mm, float e_mm )
 {
   m_prev_direction_bits = 0;
   Set( x_mm, y_mm, z_mm, e_mm );
+  Parabola( 0.0, 0.0, 0.0);
+  m_last_hysteresis[0]= 0.0;
+  m_last_hysteresis[1]= 0.0;
+  m_last_hysteresis[2]= 0.0;
+  m_last_hysteresis[3]= 0.0;
 }
 
 //===========================================================================
@@ -49,7 +54,17 @@ void Hysteresis::Set( float x_mm, float y_mm, float z_mm, float e_mm )
                     | ((m_hysteresis_mm[Z_AXIS]!=0.0f)?(1<<Z_AXIS):0)
                     | ((m_hysteresis_mm[E_AXIS]!=0.0f)?(1<<E_AXIS):0);
 }
-
+void Hysteresis::Parabola( float Front, float Middle, float Back)
+{
+	parabolaA = (float)(Back*(150-10)-Middle*290+Front*290-Front*(150-10)+Middle*10-Front*10)/(pow(290,2)*(150-10)-pow(150,2)*290+pow(10,2)*290-pow(10,2)*(150-10)+pow(150,2)*10+pow(10,3));
+	parabolaB = (float)(Middle-parabolaA*pow(150,2)+parabolaA*pow(10,2)-Front)/(150-10);
+	parabolaC = (float)Back-parabolaA*pow(290,2)-parabolaB*290;
+	
+}
+float Hysteresis::ReportHisteresys_AxisY(float Position)
+{
+	return (float)parabolaA*pow(Position,2) + parabolaB*Position + parabolaC;
+}
 //===========================================================================
 void Hysteresis::SetAxis( int axis, float mm )
 {
@@ -121,7 +136,7 @@ void Hysteresis::InsertCorrection(const float &x, const float &y, const float &z
   unsigned char direction_bits = calc_direction_bits( current_position, destination );
   // if the direction has changed in any of the axis that need hysteresis corrections...
   unsigned char direction_change_bits = (direction_bits ^ m_prev_direction_bits);
-  if( (direction_change_bits & m_hysteresis_bits) != 0 )
+  if( (m_hysteresis_bits) != 0 ) ////   if( (direction_change_bits & m_hysteresis_bits) != 0 )
   {
     // calculate the position to move to that will fix the hysteresis
     float fixed_pos[NUM_AXIS];
@@ -129,7 +144,7 @@ void Hysteresis::InsertCorrection(const float &x, const float &y, const float &z
     {
       fixed_pos[axis] = current_position[axis];
       // if this axis changed direction...
-      if( direction_change_bits & (1<<axis) )
+     if( (1<<axis) )
       {
         //... add the hysteresis
         fixed_pos[axis] += (((direction_bits&(1<<axis))!=0)?-m_hysteresis_mm[axis]:m_hysteresis_mm[axis]);
@@ -137,7 +152,7 @@ void Hysteresis::InsertCorrection(const float &x, const float &y, const float &z
     }
     float best_feedrate = calc_best_feedrate( current_position, destination );
 
-/*
+
         // debug output to display any hysteresis corrections.
         SERIAL_PROTOCOLPGM("From=X");
         SERIAL_PROTOCOL(current_position[X_AXIS]);
@@ -164,7 +179,7 @@ void Hysteresis::InsertCorrection(const float &x, const float &y, const float &z
         
 
         SERIAL_PROTOCOLLN("");
-*/
+
   
     m_prev_direction_bits = direction_bits; // need to set these now to avoid recursion as plan_buffer_line calls this function
     plan_buffer_line(fixed_pos[X_AXIS], fixed_pos[Y_AXIS], fixed_pos[Z_AXIS], fixed_pos[E_AXIS], best_feedrate, active_extruder);

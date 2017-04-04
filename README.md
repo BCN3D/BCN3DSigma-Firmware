@@ -11,6 +11,8 @@ Please refer to the [wiki][8] in order to get instructions on how to upgrade the
 > ## IMPORTANT
 > This repo contains the firmware and the files for the LCD Touchscreen display (for now). When a new release is done, normally is needed updating the SD files of the display. That way we can update menus, graphics and functionalities. You can find more information on how to update the [LCD SD files here][5].
 
+>If you own a BCN3D Sigma R17 you don't need to update the LCD files. The files in this repo are just for R16 Sigma with resistive touchscreen. If you happen to load them, your screen will be displayed upside down. When an update for the capacitive touchscreen is available, it will be properly identified. 
+
 ## Features
 
 - Dual independent X extruders.

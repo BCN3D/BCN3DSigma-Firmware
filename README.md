@@ -2,6 +2,8 @@
  
  # BCN3D Sigma Firmware based on Marlin
 
+[![Join the chat at https://gitter.im/BCN3D/BCN3DSigma-Firmware](https://badges.gitter.im/BCN3D/BCN3DSigma-Firmware.svg)](https://gitter.im/BCN3D/BCN3DSigma-Firmware?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This is the repository that contains the firmware for the BCN3D Sigma 3D Printer. It's based on the well-known Marlin but with some modifications.
 
 If you want to download the latest stable firmware version, go to [Releases page][7] and download the needed files. In the releases page you will find the *Source Code* and the SD Files needed for the LCD Display.

@@ -28,7 +28,7 @@
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
 #define VERSION_STRING  "01-1.2.4_dev"
-#define BUILD_DATE  "|M04.04"
+#define BUILD_DATE  "|M04.13"
 #define VERSION_NUMBER  123
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
@@ -492,7 +492,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#define X_MAX_POS 530.6//312 //Distance between extruders
+	#define X_MAX_POS 503.9//312 //Distance between extruders
 	//#define X_MAX_POS 210 //Bed X
 	#define X_MIN_POS 0
 	#define Y_MAX_POS 295

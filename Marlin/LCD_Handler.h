@@ -20,7 +20,7 @@
 #include "SD_ListFiles.h"
 
 //#include "ultralcd.h"
-void setfilenames(int jint);
+inline void setfilenames(int jint);
 inline void insertmetod();
 inline void ListFilesParsingProcedure(int vecto, int jint);
 inline void ListFilesUpfunc();

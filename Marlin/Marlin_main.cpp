@@ -2463,6 +2463,18 @@ void get_command()
 		else
 		{
 			if(serial_char == ';') comment_mode = true;
+			/*if(get_dual_x_carriage_mode() == 5){//5 = dual mode raft
+				static uint32_t fileraftstart = 0;
+				int raft_line = 0;
+				if(serial_char == 'Z'){
+					if(raft_line == 0){
+						fileraftstart = card.getIndex()-serial_count;
+						raft_line++;
+						}else{
+						raft_line++;
+					}
+				}
+			}*/
 			if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
 		}
 	}
@@ -8675,7 +8687,7 @@ inline void dual_mode_duplication_extruder_parked(void){
 	SERIAL_PROTOCOLLNPGM("Dual Mode ON");
 }
 inline void dual_mode_duplication_mirror_extruder_parked(void){
-	if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]>0.0  || Flag_Raft_Dual_Mode_On){		
+	if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]>0.0  || Flag_Raft_Dual_Mode_On){
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 		}else{
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - extruder_offset[Z_AXIS][RIGHT_EXTRUDER], current_position[E_AXIS]);
@@ -8752,7 +8764,7 @@ void prepare_move()
 			active_extruder_parked = false;
 		}
 		else if(dual_x_carriage_mode == DXC_DUPLICATION_MODE_RAFT ){ ///Smart_Raft_duplication_mode
-						
+			
 			if ((extruder_offset[Z_AXIS][RIGHT_EXTRUDER] >= 0.0 && extruder_offset[Z_AXIS][RIGHT_EXTRUDER] <= 0.1) || (extruder_offset[Z_AXIS][RIGHT_EXTRUDER] <= 0.0 && extruder_offset[Z_AXIS][RIGHT_EXTRUDER] >= -0.1)){
 				dual_mode_duplication_extruder_parked();
 				
@@ -8777,7 +8789,7 @@ void prepare_move()
 							
 							dual_mode_duplication_extruder_parked();
 							
-							Flag_Raft_Dual_Mode_On = true;							
+							Flag_Raft_Dual_Mode_On = true;
 							
 							current_position[E_AXIS]-=3;
 							plan_set_e_position(current_position[E_AXIS]);

@@ -824,6 +824,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#define EXTRUDER_OFFSET_Z {0.0 , 0.0}
 #endif
 
+#if MOTHERBOARD == BCN3D_BOARD
+	#define NOZZLE_PARK_DISTANCE_BED_X0	47
+	#define NOZZLE_PARK_DISTANCE_BED_Y0	-2.5
+#endif
 
 //----------------------------------------------------------------------------------------------
 

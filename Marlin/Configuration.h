@@ -103,9 +103,18 @@
 #define BCN3D_BOARD		15
 #define MEGATRONICS_V3	703
 
+//Defining Machines supported
+#define BCN3D_SIGMA_PRINTER	2017
+#define BCN3D_SIGMAX_PRINTER 2018
+
 #ifndef MOTHERBOARD
 //#define MOTHERBOARD MEGATRONICS_V3 //Megatronics v3
 #define MOTHERBOARD BCN3D_BOARD //Marcotronics
+#endif
+
+#ifndef BCN3D_PRINTER
+//#define MOTHERBOARD MEGATRONICS_V3 //Megatronics v3
+#define BCN3D_PRINTER BCN3D_SIGMA_PRINTER //Marcotronics
 #endif
 
 #if MOTHERBOARD == MEGATRONICS_V3
@@ -492,7 +501,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#define X_MAX_POS 305.6//312 //Distance between extruders
+	#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+		#define X_MAX_POS 305.6//312 //Distance between extruders
+	#endif
+	#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+		#define X_MAX_POS 503.9//312 //Distance between extruders
+	#endif
 	//#define X_MAX_POS 210 //Bed X
 	#define X_MIN_POS 0
 	#define Y_MAX_POS 295
@@ -686,7 +700,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //Rapduch
 //Insert Filament parameters
-#define BOWDEN_LENGTH 875
+#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+	#define BOWDEN_LENGTH 875
+#endif
+#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+	#define BOWDEN_LENGTH 1025
+#endif
 #define EXTRUDER_LENGTH 50
 #define INSERT_FAST_SPEED 5000	
 #define INSERT_SLOW_SPEED 150
@@ -745,32 +764,60 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-13.5
 	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
 	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//2.90
+	#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+		//Left extruder probe point
+		#define X_SIGMA_PROBE_1_LEFT_EXTR 55
+		#define Y_SIGMA_PROBE_1_LEFT_EXTR 265
+		//#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
-	//Left extruder probe point
-	#define X_SIGMA_PROBE_1_LEFT_EXTR 55
-	#define Y_SIGMA_PROBE_1_LEFT_EXTR 265
-	//#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
+		#define X_SIGMA_PROBE_2_LEFT_EXTR 55
+		#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
+		//#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 	
-	#define X_SIGMA_PROBE_2_LEFT_EXTR 55
-	#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
-	//#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
+		#define X_SIGMA_PROBE_3_LEFT_EXTR 254
+		#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
+		//#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 	
-	#define X_SIGMA_PROBE_3_LEFT_EXTR 254
-	#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
-	//#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
+		//Right extruder probe point
+		#define X_SIGMA_PROBE_1_RIGHT_EXTR 254
+		#define Y_SIGMA_PROBE_1_RIGHT_EXTR 265
+		//#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
-	//Right extruder probe point
-	#define X_SIGMA_PROBE_1_RIGHT_EXTR 254
-	#define Y_SIGMA_PROBE_1_RIGHT_EXTR 265
-	//#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
+		#define X_SIGMA_PROBE_2_RIGHT_EXTR 254
+		#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
+		//#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 	
-	#define X_SIGMA_PROBE_2_RIGHT_EXTR 254
-	#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
-	//#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
+		#define X_SIGMA_PROBE_3_RIGHT_EXTR 55
+		#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
+		//#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
+	#endif
+	#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+		//Left extruder probe point
+		#define X_SIGMA_PROBE_1_LEFT_EXTR 52
+		#define Y_SIGMA_PROBE_1_LEFT_EXTR 265
+		//#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
-	#define X_SIGMA_PROBE_3_RIGHT_EXTR 55
-	#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
-	//#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
+		#define X_SIGMA_PROBE_2_LEFT_EXTR 52
+		#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
+		//#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
+	
+		#define X_SIGMA_PROBE_3_LEFT_EXTR 458 //254
+		#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
+		//#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
+	
+		//Right extruder probe point
+		#define X_SIGMA_PROBE_1_RIGHT_EXTR 458//254
+		#define Y_SIGMA_PROBE_1_RIGHT_EXTR 265
+		//#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
+	
+		#define X_SIGMA_PROBE_2_RIGHT_EXTR 458 ///254
+		#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
+		//#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
+	
+		#define X_SIGMA_PROBE_3_RIGHT_EXTR 52
+		#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
+		//#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
+	#endif
 #endif
 
 #ifdef  SIGMA_BED_AUTOCALIB
@@ -824,11 +871,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#define EXTRUDER_OFFSET_Z {0.0 , 0.0}
 #endif
 
-#if MOTHERBOARD == BCN3D_BOARD
+#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
 	#define NOZZLE_PARK_DISTANCE_BED_X0	47
 	#define NOZZLE_PARK_DISTANCE_BED_Y0	-2.5
+	#define PRINTER_BED_X_SIZE	210.0
 #endif
-
+#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+	#define NOZZLE_PARK_DISTANCE_BED_X0	47
+	#define NOZZLE_PARK_DISTANCE_BED_Y0	-2.5
+	#define PRINTER_BED_X_SIZE	420.0
+#endif
 //----------------------------------------------------------------------------------------------
 
 

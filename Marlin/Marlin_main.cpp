@@ -8915,7 +8915,7 @@ void prepare_move()
 							Flag_Raft_Dual_Mode_On = true;
 							st_synchronize();
 						}
-						destination[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (420.0 -(destination[X_AXIS]-NOZZLE_PARK_DISTANCE_BED_X0));
+						destination[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (PRINTER_BED_X_SIZE -(destination[X_AXIS]-NOZZLE_PARK_DISTANCE_BED_X0));
 					}
 					
 					

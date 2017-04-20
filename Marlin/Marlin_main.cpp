@@ -375,25 +375,8 @@ float bed_offset_right_screw=0.0;
 //bools to control which kind of process are actually running
 
 /////// Processing Gifs	/////////
-
-bool processing = false;
+char gif_processing_state = '\0';
 uint8_t processing_z_set = 255;
-bool processing_success = false;
-bool processing_success_first_run = false;
-bool processing_bed_success = false;
-bool processing_saveprint_success = false;
-bool processing_nylon_step4 = false;
-bool processing_purge_load = false;
-bool processing_nylon_step3 = false;
-bool processing_change_filament_temps = false;
-bool processing_adjusting = false;
-bool processing_nylon_temps = false;
-bool processing_bed = false;
-bool processing_calib_ZL = false;
-bool processing_calib_ZR = false;
-bool processing_error = false;
-bool processing_bed_first = false;
-bool processing_test = false;
 
 //////// end Processing Gifs   //////////
 bool printing_error_temps = false;
@@ -1090,21 +1073,7 @@ int TimerCooldownInactivity(bool restartOrRun){ //false Restart  true Run
 	
 }
 void thermal_error_screen_on(){
-	processing = false;
-	processing_success = false;
-	processing_bed_success = false;
-	processing_saveprint_success = false;
-	processing_nylon_step4 = false;
-	processing_purge_load = false;
-	processing_nylon_step3 = false;
-	processing_change_filament_temps = false;
-	processing_adjusting = false;
-	processing_nylon_temps = false;
-	processing_bed = false;
-	processing_calib_ZL = false;
-	processing_calib_ZR = false;
-	processing_bed_first = false;
-	processing_test = false;
+	gif_processing_state = PROCESSING_STOP;
 	is_changing_filament = false;
 }
 float smartPurge_Distant(double A, double B, double T, double P, double E, int timeIdle){
@@ -1205,7 +1174,7 @@ void update_screen_printing(){
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 			genie.WriteStr(STRING_ERROR_MESSAGE,buffer);
 			FLAG_thermal_runaway_screen = true;
-			processing_error = true;
+			gif_processing_state = gif_processing_state == PROCESSING_ERROR;
 		}
 		FLAG_thermal_runaway = false;
 	}
@@ -1325,7 +1294,7 @@ void update_screen_printing(){
 	if(FLAG_PrintPrintResume){
 		if(!waiting_temps){
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-			processing = true;
+			gif_processing_state = PROCESSING_DEFAULT;
 			card.startFileprint();
 			SERIAL_PROTOCOLPGM("¡RESUME! \n");
 			FLAG_PausePause = false;
@@ -1372,7 +1341,7 @@ void update_screen_printing(){
 		surfing_temps = false;
 		card.sdprinting = false;
 		card.sdispaused = false;
-		processing = false;
+		gif_processing_state = PROCESSING_STOP;
 	}
 	if (surfing_utilities)
 	{
@@ -1434,7 +1403,7 @@ void update_screen_printing(){
 					//genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
 				}
-				processing_change_filament_temps = false;
+				gif_processing_state = PROCESSING_STOP;
 				is_changing_filament=false; //Reset changing filament control
 			}
 			#endif //Extruders > 1
@@ -1443,12 +1412,12 @@ void update_screen_printing(){
 		}
 	}
 	if(FLAG_FilamentAcceptOk && !home_made){
-		processing=true;
+		gif_processing_state = PROCESSING_DEFAULT;
 	}
-	if(FLAG_FilamentAcceptOk && home_made && processing){
-		processing = false;
+	if(FLAG_FilamentAcceptOk && home_made && (gif_processing_state == PROCESSING_DEFAULT)){
+		gif_processing_state = PROCESSING_STOP;
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
-		processing_success = true;
+		gif_processing_state = PROCESSING_SUCCESS;
 	}
 	if(is_on_printing_screen){
 		
@@ -1635,22 +1604,22 @@ void update_screen_noprinting(){
 		if(FLAG_PurgeSelect0){
 			FLAG_PurgeSelect0 = false;
 			if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
-				processing_purge_load = true;
+				gif_processing_state = PROCESSING_PURGE_LOAD;
 				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 				st_synchronize();
-				processing_purge_load = false;
+				gif_processing_state = PROCESSING_STOP;
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
 			}
 		}
 		if(FLAG_PurgeSelect1){
 			FLAG_PurgeSelect1 = false;
 			if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
-				processing_purge_load = true;
+				gif_processing_state = PROCESSING_PURGE_LOAD;
 				current_position[E_AXIS]-=5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retract
 				st_synchronize();
-				processing_purge_load = false;
+				gif_processing_state = PROCESSING_STOP;
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
 			}
 		}
@@ -1707,8 +1676,7 @@ void update_screen_noprinting(){
 				}
 				
 			}
-			
-			if(is_changing_filament){
+			else{
 				int percentage = 0;
 				int Tinstant;
 				if(Tref1 > (int)degHotend(which_extruder)){
@@ -1748,7 +1716,7 @@ void update_screen_noprinting(){
 					//genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
 				}
-				processing_change_filament_temps = false;
+				gif_processing_state = PROCESSING_STOP;
 				is_changing_filament=false; //Reset changing filament control
 			}
 			#endif //Extruders > 1
@@ -1818,13 +1786,13 @@ void update_screen_noprinting(){
 		
 	}
 	if(FLAG_FilamentAcceptOk && !home_made){
-		processing=true;
+		gif_processing_state = PROCESSING_DEFAULT;
 		
 	}
-	if(FLAG_FilamentAcceptOk && home_made && processing){
-		processing = false;
+	if(FLAG_FilamentAcceptOk && home_made && (gif_processing_state == PROCESSING_DEFAULT)){
+		gif_processing_state = PROCESSING_STOP;
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
-		processing_success = true;
+		gif_processing_state = PROCESSING_SUCCESS;
 	}
 	
 	
@@ -1920,126 +1888,421 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		update_screen_noprinting();
 	}
 	
-	if (processing){
-		if (millis() >= waitPeriod_p){
-			
-			
-			
-			if(processing_state<GIF_FRAMES_PROCESSING){
-				processing_state++;
-			}
-			else{
-				processing_state=0;
-			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-	}
-	else if (processing_change_filament_temps){
-		if (millis() >= waitPeriod_p){
-			
-			
-			
-			if(processing_state<GIF_FRAMES_CHANGEFILAMENTTEMP){
-				processing_state++;
-			}
-			else{
-				processing_state=0;
-			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_CHANGE_FILAMENT_TEMPS,processing_state);
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-	}
-	else if (processing_adjusting){
-		if (millis() >= waitPeriod_p){
-			
-			if(processing_state<GIF_FRAMES_ADJUSTINGTEMPS){
-				processing_state++;
-			}
-			else{
-				processing_state=0;
-			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_state);
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-	}
-	else if (processing_nylon_temps){
-		if (millis() >= waitPeriod_p){
-			
-			if(processing_state<GIF_FRAMES_NYLONTEMPS){
-				processing_state++;
-			}
-			else{
-				//Serial.println(degHotend(which_extruder));
-				processing_state=0;
-			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_TEMPS,processing_state);
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
+	switch(gif_processing_state){
+		case PROCESSING_DEFAULT:
 		
-	}
-	else if (processing_test){
-		if (millis() >= waitPeriod_p){
+			if (millis() >= waitPeriod_p){	
+				
+				if(processing_state<GIF_FRAMES_PROCESSING){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
+					processing_state++;
+				}
+				else if(processing_state == GIF_FRAMES_PROCESSING){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
+					processing_state=0;
+				}
+				else{
+					processing_state=0;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
+				}
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
+				waitPeriod_p=GIF_FRAMERATE+millis();
+			}
 			
-			if(processing_state<GIF_FRAMES_CALIBTEST){
-				processing_state++;
+		break;
+		
+		case PROCESSING_CHANGE_FILAMENT_TEMPS:
+		
+			if (millis() >= waitPeriod_p){
+					
+				if(processing_state<GIF_FRAMES_CHANGEFILAMENTTEMP){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_CHANGE_FILAMENT_TEMPS,processing_state);
+					processing_state++;
+				}
+				else if(processing_state == GIF_FRAMES_CHANGEFILAMENTTEMP){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_CHANGE_FILAMENT_TEMPS,processing_state);
+					processing_state=0;
+				}
+				else{
+					processing_state=0;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_CHANGE_FILAMENT_TEMPS,processing_state);
+				}
+				
+				waitPeriod_p=GIF_FRAMERATE+millis();
 			}
-			else{
-				processing_state=0;
+		
+		break;
+		
+		case PROCESSING_ADJUSTING:
+		
+			if (millis() >= waitPeriod_p){
+				
+				if(processing_state<GIF_FRAMES_ADJUSTINGTEMPS){					
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_state);
+					processing_state++;
+				}
+				else if(processing_state == GIF_FRAMES_ADJUSTINGTEMPS){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_state);
+					processing_state = 0;
+				}
+				else{
+					processing_state=0;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_state);
+				}
+				
+				waitPeriod_p=GIF_FRAMERATE+millis();
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PRINTING_TEST,processing_state);
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-	}
-	else if (processing_bed_first){
+			
+		break;
+		
+		case PROCESSING_NYLON_TEMPS:
+		
+			if (millis() >= waitPeriod_p){
+				
+				if(processing_state<GIF_FRAMES_NYLONTEMPS){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_TEMPS,processing_state);
+					processing_state++;
+				}
+				else if(processing_state == GIF_FRAMES_NYLONTEMPS){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_TEMPS,processing_state);
+					processing_state = 0; 
+				}
+				else{
+					processing_state=0;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_TEMPS,processing_state);
+				}
+				
+				waitPeriod_p=GIF_FRAMERATE+millis();
+			}			
+		
+		break;
+		
+		
+		case PROCESSING_TEST:
+		
+			if (millis() >= waitPeriod_p){
+				
+				if(processing_state<GIF_FRAMES_CALIBTEST){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PRINTING_TEST,processing_state);
+					processing_state++;
+				}
+				else if(processing_state==GIF_FRAMES_CALIBTEST){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PRINTING_TEST,processing_state);
+					processing_state = 0;
+				}
+				else{
+					processing_state=0;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PRINTING_TEST,processing_state);
+				}
+				
+				waitPeriod_p=GIF_FRAMERATE+millis();
+			}
+		
+		break;
+		
+		
+		case PROCESSING_BED_FIRST:
+		
+			if (millis() >= waitPeriod_p){
+				
+				if(processing_state<GIF_FRAMES_BEDSCREW){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS_FIRST,processing_state);
+					processing_state++;
+				}
+				else if(processing_state == GIF_FRAMES_BEDSCREW){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS_FIRST,processing_state);
+					processing_state=0;
+				}
+				else{
+					processing_state=0;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS_FIRST,processing_state);
+				}
+				
+				waitPeriod_p=GIF_FRAMERATE+millis();
+			}
+		
+		break;
+				
+		case PROCESSING_SUCCESS:
+		
+			if (millis() >= waitPeriod_p){
+				
+				if(processing_state<GIF_FRAMES_SUCCESS){
+					processing_state++;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
+				}
+				else if(processing_state == GIF_FRAMES_SUCCESS){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
+					processing_state=0;
+					gif_processing_state = PROCESSING_STOP;
+				}
+				else{
+					processing_state=0;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
+				}
+				
+				waitPeriod_p=GIF_FRAMERATE+millis();
+			}
+		
+		break;
+		
+				
+		case PROCESSING_SAVE_PRINT_SUCCESS:
+		
+			if (millis() >= waitPeriod_p){
+				
+				if(processing_state<GIF_FRAMES_SUCCESS){
+					
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SAVEJOB_SUCCESS,processing_state);
+					processing_state++;
+				}
+				else if(processing_state == GIF_FRAMES_SUCCESS){
+					
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SAVEJOB_SUCCESS,processing_state);
+					processing_state=0;
+					gif_processing_state = PROCESSING_STOP;
+					delay(5000);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_SAVEJOB_SHUTDOWN,0);
+					
+				}
+				else{					
+					processing_state=0;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SAVEJOB_SUCCESS,processing_state);
+				}				
+				waitPeriod_p=GIF_FRAMERATE+millis();
+			}
+				
+		break;
+		
+		
+		case PROCESSING_NYLON_STEP3:
+		
+			if (millis() >= waitPeriod_p){
+								
+				if(processing_state<GIF_FRAMES_NYLONSTEP3){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP3,processing_state);
+					processing_state++;
+				}
+				if(processing_state == GIF_FRAMES_NYLONSTEP3){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP3,processing_state);
+					processing_state=0;
+				}
+				else{
+					processing_state=0;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP3,processing_state);
+				}				
+				waitPeriod_p=GIF_FRAMERATE+millis();
+			}
+		
+		
+		break;
+		
+		
+		case PROCESSING_PURGE_LOAD:
+		
+			if (millis() >= waitPeriod_p){
+								
+				if(processing_state<GIF_FRAMES_PURGELOAD){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,processing_state);
+					processing_state++;
+				}
+				else if(processing_state == GIF_FRAMES_PURGELOAD){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,processing_state);
+					processing_state = 0;
+				}
+				else{
+					processing_state=0;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,processing_state);
+				}
+				
+				waitPeriod_p=GIF_FRAMERATE+millis();
+			}
+		
+		break;
+		
+		
+		case PROCESSING_NYLON_STEP4:
+		
+			if (millis() >= waitPeriod_p){
+								
+				if(processing_state<GIF_FRAMES_SUCCESS){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP4,processing_state);
+					processing_state++;
+				}
+				else if(processing_state < GIF_FRAMES_SUCCESS){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP4,processing_state);
+					processing_state=0;	
+					gif_processing_state = PROCESSING_STOP;
+				}
+				else{
+					processing_state=0;									
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP4,processing_state);
+				}
+					
+				waitPeriod_p=GIF_FRAMERATE+millis();
+			}
+		
+		break;
+		
+		
+		case PROCESSING_BED_SUCCESS:
+				
+			if (millis() >= waitPeriod_p){
+				
+				if(processing_state<GIF_FRAMES_SUCCESS){
+					
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_BED_CALIB_SUCCESS,processing_state);
+					processing_state++;
+				}
+				else if(processing_state == GIF_FRAMES_SUCCESS){					
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_BED_CALIB_SUCCESS,processing_state);
+					processing_state=0;
+					gif_processing_state = PROCESSING_STOP;
+				}
+				else{
+					processing_state=0;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_BED_CALIB_SUCCESS,processing_state);
+				}
+				
+				waitPeriod_p=GIF_FRAMERATE+millis();
+			}
+		
+		break;
+		
+		
+		case PROCESSING_SUCCESS_FIRST_RUN:
+				
+			if (millis() >= waitPeriod_p){
+				
+				if(processing_state<GIF_FRAMES_SUCCESS){
+					
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_FIRST_RUN_WIZARD_SUCCESS,processing_state);
+					processing_state++;
+				}
+				else if (processing_state == GIF_FRAMES_SUCCESS){
+					
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_FIRST_RUN_WIZARD_SUCCESS,processing_state);
+					processing_state=0;					
+					gif_processing_state = PROCESSING_STOP;
+					delay(5000);
+					
+					
+					setTargetHotend0(0);
+					setTargetHotend1(0);
+					setTargetBed(0);
+					home_axis_from_code(true, true, false);
+					enquecommand_P((PSTR("T0")));
+					st_synchronize();
+					if(gif_processing_state == PROCESSING_ERROR)return;
+					SERIAL_PROTOCOLPGM("Calibration Successful, going back to main menu \n");
+					
+					doblocking=false;
+					
+					screen_sdcard = false;
+					surfing_utilities=false;
+					SERIAL_PROTOCOLPGM("Surfing 0 \n");
+					surfing_temps = false;
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
+				}
+				else{
+					processing_state= 0;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_FIRST_RUN_WIZARD_SUCCESS,processing_state);
+				}
+				
+				waitPeriod_p=GIF_FRAMERATE+millis();
+			}
+		
+		break;
+		
+		case PROCESSING_BED:
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<GIF_FRAMES_BEDSCREW){
+				
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS,processing_state);
 				processing_state++;
 			}
-			else{
-				processing_state=0;
-			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS_FIRST,processing_state);
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-	}
-	else if (processing_success){
-		if (millis() >= waitPeriod_p){
-			
-			if(processing_state<GIF_FRAMES_SUCCESS){
-				processing_state++;
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
+			else if(processing_state == GIF_FRAMES_BEDSCREW){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS,processing_state);
+				processing_state = 0;
 			}
 			else{
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
+				
 				processing_state=0;
-				processing_success = false;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS,processing_state);
 			}
 			
 			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
-	}
-	else if (processing_saveprint_success){
+		break;
+		case PROCESSING_CALIB_ZL:
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<GIF_FRAMES_SUCCESS){
+			if(processing_state<GIF_FRAMES_ZCALIB){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_LEFT,processing_state);
 				processing_state++;
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SAVEJOB_SUCCESS,processing_state);
+			}
+			else if(processing_state==GIF_FRAMES_ZCALIB){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_LEFT,processing_state);
+				processing_state=0;
 			}
 			else{
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SAVEJOB_SUCCESS,processing_state);
 				processing_state=0;
-				processing_saveprint_success = false;
-				delay(5000);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_SAVEJOB_SHUTDOWN,0);
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_LEFT,processing_state);
 				
 			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_LEFT,processing_state);
+			waitPeriod_p=GIF_FRAMERATE+millis();
+		}
+		break;
+		case PROCESSING_CALIB_ZR:
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<GIF_FRAMES_ZCALIB){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_RIGHT,processing_state);
+				processing_state++;
+			}
+			else if(processing_state == GIF_FRAMES_ZCALIB){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_RIGHT,processing_state);
+				processing_state=0;
+			}
+			else{
+				processing_state=0;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_RIGHT,processing_state);
+			}
 			
 			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
+		break;
+		
+		case PROCESSING_ERROR:
+		
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<GIF_FRAMES_ERROR){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ERROR,processing_state);
+				processing_state++;
+			}
+			else if(processing_state == GIF_FRAMES_ERROR){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ERROR,processing_state);
+				processing_state=0;
+			}
+			else{
+				processing_state =0;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ERROR,processing_state);
+			}
+			
+			waitPeriod_p=GIF_FRAMERATE+millis();
+		}
+		
+		break;
+		
+		default:
+		processing_state = 0;
+	
 	}
-	else if (processing_z_set == 0 || processing_z_set == 1){
+	
+	if (processing_z_set == 0 || processing_z_set == 1){
 		if (millis() >= waitPeriod_p){
 			if (processing_z_set == 0){
 				if(processing_state_z<GIF_FRAMES_ZSET){
@@ -2060,160 +2323,6 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_SET,processing_state_z);
 			waitPeriod_p=GIF_FRAMERATE+millis();
 		}
-	}
-	else if (processing_nylon_step3){
-		
-		if (millis() >= waitPeriod_p){
-			
-			
-			if(processing_state<GIF_FRAMES_NYLONSTEP3){
-				processing_state++;
-			}
-			else{
-				processing_state=0;
-			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP3,processing_state);
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-	}
-	else if (processing_purge_load){
-		
-		if (millis() >= waitPeriod_p){
-			
-			
-			if(processing_state<GIF_FRAMES_PURGELOAD){
-				processing_state++;
-			}
-			else{
-				processing_state=0;
-			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,processing_state);
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-	}
-	else if (processing_nylon_step4){
-		
-		if (millis() >= waitPeriod_p){
-			
-			
-			if(processing_state<GIF_FRAMES_SUCCESS){
-				processing_state++;
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP4,processing_state);
-			}
-			else{
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP4,processing_state);
-				processing_state=0;
-				processing_nylon_step4 = false;
-			}
-			
-			
-			
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-	}
-	else if (processing_bed_success){
-		if (millis() >= waitPeriod_p){
-			
-			if(processing_state<GIF_FRAMES_SUCCESS){
-				processing_state++;
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_BED_CALIB_SUCCESS,processing_state);
-			}
-			else{
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_BED_CALIB_SUCCESS,processing_state);
-				processing_state=0;
-				processing_bed_success = false;
-			}
-			
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-	}
-	else if (processing_success_first_run){
-		if (millis() >= waitPeriod_p){
-			
-			if(processing_state<GIF_FRAMES_SUCCESS){
-				processing_state++;
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_FIRST_RUN_WIZARD_SUCCESS,processing_state);
-			}
-			else{
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_FIRST_RUN_WIZARD_SUCCESS,processing_state);
-				processing_state=0;
-				processing_success_first_run = false;
-				delay(5000);
-				
-				
-				setTargetHotend0(0);
-				setTargetHotend1(0);
-				setTargetBed(0);
-				home_axis_from_code(true, true, false);
-				enquecommand_P((PSTR("T0")));
-				st_synchronize();
-				if(processing_error)return;
-				SERIAL_PROTOCOLPGM("Calibration Successful, going back to main menu \n");
-				
-				doblocking=false;
-				
-				screen_sdcard = false;
-				surfing_utilities=false;
-				SERIAL_PROTOCOLPGM("Surfing 0 \n");
-				surfing_temps = false;
-				genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
-			}
-			
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-	}
-	else if (processing_bed){
-		if (millis() >= waitPeriod_p){
-			
-			if(processing_state<GIF_FRAMES_BEDSCREW){
-				processing_state++;
-			}
-			else{
-				processing_state=0;
-			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS,processing_state);
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-	}
-	else if (processing_calib_ZL){
-		if (millis() >= waitPeriod_p){
-			
-			if(processing_state<GIF_FRAMES_ZCALIB){
-				processing_state++;
-			}
-			else{
-				processing_state=0;
-			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_LEFT,processing_state);
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-	}
-	else if (processing_calib_ZR){
-		if (millis() >= waitPeriod_p){
-			
-			if(processing_state<GIF_FRAMES_ZCALIB){
-				processing_state++;
-			}
-			else{
-				processing_state=0;
-			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_RIGHT,processing_state);
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-	}
-	else if (processing_error){
-		if (millis() >= waitPeriod_p){
-			
-			if(processing_state<GIF_FRAMES_ERROR){
-				processing_state++;
-			}
-			else{
-				processing_state=0;
-			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ERROR,processing_state);
-			waitPeriod_p=GIF_FRAMERATE+millis();
-		}
-		
 	}
 	else if(back_home){
 		if(home_made == false){
@@ -2252,7 +2361,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			cancel_heatup = false;
 			if(saved_print_flag == 1888){
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_SAVEJOB_SUCCESS,0);
-				processing_saveprint_success= true;
+				gif_processing_state = PROCESSING_SAVE_PRINT_SUCCESS;
 				processing_state = 0;
 				
 				}else{
@@ -2260,9 +2369,6 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			}
 			
 		}
-	}
-	else{
-		processing_state = 0;
 	}
 	
 	
@@ -2397,7 +2503,7 @@ void get_command()
 			enquecommand_P(((PSTR("G69"))));
 			FLAG_PausePause = false;
 			SERIAL_PROTOCOLPGM("pause detected \n");
-			processing = true;
+			gif_processing_state = PROCESSING_DEFAULT;
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 		}
 		
@@ -3526,26 +3632,26 @@ inline void gcode_G40(){
 		
 		manage_heater();
 		touchscreen_update();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 	}
-	processing_adjusting =  false;
+	gif_processing_state = PROCESSING_STOP;
 	touchscreen_update();
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
-	processing_test = true;
+	gif_processing_state = PROCESSING_TEST;
 	
 	current_position[Z_AXIS]=2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15 , active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	
 	current_position[E_AXIS]+=15;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60 , active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	current_position[E_AXIS]-=4;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	float mm_second_extruder[NUM_LINES];
 	float i =  -0.5;
 	mm_second_extruder[0] = i;
@@ -3569,50 +3675,50 @@ inline void gcode_G40(){
 			current_position[Z_AXIS]=0.2;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[E_AXIS]+=4.1;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			//current_position[X_AXIS]=109.5; current_position[E_AXIS]+=((197.5-109.5)*1.05*(current_position[Z_AXIS]*0.3284/(0.188*29.402)));
 			current_position[X_AXIS]=109.5; current_position[E_AXIS]+= extrusion_multiplier(197.5-109.5); ////////// (distance * flow * extrusion value)------- extrusion multiplier = 1.05*(current_position[Z_AXIS]*0.3284/(0.188*29.402))
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[Y_AXIS]=191.5; current_position[E_AXIS]+=extrusion_multiplier(275.5-191.5);
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[E_AXIS]-=4;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[X_AXIS]=mm_left_offset; current_position[Y_AXIS]=mm_left_lines_x_up;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 		}
 		current_position[E_AXIS]+=4.1;
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Move Y and extrude
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		current_position[X_AXIS]=mm_left_offset+(mm_each_extrusion*i);current_position[Y_AXIS]=mm_left_lines_x_down;current_position[E_AXIS]+=extrusion_multiplier(mm_left_lines_x_up-mm_left_lines_x_down);
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40, active_extruder);//Move Y and extrude
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		current_position[E_AXIS]-=4;
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Move Y and extrude
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		if (i != 9) {
 			current_position[X_AXIS]=mm_left_offset+(mm_each_extrusion*(i+1));current_position[Y_AXIS]=mm_left_lines_x_up;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 		}
 	}
 
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	
 	//changeTool(1);
 	gcode_T0_T1_auto(1);
@@ -3620,20 +3726,20 @@ inline void gcode_G40(){
 	current_position[Z_AXIS]=2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15 , active_extruder); //Raise for a layer of Z=2
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	//Purge & up
 	current_position[E_AXIS]+=15;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60 , active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	current_position[E_AXIS]-=4;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	current_position[Y_AXIS]=275.5;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200 , active_extruder); //Move Y and Z
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	//Second Extruder (correcting)
 	for (int i=0; i<(NUM_LINES);i++) //N times
 	{
@@ -3643,63 +3749,63 @@ inline void gcode_G40(){
 			current_position[Z_AXIS]=0.2;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[E_AXIS]+=4.1;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[Y_AXIS] = 191.5;current_position[E_AXIS]+=extrusion_multiplier(275.5-191.5);
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[X_AXIS] = 109.5;current_position[E_AXIS]+=extrusion_multiplier(197.5-109.5);
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[E_AXIS]-=4;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))); current_position[Y_AXIS]= mm_right_lines_x_down;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 		}
 		
 		current_position[E_AXIS]+=4.1;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		Serial.println(mm_second_extruder[i]);
 		current_position[Y_AXIS]= mm_right_lines_x_up; current_position[X_AXIS]=mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i)));
 		current_position[E_AXIS]+=extrusion_multiplier(mm_right_lines_x_up-mm_right_lines_x_down);
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40, active_extruder);//Move Y and extrude
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		current_position[E_AXIS]-=4;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		if (i != 9){
 			current_position[Y_AXIS]= mm_right_lines_x_down; current_position[X_AXIS]=mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i+1)));
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 		}
 	}
 
 	current_position[Z_AXIS]+=2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	home_axis_from_code(true,true,false);
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	changeTool(0);
 	//Go to Calibration select screen
-	processing_test = false;
+	gif_processing_state = PROCESSING_STOP;
 	doblocking = false;
 	enquecommand_P(PSTR("M84"));
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_X_CALIB_SELECT,0);
 
 	#endif //EXTRUDER_CALIBRATION_WIZARD
@@ -3718,13 +3824,13 @@ inline void gcode_G41(){
 		
 		manage_heater();
 		touchscreen_update();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 	}
 	//delay(5000);
-	processing_adjusting =  false;
+	gif_processing_state = PROCESSING_STOP;
 	touchscreen_update();
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
-	processing_test = true;
+	gif_processing_state = PROCESSING_TEST;
 	//Raise for a layer of Z=0.2
 	current_position[Z_AXIS]=2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15 , active_extruder);
@@ -3736,11 +3842,11 @@ inline void gcode_G41(){
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60 , active_extruder);
 	st_synchronize();
 	
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	current_position[E_AXIS]-=4;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	
 	float mm_second_extruder[NUM_LINES];
 	float i = -0.5;
@@ -3768,44 +3874,44 @@ inline void gcode_G41(){
 			current_position[E_AXIS]+=4.1;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[Y_AXIS]=103.5;
 			current_position[E_AXIS]+=extrusion_multiplier(103.5-23.5);
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[X_AXIS]=197.5;
 			current_position[E_AXIS]+=extrusion_multiplier(197.5-109.5);
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[E_AXIS]-=4;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[X_AXIS]=mm_left_lines_y_l; current_position[Y_AXIS]=99.5;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 		}
 		
 		current_position[E_AXIS]+=4.1; //Move the Retracted space
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		current_position[X_AXIS]=mm_left_lines_y_r; current_position[E_AXIS]+=extrusion_multiplier(mm_left_lines_y_r-mm_left_lines_y_l);
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40, active_extruder);
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		current_position[E_AXIS]-=4;
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		if(i != 9){
 			current_position[X_AXIS] = mm_left_lines_y_l; current_position[Y_AXIS] = y_first_line-((i+1)*mm_each_extrusion);
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 		}
 	}
 	
@@ -3822,7 +3928,7 @@ inline void gcode_G41(){
 	current_position[E_AXIS]-=4;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	for (int i=0; i<(NUM_LINES);i++)
 	{
 		if (i == 0) {
@@ -3836,37 +3942,37 @@ inline void gcode_G41(){
 			current_position[E_AXIS]+=4.1;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[X_AXIS]=197.5;
 			current_position[E_AXIS]+=extrusion_multiplier(197.5-109.5);
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[Y_AXIS]=103.5;
 			current_position[E_AXIS]+=extrusion_multiplier(103.5-23.5);
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[E_AXIS]-=4;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			current_position[X_AXIS]=mm_right_lines_y_r;
 			current_position[Y_AXIS]=y_first_line-((i)*mm_each_extrusion)-mm_second_extruder[i];
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200 , active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 		}
 		
 		current_position[E_AXIS]+=4.1;
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
 		SERIAL_PROTOCOLLNPGM("We are restoring Retract");
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		current_position[X_AXIS]=mm_right_lines_y_l;
 		current_position[E_AXIS]+=extrusion_multiplier(mm_right_lines_y_r-mm_right_lines_y_l);
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40, active_extruder);
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		current_position[E_AXIS]-=4;
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);
 		
@@ -3874,7 +3980,7 @@ inline void gcode_G41(){
 			current_position[X_AXIS]=mm_right_lines_y_r; current_position[Y_AXIS]=y_first_line-((i+1)*mm_each_extrusion)-mm_second_extruder[i+1];
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
 			st_synchronize;
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 		}
 		
 	}
@@ -3882,17 +3988,17 @@ inline void gcode_G41(){
 	current_position[Z_AXIS]+=2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	home_axis_from_code(true,true,false);
 	
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	changeTool(0);
 	
-	processing_test = false;
+	gif_processing_state = PROCESSING_STOP;
 	doblocking = false;
 	enquecommand_P(PSTR("M84"));
 	//Go to Calibration select screen
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_Y_CALIB_SELECT,0);
 	
 	
@@ -3901,7 +4007,7 @@ inline void gcode_G41(){
 }
 inline void gcode_G43(){
 	#ifdef EXTRUDER_CALIBRATION_WIZARD
-	processing =  true;
+	gif_processing_state = PROCESSING_DEFAULT;
 	SERIAL_PROTOCOLLNPGM("Starting Z Calibration Wizard");
 	//Raise to correct
 	
@@ -3920,16 +4026,16 @@ inline void gcode_G43(){
 	
 	//Now we are in position to do the calibration MANUALLY with the TOUCHSCREEN
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	//Go to Z Calibration select screen if first time!
-	processing =  false;
+	gif_processing_state == PROCESSING_STOP;
 	touchscreen_update();
 	if (active_extruder==LEFT_EXTRUDER) {
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER1,0);
-		processing_calib_ZL = true;
+		gif_processing_state = PROCESSING_CALIB_ZL;
 		}else{
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER2,0);
-		processing_calib_ZR = true;
+		gif_processing_state = PROCESSING_CALIB_ZR;
 	}
 	
 	
@@ -3981,7 +4087,7 @@ inline void gcode_G33(){
 	feedrate=homing_feedrate[X_AXIS];
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	//current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER);
 	
 	active_extruder=RIGHT_EXTRUDER;
@@ -3997,7 +4103,7 @@ inline void gcode_G33(){
 	current_position[X_AXIS]+=15;
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]); // We are now at position
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	//STARTING THE ACTUAL PROBE
 	setup_for_endstop_move();
 	
@@ -4021,7 +4127,7 @@ inline void gcode_G33(){
 	feedrate=homing_feedrate[Z_AXIS];
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	
 	//Now the right extruder joins the party!
 	active_extruder=RIGHT_EXTRUDER;
@@ -4054,7 +4160,7 @@ inline void gcode_G33(){
 	feedrate = XY_TRAVEL_SPEED;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	
 	clean_up_after_endstop_move();
 	
@@ -4149,7 +4255,7 @@ inline void gcode_G33(){
 	///////////////////////////
 
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	// make sure the bed_level_rotation_matrix is identity or the planner will get it incorrectly
 	//vector_3 corrected_position = plan_get_position_mm();
 	//corrected_position.debug("position before G29");
@@ -4252,7 +4358,7 @@ inline void gcode_G33(){
 		#ifdef SIGMA_TOUCH_SCREEN
 		
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-		processing_bed_success = true;
+		gif_processing_state = PROCESSING_BED_SUCCESS;
 		#endif
 		
 		SERIAL_PROTOCOL(" Platform is Calibrated! ");
@@ -4406,7 +4512,7 @@ inline void gcode_G34(){
 	current_position[X_AXIS]+=10;
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]); // We are now at position
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	
 	//STARTING THE ACTUAL PROBE
 	setup_for_endstop_move();
@@ -4431,7 +4537,7 @@ inline void gcode_G34(){
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, LEFT_EXTRUDER);
 	
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	
 	//Now the right extruder joins the party!
 	
@@ -4455,7 +4561,7 @@ inline void gcode_G34(){
 	current_position[X_AXIS]=x_home_pos(active_extruder)-10;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, RIGHT_EXTRUDER);
 
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	clean_up_after_endstop_move();
 	
 	
@@ -4613,7 +4719,7 @@ inline void gcode_G34(){
 			
 			active_extruder = LEFT_EXTRUDER;
 			//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-			//processing = true;
+			//gif_processing_state = PROCESSING_DEFAULT;
 			setTargetHotend0(print_temp_l);
 			setTargetHotend1(print_temp_r);
 			setTargetBed(max(bed_temp_l,bed_temp_r));
@@ -4621,9 +4727,9 @@ inline void gcode_G34(){
 			
 			
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 			enquecommand_P(PSTR("T0"));
-			processing = false;
+			gif_processing_state = PROCESSING_STOP;
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_ZL,0);
 			if(Step_First_Start_Wizard){
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_FULL_CAL_ZL_SKIP,1);
@@ -4632,28 +4738,28 @@ inline void gcode_G34(){
 			flag_continue_calib = true;
 		}
 		else{
-			processing = false;
+			gif_processing_state = PROCESSING_STOP;
 			touchscreen_update();
 			#ifdef SIGMA_TOUCH_SCREEN
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-			processing_bed_success = true;
+			gif_processing_state = PROCESSING_BED_SUCCESS;
 			#endif
 			SERIAL_PROTOCOL(" Platform is Calibrated! ");
 			current_position[Z_AXIS] += 10;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
 		}
 		}else{
-		processing = false;
+		gif_processing_state = PROCESSING_STOP;
 		bed_calibration_times++;
 		
 		#ifdef SIGMA_TOUCH_SCREEN
 		if (bed_calibration_times >= 2) {
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_TURN_SCREWS,0);
-			processing_bed = true;
+			gif_processing_state = PROCESSING_BED;
 		}
 		else{
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_TURN_SCREWS_FIRST,0);
-			processing_bed_first = true;
+			gif_processing_state = PROCESSING_BED_FIRST;
 		}
 
 		
@@ -4777,7 +4883,7 @@ inline void gcode_G69(){
 	//*********************************//
 	FLAG_PausePause = false;
 	doblocking = true;
-	processing = false;
+	gif_processing_state = PROCESSING_STOP;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
 	screen_printing_pause_form = screen_printing_pause_form1;
 	genie.WriteStr(STRINGS_PRINTING_GCODE_PAUSE,namefilegcode);
@@ -4850,7 +4956,7 @@ inline void gcode_G70(){
 	
 	feedrate = saved_feedrate;
 	
-	processing = false;
+	gif_processing_state = PROCESSING_STOP;
 	screen_printing_pause_form = screen_printing_pause_form0;
 	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,0);
 	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
@@ -5979,7 +6085,7 @@ inline void gcode_M190(){
 			codenum = millis();
 		}
 		manage_heater();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		manage_inactivity();
 		//lcd_update();
 		#ifdef SIGMA_TOUCH_SCREEN
@@ -6132,7 +6238,7 @@ inline void gcode_M109(){
 			codenum = millis();
 		}
 		manage_heater();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		manage_inactivity();
 		//lcd_update();
 		#ifdef SIGMA_TOUCH_SCREEN
@@ -6184,7 +6290,7 @@ inline void gcode_M109(){
 			codenum = millis();
 		}
 		manage_heater();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		manage_inactivity();
 		//lcd_update();
 		#ifdef SIGMA_TOUCH_SCREEN
@@ -8899,7 +9005,7 @@ void prepare_move()
 							st_synchronize();
 							active_extruder=LEFT_EXTRUDER;
 							dual_mode_duplication_extruder_parked_purge();
-							
+							current_position[X_AXIS] = 0.0;
 							//DUAL PROTOCOL
 							dual_mode_duplication_mirror_extruder_parked();
 							Flag_Raft_Dual_Mode_On = true;
@@ -8915,7 +9021,7 @@ void prepare_move()
 							Flag_Raft_Dual_Mode_On = true;
 							st_synchronize();
 						}
-						destination[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (PRINTER_BED_X_SIZE -(destination[X_AXIS]-NOZZLE_PARK_DISTANCE_BED_X0));
+						destination[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER]-(destination[X_AXIS]+NOZZLE_PARK_DISTANCE_BED_X0);
 					}
 					
 					
@@ -9355,11 +9461,11 @@ void left_test_print_code(){
 	current_position[E_AXIS]+=15;  //0.5 + 0.15 per ajustar una bona alçada
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	current_position[Z_AXIS]=2; //0.5 + 0.15 per ajustar una bona alçada
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	current_position[E_AXIS]-=4;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
 	
@@ -9371,32 +9477,32 @@ void left_test_print_code(){
 	current_position[Z_AXIS] = 0.2;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],200,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	current_position[E_AXIS]+=4.1;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	//start print the skirt
 	current_position[Y_AXIS] = 107.5; current_position[E_AXIS] += extrusion_multiplier(187.5-107.5);
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	current_position[X_AXIS] = 149.5; current_position[E_AXIS] += extrusion_multiplier(149.5-125.5);
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	current_position[Y_AXIS] = 187.5; current_position[E_AXIS] += extrusion_multiplier(187.5-107.5);
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	current_position[X_AXIS] = 125.5; current_position[E_AXIS] += extrusion_multiplier(149.5-125.5);
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	current_position[E_AXIS]-=4;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	int	  distance_x = 4;
 	int	  distance_y = 72;
 	float initial_x_pos = 129.5;
@@ -9409,28 +9515,28 @@ void left_test_print_code(){
 	current_position[Z_AXIS]= initial_z_pos;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],200,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	for(int i = 1; i<=5;i++){
 		
 		current_position[E_AXIS]+= 4.1;
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		current_position[Y_AXIS] = initial_y_pos-distance_y;  current_position[E_AXIS]+=extrusion_multiplier(distance_y);
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		current_position[E_AXIS]-=4;
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		if(i != 5){
 			current_position[X_AXIS] = initial_x_pos+(distance_x*i);
 			current_position[Y_AXIS] = initial_y_pos;
 			current_position[Z_AXIS]+= 0.05;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],200,active_extruder);
 			st_synchronize();
-			if(processing_error)return;
+			if(gif_processing_state == PROCESSING_ERROR)return;
 		}
 	}
 	
@@ -9439,12 +9545,12 @@ void left_test_print_code(){
 	current_position[Z_AXIS]+= 2;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	home_axis_from_code(true,true,false);
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	doblocking = false;
 	//SELECT LINES SCREEN
-	processing_test = false;
+	gif_processing_state = PROCESSING_STOP;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_Z_TEST,0);
 }
 
@@ -9461,7 +9567,7 @@ void right_test_print_code(){
 	current_position[E_AXIS]-=4; //0.5 + 0.15 per ajustar una bona alçada
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60 ,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	
 	//SKIRT v2
 	current_position[Y_AXIS] = 187.5;
@@ -9472,7 +9578,7 @@ void right_test_print_code(){
 	current_position[E_AXIS]+=4.1;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	current_position[X_AXIS] = 181.5; current_position[E_AXIS] += extrusion_multiplier(181.5-157.5);
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 	st_synchronize();
@@ -9485,7 +9591,7 @@ void right_test_print_code(){
 	current_position[Y_AXIS] = 187.5; current_position[E_AXIS] += extrusion_multiplier(187.5-107.5);
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	current_position[E_AXIS]-=4;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED,active_extruder);
 	st_synchronize();
@@ -9502,21 +9608,21 @@ void right_test_print_code(){
 	current_position[Z_AXIS]= initial_z_pos;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],200,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	for(int i = 1; i<=5;i++){
 		
 		current_position[E_AXIS]+= 4.1;
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		current_position[Y_AXIS] = initial_y_pos-distance_y;  current_position[E_AXIS]+=extrusion_multiplier(distance_y);
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		current_position[E_AXIS]-=4;
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
 		st_synchronize();
-		if(processing_error)return;
+		if(gif_processing_state == PROCESSING_ERROR)return;
 		if(i != 5){
 			current_position[X_AXIS] = initial_x_pos+(distance_x*i);
 			current_position[Y_AXIS] = initial_y_pos;
@@ -9530,13 +9636,13 @@ void right_test_print_code(){
 	current_position[Z_AXIS]+= 2;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	home_axis_from_code(true,true,false);
 	st_synchronize();
-	if(processing_error)return;
+	if(gif_processing_state == PROCESSING_ERROR)return;
 	//SELECT LINES SCREEN
 	doblocking = false;
-	processing_test = false;
+	gif_processing_state = PROCESSING_STOP;
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_Z_TEST,0);
 }
 

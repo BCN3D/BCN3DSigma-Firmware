@@ -9020,12 +9020,8 @@ void prepare_move()
 							active_extruder=RIGHT_EXTRUDER;
 							Flag_Raft_Dual_Mode_On = true;
 							st_synchronize();
-						}
-<<<<<<< HEAD
-						destination[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (PRINTER_BED_X_SIZE -(destination[X_AXIS]-NOZZLE_PARK_DISTANCE_BED_X0));
-=======
+						}						
 						destination[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER]-(destination[X_AXIS]+NOZZLE_PARK_DISTANCE_BED_X0);
->>>>>>> refs/remotes/origin/v01-1.2.4_dev_L_dupli
 					}
 					
 					

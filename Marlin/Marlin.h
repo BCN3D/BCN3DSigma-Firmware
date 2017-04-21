@@ -318,26 +318,9 @@ extern float x_home_pos(int extruder);
 extern int bed_calibration_times;
 
 /////// Processing Gifs	/////////
-
-extern bool processing;
+extern char gif_processing_state;
 extern uint8_t processing_z_set;
-extern bool processing_success;
-extern bool processing_success_first_run;
-extern bool processing_bed_success;
-extern bool processing_saveprint_success;
-extern bool processing_nylon_step4;
-extern bool processing_purge_load;
-extern bool processing_nylon_step3;
-extern bool processing_change_filament_temps;
-extern bool processing_adjusting;
-extern bool processing_nylon_temps;
-extern bool processing_bed;
-extern bool processing_calib_ZL;
-extern bool processing_calib_ZR;
 extern bool printing_error_temps;
-extern bool processing_error;
-extern bool processing_bed_first;
-extern bool processing_test;
 extern int FLAG_First_Start_Wizard;
 extern bool FLAG_thermal_runaway;
 extern bool FLAG_thermal_runaway_screen;

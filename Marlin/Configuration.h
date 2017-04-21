@@ -27,8 +27,8 @@
 //This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
-#define VERSION_STRING  "01-1.2.4_dev"
-#define BUILD_DATE  "|M04.10"
+#define VERSION_STRING  "01-1.2.4_devL"
+#define BUILD_DATE  "|M04.19"
 #define VERSION_NUMBER  123
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
@@ -722,8 +722,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 #ifdef Z_SIGMA_HOME
-	#define Z_SIGMA_HOME_X_POINT 58
-	//#define Z_SIGMA_HOME_X_POINT 3
+	#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+		#define Z_SIGMA_HOME_X_POINT 58
+	#endif
+	#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+		#define Z_SIGMA_HOME_X_POINT 51
+	#endif
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
 	#define SIGMA_Z_HOME_TRAVEL_SPEED 13000
@@ -1267,7 +1271,30 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //#define ErroWindowEnable
 
+//GIF PROCESSING DEFINITIONS
 
+#define PROCESSING_STOP						'\0'
+#define PROCESSING_DEFAULT					'A'
+#define PROCESSING_SUCCESS					'B'
+#define PROCESSING_SUCCESS_FIRST_RUN		'C'
+#define PROCESSING_BED_SUCCESS				'D'
+#define PROCESSING_SAVE_PRINT_SUCCESS		'E'
+#define PROCESSING_NYLON_STEP4				'F'
+#define PROCESSING_PURGE_LOAD				'G'
+#define PROCESSING_CHANGE_FILAMENT_TEMPS	'H'
+#define PROCESSING_ADJUSTING				'I'
+#define PROCESSING_NYLON_TEMPS				'J'
+#define PROCESSING_BED						'K'
+#define PROCESSING_CALIB_ZL					'L'
+#define PROCESSING_CALIB_ZR					'M'
+#define PROCESSING_ERROR					'N'
+#define PROCESSING_BED_FIRST				'O'
+#define PROCESSING_TEST						'P'
+#define PROCESSING_NYLON_STEP3				'Q'
+/*
+#define PROCESSING_Z_SET_0					'R'
+#define PROCESSING_Z_SET_1					'S'
+*/
 #include "Configuration_adv.h"
 #include "thermistortables.h"
 

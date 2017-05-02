@@ -28,7 +28,7 @@
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
 #define VERSION_STRING  "01-1.2.4_devL"
-#define BUILD_DATE  "|M04.27"
+#define BUILD_DATE  "|M05.02"
 #define VERSION_NUMBER  124
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
@@ -113,7 +113,7 @@
 #endif
 
 #ifndef BCN3D_PRINTER
-	#define BCN3D_PRINTER BCN3D_SIGMA_PRINTER
+	#define BCN3D_PRINTER BCN3D_SIGMAX_PRINTER
 #endif
 
 #if MOTHERBOARD == MEGATRONICS_V3

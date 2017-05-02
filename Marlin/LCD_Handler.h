@@ -1768,8 +1768,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								if (which_extruder == 0) changeTool(0);
 								else changeTool(1);
 								
-								
+								#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
 								current_position[X_AXIS] = 155;
+								#else
+								current_position[X_AXIS] = 155 + 100;
+								#endif
+								
 								
 								plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 								st_synchronize();
@@ -2740,9 +2744,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							{ //Inserting...
 								gif_processing_state = PROCESSING_DEFAULT;
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-								current_position[X_AXIS] = 155;
-								plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 								delay(850);
+								#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+								current_position[X_AXIS] = 155;
+								#else
+								current_position[X_AXIS] = 155 + 100;
+								#endif
+								plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 								st_synchronize();
 								SERIAL_PROTOCOLPGM("Inserting :   \n");
 								doblocking = false;
@@ -3447,7 +3455,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								else changeTool(1);
 								
 								current_position[Y_AXIS] = 10;
+								#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
 								current_position[X_AXIS] = 155;
+								#else
+								current_position[X_AXIS] = 155 + 100;
+								#endif
 								doblocking = true;
 								genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 								gif_processing_state = PROCESSING_DEFAULT;
@@ -4702,7 +4714,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, LEFT_EXTRUDER);//move bed
 							st_synchronize();
 							if(gif_processing_state == PROCESSING_ERROR)return;
-							current_position[X_AXIS] = 150; current_position[Y_AXIS] = 0;
+							
+							#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+							current_position[X_AXIS] = 150;
+							#else
+							current_position[X_AXIS] = 150 + 100;
+							#endif 
+							
+							current_position[Y_AXIS] = 0;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, LEFT_EXTRUDER);//move first extruder
 							st_synchronize();
 							if(gif_processing_state == PROCESSING_ERROR)return;
@@ -4811,7 +4830,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, RIGHT_EXTRUDER);//move bed
 							st_synchronize();
 							if(gif_processing_state == PROCESSING_ERROR)return;
-							current_position[X_AXIS] = 170; current_position[Y_AXIS] = 0;
+							#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+							current_position[X_AXIS] = 170;
+							#else
+							current_position[X_AXIS] = 170 + 100;
+							#endif 
+							
+							current_position[Y_AXIS] = 0;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, RIGHT_EXTRUDER);//move first extruder
 							st_synchronize();
 							if(gif_processing_state == PROCESSING_ERROR)return;
@@ -6041,15 +6066,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				home_axis_from_code(true,false,true);
 				}else{
 				if (!home_made) home_axis_from_code(true,true,true);
+				else home_axis_from_code(true,true,false);
 			}
 			int feedrate;
-			if (!FLAG_FilamentHome){
-				
-				
-				home_axis_from_code(true,true,false);
-				
-				FLAG_FilamentHome=true;
-			}
 			
 			
 			current_position[Z_AXIS]=Z_MAX_POS-15;
@@ -6059,8 +6078,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			if(gif_processing_state == PROCESSING_ERROR)return;
 			/****************************************************/
 		}
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FILAMENT_TOP,0);
 		gif_processing_state = PROCESSING_STOP;
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FILAMENT_TOP,0);
+		
 	}
 	inline void folder_navigation_register(bool upchdir){
 

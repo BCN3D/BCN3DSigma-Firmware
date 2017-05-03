@@ -28,7 +28,7 @@
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
 #define VERSION_STRING  "01-1.2.4_devL"
-#define BUILD_DATE  "|M05.02"
+#define BUILD_DATE  "|M05.03"
 #define VERSION_NUMBER  124
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
@@ -883,7 +883,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define PRINTER_BED_X_SIZE	210.0
 #endif
 #if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
-	#define NOZZLE_PARK_DISTANCE_BED_X0	47
+	#define NOZZLE_PARK_DISTANCE_BED_X0	43
 	#define NOZZLE_PARK_DISTANCE_BED_Y0	-2.5
 	#define PRINTER_BED_X_SIZE	420.0
 #endif

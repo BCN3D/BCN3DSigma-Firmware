@@ -4629,15 +4629,21 @@ inline void gcode_G34(){
 	Serial.println(current_position[Z_AXIS]);
 
 	float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
-	/*float z_at_pt_1_0 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-30, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z_at_pt_1_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-60, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z_at_pt_1_2 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-90, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z_at_pt_1_3 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-120, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z_at_pt_1_4 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-150, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z_at_pt_1_5 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-180, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z_at_pt_1_6 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-210, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z_at_pt_1_7 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-235, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);*/
+	
+	/*float z_at_pt_1_0 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-50, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
+	float z_at_pt_1_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-100, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
+	float z_at_pt_1_2 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-150, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
+	float z_at_pt_1_3 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-200, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
+	//float z_at_pt_1_4 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-150, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
+	//float z_at_pt_1_5 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-180, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
+	//float z_at_pt_1_6 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-210, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
+	//float z_at_pt_1_7 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-235, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);*/
 	float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
+	
+	//float z_at_pt_2_0 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR + (X_SIGMA_PROBE_3_LEFT_EXTR - X_SIGMA_PROBE_2_LEFT_EXTR)/4.0,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
+	//float z_at_pt_2_1 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR + (X_SIGMA_PROBE_3_LEFT_EXTR - X_SIGMA_PROBE_2_LEFT_EXTR)*2.0/4.0,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
+	//float z_at_pt_2_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR + (X_SIGMA_PROBE_3_LEFT_EXTR - X_SIGMA_PROBE_2_LEFT_EXTR)*3.0/4.0,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
+	
 	float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
 	
 	
@@ -4672,7 +4678,8 @@ inline void gcode_G34(){
 	float z2_at_pt_1_6 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR-60, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
 	float z2_at_pt_1_7 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR-30, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);*/
 	float z2_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-
+	
+	
 	current_position[Z_AXIS] += Z_RAISE_BETWEEN_PROBINGS;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, RIGHT_EXTRUDER);
 
@@ -4686,49 +4693,85 @@ inline void gcode_G34(){
 	
 	plan_bed_level_matrix.set_to_identity();
 	
-	float z_final_probe_1 = (z_at_pt_1+(z2_at_pt_1-(((z2_at_pt_2-z_at_pt_3)+(z2_at_pt_3-z_at_pt_2))/2)))/2; //Upper left, upper right
-	float z_final_probe_2 = z_at_pt_2 - ((z2_at_pt_2-z_at_pt_3)+(z2_at_pt_3-z_at_pt_2))/2 ;//(z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
-	float z_final_probe_3 = z_at_pt_3 - ((z2_at_pt_2-z_at_pt_3)+(z2_at_pt_3-z_at_pt_2))/2 ;//(z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right
-
-	vector_3 pt1 = vector_3(X_SIGMA_PROBE_1_LEFT_EXTR, Y_SIGMA_PROBE_1_LEFT_EXTR, z_final_probe_1);
-	vector_3 pt2 = vector_3(X_SIGMA_PROBE_2_LEFT_EXTR, Y_SIGMA_PROBE_2_LEFT_EXTR, z_final_probe_2);
-	vector_3 pt3 = vector_3(X_SIGMA_PROBE_3_LEFT_EXTR, Y_SIGMA_PROBE_3_LEFT_EXTR, z_final_probe_3);
-
-	vector_3 from_2_to_1 = (pt1 - pt2);
-	vector_3 from_2_to_3 = (pt3 - pt2);
-	vector_3 planeNormal = vector_3::cross(from_2_to_1, from_2_to_3);
-	planeNormal = vector_3(planeNormal.x, planeNormal.y, planeNormal.z);
+	/*float z_final_probe_1 = (z_at_pt_1+(z2_at_pt_1-(((z2_at_pt_2-z_at_pt_2)+(z2_at_pt_3-z_at_pt_3))/2)))/2; //Upper left, upper right
+	float z_final_probe_2 = z_at_pt_2 - ((z2_at_pt_3-z_at_pt_3)+(z2_at_pt_2-z_at_pt_2))/2 ;//(z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
+	float z_final_probe_3 = z_at_pt_3 - ((z2_at_pt_3-z_at_pt_3)+(z2_at_pt_2-z_at_pt_2))/2 ;//(z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right
+	*/
+	//float z_final_probe_1 = (z_at_pt_1-z_at_pt_1_0 + z_at_pt_1_0-z_at_pt_1_1 + z_at_pt_1_1-z_at_pt_1_2 + z_at_pt_1_2-z_at_pt_1_3 + z_at_pt_1_3-z_at_pt_2)/(5.00*50.0) ; //Upper left, upper right
+	//z_final_probe_1 =z_at_pt_2 + z_final_probe_1 * 250.0;
+	//float z_final_probe_2 = z_at_pt_2;//(z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
+	//float z_final_probe_3 = (z_at_pt_2-z_at_pt_2_0 + z_at_pt_2_0-z_at_pt_2_1 + z_at_pt_2_1-z_at_pt_2_2 + z_at_pt_2_2-z_at_pt_3)/(4.00*(X_SIGMA_PROBE_3_LEFT_EXTR - X_SIGMA_PROBE_2_LEFT_EXTR)/4.00) ; //Upper left, upper right;//(z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right
+	//z_final_probe_3 =z_at_pt_2 + z_final_probe_3 * (X_SIGMA_PROBE_3_LEFT_EXTR - X_SIGMA_PROBE_2_LEFT_EXTR);
 	
-	float z1=(-planeNormal.x*X_SIGMA_PROBE_1_LEFT_EXTR-planeNormal.y*Y_SIGMA_PROBE_1_LEFT_EXTR)/planeNormal.z;
-	float z2=(-planeNormal.x*X_SIGMA_PROBE_2_LEFT_EXTR-planeNormal.y*Y_SIGMA_PROBE_2_LEFT_EXTR)/planeNormal.z;
-	float z3=(-planeNormal.x*X_SIGMA_PROBE_3_LEFT_EXTR-planeNormal.y*Y_SIGMA_PROBE_3_LEFT_EXTR)/planeNormal.z;
+	vector_3 pt1_0 = vector_3(X_SIGMA_PROBE_1_LEFT_EXTR, Y_SIGMA_PROBE_1_LEFT_EXTR, z_at_pt_1);
+	vector_3 pt2_0 = vector_3(X_SIGMA_PROBE_2_LEFT_EXTR, Y_SIGMA_PROBE_2_LEFT_EXTR, z_at_pt_2);
+	vector_3 pt3_0 = vector_3(X_SIGMA_PROBE_3_LEFT_EXTR, Y_SIGMA_PROBE_3_LEFT_EXTR, z_at_pt_3);
 	
-	SERIAL_PROTOCOLPGM("planeNormal.x: ");
-	Serial.println(planeNormal.x);
-	SERIAL_PROTOCOLPGM("planeNormal.y: ");
-	Serial.println(planeNormal.y);
-	SERIAL_PROTOCOLPGM("planeNormal.z: ");
-	Serial.println(planeNormal.z);
+	vector_3 pt1_1 = vector_3(X_SIGMA_PROBE_1_RIGHT_EXTR, Y_SIGMA_PROBE_1_RIGHT_EXTR, z2_at_pt_1);
+	vector_3 pt2_1 = vector_3(X_SIGMA_PROBE_2_RIGHT_EXTR, Y_SIGMA_PROBE_2_RIGHT_EXTR, z2_at_pt_2);
+	vector_3 pt3_1 = vector_3(X_SIGMA_PROBE_3_RIGHT_EXTR, Y_SIGMA_PROBE_3_RIGHT_EXTR, z2_at_pt_3);
 	
-	SERIAL_PROTOCOLPGM("Z1: ");
-	Serial.println(z1);
-	SERIAL_PROTOCOLPGM("Z2: ");
-	Serial.println(z2);
-	SERIAL_PROTOCOLPGM("Z3: ");
-	Serial.println(z3);
+	vector_3 from_2_to_1_0 = (pt1_0 - pt2_0);
+	vector_3 from_2_to_3_0 = (pt3_0 - pt2_0);
+	vector_3 planeNormal_0 = vector_3::cross(from_2_to_1_0, from_2_to_3_0);
+	planeNormal_0 = vector_3(planeNormal_0.x, planeNormal_0.y, planeNormal_0.z);
+	
+	vector_3 from_3_to_1_1 = (pt1_1 - pt3_1);
+	vector_3 from_3_to_2_1 = (pt2_1 - pt3_1);
+	vector_3 planeNormal_1 = vector_3::cross(from_3_to_1_1, from_3_to_2_1); // Point 3 is 2 on the left
+	planeNormal_1 = vector_3(planeNormal_1.x, planeNormal_1.y, planeNormal_1.z);
+		
+	float z1_0=(-planeNormal_0.x*0.0-planeNormal_0.y*(Y_SIGMA_PROBE_1_LEFT_EXTR-Y_SIGMA_PROBE_3_LEFT_EXTR))/planeNormal_0.z;
+	float z2_0=(-planeNormal_0.x*0.0-planeNormal_0.y*0.0)/planeNormal_0.z;
+	float z3_0=(-planeNormal_0.x*(X_SIGMA_PROBE_1_RIGHT_EXTR-X_SIGMA_PROBE_1_LEFT_EXTR)-planeNormal_0.y*0.0)/planeNormal_0.z;
+	
+	float z1_1=(-planeNormal_1.x*(X_SIGMA_PROBE_1_RIGHT_EXTR-X_SIGMA_PROBE_1_LEFT_EXTR)-planeNormal_1.y*(Y_SIGMA_PROBE_1_RIGHT_EXTR-Y_SIGMA_PROBE_3_RIGHT_EXTR))/planeNormal_1.z;
+	float z2_1=(-planeNormal_1.x*(X_SIGMA_PROBE_1_RIGHT_EXTR-X_SIGMA_PROBE_1_LEFT_EXTR)-planeNormal_1.y*0.0)/planeNormal_1.z;
+	float z3_1=(-planeNormal_1.x*0.0-planeNormal_1.y*0.0)/planeNormal_1.z;
+	
+	SERIAL_PROTOCOLPGM("planeNormal_0.x: ");
+	Serial.println(planeNormal_0.x);
+	SERIAL_PROTOCOLPGM("planeNormal_0.y: ");
+	Serial.println(planeNormal_0.y);
+	SERIAL_PROTOCOLPGM("planeNormal_0.z: ");
+	Serial.println(planeNormal_0.z);
+	
+	SERIAL_PROTOCOLPGM("z1_0: ");
+	Serial.println(z1_0);
+	SERIAL_PROTOCOLPGM("z2_0: ");
+	Serial.println(z2_0);
+	SERIAL_PROTOCOLPGM("z3_0: ");
+	Serial.println(z3_0);
+	
+	SERIAL_PROTOCOLPGM("planeNormal_1.x: ");
+	Serial.println(planeNormal_1.x);
+	SERIAL_PROTOCOLPGM("planeNormal_1.y: ");
+	Serial.println(planeNormal_1.y);
+	SERIAL_PROTOCOLPGM("planeNormal_1.z: ");
+	Serial.println(planeNormal_1.z);
+	
+	SERIAL_PROTOCOLPGM("z1_1: ");
+	Serial.println(z1_1);
+	SERIAL_PROTOCOLPGM("z2_1: ");
+	Serial.println(z2_1);
+	SERIAL_PROTOCOLPGM("z3_1: ");
+	Serial.println(z3_1);
+	
 	
 	float Xscroll, Yscroll;
 	Xscroll = (X_SIGMA_PROBE_1_RIGHT_EXTR-X_SIGMA_PROBE_1_LEFT_EXTR)/2;
 	Yscroll = Y_SIGMA_PROBE_1_LEFT_EXTR-Y_SIGMA_PROBE_3_LEFT_EXTR;
-	float Zscroll=(-planeNormal.x*Xscroll-planeNormal.y*Yscroll)/planeNormal.z;
+	float Zscroll_0=(-planeNormal_0.x*Xscroll-planeNormal_0.y*Yscroll)/planeNormal_0.z;
+	float Zscroll_1=(-planeNormal_1.x*Xscroll-planeNormal_1.y*Yscroll)/planeNormal_1.z;
 	
 	SERIAL_PROTOCOLPGM("Xscroll: ");
 	Serial.println(Xscroll);
 	SERIAL_PROTOCOLPGM("Yscroll: ");
 	Serial.println(Yscroll);
-	SERIAL_PROTOCOLPGM("Zscroll: ");
-	Serial.println(Zscroll);
-	
+	SERIAL_PROTOCOLPGM("Zscroll_0: ");
+	Serial.println(Zscroll_0);
+	SERIAL_PROTOCOLPGM("Zscroll_1: ");
+	Serial.println(Zscroll_1);
 	
 	//Update zOffset. We have to take into account the 2 different probe offsets
 	//NOT NEEDED because we have to check the bed from the same position. Theorically the offsets between probes is inexistent
@@ -4746,17 +4789,23 @@ inline void gcode_G34(){
 	float z_final_probe_2 = z_at_pt_2 ;//(z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
 	float z_final_probe_3 = z_at_pt_3 ;//(z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right*/
 	
-	SERIAL_PROTOCOLPGM("Probe 1: ");
-	Serial.println(z_final_probe_1);
-	SERIAL_PROTOCOLPGM("Probe 2: ");
-	Serial.println(z_final_probe_2);
-	SERIAL_PROTOCOLPGM("Probe 3: ");
-	Serial.println(z_final_probe_3);
+	SERIAL_PROTOCOLPGM("Probe 1_0: ");
+	Serial.println(z_at_pt_1);
+	SERIAL_PROTOCOLPGM("Probe 2_0: ");
+	Serial.println(z_at_pt_2);
+	SERIAL_PROTOCOLPGM("Probe 3_0: ");
+	Serial.println(z_at_pt_3);
 
+	SERIAL_PROTOCOLPGM("Probe 1_1: ");
+	Serial.println(z2_at_pt_1);
+	SERIAL_PROTOCOLPGM("Probe 2_1(Probe 3Left): ");
+	Serial.println(z2_at_pt_2);
+	SERIAL_PROTOCOLPGM("Probe 3_1(Probe 2Left): ");
+	Serial.println(z2_at_pt_3);
 	///Alejandro
 
-	float dz2 = z_final_probe_2 - z_final_probe_1 - bed_offset_left_screw;
-	float dz3 = z_final_probe_3 - z_final_probe_1 - bed_offset_right_screw;
+	float dz2 = z2_0 - (z2_0 - z3_1)/2.0 - (Zscroll_0 - (Zscroll_0 - Zscroll_1)/2.0) - bed_offset_left_screw;
+	float dz3 = z3_0 - (z3_0 - z2_1)/2.0 - (Zscroll_0 - (Zscroll_0 - Zscroll_1)/2.0) - bed_offset_right_screw;
 	
 	//Voltes cargols
 	

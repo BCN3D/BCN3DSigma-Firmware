@@ -1596,6 +1596,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							SERIAL_PROTOCOL(" d:");
 							SERIAL_PROTOCOL(unscalePID_d(Kd[1]));
 							gif_processing_state = PROCESSING_STOP;
+							touchscreen_update();
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_CAL_WIZARD_DONE_GOOD, 0);
 							gif_processing_state = PROCESSING_BED_SUCCESS;
 							
@@ -5187,7 +5188,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							manual_fine_calib_offset[0] += offset_calib_manu[0];
 							manual_fine_calib_offset[1] += offset_calib_manu[1];
 							manual_fine_calib_offset[2] += offset_calib_manu[2];
-							manual_fine_calib_offset[3] += offset_calib_manu[3] - offset_calib_manu[2];
+							manual_fine_calib_offset[3] += offset_calib_manu[3];
 							
 							extruder_offset[X_AXIS][RIGHT_EXTRUDER]+= offset_calib_manu[0];
 							extruder_offset[Y_AXIS][RIGHT_EXTRUDER]+= offset_calib_manu[1];

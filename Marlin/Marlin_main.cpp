@@ -257,6 +257,11 @@ void SD_firstPrint();
 int version_number;
 /////// Print Recovery	/////////
 
+/////// Dual Printing	/////////
+
+int raft_line = 0;
+int raft_line_counter = 0;
+
 #ifdef RECOVERY_PRINT
 
 float saved_x_position;
@@ -2567,23 +2572,50 @@ void get_command()
 			//      }
 			comment_mode = false; //for new command
 			serial_count = 0; //clear buffer
+			/*Serial.print("cmdbuffer new from sd: ");
+			Serial.println(cmdbuffer[bufindw]);*/
 		}
 		else
 		{
 			if(serial_char == ';') comment_mode = true;
-			/*if(get_dual_x_carriage_mode() == 5){//5 = dual mode raft
-				static uint32_t fileraftstart = 0;
-				int raft_line = 0;
-				if(serial_char == 'Z'){
-					if(raft_line == 0){
-						fileraftstart = card.getIndex()-serial_count;
-						raft_line++;
-						}else{
-						raft_line++;
-					}
-				}
-			}*/
 			if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
+			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){//5 = dual mode raft
+				static uint32_t fileraftstart = 0;
+				if(serial_char == 'Z'){
+					raft_line++;
+					if(raft_line == 1){
+						fileraftstart = card.getIndex()-serial_count;
+						raft_line_counter = 1;
+						Serial.print("raft line: ");
+						Serial.println(raft_line);
+						/*Serial.print("fileraftstart: ");
+						Serial.println(fileraftstart);*/
+						}else if(raft_line%2 == 0){
+						raft_line_counter++;
+						serial_count = MAX_CMD_SIZE;
+						comment_mode = true;
+						memset( cmdbuffer[bufindw], '\0', sizeof(cmdbuffer[bufindw]));
+						card.setIndex(fileraftstart);
+						strcpy_P(cmdbuffer[bufindw], PSTR("G92 E0 Z0"));
+						/*
+						Serial.print("raft line: ");
+						Serial.println(raft_line_counter);
+						Serial.print("fileraftstart: ");
+						Serial.println(fileraftstart);
+						Serial.print("cmdbuffer add: ");
+						Serial.println(cmdbuffer[bufindw]);*/
+						//cmdbuffer[bufindw][serial_count] = 0; //terminate string
+						
+						fromsd[bufindw] = true;
+						buflen += 1;
+						bufindw = (bufindw + 1)%BUFSIZE;
+						
+						serial_count = 0; //clear buffer
+					}
+					
+					
+				}
+			}
 		}
 	}
 	#endif //SDSUPPORT
@@ -4146,7 +4178,7 @@ inline void gcode_G43(){
 	#endif //EXTRUDER_CALIBRATION_WIZARD
 }
 inline void gcode_G33(){
-
+	/*
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	float x_tmp, y_tmp, z_tmp, real_z;
 	
@@ -4553,6 +4585,7 @@ inline void gcode_G33(){
 	
 	#endif //Z_SIGMA_AUTOLEVEL
 	#endif // ENABLE_AUTO_BED_LEVELING
+	*/
 }
 inline void gcode_G34(){
 	
@@ -4629,21 +4662,7 @@ inline void gcode_G34(){
 	Serial.println(current_position[Z_AXIS]);
 
 	float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
-	
-	/*float z_at_pt_1_0 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-50, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z_at_pt_1_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-100, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z_at_pt_1_2 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-150, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z_at_pt_1_3 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-200, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	//float z_at_pt_1_4 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-150, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	//float z_at_pt_1_5 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-180, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	//float z_at_pt_1_6 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-210, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	//float z_at_pt_1_7 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR-235, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);*/
 	float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	
-	//float z_at_pt_2_0 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR + (X_SIGMA_PROBE_3_LEFT_EXTR - X_SIGMA_PROBE_2_LEFT_EXTR)/4.0,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	//float z_at_pt_2_1 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR + (X_SIGMA_PROBE_3_LEFT_EXTR - X_SIGMA_PROBE_2_LEFT_EXTR)*2.0/4.0,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	//float z_at_pt_2_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR + (X_SIGMA_PROBE_3_LEFT_EXTR - X_SIGMA_PROBE_2_LEFT_EXTR)*3.0/4.0,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	
 	float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
 	
 	
@@ -4669,14 +4688,6 @@ inline void gcode_G34(){
 
 	float z2_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_RIGHT_EXTR,Y_SIGMA_PROBE_3_RIGHT_EXTR, Z_RAISE_BEFORE_PROBING);
 	float z2_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_RIGHT_EXTR,Y_SIGMA_PROBE_2_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	/*float z2_at_pt_1_0 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR-235, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z2_at_pt_1_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR-210, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z2_at_pt_1_2 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR-180, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z2_at_pt_1_3 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR-150, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z2_at_pt_1_4 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR-120, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z2_at_pt_1_5 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR-90, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z2_at_pt_1_6 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR-60, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
-	float z2_at_pt_1_7 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR-30, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);*/
 	float z2_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR, current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING);
 	
 	
@@ -4693,15 +4704,6 @@ inline void gcode_G34(){
 	
 	plan_bed_level_matrix.set_to_identity();
 	
-	/*float z_final_probe_1 = (z_at_pt_1+(z2_at_pt_1-(((z2_at_pt_2-z_at_pt_2)+(z2_at_pt_3-z_at_pt_3))/2)))/2; //Upper left, upper right
-	float z_final_probe_2 = z_at_pt_2 - ((z2_at_pt_3-z_at_pt_3)+(z2_at_pt_2-z_at_pt_2))/2 ;//(z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
-	float z_final_probe_3 = z_at_pt_3 - ((z2_at_pt_3-z_at_pt_3)+(z2_at_pt_2-z_at_pt_2))/2 ;//(z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right
-	*/
-	//float z_final_probe_1 = (z_at_pt_1-z_at_pt_1_0 + z_at_pt_1_0-z_at_pt_1_1 + z_at_pt_1_1-z_at_pt_1_2 + z_at_pt_1_2-z_at_pt_1_3 + z_at_pt_1_3-z_at_pt_2)/(5.00*50.0) ; //Upper left, upper right
-	//z_final_probe_1 =z_at_pt_2 + z_final_probe_1 * 250.0;
-	//float z_final_probe_2 = z_at_pt_2;//(z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
-	//float z_final_probe_3 = (z_at_pt_2-z_at_pt_2_0 + z_at_pt_2_0-z_at_pt_2_1 + z_at_pt_2_1-z_at_pt_2_2 + z_at_pt_2_2-z_at_pt_3)/(4.00*(X_SIGMA_PROBE_3_LEFT_EXTR - X_SIGMA_PROBE_2_LEFT_EXTR)/4.00) ; //Upper left, upper right;//(z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right
-	//z_final_probe_3 =z_at_pt_2 + z_final_probe_3 * (X_SIGMA_PROBE_3_LEFT_EXTR - X_SIGMA_PROBE_2_LEFT_EXTR);
 	
 	vector_3 pt1_0 = vector_3(X_SIGMA_PROBE_1_LEFT_EXTR, Y_SIGMA_PROBE_1_LEFT_EXTR, z_at_pt_1);
 	vector_3 pt2_0 = vector_3(X_SIGMA_PROBE_2_LEFT_EXTR, Y_SIGMA_PROBE_2_LEFT_EXTR, z_at_pt_2);
@@ -4778,30 +4780,6 @@ inline void gcode_G34(){
 	//Calculate medians
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	/*float z_final_probe_1 = (z_at_pt_1+z2_at_pt_1+((z_at_pt_3-z2_at_pt_2)))/2; //Upper left, upper right
-	float z_final_probe_2 = z_at_pt_2 ;//(z_at_pt_2+z2_at_pt_3)/2; //Lower left, lower left
-	float z_final_probe_3 = z_at_pt_3 ;//(z_at_pt_3+z2_at_pt_2)/2; //lower right, lower right*/
-	
-	SERIAL_PROTOCOLPGM("Probe 1_0: ");
-	Serial.println(z_at_pt_1);
-	SERIAL_PROTOCOLPGM("Probe 2_0: ");
-	Serial.println(z_at_pt_2);
-	SERIAL_PROTOCOLPGM("Probe 3_0: ");
-	Serial.println(z_at_pt_3);
-
-	SERIAL_PROTOCOLPGM("Probe 1_1: ");
-	Serial.println(z2_at_pt_1);
-	SERIAL_PROTOCOLPGM("Probe 2_1(Probe 3Left): ");
-	Serial.println(z2_at_pt_2);
-	SERIAL_PROTOCOLPGM("Probe 3_1(Probe 2Left): ");
-	Serial.println(z2_at_pt_3);
 	///Alejandro
 
 	float dz2 = z2_0 - (z2_0 - z3_1)/2.0 - (Zscroll_0 - (Zscroll_0 - Zscroll_1)/2.0) - bed_offset_left_screw;
@@ -5528,6 +5506,8 @@ inline void gcode_M24(){
 	setTargetHotend0(0);
 	setTargetHotend1(0);
 	feedmultiply = 100;
+	raft_line = 0;
+	raft_line_counter = 0;
 	x0mmdone = 0;
 	x1mmdone = 0;
 	ymmdone = 0;
@@ -7661,7 +7641,12 @@ inline void gcode_M605(){
 	//                         the first with a spacing of 100mm in the x direction and 2 degrees hotter.
 	//
 	//    Note: the X axis should be homed after changing dual x-carriage mode.
-	
+	//    M605 S3: Default mode
+	//	  M605 S4: Duplication Mirror mode
+	//    M605 S5 [Xnnn] [Rmmm]: Duplication Raft mode
+	//	  M605 S6: Duplication Raft Mirror mode
+	//
+	//    Note: the X axis should be homed after changing dual x-carriage mode.
 	st_synchronize();
 
 	if (code_seen('S'))
@@ -9181,7 +9166,8 @@ void prepare_move()
 			}
 			else{
 				if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER] < 0){ // enable first tool 0, because is further(to the bed) than tool 1
-					if(destination[Z_AXIS] > (0.12 - extruder_offset[Z_AXIS][RIGHT_EXTRUDER])){
+					
+					if((destination[Z_AXIS]*raft_line_counter) > (0.12 - extruder_offset[Z_AXIS][RIGHT_EXTRUDER])){
 						if(!Flag_Raft_Dual_Mode_On){
 							dual_mode_duplication_mirror_extruder_parked();
 							}else{
@@ -9207,12 +9193,16 @@ void prepare_move()
 							Flag_Raft_Dual_Mode_On = true;
 							
 						}
+						/*if(destination[Z_AXIS] > current_position[Z_AXIS]){
+							current_position[Z_AXIS]=0;
+							plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+						}*/
 					}
 					
 				}
 				else{
 					
-					if(destination[Z_AXIS] > (0.12 + extruder_offset[Z_AXIS][RIGHT_EXTRUDER])){
+					if((destination[Z_AXIS]*raft_line_counter) > (0.12 + extruder_offset[Z_AXIS][RIGHT_EXTRUDER])){
 						if(!Flag_Raft_Dual_Mode_On){
 							
 							dual_mode_duplication_mirror_extruder_parked();
@@ -9244,7 +9234,11 @@ void prepare_move()
 							Flag_Raft_Dual_Mode_On = true;
 							st_synchronize();
 						}						
-						destination[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER]-(destination[X_AXIS]+NOZZLE_PARK_DISTANCE_BED_X0);
+						destination[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER]-(destination[X_AXIS]);
+						/*if(destination[Z_AXIS] > current_position[Z_AXIS]){
+							current_position[Z_AXIS]=0;
+							plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+						}*/
 					}
 					
 					

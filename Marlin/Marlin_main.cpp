@@ -259,8 +259,8 @@ int version_number;
 
 /////// Dual Printing	/////////
 
-int raft_line = 0;
-int raft_line_counter = 0;
+//int raft_line = 0;
+//int raft_line_counter = 0;
 
 #ifdef RECOVERY_PRINT
 
@@ -2579,43 +2579,44 @@ void get_command()
 		{
 			if(serial_char == ';') comment_mode = true;
 			if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
-			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){//5 = dual mode raft
-				static uint32_t fileraftstart = 0;
-				if(serial_char == 'Z'){
-					raft_line++;
-					if(raft_line == 1){
-						fileraftstart = card.getIndex()-serial_count;
-						raft_line_counter = 1;
-						Serial.print("raft line: ");
-						Serial.println(raft_line);
-						/*Serial.print("fileraftstart: ");
-						Serial.println(fileraftstart);*/
-						}else if(raft_line%2 == 0){
-						raft_line_counter++;
-						serial_count = MAX_CMD_SIZE;
-						comment_mode = true;
-						memset( cmdbuffer[bufindw], '\0', sizeof(cmdbuffer[bufindw]));
-						card.setIndex(fileraftstart);
-						strcpy_P(cmdbuffer[bufindw], PSTR("G92 E0 Z0"));
-						/*
-						Serial.print("raft line: ");
-						Serial.println(raft_line_counter);
-						Serial.print("fileraftstart: ");
-						Serial.println(fileraftstart);
-						Serial.print("cmdbuffer add: ");
-						Serial.println(cmdbuffer[bufindw]);*/
-						//cmdbuffer[bufindw][serial_count] = 0; //terminate string
-						
-						fromsd[bufindw] = true;
-						buflen += 1;
-						bufindw = (bufindw + 1)%BUFSIZE;
-						
-						serial_count = 0; //clear buffer
-					}
-					
-					
-				}
-			}
+			
+			//if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
+				//static uint32_t fileraftstart = 0;
+				//if(serial_char == 'Z'){
+					//raft_line++;
+					//if(raft_line == 1){
+						//fileraftstart = card.getIndex()-serial_count;
+						//raft_line_counter = 1;
+						//Serial.print("raft line: ");
+						//Serial.println(raft_line);
+						///*Serial.print("fileraftstart: ");
+						//Serial.println(fileraftstart);*/
+						//}else if(raft_line%2 == 0){
+						//raft_line_counter++;
+						//serial_count = MAX_CMD_SIZE;
+						//comment_mode = true;
+						//memset( cmdbuffer[bufindw], '\0', sizeof(cmdbuffer[bufindw]));
+						//card.setIndex(fileraftstart);
+						//strcpy_P(cmdbuffer[bufindw], PSTR("G92 E0 Z0"));
+						///*
+						//Serial.print("raft line: ");
+						//Serial.println(raft_line_counter);
+						//Serial.print("fileraftstart: ");
+						//Serial.println(fileraftstart);
+						//Serial.print("cmdbuffer add: ");
+						//Serial.println(cmdbuffer[bufindw]);*/
+						////cmdbuffer[bufindw][serial_count] = 0; //terminate string
+						//
+						//fromsd[bufindw] = true;
+						//buflen += 1;
+						//bufindw = (bufindw + 1)%BUFSIZE;
+						//
+						//serial_count = 0; //clear buffer
+					//}
+					//
+					//
+				//}
+			//}
 		}
 	}
 	#endif //SDSUPPORT
@@ -5506,8 +5507,8 @@ inline void gcode_M24(){
 	setTargetHotend0(0);
 	setTargetHotend1(0);
 	feedmultiply = 100;
-	raft_line = 0;
-	raft_line_counter = 0;
+	//raft_line = 0;
+	//raft_line_counter = 0;
 	x0mmdone = 0;
 	x1mmdone = 0;
 	ymmdone = 0;
@@ -9077,179 +9078,179 @@ void prepare_move()
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
 			active_extruder_parked = false;
 		}
-		else if(dual_x_carriage_mode == DXC_DUPLICATION_MODE_RAFT ){ ///Smart_Raft_duplication_mode
-			
-			if ((extruder_offset[Z_AXIS][RIGHT_EXTRUDER] >= 0.0 && extruder_offset[Z_AXIS][RIGHT_EXTRUDER] <= 0.1) || (extruder_offset[Z_AXIS][RIGHT_EXTRUDER] <= 0.0 && extruder_offset[Z_AXIS][RIGHT_EXTRUDER] >= -0.1)){
-				dual_mode_duplication_extruder_parked();
-				
-				}else{
-				// 2 possible situations
-				if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER] < 0){ // enable first tool 0, because is further(to the bed) than tool 1
-					if(destination[Z_AXIS] > (0.12 - extruder_offset[Z_AXIS][RIGHT_EXTRUDER])){
-						if(!Flag_Raft_Dual_Mode_On){
-							dual_mode_duplication_extruder_parked();
-							}else{
-							current_position[E_AXIS]-=PAUSE_G69_RETRACT;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
-							st_synchronize();
-							current_position[Z_AXIS] = 5;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);	//BACK PARKING
-							st_synchronize();
-							current_position[X_AXIS] = 0;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);	//BACK PARKING
-							st_synchronize();
-							dual_mode_duplication_extruder_parked_purge();
-							//DUAL PROTOCOL
-							
-							dual_mode_duplication_extruder_parked();
-							
-							Flag_Raft_Dual_Mode_On = true;
-							
-							current_position[E_AXIS]-=3;
-							plan_set_e_position(current_position[E_AXIS]);
-						}
-						}else{
-						if(!Flag_Raft_Dual_Mode_On){
-							Flag_Raft_Dual_Mode_On = true;
-							
-						}
-					}
-					
-					}else{			// enable first tool 1, because is further(to the bed) than tool 0
-					if(destination[Z_AXIS] > (0.12 + extruder_offset[Z_AXIS][RIGHT_EXTRUDER])){
-						if(!Flag_Raft_Dual_Mode_On){
-							dual_mode_duplication_extruder_parked();
-							}else{
-							current_position[E_AXIS]-=PAUSE_G69_RETRACT;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
-							st_synchronize();
-							current_position[Z_AXIS] = 5;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);	//BACK PARKING
-							st_synchronize();
-							current_position[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER];
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);	//BACK PARKING
-							st_synchronize();
-							active_extruder=LEFT_EXTRUDER;
-							dual_mode_duplication_extruder_parked_purge();
-							//DUAL PROTOCOL
-							current_position[X_AXIS] = 0.0;
-							
-							dual_mode_duplication_extruder_parked();
-							Flag_Raft_Dual_Mode_On = true;
-							current_position[E_AXIS]-=3;
-							plan_set_e_position(current_position[E_AXIS]);
-						}
-						}else{
-						
-						if(!Flag_Raft_Dual_Mode_On){
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - extruder_offset[Z_AXIS][RIGHT_EXTRUDER],current_position[E_AXIS], feedrate/60, active_extruder);
-							plan_set_position(current_position[X_AXIS]+extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-							active_extruder=RIGHT_EXTRUDER;
-							Flag_Raft_Dual_Mode_On = true;
-							st_synchronize();
-						}
-						destination[X_AXIS] += duplicate_extruder_x_offset;
-					}
-					
-					
-				}
-				
-				
-				
-			}
-		}
-		else if(dual_x_carriage_mode == DXC_DUPLICATION_MIRROR_MODE_RAFT ){ ///Smart_Raft_duplication_mirror_mode
-			
-			if ((extruder_offset[Z_AXIS][RIGHT_EXTRUDER] >= 0.0 && extruder_offset[Z_AXIS][RIGHT_EXTRUDER] <= 0.1) || (extruder_offset[Z_AXIS][RIGHT_EXTRUDER] <= 0.0 && extruder_offset[Z_AXIS][RIGHT_EXTRUDER] >= -0.1)){
-				dual_mode_duplication_mirror_extruder_parked();
-				
-			}
-			else{
-				if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER] < 0){ // enable first tool 0, because is further(to the bed) than tool 1
-					
-					if((destination[Z_AXIS]*raft_line_counter) > (0.12 - extruder_offset[Z_AXIS][RIGHT_EXTRUDER])){
-						if(!Flag_Raft_Dual_Mode_On){
-							dual_mode_duplication_mirror_extruder_parked();
-							}else{
-							current_position[E_AXIS]-=PAUSE_G69_RETRACT;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
-							st_synchronize();
-							current_position[Z_AXIS] = 5;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);	//BACK PARKING
-							st_synchronize();
-							current_position[X_AXIS] = 0;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);	//BACK PARKING
-							st_synchronize();
-							dual_mode_duplication_extruder_parked_purge();
-							//DUAL PROTOCOL
-							
-							dual_mode_duplication_mirror_extruder_parked();
-							Flag_Raft_Dual_Mode_On = true;
-							current_position[E_AXIS]-=3;
-							plan_set_e_position(current_position[E_AXIS]);
-						}
-						}else{
-						if(!Flag_Raft_Dual_Mode_On){
-							Flag_Raft_Dual_Mode_On = true;
-							
-						}
-						/*if(destination[Z_AXIS] > current_position[Z_AXIS]){
-							current_position[Z_AXIS]=0;
-							plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-						}*/
-					}
-					
-				}
-				else{
-					
-					if((destination[Z_AXIS]*raft_line_counter) > (0.12 + extruder_offset[Z_AXIS][RIGHT_EXTRUDER])){
-						if(!Flag_Raft_Dual_Mode_On){
-							
-							dual_mode_duplication_mirror_extruder_parked();
-							}else{
-							current_position[E_AXIS]-=PAUSE_G69_RETRACT;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
-							st_synchronize();
-							current_position[Z_AXIS] = 5;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);	//BACK PARKING
-							st_synchronize();
-							current_position[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER];
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);	//BACK PARKING
-							st_synchronize();
-							active_extruder=LEFT_EXTRUDER;
-							dual_mode_duplication_extruder_parked_purge();
-							current_position[X_AXIS] = 0.0;
-							//DUAL PROTOCOL
-							dual_mode_duplication_mirror_extruder_parked();
-							Flag_Raft_Dual_Mode_On = true;
-							current_position[E_AXIS]-=3;
-							plan_set_e_position(current_position[E_AXIS]);
-						}
-						}else{
-						
-						if(!Flag_Raft_Dual_Mode_On){
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - extruder_offset[Z_AXIS][RIGHT_EXTRUDER],current_position[E_AXIS], feedrate/60, active_extruder);
-							plan_set_position(current_position[X_AXIS]+extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-							active_extruder=RIGHT_EXTRUDER;
-							Flag_Raft_Dual_Mode_On = true;
-							st_synchronize();
-						}						
-						destination[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER]-(destination[X_AXIS]);
-						/*if(destination[Z_AXIS] > current_position[Z_AXIS]){
-							current_position[Z_AXIS]=0;
-							plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-						}*/
-					}
-					
-					
-				}
-				
-				
-			}
-			
-			
-			
-		}
+		//else if(dual_x_carriage_mode == DXC_DUPLICATION_MODE_RAFT ){ ///Smart_Raft_duplication_mode
+			//
+			//if ((extruder_offset[Z_AXIS][RIGHT_EXTRUDER] >= 0.0 && extruder_offset[Z_AXIS][RIGHT_EXTRUDER] <= 0.1) || (extruder_offset[Z_AXIS][RIGHT_EXTRUDER] <= 0.0 && extruder_offset[Z_AXIS][RIGHT_EXTRUDER] >= -0.1)){
+				//dual_mode_duplication_extruder_parked();
+				//
+				//}else{
+				//// 2 possible situations
+				//if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER] < 0){ // enable first tool 0, because is further(to the bed) than tool 1
+					//if(destination[Z_AXIS] > (0.12 - extruder_offset[Z_AXIS][RIGHT_EXTRUDER])){
+						//if(!Flag_Raft_Dual_Mode_On){
+							//dual_mode_duplication_extruder_parked();
+							//}else{
+							//current_position[E_AXIS]-=PAUSE_G69_RETRACT;
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
+							//st_synchronize();
+							//current_position[Z_AXIS] = 5;
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);	//BACK PARKING
+							//st_synchronize();
+							//current_position[X_AXIS] = 0;
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);	//BACK PARKING
+							//st_synchronize();
+							//dual_mode_duplication_extruder_parked_purge();
+							////DUAL PROTOCOL
+							//
+							//dual_mode_duplication_extruder_parked();
+							//
+							//Flag_Raft_Dual_Mode_On = true;
+							//
+							//current_position[E_AXIS]-=3;
+							//plan_set_e_position(current_position[E_AXIS]);
+						//}
+						//}else{
+						//if(!Flag_Raft_Dual_Mode_On){
+							//Flag_Raft_Dual_Mode_On = true;
+							//
+						//}
+					//}
+					//
+					//}else{			// enable first tool 1, because is further(to the bed) than tool 0
+					//if(destination[Z_AXIS] > (0.12 + extruder_offset[Z_AXIS][RIGHT_EXTRUDER])){
+						//if(!Flag_Raft_Dual_Mode_On){
+							//dual_mode_duplication_extruder_parked();
+							//}else{
+							//current_position[E_AXIS]-=PAUSE_G69_RETRACT;
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
+							//st_synchronize();
+							//current_position[Z_AXIS] = 5;
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);	//BACK PARKING
+							//st_synchronize();
+							//current_position[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER];
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);	//BACK PARKING
+							//st_synchronize();
+							//active_extruder=LEFT_EXTRUDER;
+							//dual_mode_duplication_extruder_parked_purge();
+							////DUAL PROTOCOL
+							//current_position[X_AXIS] = 0.0;
+							//
+							//dual_mode_duplication_extruder_parked();
+							//Flag_Raft_Dual_Mode_On = true;
+							//current_position[E_AXIS]-=3;
+							//plan_set_e_position(current_position[E_AXIS]);
+						//}
+						//}else{
+						//
+						//if(!Flag_Raft_Dual_Mode_On){
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - extruder_offset[Z_AXIS][RIGHT_EXTRUDER],current_position[E_AXIS], feedrate/60, active_extruder);
+							//plan_set_position(current_position[X_AXIS]+extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+							//active_extruder=RIGHT_EXTRUDER;
+							//Flag_Raft_Dual_Mode_On = true;
+							//st_synchronize();
+						//}
+						//destination[X_AXIS] += duplicate_extruder_x_offset;
+					//}
+					//
+					//
+				//}
+				//
+				//
+				//
+			//}
+		//}
+		//else if(dual_x_carriage_mode == DXC_DUPLICATION_MIRROR_MODE_RAFT ){ ///Smart_Raft_duplication_mirror_mode
+			//
+			//if ((extruder_offset[Z_AXIS][RIGHT_EXTRUDER] >= 0.0 && extruder_offset[Z_AXIS][RIGHT_EXTRUDER] <= 0.1) || (extruder_offset[Z_AXIS][RIGHT_EXTRUDER] <= 0.0 && extruder_offset[Z_AXIS][RIGHT_EXTRUDER] >= -0.1)){
+				//dual_mode_duplication_mirror_extruder_parked();
+				//
+			//}
+			//else{
+				//if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER] < 0){ // enable first tool 0, because is further(to the bed) than tool 1
+					//
+					//if((destination[Z_AXIS]*raft_line_counter) > (0.12 - extruder_offset[Z_AXIS][RIGHT_EXTRUDER])){
+						//if(!Flag_Raft_Dual_Mode_On){
+							//dual_mode_duplication_mirror_extruder_parked();
+							//}else{
+							//current_position[E_AXIS]-=PAUSE_G69_RETRACT;
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
+							//st_synchronize();
+							//current_position[Z_AXIS] = 5;
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);	//BACK PARKING
+							//st_synchronize();
+							//current_position[X_AXIS] = 0;
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);	//BACK PARKING
+							//st_synchronize();
+							//dual_mode_duplication_extruder_parked_purge();
+							////DUAL PROTOCOL
+							//
+							//dual_mode_duplication_mirror_extruder_parked();
+							//Flag_Raft_Dual_Mode_On = true;
+							//current_position[E_AXIS]-=3;
+							//plan_set_e_position(current_position[E_AXIS]);
+						//}
+						//}else{
+						//if(!Flag_Raft_Dual_Mode_On){
+							//Flag_Raft_Dual_Mode_On = true;
+							//
+						//}
+						///*if(destination[Z_AXIS] > current_position[Z_AXIS]){
+							//current_position[Z_AXIS]=0;
+							//plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+						//}*/
+					//}
+					//
+				//}
+				//else{
+					//
+					//if((destination[Z_AXIS]*raft_line_counter) > (0.12 + extruder_offset[Z_AXIS][RIGHT_EXTRUDER])){
+						//if(!Flag_Raft_Dual_Mode_On){
+							//
+							//dual_mode_duplication_mirror_extruder_parked();
+							//}else{
+							//current_position[E_AXIS]-=PAUSE_G69_RETRACT;
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
+							//st_synchronize();
+							//current_position[Z_AXIS] = 5;
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);	//BACK PARKING
+							//st_synchronize();
+							//current_position[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER];
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);	//BACK PARKING
+							//st_synchronize();
+							//active_extruder=LEFT_EXTRUDER;
+							//dual_mode_duplication_extruder_parked_purge();
+							//current_position[X_AXIS] = 0.0;
+							////DUAL PROTOCOL
+							//dual_mode_duplication_mirror_extruder_parked();
+							//Flag_Raft_Dual_Mode_On = true;
+							//current_position[E_AXIS]-=3;
+							//plan_set_e_position(current_position[E_AXIS]);
+						//}
+						//}else{
+						//
+						//if(!Flag_Raft_Dual_Mode_On){
+							//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - extruder_offset[Z_AXIS][RIGHT_EXTRUDER],current_position[E_AXIS], feedrate/60, active_extruder);
+							//plan_set_position(current_position[X_AXIS]+extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+							//active_extruder=RIGHT_EXTRUDER;
+							//Flag_Raft_Dual_Mode_On = true;
+							//st_synchronize();
+						//}						
+						//destination[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER]-(destination[X_AXIS]);
+						///*if(destination[Z_AXIS] > current_position[Z_AXIS]){
+							//current_position[Z_AXIS]=0;
+							//plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+						//}*/
+					//}
+					//
+					//
+				//}
+				//
+				//
+			//}
+			//
+			//
+			//
+		//}
 		
 	}
 	#endif //DUAL_X_CARRIAGE

@@ -39,6 +39,7 @@ class Listfiles
 	
 	private:
 	int dias, horas, minutos, simplify3D;
+	long segundos;
 	int filmetros1, filmetros2;
 	int filgramos1, filgramos2;
 	void extract_data(void);

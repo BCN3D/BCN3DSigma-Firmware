@@ -260,15 +260,28 @@ void Listfiles::extract_data(void){
 	}
 	
 }
+uint32_t Listfiles::get_firstdigit_from_integer(uint32_t num_input){
+uint32_t num = num_input;
+uint32_t digit = 0;
+	while(num != 0)
+	{
+		digit = num % 10;
+		num = num / 10;
+		printf("%d\n", digit);
+	}
+	return digit;
+}
 void Listfiles::extract_data1(void){
 	
 	filgramos1 = 0;
 	filgramos2 = 0;
-	int metros = 0;
+	uint32_t metros = 0;
+	uint32_t metros2 = 0;
 	if(simplify3D == 0){
 		if(segundos !=-1){
-			sscanf_P(commandline, PSTR(";Filament used: %d"), &metros);
-			filgramos1 = (int) 7.974264375* metros;//filamentDensity = 1.25; distanceMultiplier = pi * (2.85/2)^2 * filamentDensity; grams = distanceFromGcodeInMeters * distanceMultiplier
+			sscanf_P(commandline, PSTR(";Filament used: %lu.%lum"), &metros, &metros2);
+			metros2 = get_firstdigit_from_integer(metros2);
+			filgramos1 = (int) 7.974264375* (metros + (metros2/10.0));//filamentDensity = 1.25; distanceMultiplier = pi * (2.85/2)^2 * filamentDensity; grams = distanceFromGcodeInMeters * distanceMultiplier
 		}else{
 			sscanf_P(commandline, PSTR(";Filament used: %d.%dm %d.%dg"), &filmetros1, &filmetros2, &filgramos1, &filgramos2);
 		}

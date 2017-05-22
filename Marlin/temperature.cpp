@@ -971,7 +971,7 @@ void check_termistors_connections()
 			if (card.sdprinting){
 				
 				
-				if( !processing_error && times_failuret0 > 3 && target_temperature[0]!=0){
+				if( !gif_processing_state == PROCESSING_ERROR && times_failuret0 > 3 && target_temperature[0]!=0){
 					
 					char thermal_message[50];
 					
@@ -986,7 +986,7 @@ void check_termistors_connections()
 					cancel_heatup = true;
 					doblocking = false;
 					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
-					processing_error = true;
+					gif_processing_state = gif_processing_state == PROCESSING_ERROR;
 					
 					disable_heater();
 					printing_error_temps = true;
@@ -995,7 +995,7 @@ void check_termistors_connections()
 					message_showed = true;
 					times_failuret0 = 0;
 				}
-				else if(!processing_error && times_failuret1 > 3 && target_temperature[1]!=0){
+				else if(!gif_processing_state == PROCESSING_ERROR && times_failuret1 > 3 && target_temperature[1]!=0){
 					char thermal_message[50];
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 					sprintf(thermal_message, MSG_LCD_ERROR_82);
@@ -1007,7 +1007,7 @@ void check_termistors_connections()
 					
 					doblocking = false;
 					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
-					processing_error = true;
+					gif_processing_state = gif_processing_state == PROCESSING_ERROR;
 					
 					disable_heater();
 					printing_error_temps = true;
@@ -1018,7 +1018,7 @@ void check_termistors_connections()
 					
 					
 				}
-				else if(!processing_error && times_failureb > 3 && target_temperature_bed!=0){
+				else if(!gif_processing_state == PROCESSING_ERROR && times_failureb > 3 && target_temperature_bed!=0){
 					
 					char thermal_message[50];
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
@@ -1033,7 +1033,7 @@ void check_termistors_connections()
 					cancel_heatup = true;
 					doblocking = false;
 					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
-					processing_error = true;
+					gif_processing_state = gif_processing_state == PROCESSING_ERROR;
 					
 					disable_heater();
 					printing_error_temps = true;
@@ -1053,22 +1053,22 @@ void check_termistors_connections()
 					
 					sprintf(thermal_message, MSG_LCD_ERROR_81);
 					
-					if(!message_showed && !processing_error){
+					if(!message_showed && !gif_processing_state == PROCESSING_ERROR){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 						disable_heater();
 						thermal_error_screen_on();
-						processing_error = true;
+						gif_processing_state = gif_processing_state == PROCESSING_ERROR;
 						message_showed = true;
 						
-						}else if(target_temperature[0]!=0 && !processing_error){
+						}else if(target_temperature[0]!=0 && !gif_processing_state == PROCESSING_ERROR){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 						thermal_error_screen_on();
 						disable_heater();
-						processing_error = true;
+						gif_processing_state = gif_processing_state == PROCESSING_ERROR;
 						message_showed = true;
-						}else if(target_temperature[0]!=0 && processing_error){
+						}else if(target_temperature[0]!=0 && gif_processing_state == PROCESSING_ERROR){
 						disable_heater();
 					}
 					
@@ -1080,22 +1080,22 @@ void check_termistors_connections()
 					char thermal_message[50];
 					sprintf(thermal_message, MSG_LCD_ERROR_82);
 					
-					if(!message_showed1 && !processing_error){
+					if(!message_showed1 && !gif_processing_state == PROCESSING_ERROR){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 						thermal_error_screen_on();
 						disable_heater();
-						processing_error = true;
+						gif_processing_state = gif_processing_state == PROCESSING_ERROR;
 						message_showed1 = true;
 						
-						}else if(target_temperature[1]!=0 && !processing_error){
+						}else if(target_temperature[1]!=0 && !gif_processing_state == PROCESSING_ERROR){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 						thermal_error_screen_on();
 						disable_heater();
-						processing_error = true;
+						gif_processing_state = gif_processing_state == PROCESSING_ERROR;
 						message_showed1 = true;
-						}else if(target_temperature[1]!=0 && processing_error){
+						}else if(target_temperature[1]!=0 && gif_processing_state == PROCESSING_ERROR){
 						disable_heater();
 					}
 					
@@ -1108,22 +1108,22 @@ void check_termistors_connections()
 					sprintf(thermal_message, MSG_LCD_ERROR_83);
 					
 					
-					if(!message_showedbed && !processing_error){
+					if(!message_showedbed && !gif_processing_state == PROCESSING_ERROR){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 						thermal_error_screen_on();
 						disable_heater();
-						processing_error = true;
+						gif_processing_state = gif_processing_state == PROCESSING_ERROR;
 						message_showedbed = true;
 						
-						}else if(target_temperature_bed!=0 && !processing_error){
+						}else if(target_temperature_bed!=0 && !gif_processing_state == PROCESSING_ERROR){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 						thermal_error_screen_on();
 						disable_heater();
-						processing_error = true;
+						gif_processing_state = gif_processing_state == PROCESSING_ERROR;
 						message_showedbed = true;
-						}else if(target_temperature_bed!=0 && processing_error){
+						}else if(target_temperature_bed!=0 && gif_processing_state == PROCESSING_ERROR){
 						disable_heater();
 					}
 					
@@ -1460,14 +1460,14 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
 				sprintf(thermal_message, "ERROR(88): Temperature not reached by Heater_ID: %d",(int)heater_id);
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 				genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-				processing_error = true;
+				gif_processing_state = gif_processing_state == PROCESSING_ERROR;
 				
 				}
 				else if(!(card.sdprinting || card.sdispaused) && !surfing_utilities){
 					sprintf(thermal_message, "ERROR(88): Temperature not reached by Heater_ID: %d",(int)heater_id);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-					processing_error = true;
+					gif_processing_state = gif_processing_state == PROCESSING_ERROR;
 				}
 				else{
 				ID_thermal_runaway = (int)heater_id;
@@ -1669,15 +1669,25 @@ ISR(TIMER0_COMPB_vect)
     if(soft_pwm_fan > 0){
 		//Rapduch
 	    #if MOTHERBOARD == BCN3D_BOARD
+		if(extruder_duplication_enabled || extruder_duplication_mirror_enabled){
+			WRITE(FAN_PIN,1);
+			WRITE(FAN2_PIN,1);
+			}else{
 	    if (active_extruder == LEFT_EXTRUDER){WRITE(FAN_PIN,1);}
 	    if (active_extruder == RIGHT_EXTRUDER){WRITE(FAN2_PIN,1);}
+		}
 	    #else
 	    WRITE(FAN_PIN,1);
 	    #endif
 	    }else{
-	    #if MOTHERBOARD == BCN3D_BOARD		
+	    #if MOTHERBOARD == BCN3D_BOARD
+		if(extruder_duplication_enabled || extruder_duplication_mirror_enabled){
+			WRITE(FAN_PIN,0);
+			WRITE(FAN2_PIN,0);
+			}else{		
 	    if (active_extruder == LEFT_EXTRUDER){WRITE(FAN_PIN,0);}
-	    if (active_extruder == RIGHT_EXTRUDER){WRITE(FAN2_PIN,0);}		
+	    if (active_extruder == RIGHT_EXTRUDER){WRITE(FAN2_PIN,0);}	
+		}				
 	    #else
 	    WRITE(FAN_PIN,0);
 	    #endif

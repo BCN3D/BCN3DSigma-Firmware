@@ -193,7 +193,6 @@ void calculate_SCARA_forward_Transform(float f_scara[3]);
 void prepare_move();
 void kill();
 void Stop();
-
 bool IsStopped();
 
 void enquecommand(const char *cmd); //put an ASCII command at the end of the current buffer.
@@ -319,26 +318,9 @@ extern float x_home_pos(int extruder);
 extern int bed_calibration_times;
 
 /////// Processing Gifs	/////////
-
-extern bool processing;
+extern char gif_processing_state;
 extern uint8_t processing_z_set;
-extern bool processing_success;
-extern bool processing_success_first_run;
-extern bool processing_bed_success;
-extern bool processing_saveprint_success;
-extern bool processing_nylon_step4;
-extern bool processing_purge_load;
-extern bool processing_nylon_step3;
-extern bool processing_change_filament_temps;
-extern bool processing_adjusting;
-extern bool processing_nylon_temps;
-extern bool processing_bed;
-extern bool processing_calib_ZL;
-extern bool processing_calib_ZR;
 extern bool printing_error_temps;
-extern bool processing_error;
-extern bool processing_bed_first;
-extern bool processing_test;
 extern int FLAG_First_Start_Wizard;
 extern bool FLAG_thermal_runaway;
 extern bool FLAG_thermal_runaway_screen;
@@ -395,6 +377,8 @@ extern int workDir_vector[MAX_DIR_DEPTH];
 extern uint8_t workDir_vector_lenght;
 extern int saved_workDir_vector[MAX_DIR_DEPTH];
 extern uint8_t saved_workDir_vector_lenght;
+extern int saved_dual_x_carriage_mode;
+extern float saved_duplicate_extruder_x_offset;
 
 /////// end Print Recovery	/////////
 
@@ -434,6 +418,10 @@ extern bool screen_change_nozz1down;
 extern bool screen_change_nozz2down;
 extern bool screen_change_beddown;
 extern bool screen_change_speeddown;
+extern void set_dual_x_carriage_mode(int mode);
+extern int get_dual_x_carriage_mode();
+extern void set_duplicate_extruder_x_offset(int offset);
+extern float get_duplicate_extruder_x_offset();
 extern void checkMaxTemps();
 extern void gcode_T0_T1_auto(int code);
 extern void Config_Reset_Statistics(int data);

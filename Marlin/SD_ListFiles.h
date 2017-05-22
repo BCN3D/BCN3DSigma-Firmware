@@ -39,10 +39,12 @@ class Listfiles
 	
 	private:
 	int dias, horas, minutos, simplify3D;
+	long segundos;
 	int filmetros1, filmetros2;
 	int filgramos1, filgramos2;
 	void extract_data(void);
 	void extract_data1(void);
+	uint32_t get_firstdigit_from_integer(uint32_t num_input);
 	int extract_data_Symplify(void);
 	int extract_data_fromCura(void);
 };

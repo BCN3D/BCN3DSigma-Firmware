@@ -638,7 +638,8 @@ void CardReader::closefile(bool store_location)
 		saved_workDir_vector[7] = workDir_vector[7];
 		saved_workDir_vector[8] = workDir_vector[8];
 		saved_workDir_vector[9] = workDir_vector[9];
-		
+		saved_dual_x_carriage_mode = get_dual_x_carriage_mode();
+		saved_duplicate_extruder_x_offset = get_duplicate_extruder_x_offset();
 		
 		SERIAL_PROTOCOLLNPGM("SAVED PRINT");
 		#endif
@@ -757,6 +758,7 @@ void CardReader::printingHasFinished()
 		enquecommand_P(PSTR("T0"));
 		st_synchronize();
 		enquecommand_P(PSTR("M107"));
+		set_dual_x_carriage_mode(DEFAULT_DUAL_X_CARRIAGE_MODE);
 		setTargetHotend0(0);
 		setTargetHotend1(0);
 		setTargetBed(0);

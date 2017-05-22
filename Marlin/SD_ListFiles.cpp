@@ -15,6 +15,7 @@
 
 Listfiles::Listfiles(){
 	dias=-1, horas=-1, minutos=-1;
+	segundos = -1;
 	filmetros1 = 0 ,filmetros2=0;
 	filgramos1 = 0 ,filgramos2=0;
 	commandline[50];
@@ -30,7 +31,7 @@ void Listfiles::get_lineduration(bool fromfilepoiter, char* name){
 		card.openFile(card.filename, true);
 	}
 	//card.openFile(card.filename, true);
-	dias=-1, horas=-1, minutos=-1;
+	dias=-1, horas=-1, minutos=-1, segundos=-1;
 	char serial_char='\0';
 	int posi = 0;
 	int linecomepoint=0;
@@ -75,6 +76,8 @@ void Listfiles::get_lineduration(bool fromfilepoiter, char* name){
 			extract_data();
 			if (minutos !=-1 ){
 				linecomepoint = 5;
+			}else if(segundos !=-1){
+				linecomepoint = 5;
 			}
 		}
 		
@@ -96,7 +99,7 @@ void Listfiles::get_lineduration(bool fromfilepoiter, char* name){
 		}
 		extract_data1();
 		//card.closefile();
-		if(minutos == -1){
+		if(minutos == -1 && segundos == -1){
 			dias=0;
 			horas=0;
 			minutos = 1;
@@ -166,6 +169,7 @@ void Listfiles::get_lineduration(bool fromfilepoiter, char* name){
 					dias=0;
 					horas=0;
 					minutos = 1;
+					segundos = 0;
 					filgramos1 = 0;
 					filgramos2 = 0;
 					card.closefile();
@@ -194,34 +198,41 @@ int Listfiles::extract_data_fromCura(void){
 	return Symplify_ok;
 }
 void Listfiles::extract_data(void){
-	dias=-1, horas=-1, minutos -1;
+	dias=-1, horas=-1, minutos -1, segundos = -1;
 	if (simplify3D == 0){
-		sscanf_P( commandline, PSTR(";Print time: %d days %d hours %d minutes"), &dias, &horas, &minutos);
-		if(horas == -1){
-			sscanf_P( commandline, PSTR(";Print time: %d day %d hours %d minutes"), &dias, &horas, &minutos);
-			if(minutos == -1){
-				sscanf_P( commandline, PSTR(";Print time: %d day %d hour %d minutes"), &dias, &horas, &minutos);
+		sscanf_P( commandline, PSTR(";TIME: %ld"), &segundos);
+		if(segundos == -1){
+			sscanf_P( commandline, PSTR(";Print time: %d days %d hours %d minutes"), &dias, &horas, &minutos);
+			if(horas == -1){
+				sscanf_P( commandline, PSTR(";Print time: %d day %d hours %d minutes"), &dias, &horas, &minutos);
+				if(minutos == -1){
+					sscanf_P( commandline, PSTR(";Print time: %d day %d hour %d minutes"), &dias, &horas, &minutos);
+				}
 			}
-		}
-		else{
-			if(minutos == -1){
-				sscanf_P( commandline, PSTR(";Print time: %d days %d hour %d minutes"), &dias, &horas, &minutos);
+			else{
+				if(minutos == -1){
+					sscanf_P( commandline, PSTR(";Print time: %d days %d hour %d minutes"), &dias, &horas, &minutos);
+				}
 			}
-		}
-		if(minutos ==-1 && horas ==-1){
-			dias = 0;
-			sscanf_P( commandline, PSTR(";Print time: %d hours %d minutes"), &horas, &minutos);
-		}
-		if(horas !=-1 && minutos==-1){
-			sscanf_P( commandline, PSTR(";Print time: %d hour %d minutes"), &horas, &minutos);
-		}
-		if(minutos ==-1){
-			dias = 0;
+			if(minutos ==-1 && horas ==-1){
+				dias = 0;
+				sscanf_P( commandline, PSTR(";Print time: %d hours %d minutes"), &horas, &minutos);
+			}
+			if(horas !=-1 && minutos==-1){
+				sscanf_P( commandline, PSTR(";Print time: %d hour %d minutes"), &horas, &minutos);
+			}
+			if(minutos ==-1){
+				dias = 0;
+				horas = 0;
+				sscanf_P( commandline, PSTR(";Print time: %d minutes"), &minutos);
+			}
+			if(minutos ==0){
+				minutos = 1;
+			}
+		}else{
 			horas = 0;
-			sscanf_P( commandline, PSTR(";Print time: %d minutes"), &minutos);
-		}
-		if(minutos ==0){
-			minutos = 1;
+			minutos = 0;
+			dias = 0;
 		}
 	}
 	else if (simplify3D == 1){
@@ -249,12 +260,32 @@ void Listfiles::extract_data(void){
 	}
 	
 }
+uint32_t Listfiles::get_firstdigit_from_integer(uint32_t num_input){
+uint32_t num = num_input;
+uint32_t digit = 0;
+	while(num != 0)
+	{
+		digit = num % 10;
+		num = num / 10;
+		printf("%d\n", digit);
+	}
+	return digit;
+}
 void Listfiles::extract_data1(void){
 	
 	filgramos1 = 0;
 	filgramos2 = 0;
+	uint32_t metros = 0;
+	uint32_t metros2 = 0;
 	if(simplify3D == 0){
-		sscanf_P(commandline, PSTR(";Filament used: %d.%dm %d.%dg"), &filmetros1, &filmetros2, &filgramos1, &filgramos2);
+		if(segundos !=-1){
+			sscanf_P(commandline, PSTR(";Filament used: %lu.%lum"), &metros, &metros2);
+			metros2 = get_firstdigit_from_integer(metros2);
+			filgramos1 = (int) 7.974264375* (metros + (metros2/10.0));//filamentDensity = 1.25; distanceMultiplier = pi * (2.85/2)^2 * filamentDensity; grams = distanceFromGcodeInMeters * distanceMultiplier
+		}else{
+			sscanf_P(commandline, PSTR(";Filament used: %d.%dm %d.%dg"), &filmetros1, &filmetros2, &filgramos1, &filgramos2);
+		}
+		
 	}
 	else if ( simplify3D == 1){
 		sscanf_P(commandline, PSTR(";   Plastic weight: %d.%dg"), &filgramos1, &filgramos2);
@@ -263,19 +294,19 @@ void Listfiles::extract_data1(void){
 }
 
 int Listfiles::get_hours(){
-	int hours = 0;
+	long hours = 0;
 	if(dias>0){
 		hours = 24*dias + horas;
 	}
 	else{
-		hours = horas;
+		hours = horas + segundos/3600;
 	}
-	return hours;
+	return (int)hours;
 }
 int Listfiles::get_minutes(){
-	int mins = 0;
-	mins = minutos;
-	return mins;
+	long mins = 0;
+	mins = minutos + (segundos/60)%60;
+	return (int)mins;
 }
 int Listfiles::get_filmetros1(){
 	int metr = 0;

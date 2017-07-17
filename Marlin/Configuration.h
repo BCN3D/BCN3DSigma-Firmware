@@ -27,9 +27,9 @@
 //This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
-#define VERSION_STRING  "01-1.2.4"
-//#define BUILD_DATE  "|M05.22"
-#define VERSION_NUMBER  124
+#define VERSION_STRING  "01-1.2.5"
+//#define BUILD_DATE  "|M07.14"
+#define VERSION_NUMBER  125
 #define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
 //#define DEFAULT_QUICK_GUIDE  0;
@@ -116,12 +116,27 @@
 	#define BCN3D_PRINTER BCN3D_SIGMA_PRINTER
 #endif
 
+#ifndef BCN3D_SCREEN_VERSION
+	#define BCN3D_SCREEN_VERSION BCN3D_SIGMA_PRINTER
+#endif
+#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+	#define PRINTER_NAME "BCN3D Sigma"
+#elif BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+	#define PRINTER_NAME "BCN3D SigmaX"
+#endif
+
+
 #if MOTHERBOARD == MEGATRONICS_V3
 	#define PROTO1
 	//#define PROTO2
 #endif
 
+//	DUAL MODE SETTINGS
+// This defines the Z offset threshold tolerance
+#define RAFT_Z_THRESHOLD 0.05
+//	END DUAL MODE SETTINGS
 
+#define EXTRUDERS 2
 
 // Define this to set a custom name for your generic Mendel,
 // #define CUSTOM_MENDEL_NAME "This Mendel"
@@ -138,6 +153,78 @@
 // 2 = X-Box 360 203Watts (the blue wire connected to PS_ON and the red wire to VCC)
 
 #define POWER_SUPPLY 1
+
+
+//////////////////////////////////////////////////////////////////////////
+// Enable this for dual x-carriage printers.
+// A dual x-carriage design has the advantage that the inactive extruder can be parked which
+// prevents hot-end ooze contaminating the print. It also reduces the weight of each x-carriage
+// allowing faster printing speeds.
+#define DUAL_X_CARRIAGE
+#ifdef DUAL_X_CARRIAGE
+// Configuration for second X-carriage
+// Note: the first x-carriage is defined as the x-carriage which homes to the minimum endstop;
+// the second x-carriage always homes to the maximum endstop.
+#define X2_MIN_POS 0     // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
+#define X2_MAX_POS X_MAX_POS    // set maximum to the distance between toolheads when both heads are homed
+#define X2_HOME_DIR 1     // the second X-carriage always homes to the maximum endstop position
+#define X2_HOME_POS X2_MAX_POS // default home position is the maximum carriage position
+//#define X2_HOME_POS 259.5 // default home position is the maximum carriage position
+// However: In this mode the EXTRUDER_OFFSET_X value for the second extruder provides a software
+// override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
+// without modifying the firmware (through the "M218 T1 X???" command).
+// Remember: you should set the second extruder x-offset to 0 in your slicer.
+
+// Pins for second x-carriage stepper driver (defined here to avoid further complicating pins.h)
+#if MOTHERBOARD == BCN3D_BOARD
+//#define X2_ENABLE_PIN	2
+//#define X2_STEP_PIN		5
+//#define X2_DIR_PIN		3
+//#define X2_ENABLE_PIN	75//4
+//#define X2_STEP_PIN		76//5
+//#define X2_DIR_PIN		73//3
+#else
+#define X2_ENABLE_PIN 23
+#define X2_STEP_PIN 22
+#define X2_DIR_PIN 60
+#endif
+
+// There are a few selectable movement modes for dual x-carriages using M605 S<mode>
+//    M605 S0: Full control mode. The slicer has full control over x-carriage movement
+//    M605 S1: Auto-park mode. The inactive head will auto park/unpark without slicer involvement
+//    M605 S2 [Xnnn] [Rmmm]: Duplication mode. The second extruder will duplicate the first with nnn
+//                         millimeters x-offset and an optional differential hotend temperature of
+//                         mmm degrees. E.g., with "M605 S2 X100 R2" the second extruder will duplicate
+//                         the first with a spacing of 100mm in the x direction and 2 degrees hotter.
+//
+//    Note: the X axis should be homed after changing dual x-carriage mode.
+//    M605 S3: Default mode
+//	  M605 S4: Duplication Mirror mode
+//    M605 S5 [Xnnn] [Rmmm]: Duplication Raft mode
+//	  M605 S6: Duplication Raft Mirror mode
+//
+//    Note: the X axis should be homed after changing dual x-carriage mode.
+#define DEFAULT_DUAL_X_CARRIAGE_MODE 3
+
+#define DXC_FULL_SIGMA_MODE 3 //SIGMA MODE: Combination of dual park and dual full control
+
+// As the x-carriages are independent we can now account for any relative Z offset
+#define EXTRUDER1_Z_OFFSET 0.0           // z offset relative to extruder 0
+
+// Default settings in "Auto-park Mode"
+#define TOOLCHANGE_PARK_ZLIFT   0.2      // the distance to raise Z axis when parking an extruder
+#define TOOLCHANGE_UNPARK_ZLIFT 1        // the distance to raise Z axis when unparking an extruder
+
+// Default x offset in duplication mode (typically set to half print bed width)
+#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+	#define DEFAULT_DUPLICATION_X_OFFSET 105
+#elif BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+	#define DEFAULT_DUPLICATION_X_OFFSET 210
+#endif
+
+
+#endif //DUAL_X_CARRIAGE/////////////////////////////////////////////////////
+
 
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
 // #define PS_DEFAULT_OFF
@@ -191,8 +278,8 @@
 
 // Actual temperature must be close to target for this long before M109 returns success
 #define TEMP_RESIDENCY_TIME 1  // (seconds)
-#define TEMP_HYSTERESIS 5       // (degC) range of +/- temperatures considered "close" to the target one
-#define TEMP_WINDOW     6       // (degC) Window around target to start the residency timer x degC early.
+#define TEMP_HYSTERESIS 0.5       // (degC) range of +/- temperatures considered "close" to the target one
+#define TEMP_WINDOW     2.5       // (degC) Window around target to start the residency timer x degC early.
 
 // The minimal temperature defines the temperature below which the heater will not be enabled It is used
 // to check that the wiring to the thermistor is not broken.
@@ -504,7 +591,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#define X_MAX_POS 305.6//312 //Distance between extruders
 	#endif
 	#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
-		#define X_MAX_POS 503.9//312 //Distance between extruders
+		#define X_MAX_POS 526.7//312 //Distance between extruders
 	#endif
 	//#define X_MAX_POS 210 //Bed X
 	#define X_MIN_POS 0
@@ -703,7 +790,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define BOWDEN_LENGTH 875
 #endif
 #if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
-	#define BOWDEN_LENGTH 1025
+	#define BOWDEN_LENGTH 1000
 #endif
 #define EXTRUDER_LENGTH 50
 #define INSERT_FAST_SPEED 5000	
@@ -726,7 +813,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#define Z_SIGMA_HOME_X_POINT 58
 	#endif
 	#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
-		#define Z_SIGMA_HOME_X_POINT 51
+		#define Z_SIGMA_HOME_X_POINT 58
 	#endif
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
@@ -759,14 +846,17 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#endif
 	
 	#if MOTHERBOARD == BCN3D_BOARD
-		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  17//20
-		#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	24
-		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  2.7//2.80//3.4 //It is negative, it is compensated
+		#define X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  17.05//20
+		#define Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER	22.2
+		#define Z_SIGMA_PROBE_OFFSET_FROM_EXTRUDER  2.8//2.80//3.4 //It is negative, it is compensated
+		
+		#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-13.4
+		#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	22.2
+		#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.8//2.90
+		
 	#endif
 	
-	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-13.5
-	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
-	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//2.90
+	
 	#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
 		//Left extruder probe point
 		#define X_SIGMA_PROBE_1_LEFT_EXTR 55
@@ -774,11 +864,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		//#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
 		#define X_SIGMA_PROBE_2_LEFT_EXTR 55
-		#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
+		#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 		//#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 	
 		#define X_SIGMA_PROBE_3_LEFT_EXTR 254
-		#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
+		#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 		//#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 	
 		//Right extruder probe point
@@ -787,57 +877,79 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		//#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
 		#define X_SIGMA_PROBE_2_RIGHT_EXTR 254
-		#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
+		#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 		//#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 	
 		#define X_SIGMA_PROBE_3_RIGHT_EXTR 55
-		#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
+		#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
 		//#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
+		
+		#define X_GAP_AVOID_COLLISION_LEFT	10
+		#define X_GAP_AVOID_COLLISION_RIGHT	13
+		
 	#endif
 	#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
 		//Left extruder probe point
-		#define X_SIGMA_PROBE_1_LEFT_EXTR 52
+		#define X_SIGMA_PROBE_1_LEFT_EXTR 57.5
 		#define Y_SIGMA_PROBE_1_LEFT_EXTR 265
 		//#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
-		#define X_SIGMA_PROBE_2_LEFT_EXTR 52
-		#define Y_SIGMA_PROBE_2_LEFT_EXTR 15
+		#define X_SIGMA_PROBE_2_LEFT_EXTR 57.5
+		#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 		//#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 	
-		#define X_SIGMA_PROBE_3_LEFT_EXTR 458 //254
-		#define Y_SIGMA_PROBE_3_LEFT_EXTR 15
+		#define X_SIGMA_PROBE_3_LEFT_EXTR 470 //254
+		#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 		//#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 	
 		//Right extruder probe point
-		#define X_SIGMA_PROBE_1_RIGHT_EXTR 458//254
+		#define X_SIGMA_PROBE_1_RIGHT_EXTR 470//254
 		#define Y_SIGMA_PROBE_1_RIGHT_EXTR 265
 		//#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
-		#define X_SIGMA_PROBE_2_RIGHT_EXTR 458 ///254
-		#define Y_SIGMA_PROBE_2_RIGHT_EXTR 15
+		#define X_SIGMA_PROBE_2_RIGHT_EXTR 470 ///254
+		#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 		//#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 	
-		#define X_SIGMA_PROBE_3_RIGHT_EXTR 52
-		#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
+		#define X_SIGMA_PROBE_3_RIGHT_EXTR 57.5
+		#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
 		//#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
+		
+		#define X_GAP_AVOID_COLLISION_LEFT	14.5
+		#define X_GAP_AVOID_COLLISION_RIGHT	19.5
 	#endif
 #endif
 
 #ifdef  SIGMA_BED_AUTOCALIB
-	//Calibration WIZARD --------
-	#define PAS_M5 0.85
-	//Screw positions on BED for
-	#define CARGOL_1_X  156;
-	//#define CARGOL_1_X  104;
-	#define CARGOL_1_Y  276;
+//Calibration WIZARD --------
+	#define PAS_M5 0.80
+	#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+		//Screw positions on BED for
+		#define CARGOL_1_X  152
+		//#define CARGOL_1_X  104;
+		#define CARGOL_1_Y  272.5
 
-	#define CARGOL_2_X  70;
-	//#define CARGOL_2_X  17;
-	#define CARGOL_2_Y  25;
+		#define CARGOL_2_X  74.5
+		//#define CARGOL_2_X  17;
+		#define CARGOL_2_Y  19
 
-	#define CARGOL_3_X  245;
-	//#define CARGOL_3_X  192;
-	#define CARGOL_3_Y  25;
+		#define CARGOL_3_X  230.5
+		//#define CARGOL_3_X  192;
+		#define CARGOL_3_Y 19
+	#elif BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+		//Screw positions on BED for
+		#define CARGOL_1_X  263.5
+		//#define CARGOL_1_X  104;
+		#define CARGOL_1_Y  272.5
+
+		#define CARGOL_2_X  86
+		//#define CARGOL_2_X  17;
+		#define CARGOL_2_Y  19
+
+		#define CARGOL_3_X  441
+		//#define CARGOL_3_X  192;
+		#define CARGOL_3_Y  19
+	#endif
 	// -END BED calibration WIZARD
 #endif // ENABLE_AUTO_BED_LEVELING
 
@@ -849,7 +961,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define X_CALIB_STARTING_X 117.5
 	#define X_CALIB_STARTING_Y 99.5
 	#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
-		#define X_OFFSET_CALIB_PROCEDURES 100
+		#define X_OFFSET_CALIB_PROCEDURES 109
+		#define X_OFFSET_BEDCOMPENSATION_PROCEDURE 102
 	#endif
 #endif
 
@@ -883,7 +996,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define PRINTER_BED_X_SIZE	210.0
 #endif
 #if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
-	#define NOZZLE_PARK_DISTANCE_BED_X0	43
+	#define NOZZLE_PARK_DISTANCE_BED_X0	54.5
 	#define NOZZLE_PARK_DISTANCE_BED_Y0	-2.5
 	#define PRINTER_BED_X_SIZE	420.0
 #endif
@@ -1286,18 +1399,27 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define PROCESSING_SUCCESS_FIRST_RUN		'C'
 #define PROCESSING_BED_SUCCESS				'D'
 #define PROCESSING_SAVE_PRINT_SUCCESS		'E'
-#define PROCESSING_NYLON_STEP4				'F'
+#define PROCESSING_UTILITIES_MAINTENANCE_NYLONCLEANING_STEP4				'F'
 #define PROCESSING_PURGE_LOAD				'G'
 #define PROCESSING_CHANGE_FILAMENT_TEMPS	'H'
 #define PROCESSING_ADJUSTING				'I'
-#define PROCESSING_NYLON_TEMPS				'J'
+#define PROCESSING_UTILITIES_MAINTENANCE_NYLONCLEANING_TEMPS				'J'
 #define PROCESSING_BED						'K'
 #define PROCESSING_CALIB_ZL					'L'
 #define PROCESSING_CALIB_ZR					'M'
 #define PROCESSING_ERROR					'N'
 #define PROCESSING_BED_FIRST				'O'
 #define PROCESSING_TEST						'P'
-#define PROCESSING_NYLON_STEP3				'Q'
+#define PROCESSING_UTILITIES_MAINTENANCE_NYLONCLEANING_STEP3				'Q'
+
+//PRINTER STATE DEFINITIONS
+
+#define STATE_NONE							'\0'
+#define STATE_MENU							'A'
+#define STATE_LOADUNLOAD_FILAMENT			'B'
+#define STATE_NYLONCLEANING					'C'
+#define STATE_CALIBRATION					'D'
+#define STATE_AUTOTUNEPID					'E'
 /*
 #define PROCESSING_Z_SET_0					'R'
 #define PROCESSING_Z_SET_1					'S'

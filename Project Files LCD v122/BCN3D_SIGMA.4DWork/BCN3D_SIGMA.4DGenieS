@@ -1,6 +1,7 @@
 #platform "Gen4-uLCD-35DCT-CLB"
 
-// generated 26/01/2017 13:06:37
+
+// generated 20/06/2017 12:05:54
 
 
 #inherit "4DGL_16bitColours.fnc"
@@ -944,12 +945,12 @@ func main()
     oObjects[tColorPicker] := oColorPickers ;
     oObjects[tUserButton] := oUserButtons ;
     hFonts[1] := file_LoadImageControl("BCN3D_~1.d02", "BCN3D_~1.g02", 1)  ;
-    hFonts[2] := file_LoadImageControl("BCN3D_~1.d03", "BCN3D_~1.g03", 1)  ;
+    hFonts[2] := file_LoadImageControl("BCN3D_~1.d0C", "BCN3D_~1.g0C", 1)  ;
     hFonts[3] := file_LoadImageControl("BCN3D_~1.d01", "BCN3D_~1.g01", 1)  ;
-    hFonts[5] := file_LoadImageControl("BCN3D_~1.d05", "BCN3D_~1.g05", 1)  ;
-    hFonts[28] := file_LoadImageControl("BCN3D_~1.d06", "BCN3D_~1.g06", 1)  ;
-    hFonts[40] := file_LoadImageControl("BCN3D_~1.d04", "BCN3D_~1.g04", 1)  ;
-    hFonts[46] := file_LoadImageControl("BCN3D_~1.d07", "BCN3D_~1.g07", 1)  ;
+    hFonts[5] := file_LoadImageControl("BCN3D_~1.d0M", "BCN3D_~1.g0M", 1)  ;
+    hFonts[28] := file_LoadImageControl("BCN3D_~1.d0Y", "BCN3D_~1.g0Y", 1)  ;
+    hFonts[40] := file_LoadImageControl("BCN3D_~1.d0J", "BCN3D_~1.g0J", 1)  ;
+    hFonts[46] := file_LoadImageControl("BCN3D_~1.d0Z", "BCN3D_~1.g0Z", 1)  ;
     hFonts[0] := hFonts[2] ;
     hFonts[4] := hFonts[2] ;
     hFonts[6] := hFonts[2] ;
@@ -1023,10 +1024,12 @@ func main()
 
     // display initial form
     CurrentForm := -1 ;
-    ActivateForm(0) ; // need to change this according to first actual form
-
 // End P4.inc
 // Start P5.inc
+    ActivateForm(0) ; // need to change this according to first actual form
+
+// End P5.inc
+// Start P6.inc
     touch_Set(TOUCH_ENABLE);                            // enable the touch screen
     oldn := -1 ;
     repeat
@@ -1207,4 +1210,4 @@ cAniButton:
 cColorPicker:
 
 endfunc
-// End P5.inc
+// End P6.inc

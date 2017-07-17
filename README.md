@@ -1,6 +1,4 @@
-﻿[![Gitter](https://badges.gitter.im/BCN3D/BCN3DSigma-Firmware.svg)](https://gitter.im/BCN3D/BCN3DSigma-Firmware?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
- 
- # BCN3D Sigma Firmware based on Marlin
+﻿# BCN3D Sigma Firmware based on Marlin
 
 This is the repository that contains the firmware for the BCN3D Sigma 3D Printer. It's based on the well-known Marlin but with some modifications.
 
@@ -10,8 +8,6 @@ Please refer to the [wiki][8] in order to get instructions on how to upgrade the
 
 > ## IMPORTANT
 > This repo contains the firmware and the files for the LCD Touchscreen display (for now). When a new release is done, normally is needed updating the SD files of the display. That way we can update menus, graphics and functionalities. You can find more information on how to update the [LCD SD files here][5].
-
->If you own a BCN3D Sigma R17 you don't need to update the LCD files. The files in this repo are just for R16 Sigma with resistive touchscreen. If you happen to load them, your screen will be displayed upside down. When an update for the capacitive touchscreen is available, it will be properly identified. 
 
 ## Features
 
@@ -40,8 +36,7 @@ In order to be more efficient with the feedback, we recommend to follow some gui
 ## Development
 For advanced users, it's possible to contribute in firmware development. We explain everything in the [wiki][9]. So if you are interested in contributing, folow the instructions [there][9]. 
 
-
-The `master` branch is stable  and it's currently on version `1.2.4`.
+The `master` branch is stable  and it's currently on version `1.2.5`.
 
 
 

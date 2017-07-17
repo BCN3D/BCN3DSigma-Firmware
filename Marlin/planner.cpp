@@ -516,7 +516,7 @@ void check_axes_activity()
   //Rapduch
   #if MOTHERBOARD == BCN3D_BOARD
   
-	if(extruder_duplication_enabled || extruder_duplication_mirror_enabled){
+	if(extruder_duplication_enabled || extruder_duplication_mirror_enabled || (Flag_fanSpeed_mirror==1)){
 		analogWrite(FAN_PIN,tail_fan_speed);
 		analogWrite(FAN2_PIN,tail_fan_speed);
 	}

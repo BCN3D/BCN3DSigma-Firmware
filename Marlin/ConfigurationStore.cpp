@@ -187,6 +187,8 @@ void Config_StoreSettings()
 	EEPROM_WRITE_VAR(i,manual_fine_calib_offset[3]);
 	EEPROM_WRITE_VAR(i,saved_dual_x_carriage_mode);
 	EEPROM_WRITE_VAR(i,saved_duplicate_extruder_x_offset);
+	EEPROM_WRITE_VAR(i,Flag_fanSpeed_mirror);
+	EEPROM_WRITE_VAR(i,bed_offset_version);
 	#endif
 	char ver2[4]=EEPROM_VERSION;
 	i=EEPROM_OFFSET;
@@ -266,7 +268,7 @@ void Config_PrintSettings()
 	SERIAL_ECHO_START;
 	SERIAL_ECHOLNPGM("PID settings:");
 	SERIAL_ECHO_START;
-	SERIAL_ECHOPAIR(" M301 LEFT P",Kp[0]);
+	SERIAL_ECHOPAIR("  M301 LEFT P",Kp[0]);
 	SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki[0]));
 	SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd[0]));
 	SERIAL_ECHOPAIR(" - M301 RIGHT P",Kp[1]);
@@ -278,22 +280,23 @@ void Config_PrintSettings()
 	SERIAL_ECHO_START;
 	SERIAL_ECHOLNPGM("Offsets (mm):");
 	SERIAL_ECHO_START;
-	SERIAL_ECHOPAIR(" X ",extruder_offset[X_AXIS][1] );
+	SERIAL_ECHOPAIR("  M530 X ",extruder_offset[X_AXIS][1] );
 	SERIAL_ECHOPAIR(" Y " ,extruder_offset[Y_AXIS][1]  );
 	SERIAL_ECHOPAIR(" Z " ,extruder_offset[Z_AXIS][1]  );
-	SERIAL_ECHOPAIR(" Z probe" ,zprobe_zoffset  );
+	SERIAL_ECHOPAIR(" P(Z probe)" ,zprobe_zoffset  );
 	SERIAL_ECHOLN("");
 	SERIAL_ECHO_START;
 	SERIAL_ECHOLNPGM("Bed Offsets (mm):");
 	SERIAL_ECHO_START;
-	SERIAL_ECHOPAIR(" Bed left screw ",bed_offset_left_screw);
-	SERIAL_ECHOPAIR(" Bed right screw " ,bed_offset_right_screw);
+	SERIAL_ECHOPAIR("  M531 L(Bed left screw) ",bed_offset_left_screw);
+	SERIAL_ECHOPAIR(" R(Bed right screw) " ,bed_offset_right_screw);
+	SERIAL_ECHOPAIR(" V(Version) " ,(unsigned long)bed_offset_version);
 	SERIAL_ECHOLN("");
 	
 	SERIAL_ECHO_START;
 	SERIAL_ECHOLNPGM("Temp (C):");
 	SERIAL_ECHO_START;
-	SERIAL_ECHOPAIR(" L_INSERT: ",(unsigned long)insert_temp_l);
+	SERIAL_ECHOPAIR("  L_INSERT: ",(unsigned long)insert_temp_l);
 	SERIAL_ECHOPAIR(" C, L_REMOVE: " ,(unsigned long)remove_temp_l);
 	SERIAL_ECHOPAIR(" C, L_BED: " ,(unsigned long)bed_temp_l);
 	SERIAL_ECHOPAIR(" C, L_PRINT: " ,(unsigned long)print_temp_l);
@@ -302,7 +305,7 @@ void Config_PrintSettings()
 	SERIAL_ECHO_START;
 	SERIAL_ECHOLNPGM("Temp (C):");
 	SERIAL_ECHO_START;
-	SERIAL_ECHOPAIR(" R_INSERT: ",(unsigned long)insert_temp_r);
+	SERIAL_ECHOPAIR("  R_INSERT: ",(unsigned long)insert_temp_r);
 	SERIAL_ECHOPAIR(" C, R_REMOVE: " ,(unsigned long)remove_temp_r);
 	SERIAL_ECHOPAIR(" C, R_BED: " ,(unsigned long)bed_temp_r);
 	SERIAL_ECHOPAIR(" C, R_PRINT: " ,(unsigned long)print_temp_r);
@@ -311,7 +314,7 @@ void Config_PrintSettings()
 	SERIAL_ECHO_START;
 	SERIAL_ECHOLNPGM("STATS:");
 	SERIAL_ECHO_START;
-	SERIAL_ECHOPAIR(" prints: ",(unsigned long)log_prints);
+	SERIAL_ECHOPAIR("  prints: ",(unsigned long)log_prints);
 	SERIAL_ECHOPAIR(", printing time: " ,(unsigned long)log_hours_print);
 	SERIAL_ECHOPAIR("h, prints finished: " ,(unsigned long)log_prints_finished);
 	SERIAL_ECHOPAIR(", max temp L: " ,(unsigned long)log_max_temp_l);
@@ -327,14 +330,14 @@ void Config_PrintSettings()
 	SERIAL_ECHO_START;
 	SERIAL_ECHOLNPGM("UI Information Serial Number:");
 	SERIAL_ECHO_START;
-	SERIAL_ECHOPAIR(" First ID number: ",(unsigned long)UI_SerialID0);
+	SERIAL_ECHOPAIR("  First ID number: ",(unsigned long)UI_SerialID0);
 	SERIAL_ECHOPAIR(", Second ID number: " ,(unsigned long)UI_SerialID1);
 	SERIAL_ECHOPAIR(", Third ID number " ,(unsigned long)UI_SerialID2);
 	SERIAL_ECHOLN("");
 	SERIAL_ECHO_START;
 	SERIAL_ECHOLNPGM("Last print duration");
 	SERIAL_ECHO_START;
-	SERIAL_ECHOPAIR(" Last print time-> Hours :",(unsigned long)log_hours_lastprint);
+	SERIAL_ECHOPAIR("  Last print time-> Hours :",(unsigned long)log_hours_lastprint);
 	SERIAL_ECHOPAIR(" Minutes :" ,(unsigned long)log_minutes_lastprint);
 	SERIAL_ECHOLN("");
 	
@@ -357,6 +360,7 @@ void Config_PrintSAVESettings()
 	SERIAL_ECHOPAIR(", saved_tempbed: " ,(float)saved_tempbed);
 	SERIAL_ECHOPAIR(", saved_fanlayer: " ,(float)saved_fanlayer);
 	SERIAL_ECHOPAIR(", saved_feedrate: " ,(float)saved_feedmulti);
+	SERIAL_ECHOPAIR(", saved_Flag_fanlayer_mirror: " ,(float)saved_Flag_fanSpeed_mirror);
 	SERIAL_ECHOLN("");
 	
 	
@@ -511,6 +515,8 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,manual_fine_calib_offset[3]);
 		EEPROM_READ_VAR(i,saved_dual_x_carriage_mode);
 		EEPROM_READ_VAR(i,saved_duplicate_extruder_x_offset);
+		EEPROM_READ_VAR(i,saved_Flag_fanSpeed_mirror);
+		EEPROM_READ_VAR(i,bed_offset_version);
 		#endif RECOVERY_PRINT
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
@@ -520,12 +526,15 @@ void Config_RetrieveSettings()
 			UI_SerialID1 = 0;
 			UI_SerialID2 = 0;
 		}
-		if (bed_offset_left_screw <= -1.0 || bed_offset_left_screw >= 1.0 || bed_offset_right_screw >= 1.0 || bed_offset_right_screw <= -1.0){
+		if (abs(bed_offset_left_screw)>= 1.0 ||abs(bed_offset_right_screw) >= 1.0){
 			bed_offset_left_screw = 0.0;
 			bed_offset_right_screw = 0.0;
 			}else if(isnan(bed_offset_left_screw) || isnan(bed_offset_right_screw)  ){
 			bed_offset_left_screw = 0.0;
 			bed_offset_right_screw = 0.0;
+		}
+		if(bed_offset_version > 1000 || isnan(bed_offset_version)){
+			bed_offset_version = 0;
 		}
 		if(isnan(manual_fine_calib_offset[0]) || isnan(manual_fine_calib_offset[1])  || isnan(manual_fine_calib_offset [2]) || isnan(manual_fine_calib_offset[3]))
 		{
@@ -617,9 +626,6 @@ void Config_ResetDefault()
 	}
 	log_minutes_lastprint = 0;
 	log_hours_lastprint = 0;
-	log_X0_mmdone = 0;
-	log_Y_mmdone = 0;
-	log_X0_mmdone = 0;
 	FLAG_First_Start_Wizard = 1888;
 	
 	/*
@@ -662,7 +668,7 @@ void Config_Reset_Calib(){
 	manual_fine_calib_offset[3] = 0.0;
 	extruder_offset[X_AXIS][RIGHT_EXTRUDER] = X2_MAX_POS;
 	extruder_offset[Y_AXIS][RIGHT_EXTRUDER] = 0.25;
-	extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = 0.08;
+	extruder_offset[Z_AXIS][RIGHT_EXTRUDER] = 0;
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
 	#endif
@@ -785,14 +791,16 @@ void Change_ConfigCalibration(float Xcalib, float Ycalib, float Zcalib, float Zp
 	zprobe_zoffset= Zprobecalib;
 	
 }
-void Change_ConfigBed_offset(float bed_left, float bed_right){
+void Change_ConfigBed_offset(float bed_left, float bed_right, unsigned int version){
 	
-	if (bed_left <= -1.0 || bed_left >= 1.0 || bed_right >= 1.0 || bed_right <= -1.0){
+	if (abs(bed_left >= 1.0) || abs(bed_right >= 1.0)){
 		bed_offset_left_screw = bed_offset_left_screw;
 		bed_offset_right_screw = bed_offset_right_screw;
+		bed_offset_version = bed_offset_version;
 		}else{
 		bed_offset_left_screw = bed_left;
 		bed_offset_right_screw = bed_right;
+		bed_offset_version = version;
 	}
 	
 	

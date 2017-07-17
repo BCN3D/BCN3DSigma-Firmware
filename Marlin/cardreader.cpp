@@ -52,87 +52,80 @@ char *createFilename(char *buffer,const dir_t &p) //buffer>12characters
 }
 
 
-void  CardReader::lsDive(const char *prepend,SdFile parent)
-{
+void CardReader::lsDive(const char *prepend, SdFile parent, const char * const match/*=NULL*/) {
 	dir_t p;
-	uint8_t cnt=0;
-	
-	while (parent.readDir(p, longFilename) > 0)
-	{
-		if( DIR_IS_SUBDIR(&p) && lsAction!=LS_Count && lsAction!=LS_GetFilename) // hence LS_SerialPrint
-		{
+	uint8_t cnt = 0;
 
-			char path[13*2];
+	// Read the next entry from a directory
+	while (parent.readDir(p, longFilename) > 0) {
+
+		// If the entry is a directory and the action is LS_SerialPrint
+		if (DIR_IS_SUBDIR(&p) && lsAction != LS_Count && lsAction != LS_GetFilename) {
+
+			// Get the short name for the item, which we know is a folder
 			char lfilename[13];
-			createFilename(lfilename,p);
-			
-			path[0]=0;
-			if(strlen(prepend)==0) //avoid leading / if already in prepend
-			{
-				strcat(path,"/");
-			}
-			strcat(path,prepend);
-			strcat(path,lfilename);
-			strcat(path,"/");
-			
-			//Serial.print(path);
-			
+			createFilename(lfilename, p);
+
+			// Allocate enough stack space for the full path to a folder, trailing slash, and nul
+			boolean prepend_is_empty = (prepend[0] == '\0');
+			int len = (prepend_is_empty ? 1 : strlen(prepend)) + strlen(lfilename) + 1 + 1;
+			char path[len];
+
+			// Append the FOLDERNAME12/ to the passed string.
+			// It contains the full path to the "parent" argument.
+			// We now have the full path to the item in this folder.
+			strcpy(path, prepend_is_empty ? "/" : prepend); // root slash if prepend is empty
+			strcat(path, lfilename); // FILENAME_LENGTH-1 characters maximum
+			strcat(path, "/");       // 1 character
+
+			// Serial.print(path);
+
+			// Get a new directory object using the full path
+			// and dive recursively into it.
 			SdFile dir;
-			if(!dir.open(parent,lfilename, O_READ))
-			{
-				if(lsAction==LS_SerialPrint)
-				{
+			if (!dir.open(parent, lfilename, O_READ)) {
+				if (lsAction == LS_SerialPrint) {
 					SERIAL_ECHO_START;
 					SERIAL_ECHOLN(MSG_SD_CANT_OPEN_SUBDIR);
 					SERIAL_ECHOLN(lfilename);
 				}
 			}
-			lsDive(path,dir);
-			//close done automatically by destructor of SdFile
-
-			
+			lsDive(path, dir);
+			// close() is done automatically by destructor of SdFile
 		}
-		else
-		{
-			if (p.name[0] == DIR_NAME_FREE) break;
-			if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.'|| p.name[0] == '_') continue;
-			if (longFilename[0] != '\0' &&
-			(longFilename[0] == '.' || longFilename[0] == '_')) continue;
-			if ( p.name[0] == '.')
-			{
-				if ( p.name[1] != '.')
-				continue;
-			}
-			
+		else {
+			uint8_t pn0 = p.name[0];
+			if (pn0 == DIR_NAME_FREE) break;
+			if (pn0 == DIR_NAME_DELETED || pn0 == '.') continue;
+			if (longFilename[0] == '.') continue;
+
 			if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
-			filenameIsDir=DIR_IS_SUBDIR(&p);
-			
-			
-			if(!filenameIsDir)
-			{
-				if(p.name[8]!='G') continue;
-				if(p.name[9]=='~') continue;
-			}
-			//if(cnt++!=nr) continue;
-			createFilename(filename,p);
-			if(lsAction==LS_SerialPrint)
-			{
+
+			filenameIsDir = DIR_IS_SUBDIR(&p);
+
+			if (!filenameIsDir && (p.name[8] != 'G' || p.name[9] == '~')) continue;
+
+			switch (lsAction) {
+				case LS_Count:
+				nrFiles++;
+				break;
+				case LS_SerialPrint:
+				createFilename(filename, p);
 				SERIAL_PROTOCOL(prepend);
 				SERIAL_PROTOCOLLN(filename);
-			}
-			else if(lsAction==LS_Count)
-			{
-				nrFiles++;
-			}
-			else if(lsAction==LS_GetFilename)
-			{
-				if(cnt==nrFiles)
-				return;
+				break;
+				case LS_GetFilename:
+				createFilename(filename, p);
+				if (match != NULL) {
+					if (strcasecmp(match, filename) == 0) return;
+				}
+				else if (cnt == nrFiles) return;
 				cnt++;
-				
+				break;
 			}
+
 		}
-	}
+	} // while readDir
 }
 
 void CardReader::ls()
@@ -233,20 +226,17 @@ void CardReader::openLogFile(char* name)
 	openFile(name, false);
 }
 
-void CardReader::getAbsFilename(char *t)
-{
-	uint8_t cnt=0;
-	*t='/';t++;cnt++;
-	for(uint8_t i=0;i<workDirDepth;i++)
-	{
-		workDirParents[i].getFilename(t); //SDBaseFile.getfilename!
-		while(*t!=0 && cnt< MAXPATHNAMELENGTH)
-		{t++;cnt++;}  //crawl counter forward.
-	}
-	if(cnt<MAXPATHNAMELENGTH-13)
-	file.getFilename(t);
-	else
-	t[0]=0;
+void CardReader::getAbsFilename(char *t){
+  uint8_t cnt = 0;
+  *t = '/'; t++; cnt++;
+  for (uint8_t i = 0; i < workDirDepth; i++) {
+    workDirParents[i].getFilename(t); //SDBaseFile.getfilename!
+    while (*t && cnt < MAXPATHNAMELENGTH) { t++; cnt++; } //crawl counter forward.
+  }
+  if (cnt < MAXPATHNAMELENGTH - (13))
+    file.getFilename(t);
+  else
+    t[0] = 0;
 }
 
 void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
@@ -627,6 +617,7 @@ void CardReader::closefile(bool store_location)
 		saved_tempbed  = target_temperature_bed;
 		saved_feedmulti = feedmultiply;
 		saved_fanlayer = fanSpeed;
+		saved_Flag_fanSpeed_mirror = Flag_fanSpeed_mirror;
 		saved_workDir_vector_lenght = workDir_vector_lenght;
 		saved_workDir_vector[0] = workDir_vector[0];
 		saved_workDir_vector[1] = workDir_vector[1];
@@ -653,13 +644,13 @@ void CardReader::closefile(bool store_location)
 	
 }
 
-void CardReader::getfilename(const uint8_t nr)
+void CardReader::getfilename(uint16_t nr, const char * const match/*=NULL*/)
 {
 	curDir=&workDir;
 	lsAction=LS_GetFilename;
 	nrFiles=nr;
 	curDir->rewind();
-	lsDive("",*curDir);
+	lsDive("", *curDir, match);
 	
 }
 
@@ -754,7 +745,7 @@ void CardReader::printingHasFinished()
 		//Rapduch
 		#ifdef SIGMA_TOUCH_SCREEN
 		//also we need to put the platform down and do an autohome to prevent blocking
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN,0);
 		enquecommand_P(PSTR("T0"));
 		st_synchronize();
 		enquecommand_P(PSTR("M107"));
@@ -762,6 +753,7 @@ void CardReader::printingHasFinished()
 		setTargetHotend0(0);
 		setTargetHotend1(0);
 		setTargetBed(0);
+		Flag_fanSpeed_mirror=0;
 		saved_print_smartpurge_flag = false;
 		screen_sdcard = false;
 		surfing_utilities=false;

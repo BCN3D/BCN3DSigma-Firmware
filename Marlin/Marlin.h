@@ -236,7 +236,9 @@ extern bool axis_known_position[3];
 extern float zprobe_zoffset;
 extern float bed_offset_left_screw;
 extern float bed_offset_right_screw;
+extern unsigned int bed_offset_version;
 extern int fanSpeed;
+extern int Flag_fanSpeed_mirror;
 #ifdef BARICUDA
 extern int ValvePressure;
 extern int EtoPPressure;
@@ -316,7 +318,7 @@ extern float manual_fine_calib_offset[4];
 //extern void updateLanguage();
 extern float x_home_pos(int extruder);
 extern int bed_calibration_times;
-
+extern char printer_state;
 /////// Processing Gifs	/////////
 extern char gif_processing_state;
 extern uint8_t processing_z_set;
@@ -334,6 +336,7 @@ extern bool cancel_heatup;
 //extern unsigned long previous_millis_cmd;
 extern void right_test_print_code();
 extern void left_test_print_code();
+extern void bed_test_print_code(float x_offset, float y_offset, int zline);
 extern bool heatting;
 extern char namefilegcode[24];
 
@@ -376,6 +379,7 @@ extern bool saved_print_smartpurge_flag;
 extern int workDir_vector[MAX_DIR_DEPTH];
 extern uint8_t workDir_vector_lenght;
 extern int saved_workDir_vector[MAX_DIR_DEPTH];
+extern int saved_Flag_fanSpeed_mirror;
 extern uint8_t saved_workDir_vector_lenght;
 extern int saved_dual_x_carriage_mode;
 extern float saved_duplicate_extruder_x_offset;
@@ -429,6 +433,6 @@ extern void Config_Set_UISerialNumber(int input0, long input1, int input2);
 extern void Change_ConfigTemp_LeftHotend(int i_temp_l, int remove_temp_l, int p_temp_r, int b_temp_l);
 extern void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int b_temp_r);
 extern void Change_ConfigCalibration(float Xcalib, float Ycalib, float Zcalib, float Zprobecalib);
-extern void Change_ConfigBed_offset(float bed_left, float bed_right);
+extern void Change_ConfigBed_offset(float bed_left, float bed_right, unsigned int version);
 extern void thermal_error_screen_on();
 #endif

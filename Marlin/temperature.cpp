@@ -948,193 +948,187 @@ void check_termistors_connections()
 		static bool message_showed = false;
 		static bool message_showed1 = false;
 		static bool message_showedbed = false;
-		if(!message_showed){
+		if(tHotend < 5 || tHotend > HEATER_0_MAXTEMP + 15){
+			times_failuret0++;
+			}else{
+			if(times_failureb > 0)times_failuret0--;
+		}
+		if(tHotend1 < 5 || tHotend1 > HEATER_1_MAXTEMP + 15){
+			times_failuret1++;
+			}else{
+			if(times_failureb > 0)times_failuret1--;
+		}
+		if(tBed < 5 || tBed > BED_MAXTEMP + 15){
+			times_failureb++;
+			}else{
+			if(times_failureb > 0)times_failureb--;
+		}
+		if (card.sdprinting){
 			
-			if(tHotend < 5 || tHotend > HEATER_0_MAXTEMP + 15){
-				times_failuret0++;
+			
+			if( gif_processing_state != PROCESSING_ERROR && times_failuret0 > 3 && target_temperature[0]!=0){
+				
+				char thermal_message[50];
 				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_81);
-				}else{
-				if(times_failureb > 0)times_failuret0--;
+				sprintf(thermal_message, MSG_LCD_ERROR_81);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+				genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+				thermal_error_screen_on();
+				
+				card.sdprinting = false;
+				card.sdispaused = false;
+				
+				cancel_heatup = true;
+				doblocking = false;
+				SERIAL_PROTOCOLPGM(" STOP PRINT \n");
+				gif_processing_state = PROCESSING_ERROR;
+				
+				disable_heater();
+				printing_error_temps = true;
+				
+				
+				message_showed = true;
+				times_failuret0 = 0;
 			}
-			if(tHotend1 < 5 || tHotend1 > HEATER_1_MAXTEMP + 15){
-				times_failuret1++;
+			else if(gif_processing_state != PROCESSING_ERROR && times_failuret1 > 3 && target_temperature[1]!=0){
+				char thermal_message[50];
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_82);
-				}else{
-				if(times_failureb > 0)times_failuret1--;
+				sprintf(thermal_message, MSG_LCD_ERROR_82);
+				genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+				thermal_error_screen_on();
+				card.sdprinting = false;
+				card.sdispaused = false;
+				cancel_heatup = true;
+				
+				doblocking = false;
+				SERIAL_PROTOCOLPGM(" STOP PRINT \n");
+				gif_processing_state = PROCESSING_ERROR;
+				
+				disable_heater();
+				printing_error_temps = true;
+				
+				
+				times_failuret1 = 0;
+				message_showed1 = true;
+				
+				
 			}
-			if(tBed < 5 || tBed > BED_MAXTEMP + 15){
+			else if(gif_processing_state != PROCESSING_ERROR && times_failureb > 3 && target_temperature_bed!=0){
+				
+				char thermal_message[50];
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
 				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_83);
-				times_failureb++;
-				}else{
-				if(times_failureb > 0)times_failureb--;
-			}
-			if (card.sdprinting){
+				disable_heater();
+				genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+				thermal_error_screen_on();
+				
+				card.sdprinting = false;
+				card.sdispaused = false;
+				
+				cancel_heatup = true;
+				doblocking = false;
+				SERIAL_PROTOCOLPGM(" STOP PRINT \n");
+				gif_processing_state = PROCESSING_ERROR;
+				
+				disable_heater();
+				printing_error_temps = true;
 				
 				
-				if( !gif_processing_state == PROCESSING_ERROR && times_failuret0 > 3 && target_temperature[0]!=0){
-					
-					char thermal_message[50];
-					
-					sprintf(thermal_message, MSG_LCD_ERROR_81);
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-					thermal_error_screen_on();
-					
-					card.sdprinting = false;
-					card.sdispaused = false;
-					
-					cancel_heatup = true;
-					doblocking = false;
-					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
-					gif_processing_state = gif_processing_state == PROCESSING_ERROR;
-					
-					disable_heater();
-					printing_error_temps = true;
-					
-					
-					message_showed = true;
-					times_failuret0 = 0;
-				}
-				else if(!gif_processing_state == PROCESSING_ERROR && times_failuret1 > 3 && target_temperature[1]!=0){
-					char thermal_message[50];
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-					sprintf(thermal_message, MSG_LCD_ERROR_82);
-					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-					thermal_error_screen_on();
-					card.sdprinting = false;
-					card.sdispaused = false;
-					cancel_heatup = true;
-					
-					doblocking = false;
-					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
-					gif_processing_state = gif_processing_state == PROCESSING_ERROR;
-					
-					disable_heater();
-					printing_error_temps = true;
-					
-					
-					times_failuret1 = 0;
-					message_showed1 = true;
-					
-					
-				}
-				else if(!gif_processing_state == PROCESSING_ERROR && times_failureb > 3 && target_temperature_bed!=0){
-					
-					char thermal_message[50];
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-					sprintf(thermal_message, MSG_LCD_ERROR_83);
-					disable_heater();
-					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-					thermal_error_screen_on();
-					
-					card.sdprinting = false;
-					card.sdispaused = false;
-					
-					cancel_heatup = true;
-					doblocking = false;
-					SERIAL_PROTOCOLPGM(" STOP PRINT \n");
-					gif_processing_state = gif_processing_state == PROCESSING_ERROR;
-					
-					disable_heater();
-					printing_error_temps = true;
-					
-					
-					message_showedbed = true;
-					times_failureb = 0;
-				}
-				
-				
-			}
-			
-			else{
-				
-				if(times_failuret0 > 3){
-					char thermal_message[50];
-					
-					sprintf(thermal_message, MSG_LCD_ERROR_81);
-					
-					if(!message_showed && !gif_processing_state == PROCESSING_ERROR){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-						disable_heater();
-						thermal_error_screen_on();
-						gif_processing_state = gif_processing_state == PROCESSING_ERROR;
-						message_showed = true;
-						
-						}else if(target_temperature[0]!=0 && !gif_processing_state == PROCESSING_ERROR){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-						thermal_error_screen_on();
-						disable_heater();
-						gif_processing_state = gif_processing_state == PROCESSING_ERROR;
-						message_showed = true;
-						}else if(target_temperature[0]!=0 && gif_processing_state == PROCESSING_ERROR){
-						disable_heater();
-					}
-					
-					times_failuret0 = 0;
-					
-					
-				}
-				else if(times_failuret1 > 3){
-					char thermal_message[50];
-					sprintf(thermal_message, MSG_LCD_ERROR_82);
-					
-					if(!message_showed1 && !gif_processing_state == PROCESSING_ERROR){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-						thermal_error_screen_on();
-						disable_heater();
-						gif_processing_state = gif_processing_state == PROCESSING_ERROR;
-						message_showed1 = true;
-						
-						}else if(target_temperature[1]!=0 && !gif_processing_state == PROCESSING_ERROR){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-						thermal_error_screen_on();
-						disable_heater();
-						gif_processing_state = gif_processing_state == PROCESSING_ERROR;
-						message_showed1 = true;
-						}else if(target_temperature[1]!=0 && gif_processing_state == PROCESSING_ERROR){
-						disable_heater();
-					}
-					
-					
-					times_failuret1 = 0;
-				}
-				else if(times_failureb > 3){
-					
-					char thermal_message[50];
-					sprintf(thermal_message, MSG_LCD_ERROR_83);
-					
-					
-					if(!message_showedbed && !gif_processing_state == PROCESSING_ERROR){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-						thermal_error_screen_on();
-						disable_heater();
-						gif_processing_state = gif_processing_state == PROCESSING_ERROR;
-						message_showedbed = true;
-						
-						}else if(target_temperature_bed!=0 && !gif_processing_state == PROCESSING_ERROR){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
-						genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
-						thermal_error_screen_on();
-						disable_heater();
-						gif_processing_state = gif_processing_state == PROCESSING_ERROR;
-						message_showedbed = true;
-						}else if(target_temperature_bed!=0 && gif_processing_state == PROCESSING_ERROR){
-						disable_heater();
-					}
-					
-					times_failureb = 0;
-				}
-				
-				
+				message_showedbed = true;
+				times_failureb = 0;
 			}
 			
 			
 		}
+		
+		else{
+			
+			if(times_failuret0 > 3){
+				char thermal_message[50];
+				sprintf(thermal_message, MSG_LCD_ERROR_81);
+				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_81);
+				if(!message_showed && gif_processing_state != PROCESSING_ERROR){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+					disable_heater();
+					thermal_error_screen_on();
+					gif_processing_state = PROCESSING_ERROR;
+					message_showed = true;
+					
+					}else if(target_temperature[0]!=0 && gif_processing_state != PROCESSING_ERROR){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+					thermal_error_screen_on();
+					disable_heater();
+					gif_processing_state = PROCESSING_ERROR;
+					message_showed = true;
+					}else if(target_temperature[0]!=0 && gif_processing_state == PROCESSING_ERROR){
+					disable_heater();
+				}
+				
+				times_failuret0 = 0;
+				
+				
+			}
+			else if(times_failuret1 > 3){
+				char thermal_message[50];
+				sprintf(thermal_message, MSG_LCD_ERROR_82);
+				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_82);
+				if(!message_showed1 && gif_processing_state != PROCESSING_ERROR){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+					thermal_error_screen_on();
+					disable_heater();
+					gif_processing_state = PROCESSING_ERROR;
+					message_showed1 = true;
+					
+					}else if(target_temperature[1]!=0 && gif_processing_state != PROCESSING_ERROR){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+					thermal_error_screen_on();
+					disable_heater();
+					gif_processing_state = PROCESSING_ERROR;
+					message_showed1 = true;
+					}else if(target_temperature[1]!=0 && gif_processing_state == PROCESSING_ERROR){
+					disable_heater();
+				}
+				
+				
+				times_failuret1 = 0;
+			}
+			else if(times_failureb > 3){
+				
+				char thermal_message[50];
+				sprintf(thermal_message, MSG_LCD_ERROR_83);
+				SERIAL_PROTOCOLLNPGM(MSG_LCD_ERROR_83);
+				
+				if(!message_showedbed && gif_processing_state != PROCESSING_ERROR){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+					thermal_error_screen_on();
+					disable_heater();
+					gif_processing_state = PROCESSING_ERROR;
+					message_showedbed = true;
+					
+					}else if(target_temperature_bed!=0 && gif_processing_state != PROCESSING_ERROR){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+					genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
+					thermal_error_screen_on();
+					disable_heater();
+					gif_processing_state = PROCESSING_ERROR;
+					message_showedbed = true;
+					}else if(target_temperature_bed!=0 && gif_processing_state == PROCESSING_ERROR){
+					disable_heater();
+				}
+				
+				times_failureb = 0;
+			}
+			
+			
+		}
+		
+		
 		
 
 		waitPeriod_check=5000+millis();

@@ -1,8 +1,8 @@
 ==============================================================
 ==============================================================
-4DGL Compiler 2.8.0.5 -- Copyright 2004-2015 4D Labs
+4DGL Compiler 2.8.1.0 -- Copyright 2004-2016 4D Labs
 ** C:\Users\agarciamoreno\Documents\Firmware\BCN3DSigma-Firmware\Project Files LCD v122\BCN3D_SIGMA.4DWork\BCN3D_SIGMA.4DGenieS
-compiled Thu Jan 26 13:06:37 2017
+compiled Tue Jun 20 12:05:54 2017
 
 ==============================================================
 ==============================================================
@@ -10,75 +10,81 @@ compiled Thu Jan 26 13:06:37 2017
 
 No Ref for file
 [LINKING]
-function 12, main, address 13457
-(main entry point)
-stack usage 112 + 4
-function 'main' requires no arguments
-function 'main' has no return value
+function 12, main(main entry point), address 0x3491, stack usage 112 + 4 
+oldn                                  56  word     [local]  (usage 42)
+comTX                                  1  word[50]  [local]  (usage 3)
+TouchStatus                           55  word     [local]  (usage 33)
+cmdi                                  51  word     [local]  (usage 60)
+i                                     52  word     [local]  (usage 81)
+j                                     53  word     [local]  (usage 18)
+ImageTouched                          54  word     [local]  (usage 36)
 
 [LINKING]
-function 11, DoGFXObjects, address 15437
-stack usage 0 + 4
-!Empty Function
+function 11, DoGFXObjects, address 0x3c4d, stack usage 0 + 4 (Empty Function)
 [LINKING]
-function 10, UpdateObjects, address 15438
-stack usage 4 + 4
-function 'UpdateObjects' requires 1 argument
-function 'UpdateObjects' has no return value
+function 10, UpdateObjects, address 0x3c4e, stack usage 4 + 4 
+newval                                 1  word     [arg]  (usage 39)
+otherOBJ                               2  word     [local]  (usage 114)
+IPidx                                  1  word     [local]  (usage 18)
 
 [LINKING]
-function 9, ActivateForm, address 16069
-stack usage 6 + 4
-function 'ActivateForm' requires 1 argument
-function 'ActivateForm' has no return value
+function 9, ActivateForm, address 0x3ec5, stack usage 6 + 4 
+newform                                1  word     [arg]  (usage 3)
+i                                      1  word     [local]  (usage 54)
+j                                      2  word     [local]  (usage 18)
 
 [LINKING]
-function 8, TurnOffButtons, address 16390
-stack usage 6 + 4
-function 'TurnOffButtons' requires 1 argument
-function 'TurnOffButtons' has no return value
+function 8, TurnOffButtons, address 0x4006, stack usage 6 + 4 
+j                                      1  word     [local]  (usage 12)
+k                                      2  word     [local]  (usage 12)
+l                                      3  word     [local]  (usage 15)
+group                                  1  word     [arg]  (usage 3)
 
 [LINKING]
-function 7, WriteObject, address 16527
-stack usage 8 + 4
-function 'WriteObject' requires 3 argument
-function 'WriteObject' has no return value
+function 7, WriteObject, address 0x408f, stack usage 8 + 4 
+ObjectType                             1  word     [arg]  (usage 15)
+NewVal                                 2  word     [arg]  (usage 15)
+Objects                                4  word     [local]  (usage 6)
+ObjectIdx                              1  word     [arg]  (usage 12)
+i                                      1  word     [local]  (usage 12)
+j                                      2  word     [local]  (usage 18)
+k                                      3  word     [local]  (usage 15)
 
 [LINKING]
-function 6, ReadObject, address 16820
-stack usage 6 + 4
-function 'ReadObject' requires 2 argument
-function 'ReadObject' has no return value
+function 6, ReadObject, address 0x41b4, stack usage 6 + 4 
+ObjectType                             1  word     [arg]  (usage 24)
+Objects                                3  word     [local]  (usage 6)
+ObjectIdx                              1  word     [arg]  (usage 9)
+j                                      1  word     [local]  (usage 6)
+k                                      2  word     [local]  (usage 18)
 
 [LINKING]
-function 5, SendReport, address 16968
-stack usage 0 + 4
-function 'SendReport' requires 4 argument
-function 'SendReport' has no return value
+function 5, SendReport, address 0x4248, stack usage 0 + 4 
+objn                                   2  word     [arg]  (usage 3)
+val                                    2  word     [arg]  (usage 6)
+objt                                   1  word     [arg]  (usage 3)
+id                                     1  word     [arg]  (usage 3)
 
 [LINKING]
-function 4, seroutOcs, address 17018
-stack usage 0 + 4
-function 'seroutOcs' requires no arguments
-function 'seroutOcs' has no return value
+function 4, seroutOcs, address 0x427a, stack usage 0 + 4 
 
 [LINKING]
-function 3, nak0, address 17035
-stack usage 0 + 4
-function 'nak0' requires no arguments
-function 'nak0' has no return value
+function 3, nak0, address 0x428b, stack usage 0 + 4 
 
 [LINKING]
-function 2, seroutCS, address 17051
-stack usage 0 + 4
-function 'seroutCS' requires 1 argument
-function 'seroutCS' has no return value
+function 2, seroutCS, address 0x429b, stack usage 0 + 4 
+op                                     1  word     [arg]  (usage 6)
 
 [LINKING]
-function 1, PrintStrings, address 17070
-stack usage 14 + 4
-function 'PrintStrings' requires 3 argument
-function 'PrintStrings' has no return value
+function 1, PrintStrings, address 0x42ae, stack usage 14 + 4 
+String                                 2  word     [arg]  (usage 6)
+StringID                               1  word     [local]  (usage 78)
+offs32                                 4  word[2]  [local]  (usage 6)
+ch                                     3  word     [local]  (usage 24)
+res32                                  6  word[2]  [local]  (usage 18)
+i                                      2  word     [local]  (usage 9)
+msgid                                  1  word     [arg]  (usage 12)
+ID                                     1  word     [arg]  (usage 12)
 
 [RESERVED WORDS]
 #inherit
@@ -1629,16 +1635,16 @@ TouchYpos                            145  word       (usage 9)
 3397: 7E 31 2E 64 61 74 00 42 43 4E 33 44 5F 7E 31 2E     ~1.dat.BCN3D_~1.
 33A7: 67 63 69 00 42 43 4E 33 44 5F 7E 31 2E 64 30 32     gci.BCN3D_~1.d02
 33B7: 00 42 43 4E 33 44 5F 7E 31 2E 67 30 32 00 42 43     .BCN3D_~1.g02.BC
-33C7: 4E 33 44 5F 7E 31 2E 64 30 33 00 42 43 4E 33 44     N3D_~1.d03.BCN3D
-33D7: 5F 7E 31 2E 67 30 33 00 42 43 4E 33 44 5F 7E 31     _~1.g03.BCN3D_~1
+33C7: 4E 33 44 5F 7E 31 2E 64 30 43 00 42 43 4E 33 44     N3D_~1.d0C.BCN3D
+33D7: 5F 7E 31 2E 67 30 43 00 42 43 4E 33 44 5F 7E 31     _~1.g0C.BCN3D_~1
 33E7: 2E 64 30 31 00 42 43 4E 33 44 5F 7E 31 2E 67 30     .d01.BCN3D_~1.g0
-33F7: 31 00 42 43 4E 33 44 5F 7E 31 2E 64 30 35 00 42     1.BCN3D_~1.d05.B
-3407: 43 4E 33 44 5F 7E 31 2E 67 30 35 00 42 43 4E 33     CN3D_~1.g05.BCN3
-3417: 44 5F 7E 31 2E 64 30 36 00 42 43 4E 33 44 5F 7E     D_~1.d06.BCN3D_~
-3427: 31 2E 67 30 36 00 42 43 4E 33 44 5F 7E 31 2E 64     1.g06.BCN3D_~1.d
-3437: 30 34 00 42 43 4E 33 44 5F 7E 31 2E 67 30 34 00     04.BCN3D_~1.g04.
-3447: 42 43 4E 33 44 5F 7E 31 2E 64 30 37 00 42 43 4E     BCN3D_~1.d07.BCN
-3457: 33 44 5F 7E 31 2E 67 30 37 00 42 43 4E 33 44 5F     3D_~1.g07.BCN3D_
+33F7: 31 00 42 43 4E 33 44 5F 7E 31 2E 64 30 4D 00 42     1.BCN3D_~1.d0M.B
+3407: 43 4E 33 44 5F 7E 31 2E 67 30 4D 00 42 43 4E 33     CN3D_~1.g0M.BCN3
+3417: 44 5F 7E 31 2E 64 30 59 00 42 43 4E 33 44 5F 7E     D_~1.d0Y.BCN3D_~
+3427: 31 2E 67 30 59 00 42 43 4E 33 44 5F 7E 31 2E 64     1.g0Y.BCN3D_~1.d
+3437: 30 4A 00 42 43 4E 33 44 5F 7E 31 2E 67 30 4A 00     0J.BCN3D_~1.g0J.
+3447: 42 43 4E 33 44 5F 7E 31 2E 64 30 5A 00 42 43 4E     BCN3D_~1.d0Z.BCN
+3457: 33 44 5F 7E 31 2E 67 30 5A 00 42 43 4E 33 44 5F     3D_~1.g0Z.BCN3D_
 3467: 7E 31 2E 74 78 66 00 8B 3B 8B 3B 8B 3B 8B 3B 8B     ~1.txf.‹;‹;‹;‹;‹
 3477: 3B 8B 3B 9C 3B 8B 3B 4C 3C 4C 3C 8B 3B E3 40 FB     ;‹;œ;‹;L<L<‹;ã@û
 3487: 40                                                  @

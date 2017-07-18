@@ -8,8 +8,6 @@
 #define _SD_LISTFILES_h
 
 
-	#include "arduino.h"
-	
 	#include "genieArduino.h"
 	#include "Touch_Screen_Definitions.h"
 	#include "Marlin.h"

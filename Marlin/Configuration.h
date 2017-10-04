@@ -27,9 +27,9 @@
 //This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
-#define VERSION_STRING  "01-1.2.5"
-//#define BUILD_DATE  "|M07.14"
-#define VERSION_NUMBER  125
+#define VERSION_STRING  "01-1.2.6"
+//#define BUILD_DATE  "|M09.29"
+#define VERSION_NUMBER  126
 #define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
 //#define DEFAULT_QUICK_GUIDE  0;
@@ -225,6 +225,11 @@
 
 #endif //DUAL_X_CARRIAGE/////////////////////////////////////////////////////
 
+#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEFAULT
+	#define BCN3D_NOZZLE_DEFAULD_SIZE 0.4
+#elif BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEVMODE_1
+	#define BCN3D_NOZZLE_DEFAULD_SIZE 0.5
+#endif
 
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
 // #define PS_DEFAULT_OFF
@@ -290,20 +295,20 @@
 #define BED_MINTEMP 5
 
 //To clean the extruder's the best temperature configuration
-#define	PLA_INSERT_TEMP			215
-#define	PLA_REMOVE_TEMP			170
+#define	PLA_LOAD_TEMP			215
+#define	PLA_UNLOAD_TEMP			170
 #define	PLA_PRINT_TEMP			215
 #define PLA_BED_TEMP			65
 
-#define	ABS_INSERT_TEMP			260
-#define	ABS_REMOVE_TEMP			240
+#define	ABS_LOAD_TEMP			260
+#define	ABS_UNLOAD_TEMP			230
 #define	ABS_PRINT_TEMP			260
 #define ABS_BED_TEMP			90
 
-#define	PVA_INSERT_TEMP			190
-#define	PVA_REMOVE_TEMP			170
-#define	PVA_PRINT_TEMP			190
-#define PVA_BED_TEMP			65
+#define	PVA_LOAD_TEMP			230
+#define	PVA_UNLOAD_TEMP			160
+#define	PVA_PRINT_TEMP			220
+#define PVA_BED_TEMP			60
 
 
 #define EXTRUDER_LEFT_CLEAN_TEMP 170
@@ -775,12 +780,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //Quick guide control
 //#define DEFAULT_QUICK_GUIDE false;
 #define DEFAULT_PRINT_TEMP  PLA_PRINT_TEMP;
-#define DEFAULT_INSERT_TEMP PLA_INSERT_TEMP;
-#define DEFAULT_REMOVE_TEMP PLA_REMOVE_TEMP;
+#define DEFAULT_INSERT_TEMP PLA_LOAD_TEMP;
+#define DEFAULT_REMOVE_TEMP PLA_UNLOAD_TEMP;
 #define DEFAULT_BED_TEMP	PLA_BED_TEMP;
 #define DEFAULT_OLD_PRINT_TEMP PLA_PRINT_TEMP;
-#define DEFAULT_OLD_INSERT_TEMP PLA_INSERT_TEMP;
-#define DEFAULT_OLD_REMOVE_TEMP PLA_REMOVE_TEMP;
+#define DEFAULT_OLD_INSERT_TEMP PLA_LOAD_TEMP;
+#define DEFAULT_OLD_REMOVE_TEMP PLA_UNLOAD_TEMP;
 #define DEFAULT_OLD_BED_TEMP	PLA_BED_TEMP;
 
 
@@ -790,7 +795,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define BOWDEN_LENGTH 875
 #endif
 #if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEVMODE_1
-	#define BOWDEN_LENGTH 1000
+	#define BOWDEN_LENGTH 1050
 #endif
 #define EXTRUDER_LENGTH 50
 #define INSERT_FAST_SPEED 5000	
@@ -1309,6 +1314,15 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 /////////////////////////////////BCN3D SIGMA  CONFIG////////////////////////////////////////////////////////////////////
+
+//////	BED COMPENSATION G36
+
+#define RETRACT_SPEED_G36		2500
+
+
+//////	FULL CALIBRATION SETTINGS
+
+#define CALIBFULL_HOTEND_STANDBY_TEMP		170
 
 //////	SDFILES LISTING
 

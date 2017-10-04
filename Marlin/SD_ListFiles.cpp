@@ -398,7 +398,9 @@ int Listfiles::get_hoursremaining(){
 	hours =(unsigned long long)get_hours()*60+(unsigned long long)get_minutes();
 	Serial.println((long)hours);
 	hours = hours-hours*card.getSdPosition()/card.getFileSize();
+	Serial.println((long)hours);
 	hours = hours/60;
+	Serial.println((long)hours);
 	return (int) hours;
 }
 int Listfiles::get_minutesremaining(){
@@ -415,7 +417,9 @@ int Listfiles::get_hoursremaining_save(long position){
 	hours =(unsigned long long)get_hours()*60+(unsigned long long)get_minutes();
 	Serial.println((long)hours);
 	hours = hours-hours*position/card.getFileSize();
+	Serial.println((long)hours);
 	hours = hours/60;
+	Serial.println((long)hours);
 	return (int) hours;
 }
 int Listfiles::get_minutesremaining_save(long position){

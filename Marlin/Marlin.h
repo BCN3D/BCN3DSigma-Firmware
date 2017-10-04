@@ -33,7 +33,7 @@
 # include "Arduino.h"
 #else
 # include "WProgram.h"
-  //Arduino < 1.0.0 does not define this, so we need to do it ourselves
+//Arduino < 1.0.0 does not define this, so we need to do it ourselves
 # define analogInputToDigitalPin(p) ((p) + A0)
 #endif
 
@@ -53,15 +53,15 @@
 #include "WString.h"
 //
 //#ifdef AT90USB
-   //#ifdef BTENABLED
-         //#define MYSERIAL bt
-   //#else
-         #define MYSERIAL Serial
-		 //#define MYSERIAL_SCREEN Serial2
-		 //#define MYSERIAL_SCREEN Serial3
-   //#endif // BTENABLED
+//#ifdef BTENABLED
+//#define MYSERIAL bt
 //#else
-  //#define MYSERIAL MSerial
+#define MYSERIAL Serial
+//#define MYSERIAL_SCREEN Serial2
+//#define MYSERIAL_SCREEN Serial3
+//#endif // BTENABLED
+//#else
+//#define MYSERIAL MSerial
 //#endif
 #define screen_printing_pause_form0		'A'
 #define screen_printing_pause_form1		'B'
@@ -98,12 +98,12 @@ void serial_echopair_P(const char *s_P, unsigned long v);
 //Things to write to serial from Program memory. Saves 400 to 2k of RAM.
 FORCE_INLINE void serialprintPGM(const char *str)
 {
-  char ch=pgm_read_byte(str);
-  while(ch)
-  {
-    MYSERIAL.write(ch);
-    ch=pgm_read_byte(++str);
-  }
+	char ch=pgm_read_byte(str);
+	while(ch)
+	{
+		MYSERIAL.write(ch);
+		ch=pgm_read_byte(++str);
+	}
 }
 
 
@@ -113,65 +113,65 @@ void process_commands();
 void manage_inactivity();
 
 #if defined(DUAL_X_CARRIAGE) && defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1 \
-    && defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
-  #define  enable_x() do { WRITE(X_ENABLE_PIN, X_ENABLE_ON); WRITE(X2_ENABLE_PIN, X_ENABLE_ON);}  while (0)  
-  #define disable_x() do { WRITE(X_ENABLE_PIN,!X_ENABLE_ON); WRITE(X2_ENABLE_PIN,!X_ENABLE_ON); axis_known_position[X_AXIS] = false; } while (0)
+&& defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
+#define  enable_x() do { WRITE(X_ENABLE_PIN, X_ENABLE_ON); WRITE(X2_ENABLE_PIN, X_ENABLE_ON);}  while (0)
+#define disable_x() do { WRITE(X_ENABLE_PIN,!X_ENABLE_ON); WRITE(X2_ENABLE_PIN,!X_ENABLE_ON); axis_known_position[X_AXIS] = false; } while (0)
 #elif defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1
-  #define  enable_x() WRITE(X_ENABLE_PIN, X_ENABLE_ON)
-  #define disable_x() { WRITE(X_ENABLE_PIN,!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }
+#define  enable_x() WRITE(X_ENABLE_PIN, X_ENABLE_ON)
+#define disable_x() { WRITE(X_ENABLE_PIN,!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }
 #else
-  #define enable_x() ;
-  #define disable_x() ;
+#define enable_x() ;
+#define disable_x() ;
 #endif
 
 #if defined(Y_ENABLE_PIN) && Y_ENABLE_PIN > -1
-  #ifdef Y_DUAL_STEPPER_DRIVERS
-    #define  enable_y() { WRITE(Y_ENABLE_PIN, Y_ENABLE_ON); WRITE(Y2_ENABLE_PIN,  Y_ENABLE_ON); }
-    #define disable_y() { WRITE(Y_ENABLE_PIN,!Y_ENABLE_ON); WRITE(Y2_ENABLE_PIN, !Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
-  #else
-    #define  enable_y() WRITE(Y_ENABLE_PIN, Y_ENABLE_ON)
-    #define disable_y() { WRITE(Y_ENABLE_PIN,!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
-  #endif
+#ifdef Y_DUAL_STEPPER_DRIVERS
+#define  enable_y() { WRITE(Y_ENABLE_PIN, Y_ENABLE_ON); WRITE(Y2_ENABLE_PIN,  Y_ENABLE_ON); }
+#define disable_y() { WRITE(Y_ENABLE_PIN,!Y_ENABLE_ON); WRITE(Y2_ENABLE_PIN, !Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
 #else
-  #define enable_y() ;
-  #define disable_y() ;
-#endif	
+#define  enable_y() WRITE(Y_ENABLE_PIN, Y_ENABLE_ON)
+#define disable_y() { WRITE(Y_ENABLE_PIN,!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
+#endif
+#else
+#define enable_y() ;
+#define disable_y() ;
+#endif
 
 #if defined(Z_ENABLE_PIN) && Z_ENABLE_PIN > -1
-  #ifdef Z_DUAL_STEPPER_DRIVERS
-    #define  enable_z() { WRITE(Z_ENABLE_PIN, Z_ENABLE_ON); WRITE(Z2_ENABLE_PIN, Z_ENABLE_ON); }
-    #define disable_z() { WRITE(Z_ENABLE_PIN,!Z_ENABLE_ON); WRITE(Z2_ENABLE_PIN,!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
-  #else
-    #define  enable_z() WRITE(Z_ENABLE_PIN, Z_ENABLE_ON)
-    #define disable_z() { WRITE(Z_ENABLE_PIN,!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
-  #endif
+#ifdef Z_DUAL_STEPPER_DRIVERS
+#define  enable_z() { WRITE(Z_ENABLE_PIN, Z_ENABLE_ON); WRITE(Z2_ENABLE_PIN, Z_ENABLE_ON); }
+#define disable_z() { WRITE(Z_ENABLE_PIN,!Z_ENABLE_ON); WRITE(Z2_ENABLE_PIN,!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
 #else
-  #define enable_z() ;
-  #define disable_z() ;
+#define  enable_z() WRITE(Z_ENABLE_PIN, Z_ENABLE_ON)
+#define disable_z() { WRITE(Z_ENABLE_PIN,!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
+#endif
+#else
+#define enable_z() ;
+#define disable_z() ;
 #endif
 
 #if defined(E0_ENABLE_PIN) && (E0_ENABLE_PIN > -1)
-  #define enable_e0() WRITE(E0_ENABLE_PIN, E_ENABLE_ON)
-  #define disable_e0() WRITE(E0_ENABLE_PIN,!E_ENABLE_ON)
+#define enable_e0() WRITE(E0_ENABLE_PIN, E_ENABLE_ON)
+#define disable_e0() WRITE(E0_ENABLE_PIN,!E_ENABLE_ON)
 #else
-  #define enable_e0()  /* nothing */
-  #define disable_e0() /* nothing */
+#define enable_e0()  /* nothing */
+#define disable_e0() /* nothing */
 #endif
 
 #if (EXTRUDERS > 1) && defined(E1_ENABLE_PIN) && (E1_ENABLE_PIN > -1)
-  #define enable_e1() WRITE(E1_ENABLE_PIN, E_ENABLE_ON)
-  #define disable_e1() WRITE(E1_ENABLE_PIN,!E_ENABLE_ON)
+#define enable_e1() WRITE(E1_ENABLE_PIN, E_ENABLE_ON)
+#define disable_e1() WRITE(E1_ENABLE_PIN,!E_ENABLE_ON)
 #else
-  #define enable_e1()  /* nothing */
-  #define disable_e1() /* nothing */
+#define enable_e1()  /* nothing */
+#define disable_e1() /* nothing */
 #endif
 
 #if (EXTRUDERS > 2) && defined(E2_ENABLE_PIN) && (E2_ENABLE_PIN > -1)
-  #define enable_e2() WRITE(E2_ENABLE_PIN, E_ENABLE_ON)
-  #define disable_e2() WRITE(E2_ENABLE_PIN,!E_ENABLE_ON)
+#define enable_e2() WRITE(E2_ENABLE_PIN, E_ENABLE_ON)
+#define disable_e2() WRITE(E2_ENABLE_PIN,!E_ENABLE_ON)
 #else
-  #define enable_e2()  /* nothing */
-  #define disable_e2() /* nothing */
+#define enable_e2()  /* nothing */
+#define disable_e2() /* nothing */
 #endif
 
 
@@ -179,7 +179,7 @@ enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3};
 
 
 void FlushSerialRequestResend();
-void ClearToSend(); 
+void ClearToSend();
 
 void get_coordinates();
 #ifdef DELTA
@@ -207,8 +207,8 @@ void setPwmFrequency(uint8_t pin, int val);
 #endif
 
 #ifndef CRITICAL_SECTION_START
-  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
-  #define CRITICAL_SECTION_END    SREG = _sreg;
+#define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
+#define CRITICAL_SECTION_END    SREG = _sreg;
 #endif //CRITICAL_SECTION_START
 extern bool home_made;
 extern bool home_made_Z;
@@ -237,8 +237,12 @@ extern float zprobe_zoffset;
 extern float bed_offset_left_screw;
 extern float bed_offset_right_screw;
 extern unsigned int bed_offset_version;
+extern int flag_utilities_calibration_zcomensationmode_gauges;
 extern int fanSpeed;
 extern int Flag_fanSpeed_mirror;
+extern int sd_printing_temp_setting_offset_bed;
+extern int sd_printing_temp_setting_offset_hotent0;
+extern int sd_printing_temp_setting_offset_hotent1;
 #ifdef BARICUDA
 extern int ValvePressure;
 extern int EtoPPressure;
@@ -249,13 +253,13 @@ extern unsigned char fanSpeedSoftPwm;
 #endif
 
 #ifdef FILAMENT_SENSOR
-  extern float filament_width_nominal;  //holds the theoretical filament diameter ie., 3.00 or 1.75 
-  extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion  
-  extern float filament_width_meas; //holds the filament diameter as accurately measured 
-  extern signed char measurement_delay[];  //ring buffer to delay measurement
-  extern int delay_index1, delay_index2;  //index into ring buffer
-  extern float delay_dist; //delay distance counter
-  extern int meas_delay_cm; //delay distance
+extern float filament_width_nominal;  //holds the theoretical filament diameter ie., 3.00 or 1.75
+extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
+extern float filament_width_meas; //holds the filament diameter as accurately measured
+extern signed char measurement_delay[];  //ring buffer to delay measurement
+extern int delay_index1, delay_index2;  //index into ring buffer
+extern float delay_dist; //delay distance counter
+extern int meas_delay_cm; //delay distance
 #endif
 
 #ifdef FWRETRACT
@@ -293,6 +297,7 @@ extern bool is_on_printing_screen;
 extern uint8_t which_extruder;
 extern char filament_mode;
 extern bool is_changing_filament;
+extern bool is_purging_filament;
 extern int getBuflen();
 extern void HeaterCooldownInactivity(bool switchOnOff);
 extern void homeFromMain();
@@ -314,7 +319,7 @@ extern int purge_extruder_selected;
 extern float manual_fine_calib_offset[4];
 //extern bool quick_guide;
 //extern int language;
-//extern const char idiom[50][50]; 
+//extern const char idiom[50][50];
 //extern void updateLanguage();
 extern float x_home_pos(int extruder);
 extern int bed_calibration_times;
@@ -334,28 +339,27 @@ extern bool back_home;
 extern bool cancel_heatup;
 //extern int quick_guide_step;
 //extern unsigned long previous_millis_cmd;
-extern void right_test_print_code();
-extern void left_test_print_code();
+extern void z_test_print_code(int tool, float x_offset);
 extern void bed_test_print_code(float x_offset, float y_offset, int zline);
 extern bool heatting;
 extern char namefilegcode[24];
 
 ////// Temperatures of current material for two extruders //////
 
-extern int insert_temp_l;
-extern int remove_temp_l;
+extern int load_temp_l;
+extern int unload_temp_l;
 extern int print_temp_l;
 extern int bed_temp_l;
-extern int insert_temp_r;
-extern int remove_temp_r;
+extern int load_temp_r;
+extern int unload_temp_r;
 extern int print_temp_r;
 extern int bed_temp_r;
-extern int old_insert_temp_l;
-extern int old_remove_temp_l;
+extern int old_load_temp_l;
+extern int old_unload_temp_l;
 extern int old_print_temp_l;
 extern int old_bed_temp_l;
-extern int old_insert_temp_r;
-extern int old_remove_temp_r;
+extern int old_load_temp_r;
+extern int old_unload_temp_r;
 extern int old_print_temp_r;
 extern int old_bed_temp_r;
 
@@ -374,7 +378,7 @@ extern int saved_temp0;
 extern int saved_tempbed;
 extern int saved_feedmulti;
 extern int saved_fanlayer;
-extern int saved_print_flag;	
+extern int saved_print_flag;
 extern bool saved_print_smartpurge_flag;
 extern int workDir_vector[MAX_DIR_DEPTH];
 extern uint8_t workDir_vector_lenght;

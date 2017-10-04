@@ -754,6 +754,9 @@ void CardReader::printingHasFinished()
 		setTargetHotend1(0);
 		setTargetBed(0);
 		Flag_fanSpeed_mirror=0;
+		sd_printing_temp_setting_offset_bed = 0;
+		sd_printing_temp_setting_offset_hotent0 = 0;
+		sd_printing_temp_setting_offset_hotent1 = 0;
 		saved_print_smartpurge_flag = false;
 		screen_sdcard = false;
 		surfing_utilities=false;

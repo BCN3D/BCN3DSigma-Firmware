@@ -777,36 +777,31 @@ void setup()
 
 	
 	#if MOTHERBOARD == BCN3D_BOARD
-	MYSERIAL_SCREEN.begin(200000);
+	  MYSERIAL_SCREEN.begin(200000); // Use Serial3 for talking to the Genie Library, and to the 4D Systems display
 	
-	genie.Begin(MYSERIAL_SCREEN);   // Use Serial3  for talking to the Genie Library, and to the 4D Systems display
-	genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
-	// Reset the Display
-	// THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
+	 // Reset the Display
+	 // THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
+	 pinMode(RESETLINE, OUTPUT);  // Set Output (4D Arduino Adaptor V2 - Display Reset)
+	 digitalWrite(RESETLINE, 0);  // Reset the Display
+	 delay(100);
+	 digitalWrite(RESETLINE, 1);  // unReset the Display
+	 
+	 // Delay no longer required, this will now smartly proceed once the display is awake
+	 
+	 long startupTime = millis();
+	 while (!genie.Begin(MYSERIAL_SCREEN)) // Set up Genie to use Serial3, but also returns if the Display has responded and is online
+	 {
+		 Serial.println(F("display offline!"));
+		 delay(100);
+	 }
+	 if (genie.online()) // When the display has responded above, do the following once its online
+	 {
+		 Serial.println(F("display online!"));
+		 Serial.print(F("Took ")); Serial.print(millis() - startupTime); Serial.println(F(" to Start Display from Reset"));
+		 genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
+	 }
 	
-	pinMode(RESETLINE, OUTPUT);  // Set Output (4D Arduino Adaptor V2 - Display Reset)
-	digitalWrite(RESETLINE, 0);  // Reset the Display
-	delay(100);
-	digitalWrite(RESETLINE, 1);  // unReset the Display
 	
-	
-	
-	
-	delay(5500); //showing the splash screen
-	
-	// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
-	//Config_RetrieveSettings();
-	
-	/*if (quick_guide) {
-	genie.WriteStr(3,VERSION_STRING);
-	delay(2500);
-	Serial.println("Welcome by first time to SIGMA");
-	
-	Config_StoreSettings(); //Store changes
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_WELCOME,0);
-	surfing_utilities=true;
-	
-	} else {*/
 	int i =0;
 	while ( i<83){
 		if (millis() >= waitPeriod){

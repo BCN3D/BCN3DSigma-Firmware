@@ -9,12 +9,12 @@
 */
 
 #define __AVR_ATmega2560__
-#define ARDUINO 10608
+#define ARDUINO 10804
 #define ARDUINO_MAIN
 #define F_CPU 16000000L
 #define __AVR__
 #define F_CPU 16000000L
-#define ARDUINO 10608
+#define ARDUINO 10804
 #define ARDUINO_AVR_MEGA2560
 #define ARDUINO_ARCH_AVR
 

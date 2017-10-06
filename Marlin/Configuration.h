@@ -27,8 +27,8 @@
 //This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
-#define VERSION_STRING  "01-1.2.7RC"
-#define BUILD_DATE  "|M10.05"
+#define VERSION_STRING  "01-1.2.7dev"
+#define BUILD_DATE  "|M10.06"
 #define VERSION_NUMBER  126
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
@@ -1376,7 +1376,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //	FRAME RATE
 
-#define GIF_FRAMERATE				30   /// 40ms------> 25fps
+#define GIF_FRAMERATE				40   /// 40ms------> 25fps
 
 //NUMBER OF FRAMES PER GIF
 

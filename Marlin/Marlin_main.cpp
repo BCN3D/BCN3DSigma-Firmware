@@ -801,7 +801,7 @@ void setup()
 		 genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
 	 }
 	
-	
+	//genie.debug(Serial, 6); // prints debug information to the serial monitor port, all reports & critical info
 	int i =0;
 	while ( i<83){
 		if (millis() >= waitPeriod){
@@ -2414,6 +2414,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 		}
 	}
+	
+	
 	
 	genie.DoEvents(); //Processes the TouchScreen Queued Events. Calls LCD_Handler.h ->myGenieEventHandler()
 }

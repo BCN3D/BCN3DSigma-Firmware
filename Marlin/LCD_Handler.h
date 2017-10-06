@@ -1378,9 +1378,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						{
 							//doblocking = true;
 							#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
-							if(abs(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]) > RAFT_Z_THRESHOLD){
-																
-								if(listsd.check_extract_ensure_duplication_print()){
+							if(listsd.check_extract_ensure_duplication_print()){
+								if(abs(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]) > RAFT_Z_THRESHOLD){
 									genie.WriteObject(GENIE_OBJ_FORM,FORM_RAFT_ADVISE, 0);
 									sprintf_P(buffer, PSTR("The first layer printed with the %s Hotend\nwill be distorted by %d.%1d%1d mm"),
 									((extruder_offset[Z_AXIS][RIGHT_EXTRUDER] < 0)?"left":"right"),

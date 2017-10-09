@@ -122,8 +122,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 	genieFrame Event;
 	genie.DequeueEvent(&Event);
 	//static long waitPeriod = millis();
-	static long waitPeriod_s = millis();
-	static long waitPeriod_button_press = millis(); // This waitperiod avoid some spamming pressing on purging buttons which can block the machine
+	static uint32_t waitPeriod_s = millis();
+	static uint32_t waitPeriod_button_press = millis(); // This waitperiod avoid some spamming pressing on purging buttons which can block the machine
 	int move_mm = 10;
 	//If the cmd received is from a Reported Event (Events triggered from the Events tab of Workshop4 objects)
 	if (Event.reportObject.cmd == GENIE_REPORT_EVENT)
@@ -2913,7 +2913,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_PROCESSING,0);
 						gif_processing_state = PROCESSING_DEFAULT;
 						home_axis_from_code(true, true, false);
-						gif_processing_state == PROCESSING_STOP;
+						gif_processing_state = PROCESSING_STOP;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_MAINTENANCE,0);
 						flag_utilities_maintenance_nyloncleaning = false;
 					}

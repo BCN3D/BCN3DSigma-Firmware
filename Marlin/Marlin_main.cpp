@@ -1112,10 +1112,10 @@ float smartPurge_Distant(double A, double B, double T, double P, double E, int t
 		if ((double)timeIdle <= T){   // we're inside the curve
 			
 			double Disc0 =  pow(b,2)-3*a*c;
-			double Disc1 =  2*pow(b,3.) - 9*a*b*c + 27*pow(a,2.)*d;
+			double Disc1 =  2*pow(b,3.0) - 9*a*b*c + 27*pow(a,2.0)*d;
 			double C_eq = pow(pow(Disc1,2.0)+4*pow(Disc0,3.0),0.5)/2.0;
-			double C_eq1 = (C_eq, 1/3.);
-			double x = (-1/(3.*a))*(b+C_eq+Disc0/C_eq1);
+			double C_eq1 = (C_eq, 1/3.0);
+			double x = (-1/(3.0*a))*(b+C_eq+Disc0/C_eq1);
 			
 			Distance = pow(-2*P*x,3.) +pow(3*P*x,2.);
 		}
@@ -1144,7 +1144,7 @@ void update_screen_printing(){
 			
 			
 		}
-		else if(screen_printing_pause_form == screen_printing_pause_form0 || (screen_printing_pause_form == screen_printing_pause_form2 )&& card.sdispaused){
+		else if(((screen_printing_pause_form == screen_printing_pause_form0) || (screen_printing_pause_form == screen_printing_pause_form2 ))&& card.sdispaused){
 			char buffer[25];
 			
 			SERIAL_PROTOCOLPGM("PRINT SETTINGS \n");
@@ -1939,7 +1939,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	
 	
 	
-	if(card.sdprinting && !card.sdispaused || !card.sdprinting && card.sdispaused )
+	if((card.sdprinting && !card.sdispaused) || (!card.sdprinting && card.sdispaused) )
 	{
 		
 		update_screen_printing();
@@ -4176,7 +4176,7 @@ inline void gcode_G41(){
 			#endif
 			current_position[Y_AXIS]=y_first_line-((i+1)*mm_each_extrusion)-mm_second_extruder[i+1];
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
-			st_synchronize;
+			st_synchronize();
 			if(gif_processing_state == PROCESSING_ERROR)return;
 		}
 		
@@ -4234,7 +4234,7 @@ inline void gcode_G43(){
 	st_synchronize();
 	if(gif_processing_state == PROCESSING_ERROR)return;
 	//Go to Z Calibration select screen if first time!
-	gif_processing_state == PROCESSING_STOP;
+	gif_processing_state = PROCESSING_STOP;
 	touchscreen_update();
 	if (active_extruder==LEFT_EXTRUDER) {
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_CALIBZL,0);

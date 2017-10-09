@@ -1094,41 +1094,6 @@ void thermal_error_screen_on(){
 	is_changing_filament = false;
 	is_purging_filament = false;
 }
-float smartPurge_Distant(double A, double B, double T, double P, double E, int timeIdle){
-	
-	double a = T - 3*B +3*A;
-	double b = 3*B - 6*A;
-	double c = 3*A;
-	double d = - (double) timeIdle;
-	double Distance = 0.0;
-	double Discriminant = 18*a*b*c*d - 4*pow(b,3.)*d + pow(b,3.)*pow(c,2.) - 4*a*pow(c,3.) - 27*pow(c,3.)*pow(d,2.);
-
-	if (Discriminant >= 0){
-		Distance = E;
-	}
-	// in this case, curve takes more than one Y for each X. Wrong curve so default purge distance is used
-	
-	else{		// the curve is right
-		if ((double)timeIdle <= T){   // we're inside the curve
-			
-			double Disc0 =  pow(b,2)-3*a*c;
-			double Disc1 =  2*pow(b,3.0) - 9*a*b*c + 27*pow(a,2.0)*d;
-			double C_eq = pow(pow(Disc1,2.0)+4*pow(Disc0,3.0),0.5)/2.0;
-			double C_eq1 = (C_eq, 1/3.0);
-			double x = (-1/(3.0*a))*(b+C_eq+Disc0/C_eq1);
-			
-			Distance = pow(-2*P*x,3.) +pow(3*P*x,2.);
-		}
-		else{  //we're outside the curve
-			Distance = P;
-		}
-	}
-	
-	
-	return (float)Distance;
-	
-	
-}
 
 void update_screen_printing(){
 	static uint32_t waitPeriod = millis();
@@ -7995,21 +7960,7 @@ inline void gcode_M800(){ //Smart purge smartPurge_Distant(double A, double B, d
 		st_synchronize();
 		saved_print_smartpurge_flag = false;
 		}else{
-		#ifdef SMARTPURGE_SETUP_2
-		float Speed=0.0, A=0.0, B=0.0, T=0.0, P=0.0, E=0.0, purge_distance = 0.0;
-		if(code_seen('F')) Speed = code_value();
-		if(code_seen('A')) A = code_value();
-		if(code_seen('B')) B = code_value();
-		if(code_seen('T')) T = code_value();
-		if(code_seen('P')) P = code_value();
-		if(code_seen('E')) E = code_value();
 		
-		purge_distance = smartPurge_Distant((double)A,(double)B,(double)T,(double)P,(double)E, time_inactive_extruder[active_extruder]);
-		current_position[E_AXIS]+=purge_distance;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], Speed/60, active_extruder);//Purge
-		st_synchronize();
-		time_inactive_extruder[active_extruder] = 0;
-		#endif
 		
 		#ifdef SMARTPURGE_SETUP_1
 		float Speed=-0.01, Slope=-0.01, purge_distance_max = -0.01, purge_distance = -0.01, purge_distance_min = -0.01;

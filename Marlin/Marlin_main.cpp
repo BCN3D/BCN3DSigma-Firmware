@@ -1109,7 +1109,7 @@ void update_screen_printing(){
 			
 			
 		}
-		else if(((screen_printing_pause_form == screen_printing_pause_form0) || (screen_printing_pause_form == screen_printing_pause_form2 ))&& card.sdispaused){
+		else if(screen_printing_pause_form == screen_printing_pause_form0 || ((screen_printing_pause_form == screen_printing_pause_form2 )&& card.sdispaused)){
 			char buffer[25];
 			
 			SERIAL_PROTOCOLPGM("PRINT SETTINGS \n");
@@ -5274,7 +5274,6 @@ inline void gcode_G71(){//pause rest
 	saved_position[X_AXIS] = current_position[X_AXIS];
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled = false;
 	if(dual_x_carriage_mode == DXC_DUPLICATION_MODE){
-		feedrate=homing_feedrate[X_AXIS];
 		current_position[X_AXIS] = 0;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 		
@@ -5284,7 +5283,6 @@ inline void gcode_G71(){//pause rest
 		st_synchronize();
 		
 		}else if(dual_x_carriage_mode == DXC_FULL_SIGMA_MODE || dual_x_carriage_mode == DXC_DUPLICATION_MIRROR_MODE){
-		feedrate=homing_feedrate[X_AXIS];
 		if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
 			current_position[X_AXIS] = 0;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
@@ -5302,7 +5300,7 @@ inline void gcode_G72(){//resume
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled = false;
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE){
 		plan_set_position(extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-		plan_buffer_line(current_position[X_AXIS]+duplicate_extruder_x_offset, current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 200, RIGHT_EXTRUDER);
+		plan_buffer_line(current_position[X_AXIS]+duplicate_extruder_x_offset, current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 	}
 	st_synchronize();

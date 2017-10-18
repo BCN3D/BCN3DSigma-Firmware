@@ -61,7 +61,7 @@ static long acceleration_time, deceleration_time;
 //static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
 static unsigned short acc_step_rate; // needed for deccelaration start point
 static char step_loops;
-static unsigned short OCR1A_nominal;
+static unsigned short OCR3A_nominal;
 static unsigned short step_loops_nominal;
 
 volatile long endstops_trigsteps[3]={0,0,0};
@@ -168,8 +168,8 @@ asm volatile ( \
 
 // Some useful constants
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()  TIMSK1 |= (1<<OCIE1A)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~(1<<OCIE1A)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()  TIMSK3 |= (1<<OCIE3A)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK3 &= ~(1<<OCIE3A)
 
 
 void checkHitEndstops()
@@ -293,12 +293,12 @@ FORCE_INLINE void trapezoid_generator_reset() {
   #endif
   deceleration_time = 0;
   // step_rate to timer interval
-  OCR1A_nominal = calc_timer(current_block->nominal_rate);
+  OCR3A_nominal = calc_timer(current_block->nominal_rate);
   // make a note of the number of step loops required at nominal speed
   step_loops_nominal = step_loops;
   acc_step_rate = current_block->initial_rate;
   acceleration_time = calc_timer(acc_step_rate);
-  OCR1A = acceleration_time;
+  OCR3A = acceleration_time;
 
 //    SERIAL_ECHO_START;
 //    SERIAL_ECHOPGM("advance :");
@@ -314,7 +314,7 @@ FORCE_INLINE void trapezoid_generator_reset() {
 
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.
 // It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately.
-ISR(TIMER1_COMPA_vect)
+ISR(TIMER3_COMPA_vect)
 {
   // If there is no current block, attempt to pop one from the buffer
   if (current_block == NULL) {
@@ -332,7 +332,7 @@ ISR(TIMER1_COMPA_vect)
       #ifdef Z_LATE_ENABLE
         if(current_block->steps_z > 0) {
           enable_z();
-          OCR1A = 2000; //1ms wait
+          OCR3A = 2000; //1ms wait
           return;
         }
       #endif
@@ -342,7 +342,7 @@ ISR(TIMER1_COMPA_vect)
 //      #endif
     }
     else {
-        OCR1A=2000; // 1kHz.
+        OCR3A=2000; // 1kHz.
     }
   }
 
@@ -737,7 +737,7 @@ ISR(TIMER1_COMPA_vect)
 
       // step_rate to timer interval
       timer = calc_timer(acc_step_rate);
-      OCR1A = timer;
+      OCR3A = timer;
       acceleration_time += timer;
       #ifdef ADVANCE
         for(int8_t i=0; i < step_loops; i++) {
@@ -766,7 +766,7 @@ ISR(TIMER1_COMPA_vect)
 
       // step_rate to timer interval
       timer = calc_timer(step_rate);
-      OCR1A = timer;
+      OCR3A = timer;
       deceleration_time += timer;
       #ifdef ADVANCE
         for(int8_t i=0; i < step_loops; i++) {
@@ -779,7 +779,7 @@ ISR(TIMER1_COMPA_vect)
       #endif //ADVANCE
     }
     else {
-      OCR1A = OCR1A_nominal;
+      OCR3A = OCR3A_nominal;
       // ensure we're running at the correct step rate, even if we just came off an acceleration
       step_loops = step_loops_nominal;
     }
@@ -1025,24 +1025,24 @@ void st_init()
   #endif
 
   // waveform generation = 0100 = CTC
-  TCCR1B &= ~(1<<WGM13);
-  TCCR1B |=  (1<<WGM12);
-  TCCR1A &= ~(1<<WGM11);
-  TCCR1A &= ~(1<<WGM10);
+  TCCR3B &= ~(1<<WGM33);
+  TCCR3B |=  (1<<WGM32);
+  TCCR3A &= ~(1<<WGM31);
+  TCCR3A &= ~(1<<WGM30);
 
   // output mode = 00 (disconnected)
-  TCCR1A &= ~(3<<COM1A0);
-  TCCR1A &= ~(3<<COM1B0);
+  TCCR3A &= ~(3<<COM3A0);
+  TCCR3A &= ~(3<<COM3B0);
 
   // Set the timer pre-scaler
   // Generally we use a divider of 8, resulting in a 2MHz timer
   // frequency on a 16MHz MCU. If you are going to change this, be
   // sure to regenerate speed_lookuptable.h with
   // create_speed_lookuptable.py
-  TCCR1B = (TCCR1B & ~(0x07<<CS10)) | (2<<CS10);
+  TCCR3B = (TCCR3B & ~(0x07<<CS30)) | (2<<CS30);
 
-  OCR1A = 0x4000;
-  TCNT1 = 0;
+  OCR3A = 0x4000;
+  TCNT3 = 0;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 
   #ifdef ADVANCE

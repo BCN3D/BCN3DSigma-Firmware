@@ -190,7 +190,7 @@ bool Genie::Begin(Stream &serial) {
   ReadObject(GENIE_OBJ_FORM, (uint8_t)0x00); // send form request
   uint32_t timeout_start = millis(); // timeout timer
   while ( millis() - timeout_start <= 250 ) { // blocking loop, releases after 150ms to timeout, or sooner if display's detected.
-   if ( DoEvents() == GENIE_REPORT_OBJ && !genieStart ) return 1; // form is updated.
+   if ( DoEvents(0) == GENIE_REPORT_OBJ && !genieStart ) return 1; // form is updated.
   }
   displayDetected = 0;
   return 0; // timeout occured, status offline.
@@ -318,7 +318,7 @@ uint8_t Genie::WriteObject(uint8_t object, uint8_t index, uint16_t data) {
   deviceSerial->write(checksum);
   uint32_t timeout_write = millis();
   while ( millis() - timeout_write <= GENIE_CMD_TIMEOUT ) {
-    uint8_t command_return = DoEvents();
+    uint8_t command_return = DoEvents(GENIE_ACK);
     if ( command_return == GENIE_ACK ) { if ( ( debug_level == 6 || debug_level == 1 ) && debugSerial != NULL ) { debugSerial->print(F("*** Genie WriteObject *** --->")); debugSerial->print(object); debugSerial->println(F("... ACK !")); } return 1; }
     if ( command_return == GENIE_NAK ) { if ( ( debug_level == 6 || debug_level == 1 ) && debugSerial != NULL ) { debugSerial->print(F("*** Genie WriteObject *** --->")); debugSerial->print(object); debugSerial->println(F("... NAK !")); } return 0; }
   }
@@ -343,7 +343,7 @@ uint8_t Genie::WriteContrast(uint8_t value) {
   deviceSerial->write(checksum);
   uint32_t timeout_write = millis();
   while ( millis() - timeout_write <= GENIE_CMD_TIMEOUT ) {
-    uint8_t command_return = DoEvents();
+    uint8_t command_return = DoEvents(GENIE_ACK);
     if ( command_return == GENIE_ACK ) { if ( ( debug_level == 6 || debug_level == 1 ) && debugSerial != NULL ) { debugSerial->print(F("*** Genie Contrast *** --->")); debugSerial->println(F("... ACK !")); } return 1; }
     if ( command_return == GENIE_NAK ) { if ( ( debug_level == 6 || debug_level == 1 ) && debugSerial != NULL ) { debugSerial->print(F("*** Genie Contrast *** --->")); debugSerial->println(F("... NAK !")); } return 0; }
   }
@@ -372,6 +372,7 @@ uint8_t Genie::autoPinger() {
     deviceSerial->write((uint8_t)0x00);
     checksum ^= (uint8_t)0x00;
     deviceSerial->write(checksum);
+	//if ( ( debug_level == 6 || debug_level == 1 ) && debugSerial != NULL ) { debugSerial->print(F("*** Genie AutoPinger *** --->"));debugSerial->println(F("... Sending !")); }
   }
   return 1;
 }
@@ -412,8 +413,9 @@ uint16_t Genie::Ping(uint16_t interval) {
 // ######################################
 // ## Do Events #########################
 // ######################################
-uint8_t Genie::DoEvents() {
-  autoPinger(); // used to keep lcd connection alive
+uint8_t Genie::DoEvents(uint8_t flag) {
+  
+  if(flag != GENIE_ACK) autoPinger(); // used to keep lcd connection alive
 
   uint8_t rx_data[6]; // array for receiving command, payload, and crc.
   uint8_t checksumVerify; // used to calculate a matching (or not) checksum.
@@ -456,6 +458,7 @@ uint8_t Genie::DoEvents() {
 
   if ( deviceSerial->available() > 0 ) {
     uint8_t b = deviceSerial->peek(); // Look at the next byte but don't pull it yet.
+	//if ( ( debug_level == 6 || debug_level == 1 ) && debugSerial != NULL ) { debugSerial->print(F("*** Genie PrePull *** --->")); debugSerial->print(b); debugSerial->println(F("... Byte !")); }
     if ( !displayDetected && ( b == GENIEM_REPORT_BYTES || b == GENIEM_REPORT_DBYTES ) ) b = 0xFF; // force bad bytes instead of false triggering genie magic switches.
     switch ( b ) { // We're going to parse what we see into the proper switch.
 
@@ -667,7 +670,7 @@ uint8_t Genie::WriteStr(uint8_t index, char *string) {
   deviceSerial->write(checksum);
   uint32_t timeout_write = millis();
   while ( millis() - timeout_write <= GENIE_CMD_TIMEOUT ) {
-    uint8_t command_return = DoEvents();
+    uint8_t command_return = DoEvents(GENIE_ACK);
     if ( command_return == GENIE_ACK ) return 1;
     if ( command_return == GENIE_NAK ) return 0;
   }
@@ -902,7 +905,7 @@ uint8_t Genie::WriteMagicBytes (uint8_t index, uint8_t *bytes, uint8_t len, uint
   if (!report) pendingACK = 1;
 
   while ( millis() - timeout_write <= GENIE_CMD_TIMEOUT ) {
-    uint8_t command_return = DoEvents();
+    uint8_t command_return = DoEvents(GENIE_ACK);
     if (!report) {
       if ( command_return == GENIE_ACK ) { if ( ( debug_level == 6 || debug_level == 5 ) && debugSerial != NULL ) { debugSerial->print(F("*** Genie WriteMagicBytes *** --->")); debugSerial->print(index); debugSerial->println(F("... ACK !")); } return 1; }
       if ( command_return == GENIE_NAK ) { if ( ( debug_level == 6 || debug_level == 5 ) && debugSerial != NULL ) { debugSerial->print(F("*** Genie WriteMagicBytes *** --->")); debugSerial->print(index); debugSerial->println(F("... NAK !")); } return 0; }
@@ -943,7 +946,7 @@ uint8_t Genie::WriteMagicDBytes(uint8_t index, uint16_t *shorts, uint8_t len, ui
   if (!report) pendingACK = 1;
 
   while ( millis() - timeout_write <= GENIE_CMD_TIMEOUT ) {
-    uint8_t command_return = DoEvents();
+    uint8_t command_return = DoEvents(GENIE_ACK);
     if (!report) {
       if ( command_return == GENIE_ACK ) { if ( ( debug_level == 6 || debug_level == 5 ) && debugSerial != NULL ) { debugSerial->print(F("*** Genie WriteMagicDBytes *** --->")); debugSerial->print(index); debugSerial->println(F("... ACK !")); } return 1; }
       if ( command_return == GENIE_NAK ) { if ( ( debug_level == 6 || debug_level == 5 ) && debugSerial != NULL ) { debugSerial->print(F("*** Genie WriteMagicDBytes *** --->")); debugSerial->print(index); debugSerial->println(F("... NAK !")); } return 0; }

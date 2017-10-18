@@ -219,7 +219,7 @@ public:
     uint16_t    GetEventData         (genieFrame * e);
     uint8_t     EnqueueEvent         (uint8_t * data);
     uint8_t     DequeueEvent         (genieFrame * buff);
-    uint8_t     DoEvents             ();
+    uint8_t     DoEvents             (uint8_t flag);//<-- Editor Alejandro Garcia: Flag for avoid autopinger while we are waiting for an ACK from WriteObject
     uint8_t     autoPinger           ();
     uint16_t    Ping                 (uint16_t interval);
     void        AttachEventHandler             (UserEventHandlerPtr userHandler);

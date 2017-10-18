@@ -28,7 +28,7 @@
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
 #define VERSION_STRING  "01-1.2.7RC"
-#define BUILD_DATE  "|M10.09"
+#define BUILD_DATE  "|M18.10"
 #define VERSION_NUMBER  127
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
@@ -346,7 +346,7 @@
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
   #define K1 0.95 //smoothing factor within the PID
  // #define PID_dT ((OVERSAMPLENR * 10.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
-	 #define PID_dT ((16.0 * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
+  #define PID_dT ((16.0 * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
 
 
 // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
@@ -895,28 +895,28 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#endif
 	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
 		//Left extruder probe point
-		#define X_SIGMA_PROBE_1_LEFT_EXTR 57.5
+		#define X_SIGMA_PROBE_1_LEFT_EXTR 58.5
 		#define Y_SIGMA_PROBE_1_LEFT_EXTR 265
 		//#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
 	
-		#define X_SIGMA_PROBE_2_LEFT_EXTR 57.5
+		#define X_SIGMA_PROBE_2_LEFT_EXTR 58.5
 		#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 		//#define Y_SIGMA_PROBE_2_LEFT_EXTR 10
 	
-		#define X_SIGMA_PROBE_3_LEFT_EXTR 470 //254
+		#define X_SIGMA_PROBE_3_LEFT_EXTR 468 //254
 		#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 		//#define Y_SIGMA_PROBE_3_LEFT_EXTR 10
 	
 		//Right extruder probe point
-		#define X_SIGMA_PROBE_1_RIGHT_EXTR 470//254
+		#define X_SIGMA_PROBE_1_RIGHT_EXTR 468//254
 		#define Y_SIGMA_PROBE_1_RIGHT_EXTR 265
 		//#define Y_SIGMA_PROBE_1_RIGHT_EXTR 275
 	
-		#define X_SIGMA_PROBE_2_RIGHT_EXTR 470 ///254
+		#define X_SIGMA_PROBE_2_RIGHT_EXTR 468 ///254
 		#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 		//#define Y_SIGMA_PROBE_2_RIGHT_EXTR 10
 	
-		#define X_SIGMA_PROBE_3_RIGHT_EXTR 57.5
+		#define X_SIGMA_PROBE_3_RIGHT_EXTR 58.5
 		#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
 		//#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
 		
@@ -1038,7 +1038,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
 	#if MOTHERBOARD == BCN3D_BOARD
 		//#define DEFAULT_AXIS_STEPS_PER_UNIT {160,160,3200,608}  //1/32 microstepping for BCN3D Board
+		#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
 		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,152}	  //1/16 microstepping for BCN3D Board
+		#elif BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,97.8}	  //1/16 microstepping for BCN3D Board
+		#endif
 		//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}	  //MK7 1/8 microstepping for BCN3D Board
 	#else
 		#if MOTHERBOARD == MEGATRONICS_V3

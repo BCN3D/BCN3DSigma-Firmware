@@ -619,11 +619,12 @@ void manage_heater()
   for(int e = 0; e < EXTRUDERS; e++) 
   {
 
-	#ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+	#ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD 
+		#if THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
 		if(thermal_runaway_reset_hotend_state) thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], 0, e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
 		thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
+		#endif
 	#endif
-
 	#ifdef PIDTEMP
 		pid_input = current_temperature[e];
 
@@ -735,78 +736,79 @@ void manage_heater()
 
   #if TEMP_SENSOR_BED != 0
   
-    #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
-	if(thermal_runaway_reset_bed_state) thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, 0, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS*target_temperature_bed/100);
-	thermal_runaway_reset_bed_state = false;
-      thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS*target_temperature_bed/100);
-    #endif
-	
+  #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD
+	  #if THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+	  if(thermal_runaway_reset_bed_state) thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, 0, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS*target_temperature_bed/100);
+	  thermal_runaway_reset_bed_state = false;
+	  thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS*target_temperature_bed/100);
+	  #endif
+  #endif
   #ifdef PIDTEMPBED
-    pid_input = current_temperature_bed;
+  pid_input = current_temperature_bed;
 
-    #ifndef PID_OPENLOOP
-		  pid_error_bed = target_temperature_bed - pid_input;
-		  pTerm_bed = bedKp * pid_error_bed;
-		  temp_iState_bed += pid_error_bed;
-		  temp_iState_bed = constrain(temp_iState_bed, temp_iState_min_bed, temp_iState_max_bed);
-		  iTerm_bed = bedKi * temp_iState_bed;
+  #ifndef PID_OPENLOOP
+  pid_error_bed = target_temperature_bed - pid_input;
+  pTerm_bed = bedKp * pid_error_bed;
+  temp_iState_bed += pid_error_bed;
+  temp_iState_bed = constrain(temp_iState_bed, temp_iState_min_bed, temp_iState_max_bed);
+  iTerm_bed = bedKi * temp_iState_bed;
 
-		  //K1 defined in Configuration.h in the PID settings
-		  #define K2 (1.0-K1)
-		  dTerm_bed= (bedKd * (pid_input - temp_dState_bed))*K2 + (K1 * dTerm_bed);
-		  temp_dState_bed = pid_input;
+  //K1 defined in Configuration.h in the PID settings
+  #define K2 (1.0-K1)
+  dTerm_bed= (bedKd * (pid_input - temp_dState_bed))*K2 + (K1 * dTerm_bed);
+  temp_dState_bed = pid_input;
 
-		  pid_output = constrain(pTerm_bed + iTerm_bed - dTerm_bed, 0, MAX_BED_POWER);
+  pid_output = constrain(pTerm_bed + iTerm_bed - dTerm_bed, 0, MAX_BED_POWER);
 
-    #else 
-      pid_output = constrain(target_temperature_bed, 0, MAX_BED_POWER);
-    #endif //PID_OPENLOOP
+  #else
+  pid_output = constrain(target_temperature_bed, 0, MAX_BED_POWER);
+  #endif //PID_OPENLOOP
 
-	  if((current_temperature_bed > BED_MINTEMP) && (current_temperature_bed < BED_MAXTEMP)) 
+  if((current_temperature_bed > BED_MINTEMP) && (current_temperature_bed < BED_MAXTEMP))
+  {
+	  soft_pwm_bed = (int)pid_output >> 1;
+  }
+  else {
+	  soft_pwm_bed = 0;
+  }
+
+  #elif !defined(BED_LIMIT_SWITCHING)
+  // Check if temperature is within the correct range
+  if((current_temperature_bed > BED_MINTEMP) && (current_temperature_bed < BED_MAXTEMP))
+  {
+	  if(current_temperature_bed >= target_temperature_bed)
 	  {
-	    soft_pwm_bed = (int)pid_output >> 1;
+		  soft_pwm_bed = 0;
 	  }
-	  else {
-	    soft_pwm_bed = 0;
+	  else
+	  {
+		  soft_pwm_bed = MAX_BED_POWER>>1;
 	  }
-
-    #elif !defined(BED_LIMIT_SWITCHING)
-      // Check if temperature is within the correct range
-      if((current_temperature_bed > BED_MINTEMP) && (current_temperature_bed < BED_MAXTEMP))
-      {
-        if(current_temperature_bed >= target_temperature_bed)
-        {
-          soft_pwm_bed = 0;
-        }
-        else 
-        {
-          soft_pwm_bed = MAX_BED_POWER>>1;
-        }
-      }
-      else
-      {
-        soft_pwm_bed = 0;
-        WRITE(HEATER_BED_PIN,LOW);
-      }
-    #else //#ifdef BED_LIMIT_SWITCHING
-      // Check if temperature is within the correct band
-      if((current_temperature_bed > BED_MINTEMP) && (current_temperature_bed < BED_MAXTEMP))
-      {
-        if(current_temperature_bed > target_temperature_bed + BED_HYSTERESIS)
-        {
-          soft_pwm_bed = 0;
-        }
-        else if(current_temperature_bed <= target_temperature_bed - BED_HYSTERESIS)
-        {
-          soft_pwm_bed = MAX_BED_POWER>>1;
-        }
-      }
-      else
-      {
-        soft_pwm_bed = 0;
-        WRITE(HEATER_BED_PIN,LOW);
-      }
-    #endif
+  }
+  else
+  {
+	  soft_pwm_bed = 0;
+	  WRITE(HEATER_BED_PIN,LOW);
+  }
+  #else //#ifdef BED_LIMIT_SWITCHING
+  // Check if temperature is within the correct band
+  if((current_temperature_bed > BED_MINTEMP) && (current_temperature_bed < BED_MAXTEMP))
+  {
+	  if(current_temperature_bed > target_temperature_bed + BED_HYSTERESIS)
+	  {
+		  soft_pwm_bed = 0;
+	  }
+	  else if(current_temperature_bed <= target_temperature_bed - BED_HYSTERESIS)
+	  {
+		  soft_pwm_bed = MAX_BED_POWER>>1;
+	  }
+  }
+  else
+  {
+	  soft_pwm_bed = 0;
+	  WRITE(HEATER_BED_PIN,LOW);
+  }
+  #endif
   #endif
   
 //code for controlling the extruder rate based on the width sensor 
@@ -923,9 +925,11 @@ static void updateTemperaturesFromRawValues()
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
       redundant_temperature = analog2temp(redundant_temperature_raw, 1);
     #endif
-    #ifdef FILAMENT_SENSOR  && (FILWIDTH_PIN > -1)    //check if a sensor is supported 
+    #ifdef FILAMENT_SENSOR  
+	#if (FILWIDTH_PIN > -1)    //check if a sensor is supported 
       filament_width_meas = analog2widthFil();
     #endif  
+	#endif
     //Reset the watchdog after we know we have a temperature measurement.
     watchdog_reset();
 
@@ -1390,7 +1394,8 @@ void setWatch()
 #endif 
 }
 
-#ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+#ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD 
+#if THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
 void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, unsigned long period_seconds, int hysteresis_degc)
 {
 	/*
@@ -1475,7 +1480,7 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
 	}
 }
 #endif
-
+#endif
 void disable_heater()
 {
   for(int i=0;i<EXTRUDERS;i++)

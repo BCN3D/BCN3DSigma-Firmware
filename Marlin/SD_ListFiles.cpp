@@ -1,7 +1,7 @@
 /*
-	SD_ListFiles.cpp - A class that manages the parsing of time printing duration, filament consumption and if an gcode is a duplication print.
-	Last Update: 20/06/2017
-	Author: Alejandro Garcia (S3mt0x)
+- SD_ListFiles.cpp - A class that manages the parsing of time printing duration, filament consumption and if an gcode is a duplication print.
+Last Update: 16/10/2017
+Author: Alejandro Garcia (S3mt0x)
 */
 
 #include "SD_ListFiles.h"

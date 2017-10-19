@@ -7,7 +7,7 @@ If you want to download the latest stable firmware version, go to [Releases page
 Please refer to the [wiki][8] in order to get instructions on how to upgrade the firmware and load new LCD SD files to the display.
 
 > ## IMPORTANT
-> This repo contains the firmware and the files for the LCD Touchscreen display (for now). When a new release is done, normally is needed updating the SD files of the display. That way we can update menus, graphics and functionalities. You can find more information on how to update the [LCD SD files here][5].
+> This repo contains the firmware and the files for the LCD Touchscreen display (for now). It is only needed to update the LCD files to version v122 if your printer is a R16 and your previous firmware version is v 1.2.1. If you have a greater version you only need to update the firmware. You can find more information on how to update the [LCD SD files here][5].
 
 ## Features
 

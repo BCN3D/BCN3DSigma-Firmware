@@ -4421,8 +4421,12 @@ void update_screen_printing(){
 	}
 	if(flag_sdprinting_printstop|| flag_sdprinting_printsavejob){
 		
-		bufindw = (bufindr + 1)%BUFSIZE;
-		buflen = 1;
+		
+		if(!(card.sdispaused && (screen_printing_pause_form == screen_printing_pause_form1))){
+			bufindw = (bufindr + 1)%BUFSIZE;
+			buflen = 1;
+		}
+			
 		doblocking =false;
 		log_X0_mmdone += x0mmdone/axis_steps_per_unit[X_AXIS];
 		log_X1_mmdone += x1mmdone/axis_steps_per_unit[X_AXIS];

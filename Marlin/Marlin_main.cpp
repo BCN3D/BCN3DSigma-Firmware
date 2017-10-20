@@ -792,15 +792,17 @@ void setup()
 	// Delay no longer required, this will now smartly proceed once the display is awake
 	
 	long startupTime = millis();
+	Serial.print(F("diplay offline"));
 	while (!genie.Begin(MYSERIAL_SCREEN)) // Set up Genie to use Serial3, but also returns if the Display has responded and is online
 	{
-		Serial.println(F("display offline!"));
+		Serial.print(F("."));
 		delay(100);
 	}
+	Serial.println();
 	if (genie.online()) // When the display has responded above, do the following once its online
 	{
 		Serial.println(F("display online!"));
-		Serial.print(F("Took ")); Serial.print(millis() - startupTime); Serial.println(F(" to Start Display from Reset"));
+		Serial.print(F("Took ")); Serial.print(millis()-startupTime); Serial.println(F(" to Start Display from Reset"));
 		genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
 	}
 	

@@ -44,7 +44,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			char buffer[256];
 			switch(Event.reportObject.index){
 				
-				case FORM_SDLIST:genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_SDLIST_FOLDERBACK,0);
+				case FORM_SDLIST:
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_SDLIST_FOLDERBACK,0);
 					genie.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_SDLIST_FOLDERFILE,0);
 					screen_sdcard = true;
 					flag_sdlist_goinit = true;

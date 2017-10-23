@@ -5476,55 +5476,14 @@ void lcd_animation_handler(){//We process the animations frames
 		}
 	}
 }
-void setfilenames(int jint){
-	unsigned int count = 22;
-	char buffer[count+3];
-	int x = 0;
-	memset( buffer, '\0', sizeof(buffer));
-	if (String(card.longFilename).length() > count){
-		for (unsigned int i = 0; i<count ; i++)
-		{
-			if (card.longFilename[i] == '.') i = count +10; //go out of the for
-			else if(i == 0) buffer[i]=card.longFilename[x];
-			else {
-				buffer[i]=card.longFilename[x];
-			}
-			x++;
-			//Serial.print(i);
-		}
-		buffer[count]='\0';
-		char* buffer2 = strcat(buffer,"...\0");
-		genie.WriteStr(stringfilename[jint],buffer2);//Printing form
-		genie.WriteStr(stringfiledur[jint],listsd.commandline2);//Printing form
-		//memset( buffer2, '\0', sizeof(buffer2));
-	}
-	else {
-		for (unsigned int i = 0; i<String(card.longFilename).length(); i++)	{
-			if (card.longFilename[i] == '.') i = String(card.longFilename).length() +10; //go out of the for
-			else if(i == 0) buffer[i]=card.longFilename[x];
-			else {
-				buffer[i]=card.longFilename[x];
-			}
-			x++;
-			//Serial.print(i);
-		}
-		//buffer[count]='\0';
-		genie.WriteStr(stringfilename[jint],buffer);//Printing form
-		genie.WriteStr(stringfiledur[jint],listsd.commandline2);//Printing form
-		//Is a file
-		//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
-	}
-	//Serial.println(buffer);
-}
 void ListFilesParsingProcedure(int vecto, int jint){
 	char Workdir[20];
 	card.getfilename(vecto);
-	Serial.println(card.longFilename);
+	//Serial.println(card.longFilename);
 	if (card.filenameIsDir)
 	{
-		genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],1);
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],1);		
 		setfoldernames(jint);
-		
 		if(card.chdir(card.filename)!= -1){
 			uint16_t NUMitems = card.getnrfilenames();
 			card.updir();
@@ -5899,11 +5858,12 @@ void ListFileListENTERBACKFORLDERSD(){
 }
 void setfoldernames(int jint){
 	unsigned int count = 22;
-	char buffer[count+3];
+	char buffer[count+4];
 	int x = 0;
 	memset( buffer, '\0', sizeof(buffer));
 	if (String(card.longFilename).length() == 0){
-		genie.WriteStr(stringfilename[jint],card.filename);//Printing form
+		strcpy(buffer, card.filename);
+		genie.WriteStr(stringfilename[jint],buffer);//Printing form
 	}
 	else if (String(card.longFilename).length() > count){
 		for (unsigned int i = 0; i<count ; i++)
@@ -5916,10 +5876,12 @@ void setfoldernames(int jint){
 			x++;
 			//Serial.print(i);
 		}
-		buffer[count]='\0';
-		char* buffer2 = strcat(buffer,"...\0");
+		buffer[count]='.';
+		buffer[count+1]='.';
+		buffer[count+2]='.';
+		buffer[count+3]='\0';
 		
-		genie.WriteStr(stringfilename[jint],buffer2);//Printing form
+		genie.WriteStr(stringfilename[jint],buffer);//Printing form
 		//memset( buffer2, '\0', sizeof(buffer2));
 	}
 	else {
@@ -5937,9 +5899,56 @@ void setfoldernames(int jint){
 		//Is a file
 		//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 	}
-	//Serial.println(buffer);
+	Serial.println(buffer);
 	
 	
+}
+void setfilenames(int jint){
+	unsigned int count = 22;
+	char buffer[count+3];
+	int x = 0;
+	memset( buffer, '\0', sizeof(buffer));
+	if (String(card.longFilename).length() == 0){
+		strcpy(buffer, card.filename);
+		genie.WriteStr(stringfilename[jint],buffer);//Printing form
+		genie.WriteStr(stringfiledur[jint],listsd.commandline2);//Printing form
+	}
+	else if (String(card.longFilename).length() > count){
+		for (unsigned int i = 0; i<count ; i++)
+		{
+			if (card.longFilename[i] == '.') i = count +10; //go out of the for
+			else if(i == 0) buffer[i]=card.longFilename[x];
+			else {
+				buffer[i]=card.longFilename[x];
+			}
+			x++;
+			//Serial.print(i);
+		}
+		buffer[count]='.';
+		buffer[count+1]='.';
+		buffer[count+2]='.';
+		buffer[count+3]='\0';
+		genie.WriteStr(stringfilename[jint],buffer);//Printing form
+		genie.WriteStr(stringfiledur[jint],listsd.commandline2);//Printing form
+		//memset( buffer2, '\0', sizeof(buffer2));
+	}
+	else {
+		for (unsigned int i = 0; i<String(card.longFilename).length(); i++)	{
+			if (card.longFilename[i] == '.') i = String(card.longFilename).length() +10; //go out of the for
+			else if(i == 0) buffer[i]=card.longFilename[x];
+			else {
+				buffer[i]=card.longFilename[x];
+			}
+			x++;
+			//Serial.print(i);
+		}
+		//buffer[count]='\0';
+		genie.WriteStr(stringfilename[jint],buffer);//Printing form
+		genie.WriteStr(stringfiledur[jint],listsd.commandline2);//Printing form
+		//Is a file
+		//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+	}
+	Serial.println(buffer);
 }
 void insertmetod(){
 	gif_processing_state = PROCESSING_DEFAULT;

@@ -853,6 +853,7 @@ uint8_t Genie::WriteStr (uint8_t index, double number, int digits) {
 
 uint8_t Genie::WriteStr (uint8_t index, double n) {
   WriteStr(index, n, 2);
+  return 0;
 }
 
 uint8_t Genie::WriteStrU (uint8_t index, uint16_t *string) {

@@ -13,7 +13,6 @@ Author: Alejandro Garcia (S3mt0x)
 	#include "Marlin.h"
 	#include "Configuration.h"
 	#include "stepper.h"
-	#include "temperature.h"
 	#include "cardreader.h"
 	
 	

@@ -842,7 +842,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				}
 			}
 			
-			
+			break;
 			
 			//****************PURGE BUTTONS******
 			case BUTTON_UTILITIES_FILAMENT_PURGE_SELECT0:
@@ -1348,8 +1348,8 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			case BUTTON_SDLIST_GOUP:
 			flag_sdlist_goup = true;
 			break;
-			case BUTTON_SDLIST_GODOWN:
 			
+			case BUTTON_SDLIST_GODOWN:
 			flag_sdlist_godown = true;
 			break;
 			
@@ -2502,6 +2502,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			}
 			
 			break;
+			
 			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_STEP0:
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_MAINTENANCE_NYLONCLEANING_TEMPS,0);
 			gif_processing_state = PROCESSING_UTILITIES_MAINTENANCE_NYLONCLEANING_TEMPS;
@@ -4209,7 +4210,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 	
 }
 void lcd_fsm_output_logic(){//We process tasks according to the present state
-	lcd_busy = true;
+	//lcd_busy = true;
 	if((card.sdprinting && !card.sdispaused) || (!card.sdprinting && card.sdispaused) )
 	{
 		update_screen_printing();//STATE PRINTING
@@ -4220,7 +4221,7 @@ void lcd_fsm_output_logic(){//We process tasks according to the present state
 	else{
 		update_screen_noprinting();//STATE NO PRINTING
 	}
-	lcd_busy = false;
+	//lcd_busy = false;
 }
 void update_screen_printing(){
 	static uint32_t waitPeriod = millis();

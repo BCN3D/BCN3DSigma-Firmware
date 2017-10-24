@@ -464,6 +464,7 @@ float extruder_offset[NUM_EXTRUDER_OFFSETS][EXTRUDERS] = {
 #endif
 uint8_t active_extruder = 0;
 int fanSpeed=0;
+int saved_fanSpeed = 0;
 int Flag_fanSpeed_mirror=0;
 #ifdef SERVO_ENDSTOPS
 int servo_endstops[] = SERVO_ENDSTOPS;
@@ -3849,6 +3850,8 @@ inline void gcode_G69(){
 	saved_position[Z_AXIS] = current_position[Z_AXIS];
 	saved_position[E_AXIS] = current_position[E_AXIS];
 	saved_feedrate = feedrate;
+	saved_fanSpeed = fanSpeed;
+	fanSpeed = 0;
 	//*********************************//
 	saved_active_extruder = active_extruder;
 	//********Retract
@@ -3922,7 +3925,7 @@ inline void gcode_G70(){
 	//*********************************//
 	doblocking = true;
 	active_extruder = saved_active_extruder;
-	
+	fanSpeed = saved_fanSpeed;
 	
 	current_position[Z_AXIS] = saved_position[Z_AXIS]+PAUSE_G70_ZMOVE;
 	feedrate=homing_feedrate[Z_AXIS];

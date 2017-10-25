@@ -698,11 +698,12 @@ int CardReader::chdir(const char * relpath)
 	else
 	{
 		if (workDirDepth < MAX_DIR_DEPTH) {
-			for (int d = ++workDirDepth; d--;)
+			for (uint16_t d = ++workDirDepth; d--;)
 			workDirParents[d+1] = workDirParents[d];
 			workDirParents[0]=*parent;
 		}
 		workDir=newfile;
+		return 0;
 	}
 }
 
@@ -712,7 +713,7 @@ int CardReader::updir()
 	{
 		--workDirDepth;
 		workDir = workDirParents[0];
-		for (int d = 0; d < workDirDepth; d++)
+		for (uint16_t d = 0; d < workDirDepth; d++)
 		workDirParents[d] = workDirParents[d+1];
 		
 		if(workDirDepth == 0){

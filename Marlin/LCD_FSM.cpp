@@ -5869,7 +5869,7 @@ void setfoldernames(int jint){
 	else if (String(card.longFilename).length() > count){
 		for (unsigned int i = 0; i<count ; i++)
 		{
-			if (card.longFilename[i] == '.') i = count +10; //go out of the for
+			if (card.longFilename[i] == '.') break; //go out of the for
 			else if(i == 0) buffer[i]=card.longFilename[x];
 			else {
 				buffer[i]=card.longFilename[x];
@@ -5887,7 +5887,7 @@ void setfoldernames(int jint){
 	}
 	else {
 		for (unsigned int i = 0; i<String(card.longFilename).length(); i++)	{
-			if (card.longFilename[i] == '.') i = String(card.longFilename).length() +10; //go out of the for
+			if (card.longFilename[i] == '.') break; //go out of the for
 			else if(i == 0) buffer[i]=card.longFilename[x];
 			else {
 				buffer[i]=card.longFilename[x];
@@ -5906,7 +5906,7 @@ void setfoldernames(int jint){
 }
 void setfilenames(int jint){
 	unsigned int count = 22;
-	char buffer[count+3];
+	char buffer[count+4];
 	int x = 0;
 	memset( buffer, '\0', sizeof(buffer));
 	if (String(card.longFilename).length() == 0){
@@ -5917,7 +5917,7 @@ void setfilenames(int jint){
 	else if (String(card.longFilename).length() > count){
 		for (unsigned int i = 0; i<count ; i++)
 		{
-			if (card.longFilename[i] == '.') i = count +10; //go out of the for
+			if (card.longFilename[i] == '.') break; //go out of the for
 			else if(i == 0) buffer[i]=card.longFilename[x];
 			else {
 				buffer[i]=card.longFilename[x];
@@ -5935,7 +5935,7 @@ void setfilenames(int jint){
 	}
 	else {
 		for (unsigned int i = 0; i<String(card.longFilename).length(); i++)	{
-			if (card.longFilename[i] == '.') i = String(card.longFilename).length() +10; //go out of the for
+			if (card.longFilename[i] == '.') break; //go out of the for
 			else if(i == 0) buffer[i]=card.longFilename[x];
 			else {
 				buffer[i]=card.longFilename[x];

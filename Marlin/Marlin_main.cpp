@@ -793,7 +793,7 @@ void setup()
 	// Delay no longer required, this will now smartly proceed once the display is awake
 	
 	long startupTime = millis();
-	Serial.print(F("diplay offline"));
+	Serial.print(F("display offline"));
 	while (!genie.Begin(MYSERIAL_SCREEN)) // Set up Genie to use Serial3, but also returns if the Display has responded and is online
 	{
 		Serial.print(F("."));
@@ -4406,19 +4406,17 @@ inline void gcode_M24(){
 		{
 			namefilegcode[i]=card.longFilename[i];
 		}
-		namefilegcode[12]='\0';
-		char* buffer2 = strcat(namefilegcode,"...\0");
+		namefilegcode[12]='.';
+		namefilegcode[13]='.';
+		namefilegcode[14]='.';
+		namefilegcode[15]='\0';
 		SERIAL_PROTOCOLPGM("Card Name: ");
-		Serial.println(card.longFilename);
-		SERIAL_PROTOCOLPGM("Buffer1: ");
 		Serial.println(namefilegcode);
-		SERIAL_PROTOCOLPGM("buffer out: ");
-		Serial.println(buffer2);
-		genie.WriteStr(STRING_SDPRINTING_GCODE,buffer2);//Printing form
+		genie.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);//Printing form
 		}else{
 		for (unsigned int i = 0; i<=String(card.longFilename).length(); i++)
 		{
-			if (namefilegcode[i] == '.') i = String(card.longFilename).length() +10;
+			if (namefilegcode[i] == '.')break;
 			else namefilegcode[i]=card.longFilename[i];
 		}
 		genie.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);//Printing form//Printing form

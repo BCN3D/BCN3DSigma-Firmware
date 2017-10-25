@@ -23,6 +23,8 @@
 
 #include "planner.h"
 
+#define CARL_JAMES
+
 #if EXTRUDERS > 2
   #define WRITE_E_STEP(v) { if(current_block->active_extruder == 2) { WRITE(E2_STEP_PIN, v); } else { if(current_block->active_extruder == 1) { WRITE(E1_STEP_PIN, v); } else { WRITE(E0_STEP_PIN, v); }}}
   #define NORM_E_DIR() { if(current_block->active_extruder == 2) { WRITE(E2_DIR_PIN, !INVERT_E2_DIR); } else { if(current_block->active_extruder == 1) { WRITE(E1_DIR_PIN, !INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); }}}
@@ -71,6 +73,36 @@ float st_get_position_mm(uint8_t axis);
 // to notify the subsystem that it is time to go to work.
 void st_wake_up();
 
+// Check for any bytes inside the stepper interrupt routine:
+FORCE_INLINE void display_check_rx (void) {
+	// We are in this interrupt for a long time, so check for any serial characters from the display: 
+	#ifdef SIGMA_TOUCH_SCREEN
+	#pragma message "Hardware Serial must not have any protected variables or this will not work! Modify HardwareSerial.h to be public!"
+		// Check if there is a byte in the serial receive register, when _udr is read the interrupt is cleared:
+	if (bit_is_set(*MYSERIAL_SCREEN._ucsra, 7)) {
+		#ifdef DEBUG_ISR
+		debug_time_4++;
+		#endif
+		if (bit_is_clear(*MYSERIAL_SCREEN._ucsra, UPE0)) {
+				// No Parity error, read byte and store it in the buffer if there is room
+			unsigned char c = *MYSERIAL_SCREEN._udr;
+			rx_buffer_index_t i = (unsigned int)(MYSERIAL_SCREEN._rx_buffer_head + 1) % SERIAL_RX_BUFFER_SIZE;
+
+				// if we should be storing the received character into the location
+				// just before the tail (meaning that the head would advance to the
+				// current location of the tail), we're about to overflow the buffer
+				// and so we don't write the character or advance the head.
+			if (i != MYSERIAL_SCREEN._rx_buffer_tail) {
+				MYSERIAL_SCREEN._rx_buffer[MYSERIAL_SCREEN._rx_buffer_head] = c;
+				MYSERIAL_SCREEN._rx_buffer_head = i;
+			}
+		} else {
+				// Parity error, read byte but discard it
+			*MYSERIAL_SCREEN._udr;
+		}
+	}
+	#endif
+}
   
 void checkHitEndstops(); //call from somewhere to create an serial error message with the locations the endstops where hit, in case they were triggered
 void endstops_hit_on_purpose(); //avoid creation of the message, i.e. after homing and before a routine call of checkHitEndstops();

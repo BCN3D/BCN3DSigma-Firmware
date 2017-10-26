@@ -283,6 +283,7 @@ extern void digipot_i2c_init();
 //Rapduch
 extern Genie genie;
 void touchscreen_update();
+extern bool flag_ending_gcode;
 extern uint16_t filepointer;
 extern int8_t saved_active_extruder;
 extern String screen_status;

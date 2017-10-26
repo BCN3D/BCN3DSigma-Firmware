@@ -358,6 +358,7 @@ int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 int8_t saved_active_extruder = 0;
 int extrudemultiply=100; //100->1 200->2
+bool flag_ending_gcode = false;
 bool FLAG_thermal_runaway = false;
 bool FLAG_thermal_runaway_screen = false;
 int ID_thermal_runaway = 0;
@@ -2119,6 +2120,7 @@ inline void gcode_G11(){
 	#endif //FWRETRACT
 }
 inline void gcode_G28(){
+	st_synchronize();
 	if(card.sdprinting){
 		doblocking = true;
 		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SDPRINTING_PAUSE,1);
@@ -4389,6 +4391,7 @@ inline void gcode_M24(){
 	log_min_print = 0;
 	saved_print_flag = 888;
 	acceleration_old = acceleration;
+	screen_sdcard = false;
 	Config_StoreSettings();
 	//gcode_T0_T1_auto(0);
 	//st_synchronize();

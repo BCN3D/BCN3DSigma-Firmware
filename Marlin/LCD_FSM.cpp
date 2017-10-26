@@ -37,6 +37,7 @@ void lcd_animation_handler();
 void update_screen_printing();
 void update_screen_sdcard();
 void update_screen_noprinting();
+void update_screen_endinggcode();
 //inline void ListFileSelect5();
 void setfoldernames(int jint);
 void folder_navigation_register(bool upchdir);
@@ -131,6 +132,8 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 	int Tref;
 	int Tfinal;
 	float calculus;
+	int j = 0;
+	static uint32_t waitPeriod = millis();
 	static uint32_t waitPeriod_s = millis();
 	if (card.sdprinting || card.sdispaused){
 		
@@ -1077,6 +1080,9 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			}
 			
 			break;
+			
+			default:
+			break;
 			//endswitch
 		}
 	}
@@ -1218,6 +1224,8 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN, 0);
 				printer_state = STATE_NONE;
 			}
+			break;			
+			default:
 			break;
 		}//endswitch
 		
@@ -4176,8 +4184,8 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			case BUTTON_INFO_SETUPASSISTANT:
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SETUPASSISTANT_INIT,0);
 			genie.WriteObject(GENIE_OBJ_FORM,FORN_SETUPASSISTANT_INIT,0);
-			int j = 0;
-			static uint32_t waitPeriod = millis(); //Processing back home
+			j = 0;
+			waitPeriod = millis(); //Processing back home
 			while ( j<GIF_FRAMES_INIT_FIRST_RUN){
 				if (millis() >= waitPeriod){
 					
@@ -4193,7 +4201,8 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 
 			break;
 
-
+			default:
+			break;
 
 
 
@@ -4210,18 +4219,64 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 	
 }
 void lcd_fsm_output_logic(){//We process tasks according to the present state
-	//lcd_busy = true;
 	if((card.sdprinting && !card.sdispaused) || (!card.sdprinting && card.sdispaused) )
 	{
 		update_screen_printing();//STATE PRINTING
-	}
-	else if(screen_sdcard){
+	}else if(screen_sdcard){
 		update_screen_sdcard();//STATE LIST SDGCODES
-	}
-	else{
+	}else if(flag_ending_gcode){
+		update_screen_endinggcode();//STATE ENDING PRINTING
+	}else{
 		update_screen_noprinting();//STATE NO PRINTING
 	}
-	//lcd_busy = false;
+}
+void update_screen_endinggcode(){
+	if(!blocks_queued()){
+		doblocking=false;
+		log_prints_finished++;
+		acceleration = acceleration_old;
+		quickStop();		
+		#ifdef SIGMA_TOUCH_SCREEN
+		//also we need to put the platform down and do an autohome to prevent blocking
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN,0);
+		enquecommand_P(PSTR("T0"));
+		enquecommand_P(PSTR("M107"));
+		set_dual_x_carriage_mode(DEFAULT_DUAL_X_CARRIAGE_MODE);
+		setTargetHotend0(0);
+		setTargetHotend1(0);
+		setTargetBed(0);
+		Flag_fanSpeed_mirror=0;
+		sd_printing_temp_setting_offset_bed = 0;
+		sd_printing_temp_setting_offset_hotent0 = 0;
+		sd_printing_temp_setting_offset_hotent1 = 0;
+		saved_print_smartpurge_flag = false;
+		screen_sdcard = false;
+		surfing_utilities=false;
+		surfing_temps = false;
+		log_hours_lastprint = (int)(log_min_print/60);
+		log_minutes_lastprint = (int)(log_min_print%60);
+		log_X0_mmdone += x0mmdone/axis_steps_per_unit[X_AXIS];
+		log_X1_mmdone += x1mmdone/axis_steps_per_unit[X_AXIS];
+		log_Y_mmdone += ymmdone/axis_steps_per_unit[Y_AXIS];
+		log_E0_mmdone += e0mmdone/axis_steps_per_unit[E_AXIS];
+		log_E1_mmdone += e1mmdone/axis_steps_per_unit[E_AXIS];
+		x0mmdone = 0;
+		x1mmdone = 0;
+		ymmdone = 0;
+		e0mmdone = 0;
+		e1mmdone = 0;
+		Config_StoreSettings();
+		//The default states is Left Extruder active
+		#endif
+		if(SD_FINISHED_STEPPERRELEASE)
+		{
+			//finishAndDisableSteppers();
+			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+		}
+		autotempShutdown();
+		Serial.println(F("Print Job Finished"));		
+		flag_ending_gcode = false;
+	}
 }
 void update_screen_printing(){
 	static uint32_t waitPeriod = millis();
@@ -5770,41 +5825,6 @@ void ListFileSelect4(){
 		flag_sdlist_filesupdown = true;
 	}
 }
-/*
-inline void ListFileSelect5(){
-if(card.cardOK)
-{
-flag_sdlist_filesupdown = false;
-uint16_t fileCnt = card.getnrfilenames();
-if(fileCnt > filepointer + 5){
-if (filepointer == card.getnrfilenames()-1)
-{
-filepointer=4; //First SD file
-}
-else if (filepointer == card.getnrfilenames()-2 )
-{
-filepointer=3; //First SD file
-}
-else if (filepointer == card.getnrfilenames()-3 )
-{
-filepointer=2; //First SD file
-}
-else if (filepointer == card.getnrfilenames()-4 )
-{
-filepointer=1; //First SD file
-}
-else if (filepointer == card.getnrfilenames()-5 )
-{
-filepointer=0; //First SD file
-}
-else{
-filepointer+=5;
-}
-ListFileSelect_find();
-}
-flag_sdlist_filesupdown = true;
-}
-}*/
 void ListFileListENTERBACKFORLDERSD(){
 	genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SDLIST_SCROLLBAR,0);
 	filepointer = 0;

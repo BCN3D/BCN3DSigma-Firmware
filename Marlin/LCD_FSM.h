@@ -42,6 +42,7 @@ extern void ListFileSelect4();
 extern void lcd_animation_handler();
 extern void update_screen_printing();
 extern void update_screen_sdcard();
+extern void update_screen_endinggcode();
 extern void update_screen_noprinting();
 //inline void ListFileSelect5();
 extern void setfoldernames(int jint);

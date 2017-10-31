@@ -1,6 +1,6 @@
 /*
 - LCD_FSM.cpp - A class that manages the FSM related with some printer process
-Last Update: 16/10/2017
+Last Update: 31/10/2017
 Author: Alejandro Garcia (S3mt0x)
 */
 #include "LCD_FSM.h"
@@ -407,10 +407,9 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			
 			break;
+			
 			case BUTTON_UTILITIES_FILAMENT_UNLOAD_SELECTLEFT:
-			case BUTTON_UTILITIES_FILAMENT_UNLOAD_SELECTRIGHT:
-			
-			
+			case BUTTON_UTILITIES_FILAMENT_UNLOAD_SELECTRIGHT:			
 			
 			if (LCD_FSM_input_buton_flag == BUTTON_UTILITIES_FILAMENT_UNLOAD_SELECTLEFT) //Left Nozzle
 			{
@@ -426,6 +425,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			Temp_ChangeFilament_Saved = target_temperature[which_extruder];
 			if(which_extruder == 0) setTargetHotend(max(unload_temp_l,old_unload_temp_l),which_extruder);
 			else setTargetHotend(max(unload_temp_r,old_unload_temp_r),which_extruder);
+			
 			gif_processing_state = PROCESSING_DEFAULT;
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_PROCESSING,0);
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_UTILITIES_FILAMENT_UNLOAD_MENU,0);
@@ -450,10 +450,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			gif_processing_state = PROCESSING_CHANGE_FILAMENT_TEMPS;
 			touchscreen_update();
-			delay(500);
 			is_changing_filament=true; //We are changing filament
-			
-			
 			break;
 			
 			case BUTTON_UTILITIES_FILAMENT_LOAD_PLA:
@@ -711,18 +708,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			else setTargetHotend(max(load_temp_r,old_load_temp_r),which_extruder);
 			//delay(3500);
 			
-			
-			
-			current_position[Y_AXIS] = 100;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
-			st_synchronize();
-			
-			
+						
 			Tref1 = (int)degHotend(which_extruder);
 			Tfinal1 = (int)degTargetHotend(which_extruder);
 			
 			touchscreen_update();
-			delay(500);
 			
 			is_changing_filament=true;
 			
@@ -736,13 +726,12 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			{ //Inserting...
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_PROCESSING,0);
 				gif_processing_state = PROCESSING_DEFAULT;
-				delay(550);
 				plan_set_position(extruder_offset[X_AXIS][which_extruder], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-				#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+				/*#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
 				current_position[X_AXIS] = 155;
 				#else
 				current_position[X_AXIS] = 155 + X_OFFSET_CALIB_PROCEDURES;
-				#endif
+				#endif*/
 				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 				st_synchronize();
 				SERIAL_PROTOCOLPGM("Loading:\n");
@@ -806,20 +795,16 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			{
 				
 				
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_PROCESSING,0);
-				gif_processing_state = PROCESSING_DEFAULT;
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_FILAMENT_SUCCESS,0);
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_UTILITIES_FILAMENT_SUCCESS,0);
+				gif_processing_state = PROCESSING_SUCCESS;
+				printer_state = STATE_LOADUNLOAD_FILAMENT;
 				current_position[X_AXIS] = extruder_offset[X_AXIS][which_extruder];
 				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 				plan_set_position(extruder_offset[X_AXIS][active_extruder], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 				current_position[X_AXIS] = extruder_offset[X_AXIS][active_extruder];
 				setTargetHotend((float)Temp_ChangeFilament_Saved, which_extruder);
 				st_synchronize();
-				gif_processing_state = PROCESSING_STOP;
-				touchscreen_update();
-				printer_state = STATE_LOADUNLOAD_FILAMENT;
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_FILAMENT_SUCCESS,0);
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_UTILITIES_FILAMENT_SUCCESS,0);
-				gif_processing_state = PROCESSING_SUCCESS;
 				
 				
 			}

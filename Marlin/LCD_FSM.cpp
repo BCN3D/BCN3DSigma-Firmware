@@ -436,7 +436,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			current_position[Y_AXIS]=10;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			
 			gif_processing_state = PROCESSING_STOP;
 			
@@ -738,16 +738,16 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				current_position[E_AXIS] += 30;//Extra extrusion at low feedrate
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  700/60, which_extruder); //850/60
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				current_position[E_AXIS] += ((BOWDEN_LENGTH-EXTRUDER_LENGTH)-15);//BOWDEN_LENGTH-300+340);
 				Serial.println(current_position[E_AXIS]);
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				gif_processing_state = PROCESSING_STOP;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_FILAMENT_ADJUST,0);
 			}
@@ -766,7 +766,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				current_position[E_AXIS] -= (BOWDEN_LENGTH + EXTRUDER_LENGTH + 100);//Extra extrusion at fast feedrate
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				previous_state = FORM_UTILITIES_FILAMENT;
 				
 				gif_processing_state = PROCESSING_STOP;
@@ -1010,14 +1010,14 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					current_position[Y_AXIS] = saved_position[Y_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Y_AXIS]/60, active_extruder);//Purge
 					st_synchronize();
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					
 					//home_axis_from_code(true, true, false);
 					
 					current_position[Z_AXIS] = saved_position[Z_AXIS] + 10;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],homing_feedrate[Z_AXIS] ,saved_active_extruder);
 					st_synchronize();
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					gif_processing_state = PROCESSING_STOP;
 					
 					
@@ -1471,18 +1471,18 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			if(home_made_Z){
 				home_axis_from_code(true,true,false);
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			}
 			else{
 				home_axis_from_code(true,true,true);
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			}
 			HeaterCooldownInactivity(true);
 			gif_processing_state = PROCESSING_STOP;
 			enquecommand_P((PSTR("T0")));
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			genie.WriteObject(GENIE_OBJ_FORM, FORM_MAINTENANCE_ZADJUST, 0);
 			
 			
@@ -1626,7 +1626,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				current_position[Y_AXIS]=10;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				
 				gif_processing_state = PROCESSING_STOP;
 				touchscreen_update();
@@ -1665,15 +1665,15 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					home_axis_from_code(true,true,true);
 				}
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				current_position[Z_AXIS]=Z_MAX_POS-15;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				current_position[Y_AXIS]=10;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				
 				if (which_extruder == 0) changeTool(0);
 				else changeTool(1);
@@ -1687,7 +1687,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				
 				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				gif_processing_state = PROCESSING_STOP;
 				touchscreen_update();
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_MAINTENANCE_NYLONCLEANING_STEP0,0);
@@ -1996,7 +1996,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			current_position[Y_AXIS]=10;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			
 			gif_processing_state = PROCESSING_STOP;
 			touchscreen_update();
@@ -2111,7 +2111,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					current_position[Y_AXIS]=10;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
 					st_synchronize();
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					
 					gif_processing_state = PROCESSING_STOP;
 					touchscreen_update();
@@ -2423,7 +2423,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			current_position[Y_AXIS] = 100;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			touchscreen_update();
 			delay(500);
 			is_changing_filament=true;
@@ -2456,7 +2456,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
 				st_synchronize();
 				
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				gif_processing_state = PROCESSING_STOP;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_FILAMENT_ADJUST,0);
 			}
@@ -2475,7 +2475,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				previous_state = FORM_UTILITIES_FILAMENT;
 				
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				gif_processing_state = PROCESSING_STOP;
 				touchscreen_update();
 				printer_state = STATE_LOADUNLOAD_FILAMENT;
@@ -2522,7 +2522,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				}
 				manage_heater();
 				touchscreen_update();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			}
 			gif_processing_state = PROCESSING_STOP;
 			touchscreen_update();
@@ -2561,7 +2561,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				}
 				manage_heater();
 				touchscreen_update();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			}
 			gif_processing_state = PROCESSING_STOP;
 			touchscreen_update();
@@ -2612,7 +2612,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					//previous_millis_cmd = millis();
 					manage_heater();
 					touchscreen_update();
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					
 				}
 				SERIAL_PROTOCOLPGM("60 degrees \n");
@@ -2645,7 +2645,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					}
 					manage_heater();
 					touchscreen_update();
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					
 				}
 				gif_processing_state = PROCESSING_STOP;
@@ -2684,7 +2684,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				}
 				manage_heater();
 				touchscreen_update();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			}
 			gif_processing_state = PROCESSING_STOP;
 
@@ -2770,7 +2770,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				doblocking= true;
 				home_axis_from_code(true,true,true);
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 				changeTool(0);
 				
@@ -2788,7 +2788,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				
 				home_axis_from_code(true,true,false);
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				enquecommand_P(PSTR("T0"));
 				gif_processing_state = PROCESSING_STOP;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBZL,0);
@@ -2933,7 +2933,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					home_axis_from_code(true, true, false);
 					enquecommand_P((PSTR("T0")));
 					st_synchronize();
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					SERIAL_PROTOCOLPGM("Calibration Successful\n");
 					gif_processing_state = PROCESSING_STOP;
 					
@@ -2995,7 +2995,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					doblocking = true;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 					st_synchronize();
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					gif_processing_state = PROCESSING_STOP;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_MAINTENANCE_NYLONCLEANING_STEP0,0);
 				}
@@ -3036,7 +3036,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					//previous_millis_cmd = millis();
 					manage_heater();
 					touchscreen_update();
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					
 				}
 				SERIAL_PROTOCOLPGM("60 degrees \n");
@@ -3069,7 +3069,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					}
 					manage_heater();
 					touchscreen_update();
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					
 				}
 				gif_processing_state = PROCESSING_STOP;
@@ -3272,7 +3272,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			current_position[Z_AXIS] += 2;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],homing_feedrate[Z_AXIS]/60,active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			home_axis_from_code(true,false,false);
 			gif_processing_state = PROCESSING_STOP;
 			touchscreen_update();
@@ -3286,10 +3286,10 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 
 
 			home_axis_from_code(false,true,true);
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			z_test_print_code(LEFT_EXTRUDER,0);
 			enquecommand_P(PSTR("M84"));
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 
 			break;
 
@@ -3327,7 +3327,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			current_position[Z_AXIS] += 2;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],homing_feedrate[Z_AXIS]/60,active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			home_axis_from_code(true,false,false);
 			gif_processing_state = PROCESSING_STOP;
 			touchscreen_update();
@@ -3342,13 +3342,13 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 
 
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 
 			home_axis_from_code(false,true,true);
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			z_test_print_code(RIGHT_EXTRUDER,32);
 			enquecommand_P(PSTR("M84"));
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 
 			break;
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZL_REDO:
@@ -3405,10 +3405,10 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_PRINTINGTEST,0);
 					gif_processing_state = PROCESSING_TEST;
 					home_axis_from_code(true,true,true);
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					z_test_print_code(LEFT_EXTRUDER,0);
 					enquecommand_P(PSTR("M84"));
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				}
 				else{
 					setTargetHotend1(print_temp_r);
@@ -3420,10 +3420,10 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_PRINTINGTEST,0);
 					gif_processing_state = PROCESSING_TEST;
 					home_axis_from_code(true,true,true);
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					z_test_print_code(RIGHT_EXTRUDER,32);
 					enquecommand_P(PSTR("M84"));
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					
 				}
 			}
@@ -3466,7 +3466,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],7.5,LEFT_EXTRUDER);
 					st_synchronize();
 					home_axis_from_code(true,true,true);
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					enquecommand_P(PSTR("G43"));
 					gif_processing_state = PROCESSING_STOP;
 				}
@@ -3476,9 +3476,9 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					current_position[E_AXIS]-=4;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],7.5,RIGHT_EXTRUDER);
 					st_synchronize();
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					home_axis_from_code(true,true,true);
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					enquecommand_P(PSTR("G43"));
 					gif_processing_state = PROCESSING_STOP;
 				}
@@ -3492,7 +3492,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			Config_StoreSettings(); //Store changes
 			gcode_T0_T1_auto(0);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_CLEANBED,0);
 
 			break;
@@ -3503,7 +3503,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			Config_StoreSettings(); //Store changes
 			gcode_T0_T1_auto(1);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_CLEANBED,0);
 
 			break;
@@ -3514,7 +3514,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			Config_StoreSettings(); //Store changes
 			gcode_T0_T1_auto(0);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_CLEANBED,0);
 
 			break;
@@ -3525,7 +3525,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			Config_StoreSettings(); //Store changes
 			gcode_T0_T1_auto(1);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_CLEANBED,0);
 
 			break;
@@ -3580,7 +3580,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			current_position[Z_AXIS] = 60;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, LEFT_EXTRUDER);//move bed
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 
 			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
 			current_position[X_AXIS] = 150;
@@ -3594,7 +3594,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			current_position[E_AXIS] -= 4;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 7.5, LEFT_EXTRUDER);//move first extruder
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			gif_processing_state = PROCESSING_STOP;
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_CLEANNOZZLE0,0);
 
@@ -3634,7 +3634,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			current_position[Z_AXIS] = 60;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, RIGHT_EXTRUDER);//move bed
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
 			current_position[X_AXIS] = 170;
 			#else
@@ -3647,7 +3647,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			current_position[E_AXIS] -= 4;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 7.5, RIGHT_EXTRUDER);//move first extruder
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			gif_processing_state = PROCESSING_STOP;
 
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_CLEANNOZZLE1,0);
@@ -3705,7 +3705,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				doblocking= true;
 				home_axis_from_code(true,true,true);
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 				changeTool(0);
 			}
@@ -3771,10 +3771,10 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			setTargetBed(max(bed_temp_l,bed_temp_r));
 			Calib_check_temps();
 			gif_processing_state = PROCESSING_DEFAULT;
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			changeTool(0);
 			enquecommand_P(PSTR("G40"));
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 
 			break;
 
@@ -3801,10 +3801,10 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			Calib_check_temps();
 			gif_processing_state = PROCESSING_DEFAULT;
 			changeTool(0);
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			enquecommand_P(PSTR("G41"));
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 
 			break;
 
@@ -4034,7 +4034,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				
 				home_axis_from_code(true,true,false);
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				enquecommand_P(PSTR("T0"));
 				gif_processing_state = PROCESSING_STOP;
 				touchscreen_update();
@@ -4054,7 +4054,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				
 				Bed_Compensation_state = 2;
 				Bed_compensation_redo_offset = 0;
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				if(which_extruder==0){
 					enquecommand_P(PSTR("T0"));
 					}else{
@@ -4070,7 +4070,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				setTargetBed(max(bed_temp_l,bed_temp_r));
 				
 				st_synchronize();
-				if(gif_processing_state == PROCESSING_ERROR)return;
+				if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 				enquecommand_P(PSTR("T0"));
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBX,0);
 				
@@ -4160,7 +4160,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			doblocking = true;
 			home_axis_from_code(true,true,true);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 			changeTool(0);
 
@@ -5411,7 +5411,7 @@ void lcd_animation_handler(){//We process the animations frames
 					home_axis_from_code(true, true, false);
 					enquecommand_P((PSTR("T0")));
 					st_synchronize();
-					if(gif_processing_state == PROCESSING_ERROR)return;
+					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 					SERIAL_PROTOCOLPGM("Calibration Successful\n");
 					
 					doblocking=false;
@@ -5974,7 +5974,7 @@ void insertmetod(){
 		feedrate=homing_feedrate[Z_AXIS];
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*2/60, active_extruder); //check speed
 		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR)return;
+		if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 		/****************************************************/
 	}
 	gif_processing_state = PROCESSING_STOP;
@@ -6110,7 +6110,7 @@ void Calib_check_temps(void){
 			
 			manage_heater();
 			touchscreen_update();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			
 			if (millis() >= waitPeriod_s){
 				char buffer[25];
@@ -6308,7 +6308,7 @@ void Z_compensation_coolingdown(void){
 			//previous_millis_cmd = millis();
 			manage_heater();
 			touchscreen_update();
-			if(gif_processing_state == PROCESSING_ERROR)return;
+			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 			
 		}
 		gif_processing_state = PROCESSING_STOP;

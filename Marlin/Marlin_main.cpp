@@ -6385,8 +6385,8 @@ inline void gcode_M536(){
 	Serial.println(F("M536 L[mode]"));
 	Serial.println(F("Led modes :"));
 	if(led_mode_state == 0){Serial.print(F("**-> "));}Serial.println(F("Mode 0 : default -> RGB: 255 255 255"));
-	if(led_mode_state == 1)Serial.print(F("**-> "));Serial.println(F("Mode 1 : random  -> RGB: +1 +2 +3, during printing"));
-	if(led_mode_state == 2)Serial.print(F("**-> "));Serial.println(F("Mode 2 : cycle   -> RGB: 6 states"));
+	if(led_mode_state == 1){Serial.print(F("**-> "));}Serial.println(F("Mode 1 : random  -> RGB: +1 +2 +3, during printing"));
+	if(led_mode_state == 2){Serial.print(F("**-> "));}Serial.println(F("Mode 2 : cycle   -> RGB: 6 states"));
 	
 	analogWrite(RED, 255); analogWrite(GREEN, 255); analogWrite(BLUE, 255);
 }

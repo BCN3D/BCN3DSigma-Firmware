@@ -240,9 +240,6 @@ extern unsigned int bed_offset_version;
 extern int flag_utilities_calibration_zcomensationmode_gauges;
 extern int fanSpeed;
 extern int Flag_fanSpeed_mirror;
-extern int sd_printing_temp_setting_offset_bed;
-extern int sd_printing_temp_setting_offset_hotent0;
-extern int sd_printing_temp_setting_offset_hotent1;
 #ifdef BARICUDA
 extern int ValvePressure;
 extern int EtoPPressure;
@@ -274,6 +271,10 @@ extern unsigned long stoptime;
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
+extern int8_t hotend0_relative_temp;
+extern int8_t hotend1_relative_temp;
+extern bool Flag_hotend0_relative_temp;
+extern bool Flag_hotend1_relative_temp;
 
 #ifdef DIGIPOT_I2C
 extern void digipot_i2c_set_current( int channel, float current );

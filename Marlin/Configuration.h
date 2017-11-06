@@ -271,7 +271,7 @@
 // 1010 is Pt1000 with 1k pullup (non standard)
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
-//#define RELATIVE_TEMP_PRINT
+#define RELATIVE_TEMP_PRINT
 
 #define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 1
@@ -1032,9 +1032,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 #define CALIB_FEEDRATE_ZAXIS 6*60 // bed homing speeds (mm/min)
 // default settings if screen not defined
-#ifndef SIGMA_TOUCH_SCREEN
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,96.43}  // default steps per unit for Ultimaker
-#endif
+//#ifndef SIGMA_TOUCH_SCREEN
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,96.43}  // default steps per unit for Ultimaker
+//#endif
 
 #ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
 	#if MOTHERBOARD == BCN3D_BOARD
@@ -1042,7 +1042,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
 		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,152}	  //1/16 microstepping for BCN3D Board
 		#elif BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
-		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,97.8}	  //1/16 microstepping for BCN3D Board
+		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,503.77}	  //1/16 microstepping for bondtech kit BCN3D
 		#endif
 		//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}	  //MK7 1/8 microstepping for BCN3D Board
 	#else

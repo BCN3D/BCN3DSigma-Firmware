@@ -4343,7 +4343,7 @@ void update_screen_printing(){
 			#ifdef RELATIVE_TEMP_PRINT
 			if(Flag_hotend0_relative_temp){
 				hotend0_relative_temp +=5;
-				target_temperature[0]=target_temperature[0]+hotend0_relative_temp;
+				target_temperature[0]+=5;
 				}else{
 				target_temperature[0]+=5;
 			}
@@ -4364,7 +4364,7 @@ void update_screen_printing(){
 			#ifdef RELATIVE_TEMP_PRINT
 			if(Flag_hotend1_relative_temp){
 				hotend1_relative_temp +=5;
-				target_temperature[1]=target_temperature[1]+hotend0_relative_temp;
+				target_temperature[1]+=5;
 				}else{
 				target_temperature[1]+=5;
 			}
@@ -4410,7 +4410,7 @@ void update_screen_printing(){
 			#ifdef RELATIVE_TEMP_PRINT
 			if(Flag_hotend0_relative_temp){
 				hotend0_relative_temp -=5;
-				target_temperature[0]=target_temperature[0]+hotend0_relative_temp;
+				target_temperature[0]-=5;
 				}else{
 				target_temperature[0]-=5;
 			}
@@ -4432,7 +4432,7 @@ void update_screen_printing(){
 			#ifdef RELATIVE_TEMP_PRINT
 			if(Flag_hotend1_relative_temp){
 				hotend1_relative_temp -=5;
-				target_temperature[1]=target_temperature[1]+hotend1_relative_temp;
+				target_temperature[1]-=5;
 			}else{
 				target_temperature[1]-=5;
 			}

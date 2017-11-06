@@ -28,7 +28,7 @@
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
 #define VERSION_STRING  "01-1.2.7RC"
-#define BUILD_DATE  "|M11.02"
+#define BUILD_DATE  "|M11.06"
 #define VERSION_NUMBER  127
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
@@ -271,6 +271,7 @@
 // 1010 is Pt1000 with 1k pullup (non standard)
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
+//#define RELATIVE_TEMP_PRINT
 
 #define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 1
@@ -798,7 +799,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define BOWDEN_LENGTH 1050
 #endif
 #define EXTRUDER_LENGTH 50
-#define INSERT_FAST_SPEED 5000	
+#define INSERT_FAST_SPEED 2100	
 #define INSERT_SLOW_SPEED 150
 #define REMOVE_FIL_TEMP		170
 #define INSERT_FIL_TEMP		230
@@ -1058,7 +1059,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 
-#define DEFAULT_MAX_FEEDRATE          {200, 200, 15, 60}    // (mm/sec)
+#define DEFAULT_MAX_FEEDRATE          {200, 200, 15, 40}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {2250,2250,80,800}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 #define DEFAULT_HYSTERESIS_MM         0, 0, 0, 0  // X, Y, Z, E hysteresis in mm. These are the extra distances that are performed when an axis changes direction to compensate for any mechanical hysteresis your printer has.
 #define DEFAULT_HYSTERESIS
@@ -1321,7 +1322,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //////	BED COMPENSATION G36
 
-#define RETRACT_SPEED_G36		2500
+#define RETRACT_SPEED_G36		2100
 
 
 //////	FULL CALIBRATION SETTINGS

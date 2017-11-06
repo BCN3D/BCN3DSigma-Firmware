@@ -1291,6 +1291,8 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 						Serial.println(buffer);
 						//sprintf_P(buffer, PSTR("Info: First layer printed with"));
 						genie.WriteStr(STRING_RAFT_ADVISE_Z_OFFSET,buffer);
+						LCD_FSM_input_buton_flag = -1;
+						lcd_busy = false;
 						return;
 						//sprintf_P(buffer, PSTR("Info: First layer printed with %s Hotend will be %d.%1d%1d mm higher. You can avoid this compensation using gauges.\n")
 					}
@@ -4231,9 +4233,10 @@ void update_screen_endinggcode(){
 		setTargetHotend1(0);
 		setTargetBed(0);
 		Flag_fanSpeed_mirror=0;
-		sd_printing_temp_setting_offset_bed = 0;
-		sd_printing_temp_setting_offset_hotent0 = 0;
-		sd_printing_temp_setting_offset_hotent1 = 0;
+		#ifdef RELATIVE_TEMP_PRINT
+		Flag_hotend0_relative_temp = false;
+		Flag_hotend1_relative_temp = false;
+		#endif
 		saved_print_smartpurge_flag = false;
 		screen_sdcard = false;
 		surfing_utilities=false;
@@ -4337,7 +4340,16 @@ void update_screen_printing(){
 		char buffer[25];
 		if (target_temperature[0] < HEATER_0_MAXTEMP)
 		{
+			#ifdef RELATIVE_TEMP_PRINT
+			if(Flag_hotend0_relative_temp){
+				hotend0_relative_temp +=5;
+				target_temperature[0]=target_temperature[0]+hotend0_relative_temp;
+				}else{
+				target_temperature[0]+=5;
+			}
+			#else
 			target_temperature[0]+=5;
+			#endif
 			//sd_printing_temp_setting_offset_hotent0+=5;
 			sprintf_P(buffer, PSTR("%3d %cC"),target_temperature[0],0x00B0);
 			genie.WriteStr(STRING_SDPRINTTING_SETINGS_LEFT,buffer);
@@ -4349,7 +4361,16 @@ void update_screen_printing(){
 		char buffer[25];;
 		if (target_temperature[1]<HEATER_1_MAXTEMP)
 		{
+			#ifdef RELATIVE_TEMP_PRINT
+			if(Flag_hotend1_relative_temp){
+				hotend1_relative_temp +=5;
+				target_temperature[1]=target_temperature[1]+hotend0_relative_temp;
+				}else{
+				target_temperature[1]+=5;
+			}
+			#else
 			target_temperature[1]+=5;
+			#endif
 			//sd_printing_temp_setting_offset_hotent1+=5;
 			sprintf_P(buffer, PSTR("%3d %cC"),target_temperature[1],0x00B0);
 			genie.WriteStr(STRING_SDPRINTTING_SETINGS_RIGHT,buffer);
@@ -4386,7 +4407,16 @@ void update_screen_printing(){
 		char buffer[25];
 		if (target_temperature[0] > HEATER_0_MINTEMP)
 		{
+			#ifdef RELATIVE_TEMP_PRINT
+			if(Flag_hotend0_relative_temp){
+				hotend0_relative_temp -=5;
+				target_temperature[0]=target_temperature[0]+hotend0_relative_temp;
+				}else{
+				target_temperature[0]-=5;
+			}
+			#else
 			target_temperature[0]-=5;
+			#endif
 			//sd_printing_temp_setting_offset_hotent0-=5;
 			sprintf_P(buffer, PSTR("%3d %cC"),target_temperature[0],0x00B0);
 			genie.WriteStr(STRING_SDPRINTTING_SETINGS_LEFT,buffer);
@@ -4399,7 +4429,16 @@ void update_screen_printing(){
 		char buffer[25];
 		if (target_temperature[1]>HEATER_1_MINTEMP)
 		{
+			#ifdef RELATIVE_TEMP_PRINT
+			if(Flag_hotend1_relative_temp){
+				hotend1_relative_temp -=5;
+				target_temperature[1]=target_temperature[1]+hotend1_relative_temp;
+			}else{
+				target_temperature[1]-=5;
+			}
+			#else
 			target_temperature[1]-=5;
+			#endif			
 			//sd_printing_temp_setting_offset_hotent1-=5;
 			sprintf_P(buffer, PSTR("%3d %cC"),target_temperature[1],0x00B0);
 			genie.WriteStr(STRING_SDPRINTTING_SETINGS_RIGHT,buffer);
@@ -4498,6 +4537,10 @@ void update_screen_printing(){
 		surfing_temps = false;
 		card.sdprinting = false;
 		card.sdispaused = false;
+		#ifdef RELATIVE_TEMP_PRINT
+		Flag_hotend0_relative_temp = false;
+		Flag_hotend1_relative_temp = false;
+		#endif
 		gif_processing_state = PROCESSING_STOP;
 	}
 	if (surfing_utilities)
@@ -5099,9 +5142,6 @@ void lcd_animation_handler(){//We process the animations frames
 			quickStop();
 			set_dual_x_carriage_mode(DEFAULT_DUAL_X_CARRIAGE_MODE);
 			autotempShutdown();
-			sd_printing_temp_setting_offset_bed = 0;
-			sd_printing_temp_setting_offset_hotent0 = 0;
-			sd_printing_temp_setting_offset_hotent1 = 0;
 			setTargetHotend0(0);
 			setTargetHotend1(0);
 			setTargetBed(0);
@@ -5411,7 +5451,7 @@ void lcd_animation_handler(){//We process the animations frames
 					home_axis_from_code(true, true, false);
 					enquecommand_P((PSTR("T0")));
 					st_synchronize();
-					if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
+					if(gif_processing_state == PROCESSING_ERROR) return;
 					SERIAL_PROTOCOLPGM("Calibration Successful\n");
 					
 					doblocking=false;
@@ -5974,7 +6014,7 @@ void insertmetod(){
 		feedrate=homing_feedrate[Z_AXIS];
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*2/60, active_extruder); //check speed
 		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
+		if(gif_processing_state == PROCESSING_ERROR) return;
 		/****************************************************/
 	}
 	gif_processing_state = PROCESSING_STOP;
@@ -6110,7 +6150,7 @@ void Calib_check_temps(void){
 			
 			manage_heater();
 			touchscreen_update();
-			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
+			if(gif_processing_state == PROCESSING_ERROR) return;
 			
 			if (millis() >= waitPeriod_s){
 				char buffer[25];
@@ -6308,7 +6348,7 @@ void Z_compensation_coolingdown(void){
 			//previous_millis_cmd = millis();
 			manage_heater();
 			touchscreen_update();
-			if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
+			if(gif_processing_state == PROCESSING_ERROR) return;
 			
 		}
 		gif_processing_state = PROCESSING_STOP;

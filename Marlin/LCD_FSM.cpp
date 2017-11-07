@@ -3691,6 +3691,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			surfing_utilities = true;
 
 			if(flag_utilities_calibration_zcomensationmode_gauges == 1888){
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_PROCESSING,0);
+				gif_processing_state = PROCESSING_DEFAULT;
+				doblocking= true;
+				home_axis_from_code(true,true,true);
+				gif_processing_state = PROCESSING_STOP;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBX,0);
 				
 				}else if(flag_utilities_calibration_zcomensationmode_gauges == 2888){
@@ -6314,13 +6319,18 @@ void Full_calibration_Y_set(float offset){
 void Z_compensation_coolingdown(void){
 	char buffer[256];
 	static unsigned long waitPeriod_s = millis();
+	if(degHotend(which_extruder)>NYLON_TEMP_COOLDOWN_THRESHOLD){
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+		}else{
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_PROCESSING,0);
+	}
 	setTargetHotend1(0);
 	setTargetHotend0(0);
 	setTargetBed(0);
 	Config_StoreSettings();
 	which_extruder = (extruder_offset[Z_AXIS][RIGHT_EXTRUDER]<0) ? 1:0;
 	if(degHotend(which_extruder)>NYLON_TEMP_COOLDOWN_THRESHOLD){
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+		//genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 		if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
 		else digitalWrite(FAN2_PIN, 1);
 		gif_processing_state = PROCESSING_ADJUSTING;
@@ -6361,7 +6371,7 @@ void Z_compensation_coolingdown(void){
 	/*sprintf_P(offset_string, PSTR("Remember install gauges\non %s Hotend to correct %d.%1d%1dmm"),
 	((extruder_offset[Z_AXIS][RIGHT_EXTRUDER] < 0)?"right":"left"),
 	(int)(5*offset_aprox)/100,(int)((5*offset_aprox)/10)%10,(int)(5*offset_aprox)%10);*/
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_PROCESSING,0);
+	//genie.WriteObject(GENIE_OBJ_FORM,FORM_PROCESSING,0);
 	gif_processing_state = PROCESSING_DEFAULT;
 	if(home_made_Z){
 		home_axis_from_code(true, true, false);

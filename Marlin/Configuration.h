@@ -117,7 +117,7 @@
 #endif
 
 #ifndef BCN3D_SCREEN_VERSION_SETUP
-	#define BCN3D_SCREEN_VERSION_SETUP BCN3D_SIGMA_PRINTER_SIGMA
+	#define BCN3D_SCREEN_VERSION_SETUP BCN3D_SIGMA_PRINTER_SIGMAX
 #endif
 #if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
 	#define PRINTER_NAME "BCN3D Sigma"
@@ -799,7 +799,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define BOWDEN_LENGTH 1050
 #endif
 #define EXTRUDER_LENGTH 50
-#define INSERT_FAST_SPEED 2100	
+#define INSERT_FAST_SPEED 3600	//max speed 60mm/s
 #define INSERT_SLOW_SPEED 150
 #define REMOVE_FIL_TEMP		170
 #define INSERT_FIL_TEMP		230
@@ -1026,9 +1026,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define NUM_LINES 10
 //#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
 #if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-	#define HOMING_FEEDRATE {60*60, 90*60, 15*60, 0} ///{75*60, 65*60, 6*60, 0}  // old homing speeds (mm/min)
+	#define HOMING_FEEDRATE {60*60, 90*60, 12*60, 0} ///{75*60, 65*60, 6*60, 0}  // old homing speeds (mm/min)
 #else
-	#define HOMING_FEEDRATE {60*60, 90*60, 15*60, 0} ///{75*60, 65*60, 6*60, 0}  // old homing speeds (mm/min)
+	#define HOMING_FEEDRATE {60*60, 90*60, 12*60, 0} ///{75*60, 65*60, 6*60, 0}  // old homing speeds (mm/min)
 #endif
 #define CALIB_FEEDRATE_ZAXIS 6*60 // bed homing speeds (mm/min)
 // default settings if screen not defined
@@ -1059,7 +1059,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 
-#define DEFAULT_MAX_FEEDRATE          {200, 200, 15, 40}    // (mm/sec)
+#define DEFAULT_MAX_FEEDRATE          {200, 200, 12, 60}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {2250,2250,80,800}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 #define DEFAULT_HYSTERESIS_MM         0, 0, 0, 0  // X, Y, Z, E hysteresis in mm. These are the extra distances that are performed when an axis changes direction to compensate for any mechanical hysteresis your printer has.
 #define DEFAULT_HYSTERESIS

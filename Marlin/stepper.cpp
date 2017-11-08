@@ -201,6 +201,26 @@ void display_check_rx (void) {
 			*MYSERIAL_SCREEN._udr;
 		}
 	}
+	if (bit_is_set(*MYSERIAL._ucsra, 7)) {
+		if (bit_is_clear(*MYSERIAL._ucsra, UPE0)) {
+
+			// No Parity error, read byte and store it in the buffer if there is room
+			unsigned char c = *MYSERIAL._udr;
+			rx_buffer_index_t i = (unsigned int)(MYSERIAL._rx_buffer_head + 1) % SERIAL_RX_BUFFER_SIZE;
+
+			// if we should be storing the received character into the location
+			// just before the tail (meaning that the head would advance to the
+			// current location of the tail), we're about to overflow the buffer
+			// and so we don't write the character or advance the head.
+			if (i != MYSERIAL._rx_buffer_tail) {
+				MYSERIAL._rx_buffer[MYSERIAL._rx_buffer_head] = c;
+				MYSERIAL._rx_buffer_head = i;
+			}
+			} else {
+			// Parity error, read byte but discard it
+			*MYSERIAL._udr;
+		}
+	}
 	#endif
 }
 #endif

@@ -7,7 +7,7 @@
 #ifndef TOUCH_SCREEN_DEFINITIONS_H_
 #define TOUCH_SCREEN_DEFINITIONS_H_
 
-
+#include "Configuration.h"
 
 //Form
 //without form declared///////////////////////////////

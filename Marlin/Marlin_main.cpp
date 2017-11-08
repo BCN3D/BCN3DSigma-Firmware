@@ -3691,8 +3691,6 @@ inline void gcode_G34(){
 			}
 			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_CLEANBED,0);
 			
-			
-			
 		}
 		else{
 			#ifdef SIGMA_TOUCH_SCREEN
@@ -3845,7 +3843,7 @@ inline void gcode_G36()
 	home_axis_from_code(true,true,true);
 	gcode_G34();
 }
-inline void gcode_G69(){
+inline void gcode_G69(){//Pause
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	SERIAL_PROTOCOLLNPGM("G69 ACTIVATED");
 	////*******SAVE ACTUIAL POSITION
@@ -3921,7 +3919,7 @@ inline void gcode_G69(){
 	flag_sdprinting_dararefresh = true;
 	#endif //ENABLE_AUTO_BED_LEVELING
 }
-inline void gcode_G70(){
+inline void gcode_G70(){//Resume
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	////*******LOAD ACTUIAL POSITION
 	
@@ -4000,7 +3998,7 @@ inline void gcode_G70(){
 	#endif //ENABLE_AUTO_BED_LEVELING
 	
 }
-inline void gcode_G71(){//pause rest
+inline void gcode_G71(){//Grinding avoider go park
 	saved_position[X_AXIS] = current_position[X_AXIS];
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled = false;
 	if(dual_x_carriage_mode == DXC_DUPLICATION_MODE){
@@ -4025,7 +4023,7 @@ inline void gcode_G71(){//pause rest
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled = true;
 	
 }
-inline void gcode_G72(){//resume
+inline void gcode_G72(){////Grinding avoider resume
 	
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled = false;
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE){
@@ -7116,20 +7114,20 @@ void process_commands()
 			gcode_G36();
 			break;
 			
-			case 69: //G69 pause
+			case 69: //G69 pause print
 			gcode_G69();
 			break;
 			
 			case 70:
-			gcode_G70();
+			gcode_G70();//G69 resume print
 			break;
 			
 			case 71:
-			gcode_G71();
+			gcode_G71();//Grinding avoider
 			break;
 			
 			case 72:
-			gcode_G72();
+			gcode_G72();//Grinding avoider
 			break;
 
 			case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
@@ -8718,7 +8716,7 @@ void z_test_print_code(int tool, float x_offset){
 	if(gif_processing_state == PROCESSING_ERROR) return;
 	int	  distance_x = 4;
 	int	  distance_y = 72;
-	float initial_x_pos = 144.5 + x_offset;
+	float initial_x_pos = 145.5 + x_offset;
 	float initial_y_pos = 183.5;
 	float initial_z_pos = 0.3;
 	//float z_layer_test = 0.2;

@@ -1060,7 +1060,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 #if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-	#define DEFAULT_MAX_FEEDRATE          {200, 200, 15, 60}    // (mm/sec)
+	#define DEFAULT_MAX_FEEDRATE          {200, 200, 12, 60}    // (mm/sec)
 	#define DEFAULT_MAX_ACCELERATION      {2250,2250,80,800}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 	#define DEFAULT_HYSTERESIS_MM         0, 0, 0, 0  // X, Y, Z, E hysteresis in mm. These are the extra distances that are performed when an axis changes direction to compensate for any mechanical hysteresis your printer has.
 	#define DEFAULT_HYSTERESIS
@@ -1078,7 +1078,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define DEFAULT_ZJERK                 0.4     // (mm/sec)
 	#define DEFAULT_EJERK                 5.0    // (mm/sec)
 #elif BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
-	#define DEFAULT_MAX_FEEDRATE          {200, 200, 15, 40}    // (mm/sec)
+	#define DEFAULT_MAX_FEEDRATE          {200, 200, 12, 40}    // (mm/sec)
 	#define DEFAULT_MAX_ACCELERATION      {2250,2250,80,800}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 	#define DEFAULT_HYSTERESIS_MM         0, 0, 0, 0  // X, Y, Z, E hysteresis in mm. These are the extra distances that are performed when an axis changes direction to compensate for any mechanical hysteresis your printer has.
 	#define DEFAULT_HYSTERESIS

@@ -4533,7 +4533,7 @@ void update_screen_printing(){
 		acceleration = acceleration_old;
 		
 		SERIAL_PROTOCOLPGM(" STOP PRINT \n");
-		
+		Flag_fanSpeed_mirror = 0;
 		cancel_heatup = true;
 		back_home = true;
 		home_made = false;
@@ -4557,6 +4557,8 @@ void update_screen_printing(){
 				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 				st_synchronize();
+				disable_e0();
+				disable_e1();
 				gif_processing_state = PROCESSING_STOP;
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_UTILITIES_FILAMENT_PURGE,0);
 			}
@@ -4568,6 +4570,8 @@ void update_screen_printing(){
 				current_position[E_AXIS]-=5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retract
 				st_synchronize();
+				disable_e0();
+				disable_e1();
 				gif_processing_state = PROCESSING_STOP;
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_UTILITIES_FILAMENT_PURGE,0);
 			}
@@ -4579,6 +4583,8 @@ void update_screen_printing(){
 				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);//Purge
 				st_synchronize();
+				disable_e0();
+				disable_e1();
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_UTILITIES_FILAMENT_ADJUST_LOAD, 0);
 			}
 		}
@@ -4589,6 +4595,8 @@ void update_screen_printing(){
 				current_position[E_AXIS]-=5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);//Retract
 				st_synchronize();
+				disable_e0();
+				disable_e1();
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_UTILITIES_FILAMENT_ADJUST_UNLOAD, 0);
 			}
 		}
@@ -4854,6 +4862,8 @@ void update_screen_noprinting(){
 				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 				st_synchronize();
+				disable_e0();
+				disable_e1();
 				gif_processing_state = PROCESSING_STOP;
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_UTILITIES_FILAMENT_PURGE,0);
 			}
@@ -4865,6 +4875,8 @@ void update_screen_noprinting(){
 				current_position[E_AXIS]-=5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retract
 				st_synchronize();
+				disable_e0();
+				disable_e1();
 				gif_processing_state = PROCESSING_STOP;
 				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_UTILITIES_FILAMENT_PURGE,0);
 			}
@@ -4876,6 +4888,8 @@ void update_screen_noprinting(){
 				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);//Purge
 				st_synchronize();
+				disable_e0();
+				disable_e1();
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_UTILITIES_FILAMENT_ADJUST_LOAD, 0);
 			}
 		}
@@ -4886,6 +4900,8 @@ void update_screen_noprinting(){
 				current_position[E_AXIS]-=5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);//Retract
 				st_synchronize();
+				disable_e0();
+				disable_e1();
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_UTILITIES_FILAMENT_ADJUST_UNLOAD, 0);
 			}
 		}

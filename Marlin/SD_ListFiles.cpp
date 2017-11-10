@@ -181,8 +181,8 @@ int Listfiles::search_line_data_code(char code){
 			posi++;
 		}
 		exit++;
-		if(exit>20 || card.isEndFile()){
-			return 1;
+		if(exit>300 || card.isEndFile()){
+			return -1;
 		}
 	}
 	return 0;

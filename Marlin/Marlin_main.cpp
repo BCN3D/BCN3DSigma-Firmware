@@ -5538,7 +5538,14 @@ inline void gcode_M99(){
 	if(code_seen('E')) hysteresis.SetAxis( E_AXIS, code_value() );
 }
 inline void gcode_M115(){
+	char buffer[25];
+	if(UI_SerialID0 || UI_SerialID1 || UI_SerialID2){
+		sprintf(buffer, "%03d.%03d%03d.%04d",UI_SerialID0, (int)(UI_SerialID1/1000),(int)(UI_SerialID1%1000), UI_SerialID2);
+		}else{
+		sprintf(buffer, UI_SerialID);
+	}
 	SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
+	SERIAL_PROTOCOLLN(buffer);
 }
 inline void gcode_M117(){
 	char *starpos = NULL;

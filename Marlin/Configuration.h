@@ -28,7 +28,7 @@
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
 #define VERSION_STRING  "01-1.2.7RC"
-#define BUILD_DATE  "|M11.14"
+#define BUILD_DATE  "|M11.23"
 #define VERSION_NUMBER  127
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
@@ -125,6 +125,11 @@
 	#define PRINTER_NAME "BCN3D Sigmax"
 #endif
 
+#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	//#define ENABLE_DUPLI_MIRROR
+#elif BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+	#define ENABLE_DUPLI_MIRROR
+#endif
 
 #if MOTHERBOARD == MEGATRONICS_V3
 	#define PROTO1

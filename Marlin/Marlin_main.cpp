@@ -1129,7 +1129,7 @@ void get_command()
 		(serial_char == ':' && comment_mode == false) ||
 		serial_count >= (MAX_CMD_SIZE - 1) )
 		{
-			//Serial.println(cmdbuffer[bufindw]);
+			Serial.println(cmdbuffer[bufindw]);
 			if(!serial_count) { //if empty line
 				comment_mode = false; //for new command
 				return;
@@ -1266,7 +1266,7 @@ void get_command()
 
 	static bool stop_buffering=false;
 	if(buflen==0) stop_buffering=false;
-	#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+	#ifdef ENABLE_DUPLI_MIRROR
 	static int raft_indicator = 0;
 	static int raft_indicator_is_Gcode = 0;
 	static uint32_t fileraftstart = 0;
@@ -7956,7 +7956,7 @@ void calculate_delta(float cartesian[3])
 	*/
 }
 #endif
-#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+#ifdef ENABLE_DUPLI_MIRROR
 inline void dual_mode_duplication_z_adjust_raft(void);
 inline void dual_mode_duplication_extruder_parked(void);
 inline void dual_mode_duplication_mirror_extruder_parked(void);

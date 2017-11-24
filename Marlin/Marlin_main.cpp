@@ -1,6 +1,6 @@
 /*
 - Marlin_main.cpp - Here there are the Main loop, Serial Communications processing and GCODE processing.
-Last Update: 16/10/2017
+Last Update: 23/11/2017
 Author: Alejandro Garcia (S3mt0x)
 */
 
@@ -1129,6 +1129,7 @@ void get_command()
 		(serial_char == ':' && comment_mode == false) ||
 		serial_count >= (MAX_CMD_SIZE - 1) )
 		{
+			//Serial.println(cmdbuffer[bufindw]);
 			if(!serial_count) { //if empty line
 				comment_mode = false; //for new command
 				return;
@@ -1265,7 +1266,7 @@ void get_command()
 
 	static bool stop_buffering=false;
 	if(buflen==0) stop_buffering=false;
-	#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+	#ifdef ENABLE_DUPLI_MIRROR
 	static int raft_indicator = 0;
 	static int raft_indicator_is_Gcode = 0;
 	static uint32_t fileraftstart = 0;
@@ -1306,7 +1307,7 @@ void get_command()
 				return; //if empty line
 			}
 			cmdbuffer[bufindw][serial_count] = 0; //terminate string
-			#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+			#ifdef ENABLE_DUPLI_MIRROR
 			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
 				switch(raft_indicator){
 					
@@ -1384,7 +1385,7 @@ void get_command()
 			
 			if(serial_char == ';') comment_mode = true;
 			if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
-			#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+			#ifdef ENABLE_DUPLI_MIRROR
 			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){//5 = dual mode raft
 				if(serial_char == 'G'&& !comment_mode) raft_indicator_is_Gcode = 1;
 				if(raft_indicator_is_Gcode){
@@ -5538,7 +5539,14 @@ inline void gcode_M99(){
 	if(code_seen('E')) hysteresis.SetAxis( E_AXIS, code_value() );
 }
 inline void gcode_M115(){
+	char buffer[25];
+	if(UI_SerialID0 || UI_SerialID1 || UI_SerialID2){
+		sprintf(buffer, "%03d.%03d%03d.%04d",UI_SerialID0, (int)(UI_SerialID1/1000),(int)(UI_SerialID1%1000), UI_SerialID2);
+		}else{
+		sprintf(buffer, UI_SerialID);
+	}
 	SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
+	SERIAL_PROTOCOLLN(buffer);
 }
 inline void gcode_M117(){
 	char *starpos = NULL;
@@ -6532,7 +6540,7 @@ inline void gcode_M600(){
 	
 }
 inline void gcode_M605(){
-	#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+	#ifdef ENABLE_DUPLI_MIRROR
 	#ifdef DUAL_X_CARRIAGE
 	//    M605 S0: Full control mode. The slicer has full control over x-carriage movement
 	//    M605 S1: Auto-park mode. The inactive head will auto park/unpark without slicer involvement
@@ -6591,7 +6599,7 @@ inline void gcode_M605(){
 		home_axis_from_code(true, false, false);
 	}
 	#endif //DUAL_X_CARRIAGE
-	#elif BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	#else
 	#ifdef DUAL_X_CARRIAGE
 	//    M605 S0: Full control mode. The slicer has full control over x-carriage movement
 	//    M605 S1: Auto-park mode. The inactive head will auto park/unpark without slicer involvement
@@ -7948,7 +7956,7 @@ void calculate_delta(float cartesian[3])
 	*/
 }
 #endif
-#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+#ifdef ENABLE_DUPLI_MIRROR
 inline void dual_mode_duplication_z_adjust_raft(void);
 inline void dual_mode_duplication_extruder_parked(void);
 inline void dual_mode_duplication_mirror_extruder_parked(void);
@@ -8057,7 +8065,7 @@ void prepare_move()
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
 			active_extruder_parked = false;
 		}
-		#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+		#ifdef ENABLE_DUPLI_MIRROR
 		else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0)
 		{
 			dual_mode_duplication_extruder_parked();

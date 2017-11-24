@@ -28,7 +28,7 @@
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
 #define VERSION_STRING  "01-1.2.7RC"
-#define BUILD_DATE  "|M11.23"
+#define BUILD_DATE  "|M11.24"
 #define VERSION_NUMBER  127
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
@@ -1047,7 +1047,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
 		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,152}	  //1/16 microstepping for BCN3D Board
 		#elif BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
-		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,503.77}	  //1/16 microstepping for bondtech kit BCN3D
+		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,492.45}	  //1/16 microstepping for bondtech kit BCN3D
 		#endif
 		//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}	  //MK7 1/8 microstepping for BCN3D Board
 	#else

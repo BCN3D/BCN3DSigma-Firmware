@@ -991,7 +991,6 @@ void setup()
 	//enquecommand(cmd);
 	//enquecommand_P(PSTR("M24"));
 	#endif
-	
 	preheat_E0_value = print_temp_l;
 	preheat_E1_value = print_temp_r;
 	preheat_B_value = max(bed_temp_l,bed_temp_r);
@@ -1146,7 +1145,6 @@ void get_command()
 						SERIAL_ERROR_START;
 						SERIAL_ERRORPGM(MSG_ERR_LINE_NO);
 						SERIAL_ERRORLN(gcode_LastN);
-						//Serial.println(gcode_N);
 						FlushSerialRequestResend();
 						serial_count = 0;
 						return;
@@ -1189,6 +1187,9 @@ void get_command()
 						SERIAL_ERROR_START;
 						SERIAL_ERRORPGM(MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM);
 						SERIAL_ERRORLN(gcode_LastN);
+						while(MYSERIAL.available()){  //is there anything to read?
+							char getData = MYSERIAL.read();  //if yes, read it
+						}   // don't do anything with it.
 						serial_count = 0;
 						return;
 					}
@@ -3897,7 +3898,7 @@ inline void gcode_G69(){//Pause
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 		
 		
-		}else if(dual_x_carriage_mode == DXC_FULL_SIGMA_MODE || dual_x_carriage_mode == DXC_DUPLICATION_MIRROR_MODE){
+		}else{
 		feedrate=homing_feedrate[X_AXIS];
 		if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
 			current_position[X_AXIS] = 0;
@@ -6365,6 +6366,14 @@ inline void gcode_M530(){ //Set Calibration Offset
 	else Zcalib = extruder_offset[Z_AXIS][1];
 	if (code_seen('P')) Zprobecalib = code_value();
 	else Zprobecalib = zprobe_zoffset;
+	MYSERIAL.print(F("Set M530 X "));
+	MYSERIAL.print(Xcalib);
+	MYSERIAL.print(F(" Y "));
+	MYSERIAL.print(Ycalib);
+	MYSERIAL.print(F(" Z "));
+	MYSERIAL.print(Zcalib);
+	MYSERIAL.print(F(" P "));
+	MYSERIAL.println(Zprobecalib);
 	Change_ConfigCalibration(Xcalib, Ycalib, Zcalib, Zprobecalib);
 	Config_StoreSettings();
 }
@@ -7820,7 +7829,9 @@ void changeTool(int ntool) { //ntool select the tool that will be active
 
 void FlushSerialRequestResend()
 {
-	//char cmdbuffer[bufindr][100]="Resend:";
+	while(MYSERIAL.available()){  //is there anything to read?
+		char getData = MYSERIAL.read();  //if yes, read it
+	}   // don't do anything with it.
 	MYSERIAL.flush();
 	SERIAL_PROTOCOLPGM(MSG_RESEND);
 	SERIAL_PROTOCOLLN(gcode_LastN + 1);

@@ -624,18 +624,17 @@ ISR(TIMER3_COMPA_vect)
         count_direction[E_AXIS]=1;
       }
     #endif //!ADVANCE
-	
-    #ifdef CARL_JAMES
-			// Check for any serial characters before we process any steps so we don't get any stuttering:
-			// We are in this interrupt for a long time, so check for any serial characters from the display:
-		display_check_rx ();
-	#endif
+	    
 
     for(int8_t i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves)
       #ifndef AT90USB
       //MYSERIAL.checkRx(); // Check for serial chars.
       #endif
-		  
+	#ifdef CARL_JAMES
+		// Check for any serial characters before we process any steps so we don't get any stuttering:
+		// We are in this interrupt for a long time, so check for any serial characters from the display:
+		display_check_rx ();
+	#endif	  
       #ifdef ADVANCE
       counter_e += current_block->steps_e;
       if (counter_e > 0) {

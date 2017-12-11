@@ -3239,7 +3239,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_CALIBZL_DOWN:
 
 			feedrate = homing_feedrate[Z_AXIS];
-			current_position[Z_AXIS] += 0.05;
+			if (current_position[Z_AXIS]<1.25) current_position[Z_AXIS] += 0.05;  //Max down is Z=0.5
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 			SERIAL_PROTOCOLPGM("Z position: ");
 			Serial.println(current_position[Z_AXIS]);
@@ -3249,7 +3249,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_CALIBZL_UP:
 
 			feedrate = homing_feedrate[Z_AXIS];
-			if (current_position[Z_AXIS]>-1.5) current_position[Z_AXIS] -= 0.05; //Max down is Z=-0.5
+			if (current_position[Z_AXIS]>-5.0) current_position[Z_AXIS] -= 0.05;  //Max up is Z=-5.0
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 			SERIAL_PROTOCOLPGM("Z position: ");
 			Serial.println(current_position[Z_AXIS]);
@@ -3297,7 +3297,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_CALIBZR_DOWN:
 			feedrate = homing_feedrate[Z_AXIS];
-			current_position[Z_AXIS] += 0.05;
+			if (current_position[Z_AXIS]<1.25) current_position[Z_AXIS] += 0.05;  //Max down is Z=0.5
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 			SERIAL_PROTOCOLPGM("Z position: ");
 			Serial.println(current_position[Z_AXIS]);
@@ -3305,7 +3305,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_CALIBZR_UP:
 			feedrate = homing_feedrate[Z_AXIS];
-			if (current_position[Z_AXIS]>-1.5) current_position[Z_AXIS] -= 0.05;  //Max down is Z=-0.5
+			if (current_position[Z_AXIS]>-5.0) current_position[Z_AXIS] -= 0.05;  //Max up is Z=-5.0
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 			SERIAL_PROTOCOLPGM("Z position: ");
 			Serial.println(current_position[Z_AXIS]);

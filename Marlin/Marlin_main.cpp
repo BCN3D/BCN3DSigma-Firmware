@@ -2912,8 +2912,27 @@ inline void gcode_G43(){
 	SERIAL_PROTOCOLLNPGM("Starting Z Calibration Wizard");
 	//Raise to correct
 	
-	current_position[Z_AXIS]=1;
+	current_position[Z_AXIS]=0.75;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15 , active_extruder);
+	
+	/*
+	
+				+--------+
+				|        |
+				|        |
+				|        |
+				|        |
+				+--------+					z =  max upper position -5.0mm
+				 \      /
+				  \____/
+					\/		_______________ z = 0
+									/\
+									0.75 mm
+									\/
+				___________________________ z = Init position
+	
+											z =  max lower position 1.25mm
+	*/
 	
 	current_position[Y_AXIS]=Y_MAX_POS/2;
 	if(active_extruder == LEFT_EXTRUDER) {

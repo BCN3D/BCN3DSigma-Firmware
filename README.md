@@ -1,4 +1,5 @@
 ﻿# BCN3D Sigma Firmware based on Marlin
+![image](https://user-images.githubusercontent.com/17469944/33208531-37d92f5c-d112-11e7-83e0-91fad775a7ec.png)
 
 This is the repository that contains the firmware for the BCN3D Sigma 3D Printer. It's based on the well-known Marlin but with some modifications.
 

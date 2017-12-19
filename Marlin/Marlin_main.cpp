@@ -780,7 +780,7 @@ void setup()
 	//st_init();    // Initialize stepper, this enables interrupts!
 	
 	
-	#ifdef SIGMA_TOUCH_SCREEN
+
 
 	
 	#if MOTHERBOARD == BCN3D_BOARD
@@ -792,56 +792,7 @@ void setup()
 	digitalWrite(RESETLINE, 0);  // Reset the Display
 	delay(100);
 	digitalWrite(RESETLINE, 1);  // unReset the Display
-	
-	// Delay no longer required, this will now smartly proceed once the display is awake
-	
-	long startupTime = millis();
-	Serial.print(F("display offline"));
-	while (!genie.Begin(MYSERIAL_SCREEN)) // Set up Genie to use Serial3, but also returns if the Display has responded and is online
-	{
-		Serial.print(F("."));
-		delay(100);
-	}
-	Serial.println();
-	if (genie.online()) // When the display has responded above, do the following once its online
-	{
-		Serial.println(F("display online!"));
-		Serial.print(F("Took ")); Serial.print(millis()-startupTime); Serial.println(F(" to Start Display from Reset"));
-		genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
-	}
-	
-	/* Changes timeout flag (ms) to force disconnection,
-	Don't go too low,if you see it connecting and disconnecting, increase the value
-	Higher value leads to longer time before disconnection */
-	//genie.timeout(500); // Default: 1250ms
-	
-	//genie.debug(Serial, 6); // prints debug information to the serial monitor port, all reports & critical info
-	int i =0;
-	while ( i<83){
-		if (millis() >= waitPeriod){
-			
-			genie.WriteObject(GENIE_OBJ_VIDEO,0,i);
-			i+=1;
-			waitPeriod = GIF_FRAMERATE+millis();	//Every 5s
-		}
-		
-		
-		
-	}
-	genie.WriteStr(STRING_INIT_FIRWAREVERSION,VERSION_STRING);
-	while(led < 256){
-		if (millis() >= waitPeriod)
-		{
-			analogWrite(RED,led);
-			analogWrite(GREEN,led);
-			analogWrite(BLUE,led);
-			waitPeriod=4+millis();
-			led++;
-		}
-	}
-	
-	
-	
+	#endif
 	// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 	log_prints = 0;
 	log_hours_print = 0;
@@ -852,91 +803,7 @@ void setup()
 	log_max_temp_r = 0;
 	log_max_bed =0;
 	Config_RetrieveSettings();
-	
-	if(version_number < 122 || VERSION_NUMBER < version_number){
-		Config_ResetDefault();
-		version_number = VERSION_NUMBER;
-		FLAG_First_Start_Wizard=888;
-		Config_StoreSettings();
-		}else if(VERSION_NUMBER != version_number){
-		Config_ResetDefault();
-		version_number = VERSION_NUMBER;
-		FLAG_First_Start_Wizard=888;
-		Config_StoreSettings();
-	}
-	
-	if(saved_print_flag == 1888){
-		bool successSD = false;
 		
-		card.initsd();
-		if (card.cardOK){
-			
-			workDir_vector_lenght=saved_workDir_vector_lenght;
-			for(int i=0; i<saved_workDir_vector_lenght && i < 10;i++){
-				card.getWorkDirName();
-				card.getfilename(saved_workDir_vector[i]);
-				workDir_vector[i]=saved_workDir_vector[i];
-				if (!card.filenameIsDir){
-					SERIAL_PROTOCOLLNPGM("gcode found");
-					successSD = true;
-					}else{
-					if (card.chdir(card.filename)!=-1){
-						successSD = false;
-					}
-				}
-				
-			}
-			
-			
-		}
-		if(successSD){
-			screen_sdcard = true;
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
-			listsd.get_lineduration(true, NULL);
-			if(listsd.get_minutes() == -1){
-				sprintf_P(listsd.commandline2, "");
-			}
-			else{
-				sprintf(listsd.commandline2, "%d%% - %4d:%.2dh",listsd.get_percentage_save(saved_fileposition), listsd.get_hoursremaining_save(saved_fileposition), listsd.get_minutesremaining_save(saved_fileposition));
-			}
-			setfilenames(7);
-			}else{
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN,0);
-			saved_print_flag = 888;
-			Config_StoreSettings();
-		}
-		
-		}else if (FLAG_First_Start_Wizard==1888){
-		genie.WriteObject(GENIE_OBJ_FORM,FORN_SETUPASSISTANT_INIT,0);
-		int j = 0;
-		while ( j<GIF_FRAMES_INIT_FIRST_RUN){
-			if (millis() >= waitPeriod){
-				
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SETUPASSISTANT_INIT,j);
-				j+=1;
-				waitPeriod = GIF_FRAMERATE+millis();	//Every 5s
-			}
-			
-			
-			
-		}
-		genie.WriteObject(GENIE_OBJ_FORM,FORN_SETUPASSISTANT_YESNOT,0);
-	}
-	#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
-	else if(flag_utilities_calibration_zcomensationmode_gauges == 1888 || flag_utilities_calibration_zcomensationmode_gauges == 2888 ){
-		genie.WriteObject(GENIE_OBJ_FORM, FORM_Z_COMPENSATION_COMFIRMATION,0);
-	}
-	#endif
-	
-	else{
-		
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN,0);
-		
-	}
-	
-	
-	#endif
-	#endif
 	
 	tp_init();    // Initialize temperature loop
 	plan_init();  // Initialize planner;
@@ -957,9 +824,7 @@ void setup()
 
 	
 	//enable 24V
-	
-	
-	
+		
 	delay(1);
 	digitalWrite(RELAY, HIGH); //Relay On
 
@@ -978,23 +843,11 @@ void setup()
 	digitalWrite(SERVO0_PIN, LOW); // turn it off
 	#endif // Z_PROBE_SLED
 
-
-	#ifndef SIGMA_TOUCH_SCREEN  //Print First Gcode
-	//char cmd[30];
-	//char* c;
-	//card.getfilename(0); //First gcode
-	//sprintf_P(cmd, PSTR("M23 %s"), card.filename);
-	//for(c = &cmd[4]; *c; c++)
-	//{
-	//*c = tolower(*c);
-	//}
-	//enquecommand(cmd);
-	//enquecommand_P(PSTR("M24"));
-	#endif
 	preheat_E0_value = print_temp_l;
 	preheat_E1_value = print_temp_r;
 	preheat_B_value = max(bed_temp_l,bed_temp_r);
 	
+	Serial.println(F("display offline"));
 }
 
 
@@ -1100,21 +953,181 @@ void thermal_error_screen_on(){
 	is_changing_filament = false;
 	is_purging_filament = false;
 }
-
-
-
 #ifdef SIGMA_TOUCH_SCREEN
+bool touchscreen_init(){
+	static char state_init = '0';
+	
+		static long waitPeriod = millis();
+		static long startupTime = millis();
+		
+		if(state_init == '0'){
+			if(!genie.Begin(MYSERIAL_SCREEN)) // Set up Genie to use Serial2, but also returns if the Display has responded and is online
+			{
+				if (millis() >= waitPeriod){
+				
+					Serial.print(F("."));
+					waitPeriod = 100+millis();
+				}
+			}
+			else{
+				state_init = 'A';
+			}
+		}
+		if (genie.online() && state_init == 'A') // When the display has responded above, do the following once its online
+		{
+			Serial.println();
+			Serial.println(F("display online!"));
+			Serial.print(F("Took ")); Serial.print(millis()-startupTime); Serial.println(F(" to Start Display from Reset"));
+			genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
+			/* Changes timeout flag (ms) to force disconnection,
+			Don't go too low,if you see it connecting and disconnecting, increase the value
+			Higher value leads to longer time before disconnection */
+			//genie.timeout(500); // Default: 1250ms
+			
+			//genie.debug(Serial, 6); // prints debug information to the serial monitor port, all reports & critical info
+			genie.WriteStr(STRING_INIT_FIRWAREVERSION,VERSION_STRING);
+			state_init = 'B';
+		}
+		if(state_init == 'B'){
+			static uint8_t i = 0;
+			
+			if ( i<83){
+				if (millis() >= waitPeriod){
+					
+					genie.WriteObject(GENIE_OBJ_VIDEO,0,i);
+					i+=1;
+					waitPeriod = GIF_FRAMERATE+millis();	//Every 5s
+				}
+				
+			}else{
+				state_init = 'C';
+			}
+		}
+		if(state_init == 'C'){			
+			static unsigned int led = 0;
+			if(led < 256){
+				if (millis() >= waitPeriod)
+				{
+					analogWrite(RED,led);
+					analogWrite(GREEN,led);
+					analogWrite(BLUE,led);
+					waitPeriod=4+millis();
+					led++;
+				}
+			}
+			else{
+				state_init = 'D';
+			}
+		}
+		if(state_init == 'D'){
+			if(version_number < 122 || VERSION_NUMBER < version_number){
+				Config_ResetDefault();
+				version_number = VERSION_NUMBER;
+				FLAG_First_Start_Wizard=888;
+				Config_StoreSettings();
+				}else if(VERSION_NUMBER != version_number){
+				Config_ResetDefault();
+				version_number = VERSION_NUMBER;
+				FLAG_First_Start_Wizard=888;
+				Config_StoreSettings();
+			}
+			
+			if(saved_print_flag == 1888){
+				bool successSD = false;
+				
+				card.initsd();
+				if (card.cardOK){
+					
+					workDir_vector_lenght=saved_workDir_vector_lenght;
+					for(int i=0; i<saved_workDir_vector_lenght && i < 10;i++){
+						card.getWorkDirName();
+						card.getfilename(saved_workDir_vector[i]);
+						workDir_vector[i]=saved_workDir_vector[i];
+						if (!card.filenameIsDir){
+							SERIAL_PROTOCOLLNPGM("gcode found");
+							successSD = true;
+							}else{
+							if (card.chdir(card.filename)!=-1){
+								successSD = false;
+							}
+						}
+						
+					}
+					
+					
+				}
+				if(successSD){
+					screen_sdcard = true;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
+					listsd.get_lineduration(true, NULL);
+					if(listsd.get_minutes() == -1){
+						sprintf_P(listsd.commandline2, "");
+					}
+					else{
+						sprintf(listsd.commandline2, "%d%% - %4d:%.2dh",listsd.get_percentage_save(saved_fileposition), listsd.get_hoursremaining_save(saved_fileposition), listsd.get_minutesremaining_save(saved_fileposition));
+					}
+					setfilenames(7);
+					}else{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN,0);
+					saved_print_flag = 888;
+					Config_StoreSettings();
+				}
+				
+				}else if (FLAG_First_Start_Wizard==1888){
+				genie.WriteObject(GENIE_OBJ_FORM,FORN_SETUPASSISTANT_INIT,0);
+				int j = 0;
+				while ( j<GIF_FRAMES_INIT_FIRST_RUN){
+					if (millis() >= waitPeriod){
+						
+						genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SETUPASSISTANT_INIT,j);
+						j+=1;
+						waitPeriod = GIF_FRAMERATE+millis();	//Every 5s
+					}
+					
+					
+					
+				}
+				genie.WriteObject(GENIE_OBJ_FORM,FORN_SETUPASSISTANT_YESNOT,0);
+			}
+			#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+			else if(flag_utilities_calibration_zcomensationmode_gauges == 1888 || flag_utilities_calibration_zcomensationmode_gauges == 2888 ){
+				genie.WriteObject(GENIE_OBJ_FORM, FORM_Z_COMPENSATION_COMFIRMATION,0);
+			}
+			#endif
+			
+			else{
+				
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN,0);
+				
+			}
+			state_init = 'F';
+			return 1;
+			
+			Serial.println("Ready to Start");
+		}
+		if(state_init != 'F')return 0;
+	
+}
+
+
 void touchscreen_update() //Updates the Serial Communications with the screen
 {
-	genie.DoEvents(0);						//Processes the TouchScreen Queued Events. Calls LCD_Handler.h ->myGenieEventHandler()
+	static bool start_lcd_ready = false;
 	
-	lcd_animation_handler();				//Processes the lcd animations. Calls LCD_FSM.h ->lcd_animation_handler()
-	
-	if(!lcd_busy)lcd_fsm_lcd_input_logic();		//Processes the lcd Events given by a button received on myGenieEventHandler()
-	// to change the printer state. Calls LCD_FSM.h ->lcd_fsm_state_logic()
-	
-	if(!lcd_busy)lcd_fsm_output_logic();	//The printer make a task according to the given state. Calls LCD_FSM.h ->lcd_fsm_output_logic()
-	
+	if(!start_lcd_ready){
+		if(touchscreen_init())start_lcd_ready = true;
+	}
+	else{
+		
+		genie.DoEvents(0);						//Processes the TouchScreen Queued Events. Calls LCD_Handler.h ->myGenieEventHandler()
+		
+		lcd_animation_handler();				//Processes the lcd animations. Calls LCD_FSM.h ->lcd_animation_handler()
+		
+		if(!lcd_busy)lcd_fsm_lcd_input_logic();		//Processes the lcd Events given by a button received on myGenieEventHandler()
+		// to change the printer state. Calls LCD_FSM.h ->lcd_fsm_state_logic()
+		
+		if(!lcd_busy)lcd_fsm_output_logic();	//The printer make a task according to the given state. Calls LCD_FSM.h ->lcd_fsm_output_logic()
+	}
 }
 #endif //SIGMA TOUCHSCREEN
 

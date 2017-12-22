@@ -816,13 +816,7 @@ void setup()
 	
 	
 	#if MOTHERBOARD == BCN3D_BOARD
-	
-	
-	digitalWrite(RED,HIGH);
-	digitalWrite(GREEN,HIGH);
-	digitalWrite(BLUE,HIGH);
-
-	
+		
 	//enable 24V
 		
 	delay(1);
@@ -1016,6 +1010,10 @@ bool touchscreen_init(){
 				}
 			}
 			else{
+				digitalWrite(RED,HIGH);
+				digitalWrite(GREEN,HIGH);
+				digitalWrite(BLUE,HIGH);
+
 				state_init = 'D';
 			}
 		}
@@ -1101,9 +1099,11 @@ bool touchscreen_init(){
 				
 			}
 			state_init = 'F';
+			
+			SERIAL_PROTOCOLLNPGM("Ready to Start");
 			return 1;
 			
-			Serial.println("Ready to Start");
+			
 		}
 		if(state_init != 'F')return 0;
 	

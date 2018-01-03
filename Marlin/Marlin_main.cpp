@@ -917,7 +917,66 @@ void HeaterCooldownInactivity(bool switchOnOff){
 	HeaterInactivity = switchOnOff;
 	TimerCooldownInactivity(HeaterInactivity);
 }
+void print_temperatures(){
+	#if defined(TEMP_0_PIN) && TEMP_0_PIN > -1
+	SERIAL_PROTOCOLPGM("T:");
+	SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
+	SERIAL_PROTOCOLPGM(" /");
+	SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder),1);
+	#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
+	SERIAL_PROTOCOLPGM(" B:");
+	SERIAL_PROTOCOL_F(degBed(),1);
+	SERIAL_PROTOCOLPGM(" /");
+	SERIAL_PROTOCOL_F(degTargetBed(),1);
+	#endif //TEMP_BED_PIN
+	for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
+		SERIAL_PROTOCOLPGM(" T");
+		SERIAL_PROTOCOL(cur_extruder);
+		SERIAL_PROTOCOLPGM(":");
+		SERIAL_PROTOCOL_F(degHotend(cur_extruder),1);
+		SERIAL_PROTOCOLPGM(" /");
+		SERIAL_PROTOCOL_F(degTargetHotend(cur_extruder),1);
+	}
+	#else
+	SERIAL_ERROR_START;
+	SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
+	#endif
 
+	SERIAL_PROTOCOLPGM(" @:");
+	#ifdef EXTRUDER_WATTS
+	SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(tmp_extruder))/127);
+	SERIAL_PROTOCOLPGM("W");
+	#else
+	SERIAL_PROTOCOL(getHeaterPower(tmp_extruder));
+	#endif
+
+	SERIAL_PROTOCOLPGM(" B@:");
+	#ifdef BED_WATTS
+	SERIAL_PROTOCOL((BED_WATTS * getHeaterPower(-1))/127);
+	SERIAL_PROTOCOLPGM("W");
+	#else
+	SERIAL_PROTOCOL(getHeaterPower(-1));
+	#endif
+
+	#ifdef SHOW_TEMP_ADC_VALUES
+	#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
+	SERIAL_PROTOCOLPGM("    ADC B:");
+	SERIAL_PROTOCOL_F(degBed(),1);
+	SERIAL_PROTOCOLPGM("C->");
+	SERIAL_PROTOCOL_F(rawBedTemp()/OVERSAMPLENR,0);
+	#endif
+	for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
+		SERIAL_PROTOCOLPGM("  T");
+		SERIAL_PROTOCOL(cur_extruder);
+		SERIAL_PROTOCOLPGM(":");
+		SERIAL_PROTOCOL_F(degHotend(cur_extruder),1);
+		SERIAL_PROTOCOLPGM("C->");
+		SERIAL_PROTOCOL_F(rawHotendTemp(cur_extruder)/OVERSAMPLENR,0);
+	}
+	#endif
+
+	SERIAL_PROTOCOLLN("");
+}
 int TimerCooldownInactivity(bool restartOrRun){ //false Restart  true Run
 	static uint32_t waitPeriod_tc = millis();
 	static uint32_t TimerCooldownSeconds = 0;
@@ -5100,64 +5159,8 @@ inline void gcode_M105(){
 	if(setTargetedHotend(105)){
 		return;
 	}
-	#if defined(TEMP_0_PIN) && TEMP_0_PIN > -1
-	SERIAL_PROTOCOLPGM("ok T:");
-	SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
-	SERIAL_PROTOCOLPGM(" /");
-	SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder),1);
-	#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
-	SERIAL_PROTOCOLPGM(" B:");
-	SERIAL_PROTOCOL_F(degBed(),1);
-	SERIAL_PROTOCOLPGM(" /");
-	SERIAL_PROTOCOL_F(degTargetBed(),1);
-	#endif //TEMP_BED_PIN
-	for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
-		SERIAL_PROTOCOLPGM(" T");
-		SERIAL_PROTOCOL(cur_extruder);
-		SERIAL_PROTOCOLPGM(":");
-		SERIAL_PROTOCOL_F(degHotend(cur_extruder),1);
-		SERIAL_PROTOCOLPGM(" /");
-		SERIAL_PROTOCOL_F(degTargetHotend(cur_extruder),1);
-	}
-	#else
-	SERIAL_ERROR_START;
-	SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
-	#endif
-
-	SERIAL_PROTOCOLPGM(" @:");
-	#ifdef EXTRUDER_WATTS
-	SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(tmp_extruder))/127);
-	SERIAL_PROTOCOLPGM("W");
-	#else
-	SERIAL_PROTOCOL(getHeaterPower(tmp_extruder));
-	#endif
-
-	SERIAL_PROTOCOLPGM(" B@:");
-	#ifdef BED_WATTS
-	SERIAL_PROTOCOL((BED_WATTS * getHeaterPower(-1))/127);
-	SERIAL_PROTOCOLPGM("W");
-	#else
-	SERIAL_PROTOCOL(getHeaterPower(-1));
-	#endif
-
-	#ifdef SHOW_TEMP_ADC_VALUES
-	#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
-	SERIAL_PROTOCOLPGM("    ADC B:");
-	SERIAL_PROTOCOL_F(degBed(),1);
-	SERIAL_PROTOCOLPGM("C->");
-	SERIAL_PROTOCOL_F(rawBedTemp()/OVERSAMPLENR,0);
-	#endif
-	for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
-		SERIAL_PROTOCOLPGM("  T");
-		SERIAL_PROTOCOL(cur_extruder);
-		SERIAL_PROTOCOLPGM(":");
-		SERIAL_PROTOCOL_F(degHotend(cur_extruder),1);
-		SERIAL_PROTOCOLPGM("C->");
-		SERIAL_PROTOCOL_F(rawHotendTemp(cur_extruder)/OVERSAMPLENR,0);
-	}
-	#endif
-
-	SERIAL_PROTOCOLLN("");
+	SERIAL_PROTOCOLPGM("ok ");
+	print_temperatures();
 	
 }
 inline void gcode_M190(){
@@ -5185,13 +5188,7 @@ inline void gcode_M190(){
 		if(( millis() - codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
 		{
 			float tt=degHotend(active_extruder);
-			SERIAL_PROTOCOLPGM("T:");
-			SERIAL_PROTOCOL(tt);
-			SERIAL_PROTOCOLPGM(" E:");
-			SERIAL_PROTOCOL((int)active_extruder);
-			SERIAL_PROTOCOLPGM(" B:");
-			SERIAL_PROTOCOL_F(degBed(),1);
-			SERIAL_PROTOCOLLN("");
+			print_temperatures();
 			codenum = millis();
 		}
 		manage_heater();
@@ -5335,24 +5332,7 @@ inline void gcode_M109(){
 	while((!cancel_heatup)&&((residencyStart == -1) || (residencyStart >= 0 && (((unsigned int) (millis() - residencyStart)) < (TEMP_RESIDENCY_TIME * 1000UL)))) ) {
 		if( (millis() - codenum) > 1000UL )
 		{ //Print Temp Reading and remaining time every 1 second while heating up/cooling down
-			SERIAL_PROTOCOLPGM("T:");
-			SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
-			SERIAL_PROTOCOLPGM(" E:");
-			SERIAL_PROTOCOL((int)tmp_extruder);
-			#ifdef TEMP_RESIDENCY_TIME
-			SERIAL_PROTOCOLPGM(" W:");
-			if(residencyStart > -1)
-			{
-				codenum = ((TEMP_RESIDENCY_TIME * 1000UL) - (millis() - residencyStart)) / 1000UL;
-				SERIAL_PROTOCOLLN( codenum );
-			}
-			else
-			{
-				SERIAL_PROTOCOLLN( "?" );
-			}
-			#else
-			SERIAL_PROTOCOLLN("");
-			#endif
+			print_temperatures();
 			codenum = millis();
 		}
 		manage_heater();
@@ -5390,24 +5370,7 @@ inline void gcode_M109(){
 		
 		if( (millis() - codenum) > 1000UL )
 		{ //Print Temp Reading and remaining time every 1 second while heating up/cooling down
-			SERIAL_PROTOCOLPGM("T:");
-			SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
-			SERIAL_PROTOCOLPGM(" E:");
-			SERIAL_PROTOCOL((int)tmp_extruder);
-			#ifdef TEMP_RESIDENCY_TIME
-			SERIAL_PROTOCOLPGM(" W:");
-			if(residencyStart > -1)
-			{
-				codenum = ((TEMP_RESIDENCY_TIME * 1000UL) - (millis() - residencyStart)) / 1000UL;
-				SERIAL_PROTOCOLLN( codenum );
-			}
-			else
-			{
-				SERIAL_PROTOCOLLN( "?" );
-			}
-			#else
-			SERIAL_PROTOCOLLN("");
-			#endif
+			print_temperatures();
 			codenum = millis();
 		}
 		manage_heater();

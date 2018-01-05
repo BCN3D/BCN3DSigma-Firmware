@@ -28,7 +28,7 @@
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 
 #define VERSION_STRING  "01-1.2.7RC"
-#define BUILD_DATE  "|M01.03"
+#define BUILD_DATE  "|M01.05"
 #define VERSION_NUMBER  127
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
@@ -141,7 +141,6 @@
 #define RAFT_Z_THRESHOLD 0.05
 //	END DUAL MODE SETTINGS
 
-#define EXTRUDERS 2
 
 // Define this to set a custom name for your generic Mendel,
 // #define CUSTOM_MENDEL_NAME "This Mendel"

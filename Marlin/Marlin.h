@@ -67,11 +67,17 @@
 #define screen_printing_pause_form1		'B'
 #define screen_printing_pause_form2		'C'
 
-#define SERIAL_PROTOCOL(x) (MYSERIAL.print(x))
-#define SERIAL_PROTOCOL_F(x,y) (MYSERIAL.print(x,y))
-#define SERIAL_PROTOCOLPGM(x) (serialprintPGM(PSTR(x)))
-#define SERIAL_PROTOCOLLN(x) (MYSERIAL.print(x),MYSERIAL.write('\n'))
-#define SERIAL_PROTOCOLLNPGM(x) (serialprintPGM(PSTR(x)),MYSERIAL.write('\n'))
+#define SERIAL_CHAR(x) ((void)MYSERIAL.write(x))
+#define SERIAL_EOL() SERIAL_CHAR('\n')
+
+#define SERIAL_PROTOCOLCHAR(x)              SERIAL_CHAR(x)
+#define SERIAL_PROTOCOL(x)                  (MYSERIAL.print(x))
+#define SERIAL_PROTOCOL_F(x,y)              (MYSERIAL.print(x,y))
+#define SERIAL_PROTOCOLPGM(x)               (serialprintPGM(PSTR(x)))
+#define SERIAL_PROTOCOLLN(x)                do{ MYSERIAL.print(x); SERIAL_EOL(); }while(0)
+#define SERIAL_PROTOCOLLNPGM(x)             (serialprintPGM(PSTR(x "\n")))
+#define SERIAL_PROTOCOLPAIR(name, value)    (serial_echopair_P(PSTR(name),(value)))
+#define SERIAL_PROTOCOLLNPAIR(name, value)  do{ SERIAL_PROTOCOLPAIR(name, value); SERIAL_EOL(); }while(0)
 
 
 const char errormagic[] PROGMEM ="Error:";
@@ -90,9 +96,14 @@ const char echomagic[] PROGMEM ="echo:";
 
 #define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
 
-void serial_echopair_P(const char *s_P, float v);
-void serial_echopair_P(const char *s_P, double v);
-void serial_echopair_P(const char *s_P, unsigned long v);
+void serial_echopair_P(const char* s_P, const char *v);
+void serial_echopair_P(const char* s_P, char v);
+void serial_echopair_P(const char* s_P, int v);
+void serial_echopair_P(const char* s_P, long v);
+void serial_echopair_P(const char* s_P, float v);
+void serial_echopair_P(const char* s_P, double v);
+void serial_echopair_P(const char* s_P, unsigned int v);
+void serial_echopair_P(const char* s_P, unsigned long v);
 
 
 //Things to write to serial from Program memory. Saves 400 to 2k of RAM.

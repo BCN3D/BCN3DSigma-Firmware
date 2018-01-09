@@ -58,6 +58,7 @@ http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
 #include "LCD_Handler.h"
 #include "LCD_FSM.h"
 #include "Leds_handler.h"
+#include "macros.h"
 //static Genie genie;
 Genie genie;
 //void myGenieEventHandler();
@@ -619,12 +620,13 @@ boolean chdkActive = false;
 int TimerCooldownInactivity(bool restartOrRun);
 void get_arc_coordinates();
 bool setTargetedHotend(int code);
-void serial_echopair_P(const char *s_P, float v)
-{ serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char *s_P, double v)
-{ serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char *s_P, unsigned long v)
-{ serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_P(const char* s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_P(const char* s_P, char v)          { serialprintPGM(s_P); SERIAL_CHAR(v); }
+void serial_echopair_P(const char* s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_P(const char* s_P, long v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_P(const char* s_P, float v)         { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_P(const char* s_P, double v)        { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_P(const char* s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
 extern "C"{
 	extern unsigned int __bss_end;
@@ -918,6 +920,80 @@ void HeaterCooldownInactivity(bool switchOnOff){
 	TimerCooldownInactivity(HeaterInactivity);
 }
 
+#if TEMP_0_PIN || TEMP_BED_PIN
+
+void print_heater_state(const float &c, const float &t,
+#if ENABLED(SHOW_TEMP_ADC_VALUES)
+const float r,
+#endif
+const int8_t e=-2
+) {
+	#if !(TEMP_BED_PIN && TEMP_0_PIN) && EXTRUDERS <= 1
+	UNUSED(e);
+	#endif
+
+	SERIAL_PROTOCOLCHAR(' ');
+	SERIAL_PROTOCOLCHAR(
+	#if TEMP_BED_PIN && TEMP_0_PIN
+	e == -1 ? 'B' : 'T'
+	#elif TEMP_0_PIN
+	'T'
+	#else
+	'B'
+	#endif
+	);
+	#if EXTRUDERS > 1
+	if (e >= 0) SERIAL_PROTOCOLCHAR('0' + e);
+	#endif
+	SERIAL_PROTOCOLCHAR(':');
+	SERIAL_PROTOCOL(c);
+	SERIAL_PROTOCOLPAIR(" /" , t);
+	#if ENABLED(SHOW_TEMP_ADC_VALUES)
+	SERIAL_PROTOCOLPAIR(" (", r / OVERSAMPLENR);
+	SERIAL_PROTOCOLCHAR(')');
+	#endif
+}
+
+void print_heaterstates() {
+	#if TEMP_0_PIN
+		print_heater_state(degHotend(tmp_extruder), degTargetHotend(tmp_extruder)
+			#if ENABLED(SHOW_TEMP_ADC_VALUES)
+			, rawHotendTemp(tmp_extruder)
+			#endif
+		);
+	#endif
+	#if TEMP_BED_PIN
+		print_heater_state(degBed(), degTargetBed(),
+			#if ENABLED(SHOW_TEMP_ADC_VALUES)
+			rawBedTemp(),
+			#endif
+			-1 // BED
+		);
+	#endif
+	#if EXTRUDERS > 1
+		HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e),
+			#if ENABLED(SHOW_TEMP_ADC_VALUES)
+			rawHotendTemp(e),
+			#endif
+			e
+		);
+	#endif
+	SERIAL_PROTOCOLPGM(" @:");
+	SERIAL_PROTOCOL(getHeaterPower(tmp_extruder));
+	#if HAS_TEMP_BED
+	SERIAL_PROTOCOLPGM(" B@:");
+	SERIAL_PROTOCOL(getHeaterPower(-1));
+	#endif
+	#if EXTRUDERS > 1
+	HOTEND_LOOP() {
+		SERIAL_PROTOCOLPAIR(" @", e);
+		SERIAL_PROTOCOLCHAR(':');
+		SERIAL_PROTOCOL(getHeaterPower(e));
+	}
+	#endif
+}
+#endif
+
 int TimerCooldownInactivity(bool restartOrRun){ //false Restart  true Run
 	static uint32_t waitPeriod_tc = millis();
 	static uint32_t TimerCooldownSeconds = 0;
@@ -1059,7 +1135,7 @@ bool touchscreen_init(){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
 					listsd.get_lineduration(true, NULL);
 					if(listsd.get_minutes() == -1){
-						sprintf_P(listsd.commandline2, "");
+						sprintf(listsd.commandline2, "");
 					}
 					else{
 						sprintf(listsd.commandline2, "%d%% - %4d:%.2dh",listsd.get_percentage_save(saved_fileposition), listsd.get_hoursremaining_save(saved_fileposition), listsd.get_minutesremaining_save(saved_fileposition));
@@ -1234,7 +1310,7 @@ void get_command()
 
 				//If command was e-stop process now
 				if(strcmp(cmdbuffer[bufindw], "M112") == 0)
-				kill();
+				kill();				
 				
 				bufindw = (bufindw + 1)%BUFSIZE;
 				buflen += 1;
@@ -5100,64 +5176,15 @@ inline void gcode_M105(){
 	if(setTargetedHotend(105)){
 		return;
 	}
-	#if defined(TEMP_0_PIN) && TEMP_0_PIN > -1
-	SERIAL_PROTOCOLPGM("ok T:");
-	SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
-	SERIAL_PROTOCOLPGM(" /");
-	SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder),1);
-	#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
-	SERIAL_PROTOCOLPGM(" B:");
-	SERIAL_PROTOCOL_F(degBed(),1);
-	SERIAL_PROTOCOLPGM(" /");
-	SERIAL_PROTOCOL_F(degTargetBed(),1);
-	#endif //TEMP_BED_PIN
-	for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
-		SERIAL_PROTOCOLPGM(" T");
-		SERIAL_PROTOCOL(cur_extruder);
-		SERIAL_PROTOCOLPGM(":");
-		SERIAL_PROTOCOL_F(degHotend(cur_extruder),1);
-		SERIAL_PROTOCOLPGM(" /");
-		SERIAL_PROTOCOL_F(degTargetHotend(cur_extruder),1);
-	}
-	#else
-	SERIAL_ERROR_START;
-	SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
-	#endif
+	  #if TEMP_BED_PIN || TEMP_BED_PIN
+	  SERIAL_PROTOCOLPGM(MSG_OK);
+	  print_heaterstates();
+	  #else // !HAS_TEMP_HOTEND && !HAS_TEMP_BED
+	  SERIAL_ERROR_START();
+	  SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
+	  #endif
 
-	SERIAL_PROTOCOLPGM(" @:");
-	#ifdef EXTRUDER_WATTS
-	SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(tmp_extruder))/127);
-	SERIAL_PROTOCOLPGM("W");
-	#else
-	SERIAL_PROTOCOL(getHeaterPower(tmp_extruder));
-	#endif
-
-	SERIAL_PROTOCOLPGM(" B@:");
-	#ifdef BED_WATTS
-	SERIAL_PROTOCOL((BED_WATTS * getHeaterPower(-1))/127);
-	SERIAL_PROTOCOLPGM("W");
-	#else
-	SERIAL_PROTOCOL(getHeaterPower(-1));
-	#endif
-
-	#ifdef SHOW_TEMP_ADC_VALUES
-	#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
-	SERIAL_PROTOCOLPGM("    ADC B:");
-	SERIAL_PROTOCOL_F(degBed(),1);
-	SERIAL_PROTOCOLPGM("C->");
-	SERIAL_PROTOCOL_F(rawBedTemp()/OVERSAMPLENR,0);
-	#endif
-	for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
-		SERIAL_PROTOCOLPGM("  T");
-		SERIAL_PROTOCOL(cur_extruder);
-		SERIAL_PROTOCOLPGM(":");
-		SERIAL_PROTOCOL_F(degHotend(cur_extruder),1);
-		SERIAL_PROTOCOLPGM("C->");
-		SERIAL_PROTOCOL_F(rawHotendTemp(cur_extruder)/OVERSAMPLENR,0);
-	}
-	#endif
-
-	SERIAL_PROTOCOLLN("");
+	  SERIAL_EOL();
 	
 }
 inline void gcode_M190(){
@@ -5176,7 +5203,10 @@ inline void gcode_M190(){
 		CooldownNoWait = false;
 	}
 	codenum = millis();
-	
+	#ifdef TEMP_RESIDENCY_TIME
+	long residencyStart;
+	residencyStart = -1;
+	#endif
 	cancel_heatup = false;
 	target_direction = isHeatingBed(); // true if heating, false if cooling
 	thermal_runaway_reset_bed_state = true;
@@ -5184,14 +5214,21 @@ inline void gcode_M190(){
 	{
 		if(( millis() - codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
 		{
-			float tt=degHotend(active_extruder);
-			SERIAL_PROTOCOLPGM("T:");
-			SERIAL_PROTOCOL(tt);
-			SERIAL_PROTOCOLPGM(" E:");
-			SERIAL_PROTOCOL((int)active_extruder);
-			SERIAL_PROTOCOLPGM(" B:");
-			SERIAL_PROTOCOL_F(degBed(),1);
-			SERIAL_PROTOCOLLN("");
+			print_heaterstates();
+			#ifdef TEMP_RESIDENCY_TIME
+			SERIAL_PROTOCOLPGM(" W:");
+			if(residencyStart > -1)
+			{
+				codenum = ((TEMP_RESIDENCY_TIME * 1000UL) - (millis() - residencyStart)) / 1000UL;
+				SERIAL_PROTOCOLLN( codenum );
+			}
+			else
+			{
+				SERIAL_PROTOCOLLN( "?" );
+			}
+			#else
+			SERIAL_EOL();
+			#endif
 			codenum = millis();
 		}
 		manage_heater();
@@ -5277,6 +5314,18 @@ inline void gcode_M129(){
 	#endif
 	#endif
 }
+inline void gcode_M110(){
+	if(code_seen('N')){
+		if(code_value_long()>0){
+			gcode_LastN = code_value_long();
+			}else{
+			gcode_LastN = 0;
+			
+		}
+		}else{
+		gcode_LastN = 0;
+	}
+}
 inline void gcode_M109(){
 	waiting_temps = true;
 	unsigned long codenum;
@@ -5335,10 +5384,7 @@ inline void gcode_M109(){
 	while((!cancel_heatup)&&((residencyStart == -1) || (residencyStart >= 0 && (((unsigned int) (millis() - residencyStart)) < (TEMP_RESIDENCY_TIME * 1000UL)))) ) {
 		if( (millis() - codenum) > 1000UL )
 		{ //Print Temp Reading and remaining time every 1 second while heating up/cooling down
-			SERIAL_PROTOCOLPGM("T:");
-			SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
-			SERIAL_PROTOCOLPGM(" E:");
-			SERIAL_PROTOCOL((int)tmp_extruder);
+			print_heaterstates();
 			#ifdef TEMP_RESIDENCY_TIME
 			SERIAL_PROTOCOLPGM(" W:");
 			if(residencyStart > -1)
@@ -5351,9 +5397,10 @@ inline void gcode_M109(){
 				SERIAL_PROTOCOLLN( "?" );
 			}
 			#else
-			SERIAL_PROTOCOLLN("");
+			SERIAL_EOL();
 			#endif
 			codenum = millis();
+			
 		}
 		manage_heater();
 		if(gif_processing_state == PROCESSING_ERROR) return;
@@ -5390,10 +5437,7 @@ inline void gcode_M109(){
 		
 		if( (millis() - codenum) > 1000UL )
 		{ //Print Temp Reading and remaining time every 1 second while heating up/cooling down
-			SERIAL_PROTOCOLPGM("T:");
-			SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
-			SERIAL_PROTOCOLPGM(" E:");
-			SERIAL_PROTOCOL((int)tmp_extruder);
+			print_heaterstates();
 			#ifdef TEMP_RESIDENCY_TIME
 			SERIAL_PROTOCOLPGM(" W:");
 			if(residencyStart > -1)
@@ -5406,7 +5450,7 @@ inline void gcode_M109(){
 				SERIAL_PROTOCOLLN( "?" );
 			}
 			#else
-			SERIAL_PROTOCOLLN("");
+			SERIAL_EOL();
 			#endif
 			codenum = millis();
 		}
@@ -7313,6 +7357,10 @@ void process_commands()
 			case 105 : // M105
 			gcode_M105();
 			return;
+			break;
+			
+			case 110:// M110 - Set Current Line Number
+			gcode_M110();
 			break;
 			
 			case 109:// M109 - Wait for extruder heater to reach target.

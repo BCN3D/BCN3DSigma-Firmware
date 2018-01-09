@@ -22,7 +22,7 @@ Author: Alejandro Garcia (S3mt0x)
 
 void setfilenames(int jint);
 void insertmetod();
-void ListFilesParsingProcedure(int vecto, int jint);
+void ListFilesParsingProcedure(uint16_t vecto, int jint);
 void ListFilesUpfunc();
 void ListFilesDownfunc();
 void ListFileListINITSD();
@@ -5602,7 +5602,7 @@ void ListFilesParsingProcedure(int vecto, int jint){
 		genie.WriteObject(GENIE_OBJ_USERBUTTON,buttonsdselected[jint],0);
 		listsd.get_lineduration(true, NULL);
 		if(listsd.get_minutes() == -1){
-			sprintf_P(listsd.commandline2, "");
+			sprintf(listsd.commandline2, "");
 		}
 		else{
 			sprintf(listsd.commandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
@@ -5703,6 +5703,7 @@ void ListFileListINITSD(){
 	filepointer = 0;
 	int vecto = 0;
 	uint16_t jint = 0;
+	while(card.updir() != -1);
 	card.initsd();
 	workDir_vector_lenght = 0;
 	if (card.cardOK){
@@ -5752,7 +5753,7 @@ void ListFileSelect_find(){
 		folder_navigation_register(true);
 		genie.WriteObject(GENIE_OBJ_FORM, FORM_SDLIST_CONFIRMATION,0);
 		listsd.get_lineduration(true, NULL);
-		(listsd.get_minutes() == -1) ? sprintf_P(listsd.commandline2, PSTR("")) : sprintf_P(listsd.commandline2, PSTR("%4d:%.2dh / %dg"),listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+		(listsd.get_minutes() == -1) ? sprintf(listsd.commandline2, "") : sprintf(listsd.commandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 		setfilenames(6);
 		
 	}

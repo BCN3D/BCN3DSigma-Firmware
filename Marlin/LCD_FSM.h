@@ -28,7 +28,7 @@ Author: Alejandro Garcia (S3mt0x)
 //#include "ultralcd.h"
 extern void setfilenames(int jint);
 extern void insertmetod();
-extern void ListFilesParsingProcedure(int vecto, int jint);
+extern void ListFilesParsingProcedure(uint16_t vecto, int jint);
 extern void ListFilesUpfunc();
 extern void ListFilesDownfunc();
 extern void ListFileListINITSD();

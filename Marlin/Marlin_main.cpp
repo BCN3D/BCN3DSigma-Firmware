@@ -1135,7 +1135,7 @@ bool touchscreen_init(){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
 					listsd.get_lineduration(true, NULL);
 					if(listsd.get_minutes() == -1){
-						sprintf_P(listsd.commandline2, "");
+						sprintf(listsd.commandline2, "");
 					}
 					else{
 						sprintf(listsd.commandline2, "%d%% - %4d:%.2dh",listsd.get_percentage_save(saved_fileposition), listsd.get_hoursremaining_save(saved_fileposition), listsd.get_minutesremaining_save(saved_fileposition));
@@ -1310,9 +1310,7 @@ void get_command()
 
 				//If command was e-stop process now
 				if(strcmp(cmdbuffer[bufindw], "M112") == 0)
-				kill();
-				if(strcmp(cmdbuffer[bufindw], "M110") == 0)
-				gcode_LastN = 0;				
+				kill();				
 				
 				bufindw = (bufindw + 1)%BUFSIZE;
 				buflen += 1;
@@ -5316,6 +5314,18 @@ inline void gcode_M129(){
 	#endif
 	#endif
 }
+inline void gcode_M110(){
+	if(code_seen('N')){
+		if(code_value_long()>0){
+			gcode_LastN = code_value_long();
+			}else{
+			gcode_LastN = 0;
+			
+		}
+		}else{
+		gcode_LastN = 0;
+	}
+}
 inline void gcode_M109(){
 	waiting_temps = true;
 	unsigned long codenum;
@@ -7347,6 +7357,10 @@ void process_commands()
 			case 105 : // M105
 			gcode_M105();
 			return;
+			break;
+			
+			case 110:// M110 - Set Current Line Number
+			gcode_M110();
 			break;
 			
 			case 109:// M109 - Wait for extruder heater to reach target.

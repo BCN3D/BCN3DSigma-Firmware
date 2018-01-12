@@ -726,6 +726,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			{ //Inserting...
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_PROCESSING,0);
 				gif_processing_state = PROCESSING_DEFAULT;
+				current_position[X_AXIS] = extruder_offset[X_AXIS][which_extruder];
 				plan_set_position(extruder_offset[X_AXIS][which_extruder], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 				/*#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
 				current_position[X_AXIS] = 155;

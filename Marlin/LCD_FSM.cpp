@@ -1,6 +1,6 @@
 /*
 - LCD_FSM.cpp - A class that manages the FSM related with some printer process
-Last Update: 31/10/2017
+Last Update: 15/01/2018
 Author: Alejandro Garcia (S3mt0x)
 */
 #include "LCD_FSM.h"

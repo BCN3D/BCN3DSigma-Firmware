@@ -1,6 +1,6 @@
 /*
 LCD_Handler.h - A place to hold all interactions between LCD and printer. It is called from Marlin_main.cpp when using genie.DoEvents().
-Last Update: 16/10/2017
+Last Update: 15/01/2018
 Author: Alejandro Garcia (S3mt0x)
 */
 

@@ -1,6 +1,6 @@
 /*
 - LCD_FSM.h - A class that manages the FSM related with some printer process
-Last Update: 16/10/2017
+Last Update: 15/01/2017
 Author: Alejandro Garcia (S3mt0x)
 */
 #ifndef _LCD_FSM_h

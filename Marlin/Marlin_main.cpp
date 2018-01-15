@@ -1,6 +1,6 @@
 /*
 - Marlin_main.cpp - Here there are the Main loop, Serial Communications processing and GCODE processing.
-Last Update: 23/11/2017
+Last Update: 15/01/2018
 Author: Alejandro Garcia (S3mt0x)
 */
 

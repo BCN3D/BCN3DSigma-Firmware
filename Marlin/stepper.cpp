@@ -32,6 +32,9 @@
 #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
 #include <SPI.h>
 #endif
+#ifdef CARL_JAMES
+//#include "HardwareSerial.h"
+#endif
 
 
 //===========================================================================
@@ -61,7 +64,7 @@ static long acceleration_time, deceleration_time;
 //static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
 static unsigned short acc_step_rate; // needed for deccelaration start point
 static char step_loops;
-static unsigned short OCR1A_nominal;
+static unsigned short OCR3A_nominal;
 static unsigned short step_loops_nominal;
 
 volatile long endstops_trigsteps[3]={0,0,0};
@@ -168,9 +171,59 @@ asm volatile ( \
 
 // Some useful constants
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()  TIMSK1 |= (1<<OCIE1A)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~(1<<OCIE1A)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()  TIMSK3 |= (1<<OCIE3A)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK3 &= ~(1<<OCIE3A)
 
+#ifdef CARL_JAMES
+// Check for any bytes inside the stepper interrupt routine:
+void display_check_rx (void) {
+	// We are in this interrupt for a long time, so check for any serial characters from the display:
+	#ifdef SIGMA_TOUCH_SCREEN
+	#pragma message "Hardware Serial must not have any protected variables or this will not work! Modify HardwareSerial.h to be public!"
+	// Check if there is a byte in the serial receive register, when _udr is read the interrupt is cleared:
+	if (bit_is_set(*MYSERIAL_SCREEN._ucsra, 7)) {
+		if (bit_is_clear(*MYSERIAL_SCREEN._ucsra, UPE0)) {
+
+			// No Parity error, read byte and store it in the buffer if there is room
+			unsigned char c = *MYSERIAL_SCREEN._udr;
+			rx_buffer_index_t i = (unsigned int)(MYSERIAL_SCREEN._rx_buffer_head + 1) % SERIAL_RX_BUFFER_SIZE;
+
+			// if we should be storing the received character into the location
+			// just before the tail (meaning that the head would advance to the
+			// current location of the tail), we're about to overflow the buffer
+			// and so we don't write the character or advance the head.
+			if (i != MYSERIAL_SCREEN._rx_buffer_tail) {
+				MYSERIAL_SCREEN._rx_buffer[MYSERIAL_SCREEN._rx_buffer_head] = c;
+				MYSERIAL_SCREEN._rx_buffer_head = i;
+			}
+			} else {
+			// Parity error, read byte but discard it
+			*MYSERIAL_SCREEN._udr;
+		}
+	}
+	if (bit_is_set(*MYSERIAL._ucsra, 7)) {
+		if (bit_is_clear(*MYSERIAL._ucsra, UPE0)) {
+
+			// No Parity error, read byte and store it in the buffer if there is room
+			unsigned char c = *MYSERIAL._udr;
+			rx_buffer_index_t i = (unsigned int)(MYSERIAL._rx_buffer_head + 1) % SERIAL_RX_BUFFER_SIZE;
+
+			// if we should be storing the received character into the location
+			// just before the tail (meaning that the head would advance to the
+			// current location of the tail), we're about to overflow the buffer
+			// and so we don't write the character or advance the head.
+			if (i != MYSERIAL._rx_buffer_tail) {
+				MYSERIAL._rx_buffer[MYSERIAL._rx_buffer_head] = c;
+				MYSERIAL._rx_buffer_head = i;
+			}
+			} else {
+			// Parity error, read byte but discard it
+			*MYSERIAL._udr;
+		}
+	}
+	#endif
+}
+#endif
 
 void checkHitEndstops()
 {
@@ -293,12 +346,12 @@ FORCE_INLINE void trapezoid_generator_reset() {
   #endif
   deceleration_time = 0;
   // step_rate to timer interval
-  OCR1A_nominal = calc_timer(current_block->nominal_rate);
+  OCR3A_nominal = calc_timer(current_block->nominal_rate);
   // make a note of the number of step loops required at nominal speed
   step_loops_nominal = step_loops;
   acc_step_rate = current_block->initial_rate;
   acceleration_time = calc_timer(acc_step_rate);
-  OCR1A = acceleration_time;
+  OCR3A = acceleration_time;
 
 //    SERIAL_ECHO_START;
 //    SERIAL_ECHOPGM("advance :");
@@ -314,8 +367,11 @@ FORCE_INLINE void trapezoid_generator_reset() {
 
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.
 // It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately.
-ISR(TIMER1_COMPA_vect)
-{
+ISR(TIMER3_COMPA_vect)
+{ 
+	#ifdef DEBUG_ISR
+	unsigned char isr_time = TCNT0;
+	#endif 
   // If there is no current block, attempt to pop one from the buffer
   if (current_block == NULL) {
     // Anything in the buffer?
@@ -332,7 +388,7 @@ ISR(TIMER1_COMPA_vect)
       #ifdef Z_LATE_ENABLE
         if(current_block->steps_z > 0) {
           enable_z();
-          OCR1A = 2000; //1ms wait
+          OCR3A = 2000; //1ms wait
           return;
         }
       #endif
@@ -342,9 +398,14 @@ ISR(TIMER1_COMPA_vect)
 //      #endif
     }
     else {
-        OCR1A=2000; // 1kHz.
+        OCR3A=2000; // 1kHz.
     }
   }
+  
+	#ifdef CARL_JAMES
+		// We are in this interrupt for a long time, so check for any serial characters from the display:
+		display_check_rx ();
+	#endif
 
   if (current_block != NULL) {
     // Set directions TO DO This should be done once during init of trapezoid. Endstops -> interrupt
@@ -563,14 +624,17 @@ ISR(TIMER1_COMPA_vect)
         count_direction[E_AXIS]=1;
       }
     #endif //!ADVANCE
-
-
+	    
 
     for(int8_t i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves)
       #ifndef AT90USB
       //MYSERIAL.checkRx(); // Check for serial chars.
       #endif
-
+	#ifdef CARL_JAMES
+		// Check for any serial characters before we process any steps so we don't get any stuttering:
+		// We are in this interrupt for a long time, so check for any serial characters from the display:
+		display_check_rx ();
+	#endif	  
       #ifdef ADVANCE
       counter_e += current_block->steps_e;
       if (counter_e > 0) {
@@ -723,7 +787,14 @@ ISR(TIMER1_COMPA_vect)
       step_events_completed += 1;
       if(step_events_completed >= current_block->step_event_count) break;
     }
-    // Calculare new timer value
+	
+    #ifdef CARL_JAMES
+			// There is no movement here, so it is safe to check for serial characters:
+			// We are in this interrupt for a long time, so check for any serial characters from the display:
+		display_check_rx ();
+	#endif
+	  
+    // Calculate new timer value
     unsigned short timer;
     unsigned short step_rate;
     if (step_events_completed <= (unsigned long int)current_block->accelerate_until) {
@@ -737,7 +808,7 @@ ISR(TIMER1_COMPA_vect)
 
       // step_rate to timer interval
       timer = calc_timer(acc_step_rate);
-      OCR1A = timer;
+      OCR3A = timer;
       acceleration_time += timer;
       #ifdef ADVANCE
         for(int8_t i=0; i < step_loops; i++) {
@@ -766,7 +837,7 @@ ISR(TIMER1_COMPA_vect)
 
       // step_rate to timer interval
       timer = calc_timer(step_rate);
-      OCR1A = timer;
+      OCR3A = timer;
       deceleration_time += timer;
       #ifdef ADVANCE
         for(int8_t i=0; i < step_loops; i++) {
@@ -779,10 +850,15 @@ ISR(TIMER1_COMPA_vect)
       #endif //ADVANCE
     }
     else {
-      OCR1A = OCR1A_nominal;
+      OCR3A = OCR3A_nominal;
       // ensure we're running at the correct step rate, even if we just came off an acceleration
       step_loops = step_loops_nominal;
     }
+	
+	#ifdef CARL_JAMES
+		// We are in this interrupt for a long time, so check for any serial characters from the display:
+		display_check_rx ();
+	#endif
 
     // If current block is finished, reset pointer
     if (step_events_completed >= current_block->step_event_count) {
@@ -790,6 +866,11 @@ ISR(TIMER1_COMPA_vect)
       plan_discard_current_block();
     }
   }
+  
+  #ifdef DEBUG_ISR
+  isr_time = TCNT0 - isr_time;
+  if (isr_time > debug_time_1) debug_time_1 = isr_time;
+  #endif
 }
 
 #ifdef ADVANCE
@@ -854,76 +935,85 @@ void st_init()
   digipot_init(); //Initialize Digipot Motor Current
   microstep_init(); //Initialize Microstepping Pins
 
-  //Initialize Dir Pins
-  #if defined(X_DIR_PIN) && X_DIR_PIN > -1
-    SET_OUTPUT(X_DIR_PIN);
-  #endif
-  #if defined(X2_DIR_PIN) && X2_DIR_PIN > -1
-    SET_OUTPUT(X2_DIR_PIN);
-  #endif
-  #if defined(Y_DIR_PIN) && Y_DIR_PIN > -1
-    SET_OUTPUT(Y_DIR_PIN);
-		
-	#if defined(Y_DUAL_STEPPER_DRIVERS) && defined(Y2_DIR_PIN) && (Y2_DIR_PIN > -1)
-	  SET_OUTPUT(Y2_DIR_PIN);
-	#endif
-  #endif
-  #if defined(Z_DIR_PIN) && Z_DIR_PIN > -1
-    SET_OUTPUT(Z_DIR_PIN);
-
-    #if defined(Z_DUAL_STEPPER_DRIVERS) && defined(Z2_DIR_PIN) && (Z2_DIR_PIN > -1)
-      SET_OUTPUT(Z2_DIR_PIN);
-    #endif
-  #endif
-  #if defined(E0_DIR_PIN) && E0_DIR_PIN > -1
-    SET_OUTPUT(E0_DIR_PIN);
-  #endif
-  #if defined(E1_DIR_PIN) && (E1_DIR_PIN > -1)
-    SET_OUTPUT(E1_DIR_PIN);
-  #endif
-  #if defined(E2_DIR_PIN) && (E2_DIR_PIN > -1)
-    SET_OUTPUT(E2_DIR_PIN);
-  #endif
-
   //Initialize Enable Pins - steppers default to disabled.
 
   #if defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1
-    SET_OUTPUT(X_ENABLE_PIN);
+    //SET_OUTPUT(X_ENABLE_PIN);
     if(!X_ENABLE_ON) WRITE(X_ENABLE_PIN,HIGH);
+	SET_OUTPUT(X_ENABLE_PIN);
   #endif
   #if defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
-    SET_OUTPUT(X2_ENABLE_PIN);
+    //SET_OUTPUT(X2_ENABLE_PIN);
     if(!X_ENABLE_ON) WRITE(X2_ENABLE_PIN,HIGH);
+	SET_OUTPUT(X2_ENABLE_PIN);
   #endif
   #if defined(Y_ENABLE_PIN) && Y_ENABLE_PIN > -1
-    SET_OUTPUT(Y_ENABLE_PIN);
+    //SET_OUTPUT(Y_ENABLE_PIN);
     if(!Y_ENABLE_ON) WRITE(Y_ENABLE_PIN,HIGH);
+	SET_OUTPUT(Y_ENABLE_PIN);
 	
 	#if defined(Y_DUAL_STEPPER_DRIVERS) && defined(Y2_ENABLE_PIN) && (Y2_ENABLE_PIN > -1)
-	  SET_OUTPUT(Y2_ENABLE_PIN);
+	  //SET_OUTPUT(Y2_ENABLE_PIN);
 	  if(!Y_ENABLE_ON) WRITE(Y2_ENABLE_PIN,HIGH);
+	  SET_OUTPUT(Y2_ENABLE_PIN);
 	#endif
   #endif
   #if defined(Z_ENABLE_PIN) && Z_ENABLE_PIN > -1
-    SET_OUTPUT(Z_ENABLE_PIN);
+    //SET_OUTPUT(Z_ENABLE_PIN);
     if(!Z_ENABLE_ON) WRITE(Z_ENABLE_PIN,HIGH);
+	SET_OUTPUT(Z_ENABLE_PIN);
 
     #if defined(Z_DUAL_STEPPER_DRIVERS) && defined(Z2_ENABLE_PIN) && (Z2_ENABLE_PIN > -1)
-      SET_OUTPUT(Z2_ENABLE_PIN);
+      //SET_OUTPUT(Z2_ENABLE_PIN);
       if(!Z_ENABLE_ON) WRITE(Z2_ENABLE_PIN,HIGH);
+	  SET_OUTPUT(Z2_ENABLE_PIN);
     #endif
   #endif
   #if defined(E0_ENABLE_PIN) && (E0_ENABLE_PIN > -1)
-    SET_OUTPUT(E0_ENABLE_PIN);
+    //SET_OUTPUT(E0_ENABLE_PIN);
     if(!E_ENABLE_ON) WRITE(E0_ENABLE_PIN,HIGH);
+	SET_OUTPUT(E0_ENABLE_PIN);
   #endif
   #if defined(E1_ENABLE_PIN) && (E1_ENABLE_PIN > -1)
-    SET_OUTPUT(E1_ENABLE_PIN);
+    //SET_OUTPUT(E1_ENABLE_PIN);
     if(!E_ENABLE_ON) WRITE(E1_ENABLE_PIN,HIGH);
+	SET_OUTPUT(E1_ENABLE_PIN);
   #endif
   #if defined(E2_ENABLE_PIN) && (E2_ENABLE_PIN > -1)
-    SET_OUTPUT(E2_ENABLE_PIN);
+    //SET_OUTPUT(E2_ENABLE_PIN);
     if(!E_ENABLE_ON) WRITE(E2_ENABLE_PIN,HIGH);
+	SET_OUTPUT(E2_ENABLE_PIN);
+  #endif
+  
+  //Initialize Dir Pins
+  #if defined(X_DIR_PIN) && X_DIR_PIN > -1
+  SET_OUTPUT(X_DIR_PIN);
+  #endif
+  #if defined(X2_DIR_PIN) && X2_DIR_PIN > -1
+  SET_OUTPUT(X2_DIR_PIN);
+  #endif
+  #if defined(Y_DIR_PIN) && Y_DIR_PIN > -1
+  SET_OUTPUT(Y_DIR_PIN);
+  
+  #if defined(Y_DUAL_STEPPER_DRIVERS) && defined(Y2_DIR_PIN) && (Y2_DIR_PIN > -1)
+  SET_OUTPUT(Y2_DIR_PIN);
+  #endif
+  #endif
+  #if defined(Z_DIR_PIN) && Z_DIR_PIN > -1
+  SET_OUTPUT(Z_DIR_PIN);
+
+  #if defined(Z_DUAL_STEPPER_DRIVERS) && defined(Z2_DIR_PIN) && (Z2_DIR_PIN > -1)
+  SET_OUTPUT(Z2_DIR_PIN);
+  #endif
+  #endif
+  #if defined(E0_DIR_PIN) && E0_DIR_PIN > -1
+  SET_OUTPUT(E0_DIR_PIN);
+  #endif
+  #if defined(E1_DIR_PIN) && (E1_DIR_PIN > -1)
+  SET_OUTPUT(E1_DIR_PIN);
+  #endif
+  #if defined(E2_DIR_PIN) && (E2_DIR_PIN > -1)
+  SET_OUTPUT(E2_DIR_PIN);
   #endif
 
   //endstops and pullups
@@ -1025,24 +1115,24 @@ void st_init()
   #endif
 
   // waveform generation = 0100 = CTC
-  TCCR1B &= ~(1<<WGM13);
-  TCCR1B |=  (1<<WGM12);
-  TCCR1A &= ~(1<<WGM11);
-  TCCR1A &= ~(1<<WGM10);
+  TCCR3B &= ~(1<<WGM33);
+  TCCR3B |=  (1<<WGM32);
+  TCCR3A &= ~(1<<WGM31);
+  TCCR3A &= ~(1<<WGM30);
 
   // output mode = 00 (disconnected)
-  TCCR1A &= ~(3<<COM1A0);
-  TCCR1A &= ~(3<<COM1B0);
+  TCCR3A &= ~(3<<COM3A0);
+  TCCR3A &= ~(3<<COM3B0);
 
   // Set the timer pre-scaler
   // Generally we use a divider of 8, resulting in a 2MHz timer
   // frequency on a 16MHz MCU. If you are going to change this, be
   // sure to regenerate speed_lookuptable.h with
   // create_speed_lookuptable.py
-  TCCR1B = (TCCR1B & ~(0x07<<CS10)) | (2<<CS10);
+  TCCR3B = (TCCR3B & ~(0x07<<CS30)) | (2<<CS30);
 
-  OCR1A = 0x4000;
-  TCNT1 = 0;
+  OCR3A = 0x4000;
+  TCNT3 = 0;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 
   #ifdef ADVANCE
@@ -1064,39 +1154,40 @@ void st_init()
 // Block until all buffered steps are executed
 void st_synchronize()
 {
-    while( blocks_queued()) {
-    manage_heater();
-    manage_inactivity();
-    //lcd_update();
-	#ifdef SIGMA_TOUCH_SCREEN
-	touchscreen_update();
-	#endif
-  }
+	// CL changed from while() to do{} while() 151017
+	do {
+		manage_heater();
+		manage_inactivity();
+		//lcd_update();
+		#ifdef SIGMA_TOUCH_SCREEN
+		touchscreen_update();
+		#endif
+	} while (blocks_queued());
 }
 
 void st_set_position(const long &x, const long &y, const long &z, const long &e)
 {
-  CRITICAL_SECTION_START;
+  CRITICAL_SECTION_START
   count_position[X_AXIS] = x;
   count_position[Y_AXIS] = y;
   count_position[Z_AXIS] = z;
   count_position[E_AXIS] = e;
-  CRITICAL_SECTION_END;
+  CRITICAL_SECTION_END
 }
 
 void st_set_e_position(const long &e)
 {
-  CRITICAL_SECTION_START;
+  CRITICAL_SECTION_START
   count_position[E_AXIS] = e;
-  CRITICAL_SECTION_END;
+  CRITICAL_SECTION_END
 }
 
 long st_get_position(uint8_t axis)
 {
   long count_pos;
-  CRITICAL_SECTION_START;
+  CRITICAL_SECTION_START
   count_pos = count_position[axis];
-  CRITICAL_SECTION_END;
+  CRITICAL_SECTION_END
   return count_pos;
 }
 
@@ -1402,4 +1493,3 @@ void microstep_readings()
       SERIAL_PROTOCOLLN( digitalRead(E1_MS2_PIN));
       #endif
 }
-

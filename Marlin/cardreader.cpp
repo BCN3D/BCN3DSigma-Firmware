@@ -1,3 +1,9 @@
+/*
+- cardreader.cpp - This library manage the communication between MCU and SD card module
+Last Update: 16/10/2017
+Author: Alejandro Garcia (S3mt0x)
+*/
+
 #include "Marlin.h"
 #include "cardreader.h"
 #include "ultralcd.h"
@@ -24,7 +30,7 @@ CardReader::CardReader()
 	file_subcall_ctr=0;
 	memset(workDirParents, 0, sizeof(workDirParents));
 
-	autostart_stilltocheck=true; //the SD start is delayed, because otherwise the serial cannot answer fast enough to make contact with the host software.
+	autostart_stilltocheck=false; //the SD start is delayed, because otherwise the serial cannot answer fast enough to make contact with the host software.
 	lastnr=0;
 	//power to SD reader
 	#if SDPOWER > -1
@@ -692,11 +698,12 @@ int CardReader::chdir(const char * relpath)
 	else
 	{
 		if (workDirDepth < MAX_DIR_DEPTH) {
-			for (int d = ++workDirDepth; d--;)
+			for (uint16_t d = ++workDirDepth; d--;)
 			workDirParents[d+1] = workDirParents[d];
 			workDirParents[0]=*parent;
 		}
 		workDir=newfile;
+		return 0;
 	}
 }
 
@@ -706,8 +713,7 @@ int CardReader::updir()
 	{
 		--workDirDepth;
 		workDir = workDirParents[0];
-		int d;
-		for (int d = 0; d < workDirDepth; d++)
+		for (uint16_t d = 0; d < workDirDepth; d++)
 		workDirParents[d] = workDirParents[d+1];
 		
 		if(workDirDepth == 0){
@@ -723,12 +729,8 @@ int CardReader::updir()
 
 void CardReader::printingHasFinished()
 {
-	doblocking=false;
-	log_prints_finished++;
-	Config_StoreSettings();
-	acceleration = acceleration_old;
-	enquecommand_P(PSTR("M107"));
-	st_synchronize();
+	sdprinting = false;
+	screen_sdcard = false;
 	if(file_subcall_ctr>0) //heading up to a parent file that called current as a procedure.
 	{
 		file.close();
@@ -736,53 +738,14 @@ void CardReader::printingHasFinished()
 		openFile(filenames[file_subcall_ctr],true,true);
 		setIndex(filespos[file_subcall_ctr]);
 		startFileprint();
+		enquecommand_P(PSTR("M107"));
 	}
 	else
 	{
-		quickStop();
 		file.close();
-		sdprinting = false;
-		//Rapduch
-		#ifdef SIGMA_TOUCH_SCREEN
-		//also we need to put the platform down and do an autohome to prevent blocking
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN,0);
-		enquecommand_P(PSTR("T0"));
-		st_synchronize();
-		enquecommand_P(PSTR("M107"));
-		set_dual_x_carriage_mode(DEFAULT_DUAL_X_CARRIAGE_MODE);
-		setTargetHotend0(0);
-		setTargetHotend1(0);
-		setTargetBed(0);
-		Flag_fanSpeed_mirror=0;
-		sd_printing_temp_setting_offset_bed = 0;
-		sd_printing_temp_setting_offset_hotent0 = 0;
-		sd_printing_temp_setting_offset_hotent1 = 0;
-		saved_print_smartpurge_flag = false;
-		screen_sdcard = false;
-		surfing_utilities=false;
-		surfing_temps = false;
-		log_hours_lastprint = (int)(log_min_print/60);
-		log_minutes_lastprint = (int)(log_min_print%60);
-		log_X0_mmdone += x0mmdone/axis_steps_per_unit[X_AXIS];
-		log_X1_mmdone += x1mmdone/axis_steps_per_unit[X_AXIS];
-		log_Y_mmdone += ymmdone/axis_steps_per_unit[Y_AXIS];
-		log_E0_mmdone += e0mmdone/axis_steps_per_unit[E_AXIS];
-		log_E1_mmdone += e1mmdone/axis_steps_per_unit[E_AXIS];
-		x0mmdone = 0;
-		x1mmdone = 0;
-		ymmdone = 0;
-		e0mmdone = 0;
-		e1mmdone = 0;
-		Config_StoreSettings();
-		//The default states is Left Extruder active
-		#endif
-		if(SD_FINISHED_STEPPERRELEASE)
-		{
-			//finishAndDisableSteppers();
-			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-		}
-		autotempShutdown();
+		flag_ending_gcode = true;
 	}
+	
 }
 
 uint32_t CardReader::getFileSize()

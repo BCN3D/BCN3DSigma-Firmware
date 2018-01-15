@@ -1,10 +1,12 @@
-/////////////////////// GenieArduino 06/10/2015 ///////////////////////
+/////////////////////// GenieArduino 08/22/2017 ///////////////////////
 //
 //      Library to utilize the 4D Systems Genie interface to displays
 //      that have been created using the Visi-Genie creator platform.
 //      This is intended to be used with the Arduino platform.
 //
 //      Improvements/Updates by
+//        4D Systems Engineering, August 2017, www.4dsystems.com.au
+//		  	Antonio Brewer & 4D Systems Engineering, July 2017, www.4dsystems.com.au
 //        4D Systems Engineering, October 2015, www.4dsystems.com.au
 //        4D Systems Engineering, September 2015, www.4dsystems.com.au
 //        4D Systems Engineering, August 2015, www.4dsystems.com.au
@@ -38,10 +40,16 @@
  *    License along with genieArduino.
  *    If not, see <http://www.gnu.org/licenses/>.
  *********************************************************************/
-#if defined(ARDUINO) && ARDUINO >= 100
-#include "Arduino.h"
+#if defined (SPARK)
+  #include "application.h"
+  #define lowByte(w) ((uint8_t)((w) & 0xFF))
+  #define highByte(w) ((uint8_t)((w) >> 8))
 #else
-#include "WProgram.h"
+  #if defined(ARDUINO) && ARDUINO >= 100
+    #include "Arduino.h"
+  #else
+    #include "WProgram.h"
+  #endif
 #endif
 
 #include <inttypes.h>
@@ -51,17 +59,15 @@
 #ifndef genieArduino_h
 #define genieArduino_h
 
-#undef GENIE_DEBUG
-
-#define GENIE_VERSION    "GenieArduino 06-10-2015"
+#define GENIE_VERSION    "GenieArduino 08-22-2017"   // MM-DD-YYYY
 
 // Genie commands & replys:
 
 #define GENIE_ACK               0x06
 #define GENIE_NAK               0x15
-
-#define TIMEOUT_PERIOD          1000
-#define RESYNC_PERIOD           100
+#define GENIE_PING              0x80
+#define GENIE_READY             0x81
+#define GENIE_DISCONNECTED      0x82
 
 #define GENIE_READ_OBJ          0
 #define GENIE_WRITE_OBJ         1
@@ -114,10 +120,21 @@
 #define GENIE_OBJ_ANIBUTTON     31
 #define GENIE_OBJ_COLORPICKER   32
 #define GENIE_OBJ_USERBUTTON    33
+// reserved for magic functions 34
+#define GENIE_OBJ_ISMARTGAUGE   35
+#define GENIE_OBJ_ISMARTSLIDER  36
+#define GENIE_OBJ_ISMARTKNOB    37
+
+// Do not modify current values. Recommended settings.
+
+
+#define DISPLAY_TIMEOUT         2000
+#define AUTO_PING_CYCLE         1250
+
 
 // Structure to store replys returned from a display
 
-#define GENIE_FRAME_SIZE        6
+#define GENIE_FRAME_SIZE        6 // do NOT touch this.
 
 struct FrameReportObj {
     uint8_t        cmd;
@@ -150,9 +167,7 @@ union genieFrame {
     FrameReportObj      reportObject;
 };
 
-#define MAX_GENIE_EVENTS    16    // MUST be a power of 2
-#define MAX_GENIE_FATALS    10
-#define MAX_LINK_STATES     20
+#define MAX_GENIE_EVENTS    16      // MUST be a power of 2
 
 struct EventQueueStruct {
     genieFrame    frames[MAX_GENIE_EVENTS];
@@ -170,99 +185,61 @@ typedef void        (*UserDoubleBytePtr)(uint8_t, uint8_t);
 // These function prototypes are the user API to the library
 //
 class Genie {
-
 public:
-    Genie();
-    void        Begin               (Stream &serial);
-    bool        ReadObject          (uint16_t object, uint16_t index);
-    uint16_t    WriteObject         (uint16_t object, uint16_t index, uint16_t data);
-    void        WriteContrast       (uint16_t value);
-    uint16_t    WriteStr            (uint16_t index, char *string);
-	uint16_t	WriteStr			(uint16_t index, long n) ;
-	uint16_t	WriteStr			(uint16_t index, long n, int base) ;
-	uint16_t	WriteStr			(uint16_t index, unsigned long n) ;
-	uint16_t	WriteStr			(uint16_t index, unsigned long n, int base) ;
-	uint16_t	WriteStr			(uint16_t index, int n) ;
-	uint16_t	WriteStr			(uint16_t index, int n, int base) ;
-	uint16_t	WriteStr			(uint16_t index, unsigned int n) ;
-	uint16_t	WriteStr			(uint16_t index, unsigned int n, int base) ;
-	uint16_t	WriteStr			(uint16_t index, const String &s);
+    Genie                            ();
+    bool        Begin                (Stream &serial);
+    void        debug                (Stream &serial, uint8_t level);
+    bool        online               ();
+    bool        online               (uint8_t activeForm);
+    uint32_t    uptime               ();
+    uint8_t     form                 ();
+    void        form                 (uint8_t newForm);
+    void        recover              (uint8_t pulses);
+    uint8_t     timeout              (uint16_t value);
+    uint8_t     ReadObject           (uint8_t object, uint8_t index);
+    uint8_t     WriteObject          (uint8_t object, uint8_t index, uint16_t data);
+    uint8_t     WriteContrast        (uint8_t value);
+    uint8_t     WriteStr             (uint8_t index, char *string);
+	uint8_t	WriteStr			(uint8_t index, long n) ;
+	uint8_t	WriteStr			(uint8_t index, long n, int base) ;
+	uint8_t	WriteStr			(uint8_t index, unsigned long n) ;
+	uint8_t	WriteStr			(uint8_t index, unsigned long n, int base) ;
+	uint8_t	WriteStr			(uint8_t index, int n) ;
+	uint8_t	WriteStr			(uint8_t index, int n, int base) ;
+	uint8_t	WriteStr			(uint8_t index, unsigned int n) ;
+	uint8_t	WriteStr			(uint8_t index, unsigned int n, int base) ;
+	uint8_t	WriteStr			(uint8_t index, const String &s);
 #ifdef AVR
-	uint16_t	WriteStr			(uint16_t index, const __FlashStringHelper *ifsh);
+	uint8_t	WriteStr			(uint8_t index, const __FlashStringHelper *ifsh);
 #endif
-	uint16_t	WriteStr			(uint16_t index, double n, int digits);
-	uint16_t	WriteStr			(uint16_t index, double n);	
-    uint16_t    WriteStrU           (uint16_t index, uint16_t *string);
-    bool        EventIs             (genieFrame * e, uint8_t cmd, uint8_t object, uint8_t index);
-    uint16_t    GetEventData        (genieFrame * e);
-    bool        DequeueEvent        (genieFrame * buff);
-    uint16_t    DoEvents            (bool DoHandler = true);
-    void        AttachEventHandler  (UserEventHandlerPtr userHandler);
-    void        AttachMagicByteReader (UserBytePtr userHandler);
-    void        AttachMagicDoubleByteReader (UserDoubleBytePtr userHandler);
-    void        pulse               (int pin);
-    void        assignDebugPort     (Stream &port);
+	uint8_t	WriteStr			(uint8_t index, double n, int digits);
+	uint8_t	WriteStr			(uint8_t index, double n);	
+    uint8_t    WriteStrU             (uint8_t index, uint16_t *string);
+    uint8_t     EventIs              (genieFrame * e, uint8_t cmd, uint8_t object, uint8_t index);
+    uint16_t    GetEventData         (genieFrame * e);
+    uint8_t     EnqueueEvent         (uint8_t * data);
+    uint8_t     DequeueEvent         (genieFrame * buff);
+    uint8_t     DoEvents             (uint8_t flag);//<-- Editor Alejandro Garcia: Flag for avoid autopinger while we are waiting for an ACK from WriteObject
+    uint8_t     autoPinger           ();
+    uint16_t    Ping                 (uint16_t interval);
+    void        AttachEventHandler             (UserEventHandlerPtr userHandler);
+    void        AttachMagicByteReader          (UserBytePtr userHandler);
+    void        AttachMagicDoubleByteReader    (UserDoubleBytePtr userHandler);
 
     // Genie Magic functions (ViSi-Genie Pro Only)
 
-    uint16_t    WriteMagicBytes     (uint16_t index, uint8_t *bytes, uint16_t len);
-    uint16_t    WriteMagicDBytes    (uint16_t index, uint16_t *bytes, uint16_t len);
+    uint8_t    WriteMagicBytes     (uint8_t index, uint8_t *bytes, uint8_t len, uint8_t report = 0);
+    uint8_t    WriteMagicDBytes    (uint8_t index, uint16_t *bytes, uint8_t len, uint8_t report = 0);
+    uint8_t    GetNextByte         (void);
+    uint16_t   GetNextDoubleByte   (void);
 
-    uint8_t     GetNextByte         (void);
-    uint16_t    GetNextDoubleByte   (void);
 
-private:
-    void        FlushEventQueue     (void);
-    void        handleError         (void);
-    void        SetLinkState        (uint16_t newstate);
-    uint16_t    GetLinkState        (void);
-    bool        EnqueueEvent        (uint8_t * data);
-    uint8_t     Getchar             (void);
-    uint16_t    GetcharSerial       (void);
-    void        WaitForIdle         (void);
-    void        PushLinkState       (uint8_t newstate);
-    void        PopLinkState        (void);
-    void        FatalError          (void);
-    void        FlushSerialInput    (void);
-    void        Resync              (void);
-	
-
+protected:
     //////////////////////////////////////////////////////////////
     // A structure to hold up to MAX_GENIE_EVENTS events receive
     // from the display
     //
     EventQueueStruct EventQueue;
-
-    //////////////////////////////////////////////////////////////
-    // Simple 5-deep stack for the link state, this allows
-    // DoEvents() to save the current state, receive a frame,
-    // then restore the state
-    //
-    uint8_t LinkStates[MAX_LINK_STATES];
-    //
-    // Stack pointer
-    //
-    uint8_t *LinkState;
-
-    //////////////////////////////////////////////////////////////
-    // Number of mS the GetChar() function will wait before
-    // giving up on the display
-    int Timeout;
-
-    //////////////////////////////////////////////////////////////
-    // Number of times we have had a timeout
-    int Timeouts;
-
-    //////////////////////////////////////////////////////////////
-    // Global error variable
-    int Error;
-
-
-    uint8_t    rxframe_count;
-
-    //////////////////////////////////////////////////////////////
-    // Number of fatal errors encountered
-    int FatalErrors;
 
     Stream* deviceSerial;
     Stream* debugSerial;
@@ -271,33 +248,22 @@ private:
     UserBytePtr UserByteReader;
     UserDoubleBytePtr UserDoubleByteReader;
 
+    // used internally by the library, do not modify!
+    volatile bool     pendingACK = 0; // prevent userhandler if waiting for ACK, and end recursion.
+    volatile bool     pingRequest = 0; // used internally by the library, do not touch.
+    volatile uint8_t  recover_pulse = 50; // pulse for offline autoping, use genie.recover(x) to change it from sketch.
+    volatile bool     autoPing = 0; // used internally by the library, do not touch.
+    volatile uint16_t GENIE_CMD_TIMEOUT = 1250; // force disconnection trigger if ACK times out
+    volatile uint32_t autoPingTimer = millis(); // timer for autoPinger() function
+    volatile bool     displayDetected = 0; // display is online/offline state
+    volatile uint32_t displayDetectTimer = millis(); // timer for lcd to be aware if connected
+    volatile uint8_t  currentForm = -1; // current form thats loaded
+    volatile uint8_t  nakInj = 0; // nak injection counter
+    volatile uint8_t  badByteCounter = 0; // used for disconnection/debugging purposes
+    volatile uint32_t delayedCycles = millis(); // session protection if latency in user code
+    volatile uint32_t display_uptime = 0; // uptime of display
+    volatile uint32_t ping_spacer; // prevent flooding the uart during recovery. non-blocking.
+    volatile bool     genieStart = 1;
+    volatile uint8_t  debug_level = 0;
 };
-
-#ifndef TRUE
-#define TRUE    (1==1)
-#define FALSE    (!TRUE)
-#endif
-
-#define ERROR_NONE           0
-#define ERROR_TIMEOUT       -1    // 255  0xFF
-#define ERROR_NOHANDLER     -2    // 254  0xFE
-#define ERROR_NOCHAR        -3    // 253  0xFD
-#define ERROR_NAK           -4    // 252  0xFC
-#define ERROR_REPLY_OVR     -5    // 251  0xFB
-#define ERROR_RESYNC        -6    // 250  0xFA
-#define ERROR_NODISPLAY     -7    // 249  0xF9
-#define ERROR_BAD_CS        -8    // 248  0xF8
-
-#define GENIE_LINK_IDLE           0
-#define GENIE_LINK_WFAN           1 // waiting for Ack or Nak
-#define GENIE_LINK_WF_RXREPORT    2 // waiting for a report frame
-#define GENIE_LINK_RXREPORT       3 // receiving a report frame
-#define GENIE_LINK_RXEVENT        4 // receiving an event frame
-#define GENIE_LINK_SHDN           5
-#define GENIE_LINK_RXMBYTES       6 // receiving magic bytes
-#define GENIE_LINK_RXMDBYTES      7 // receiving magic dbytes
-
-#define GENIE_EVENT_NONE    0
-#define GENIE_EVENT_RXCHAR  1
-
 #endif

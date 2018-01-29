@@ -1147,7 +1147,15 @@ bool touchscreen_init(){
 					Config_StoreSettings();
 				}
 				
-				}else if (FLAG_First_Start_Wizard==1888){
+				}
+				#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+				else if(flag_utilities_calibration_zcomensationmode_gauges == 1888 || flag_utilities_calibration_zcomensationmode_gauges == 2888 ){
+					if (FLAG_First_Start_Wizard==1888) Step_First_Start_Wizard = true;
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_Z_COMPENSATION_COMFIRMATION,0);
+				}
+				#endif
+				
+				else if (FLAG_First_Start_Wizard==1888){
 				genie.WriteObject(GENIE_OBJ_FORM,FORN_SETUPASSISTANT_INIT,0);
 				int j = 0;
 				while ( j<GIF_FRAMES_INIT_FIRST_RUN){
@@ -1163,11 +1171,7 @@ bool touchscreen_init(){
 				}
 				genie.WriteObject(GENIE_OBJ_FORM,FORN_SETUPASSISTANT_YESNOT,0);
 			}
-			#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
-			else if(flag_utilities_calibration_zcomensationmode_gauges == 1888 || flag_utilities_calibration_zcomensationmode_gauges == 2888 ){
-				genie.WriteObject(GENIE_OBJ_FORM, FORM_Z_COMPENSATION_COMFIRMATION,0);
-			}
-			#endif
+			
 			
 			else{
 				

@@ -3698,6 +3698,9 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				home_axis_from_code(true,true,true);
 				gif_processing_state = PROCESSING_STOP;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBX,0);
+				if(Step_First_Start_Wizard){
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBX_SKIP,1);
+				}
 				
 				}else if(flag_utilities_calibration_zcomensationmode_gauges == 2888){
 				
@@ -3735,6 +3738,9 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 
 			if(flag_utilities_calibration_zcomensationmode_gauges == 1888){
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBX,0);
+				if(Step_First_Start_Wizard){
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBX_SKIP,1);
+				}
 				setTargetHotend0(print_temp_l);
 				setTargetHotend1(print_temp_r);
 				setTargetBed(max(bed_temp_l,bed_temp_r));

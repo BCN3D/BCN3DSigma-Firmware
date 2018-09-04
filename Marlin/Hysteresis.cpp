@@ -135,7 +135,7 @@ void Hysteresis::InsertCorrection(const float &x, const float &y, const float &z
   float destination[NUM_AXIS] = {x,y,z,e};
   unsigned char direction_bits = calc_direction_bits( current_position, destination );
   // if the direction has changed in any of the axis that need hysteresis corrections...
-  unsigned char direction_change_bits = (direction_bits ^ m_prev_direction_bits);
+  //unsigned char direction_change_bits = (direction_bits ^ m_prev_direction_bits);
   if( (m_hysteresis_bits) != 0 ) ////   if( (direction_change_bits & m_hysteresis_bits) != 0 )
   {
     // calculate the position to move to that will fix the hysteresis

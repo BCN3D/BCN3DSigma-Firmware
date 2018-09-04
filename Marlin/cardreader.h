@@ -1,6 +1,6 @@
 /*
 - cardreader.h - This library manage the communication between MCU and SD card module
-Last Update: 16/10/2017
+Last Update: 01/08/2018
 Author: Alejandro Garcia (S3mt0x)
 */
 #ifndef CARDREADER_H

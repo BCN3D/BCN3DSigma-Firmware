@@ -1,6 +1,6 @@
 /*
 - cardreader.cpp - This library manage the communication between MCU and SD card module
-Last Update: 16/10/2017
+Last Update: 01/08/2018
 Author: Alejandro Garcia (S3mt0x)
 */
 
@@ -621,7 +621,8 @@ void CardReader::closefile(bool store_location)
 		saved_temp0 = target_temperature[0];
 		saved_temp1 = target_temperature[1];
 		saved_tempbed  = target_temperature_bed;
-		saved_feedmulti = feedmultiply;
+		saved_feedmulti0 = feedmultiply[LEFT_EXTRUDER];
+		saved_feedmulti1 = feedmultiply[RIGHT_EXTRUDER];
 		saved_fanlayer = fanSpeed;
 		saved_Flag_fanSpeed_mirror = Flag_fanSpeed_mirror;
 		saved_workDir_vector_lenght = workDir_vector_lenght;

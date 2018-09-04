@@ -24,12 +24,8 @@
 // For a Delta printer replace the configuration files with the files in the
 // example_configurations/SCARA directory.
 //
-//This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
-//get the hw and fw version to Cura-BCN3D and update the new firmware
 
-#define VERSION_STRING  "01-1.2.7"
-//#define BUILD_DATE  "|M01.12"
-#define VERSION_NUMBER  127
+//#define BUILD_DATE  "|M09.03"
 #define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
 //#define DEFAULT_QUICK_GUIDE  0;
@@ -104,30 +100,39 @@
 #define MEGATRONICS_V3	703
 
 //Defining Machines supported
-#define BCN3D_SIGMA_PRINTER_SIGMA	3107
-#define BCN3D_SIGMA_PRINTER_SIGMAX 0713
+#define BCN3D_PRINTER_IS_SIGMA	 	3107
+#define BCN3D_PRINTER_IS_SIGMAX		0713
 
 #ifndef MOTHERBOARD
-//#define MOTHERBOARD MEGATRONICS_V3 //Megatronics v3
-#define MOTHERBOARD BCN3D_BOARD //Marcotronics
+	#define MOTHERBOARD BCN3D_BOARD
 #endif
 
 #ifndef BCN3D_PRINTER_SETUP
-	#define BCN3D_PRINTER_SETUP BCN3D_SIGMA_PRINTER_SIGMA
+	#define BCN3D_PRINTER_SETUP BCN3D_PRINTER_IS_SIGMAX
 #endif
 
-#ifndef BCN3D_SCREEN_VERSION_SETUP
-	#define BCN3D_SCREEN_VERSION_SETUP BCN3D_SIGMA_PRINTER_SIGMA
+//This is the version declaration for Sigma/x, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
+//get the hw and fw version to Cura-BCN3D and update the new firmware
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+	#define VERSION_STRING  "01-2.0.2"
+	#define VERSION_NUMBER  132
+#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
+	#define VERSION_STRING  "02-2.0.2"	
+	#define VERSION_NUMBER  232
 #endif
-#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+
+
+
+
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	#define PRINTER_NAME "BCN3D Sigma"
-#elif BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 	#define PRINTER_NAME "BCN3D Sigmax"
 #endif
 
-#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-	//#define ENABLE_DUPLI_MIRROR
-#elif BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+	#define ENABLE_DUPLI_MIRROR
+#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 	#define ENABLE_DUPLI_MIRROR
 #endif
 
@@ -140,6 +145,14 @@
 // This defines the Z offset threshold tolerance
 #define RAFT_Z_THRESHOLD 0.05
 //	END DUAL MODE SETTINGS
+
+
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+	#define SERIAL_ID_THRESHOLD 3265 /// provisional
+#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
+	#define SERIAL_ID_THRESHOLD 0663 /// provisional
+#endif
+
 
 
 // Define this to set a custom name for your generic Mendel,
@@ -208,6 +221,14 @@
 //	  M605 S6: Duplication Raft Mirror mode
 //
 //    Note: the X axis should be homed after changing dual x-carriage mode.
+
+#define DXC_FULL_CONTROL_MODE 0
+#define DXC_AUTO_PARK_MODE    1
+#define DXC_DUPLICATION_MODE  2
+#define DXC_DUPLICATION_MIRROR_MODE  4
+#define DXC_DUPLICATION_MODE_RAFT  5
+#define DXC_DUPLICATION_MIRROR_MODE_RAFT  6
+
 #define DEFAULT_DUAL_X_CARRIAGE_MODE 3
 
 #define DXC_FULL_SIGMA_MODE 3 //SIGMA MODE: Combination of dual park and dual full control
@@ -220,19 +241,19 @@
 #define TOOLCHANGE_UNPARK_ZLIFT 1        // the distance to raise Z axis when unparking an extruder
 
 // Default x offset in duplication mode (typically set to half print bed width)
-#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	#define DEFAULT_DUPLICATION_X_OFFSET 105
-#elif BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 	#define DEFAULT_DUPLICATION_X_OFFSET 210
 #endif
 
 
 #endif //DUAL_X_CARRIAGE/////////////////////////////////////////////////////
 
-#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-	#define BCN3D_NOZZLE_DEFAULD_SIZE 0.4
-#elif BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
-	#define BCN3D_NOZZLE_DEFAULD_SIZE 0.5
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+	#define BCN3D_NOZZLE_DEFAULT_SIZE 0.4
+#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
+	#define BCN3D_NOZZLE_DEFAULT_SIZE 0.6
 #endif
 
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
@@ -301,20 +322,34 @@
 
 //To clean the extruder's the best temperature configuration
 #define	PLA_LOAD_TEMP			215
-#define	PLA_UNLOAD_TEMP			170
+#define	PLA_UNLOAD_TEMP			215
 #define	PLA_PRINT_TEMP			215
 #define PLA_BED_TEMP			65
 
 #define	ABS_LOAD_TEMP			260
-#define	ABS_UNLOAD_TEMP			230
+#define	ABS_UNLOAD_TEMP			260
 #define	ABS_PRINT_TEMP			260
 #define ABS_BED_TEMP			90
 
 #define	PVA_LOAD_TEMP			230
-#define	PVA_UNLOAD_TEMP			160
+#define	PVA_UNLOAD_TEMP			220
 #define	PVA_PRINT_TEMP			220
 #define PVA_BED_TEMP			60
 
+#define	PETG_LOAD_TEMP			245
+#define	PETG_UNLOAD_TEMP		235
+#define	PETG_PRINT_TEMP			235
+#define PETG_BED_TEMP			85
+
+#define	NYLON_LOAD_TEMP			260
+#define	NYLON_UNLOAD_TEMP		250
+#define	NYLON_PRINT_TEMP		250
+#define NYLON_BED_TEMP			65
+
+#define	TPU_LOAD_TEMP			245
+#define	TPU_UNLOAD_TEMP			235
+#define	TPU_PRINT_TEMP			235
+#define TPU_BED_TEMP			65
 
 #define EXTRUDER_LEFT_CLEAN_TEMP 170
 #define EXTRUDER_RIGHT_CLEAN_TEMP 170
@@ -597,10 +632,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 		#define X_MAX_POS 305.6//312 //Distance between extruders
 	#endif
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 		#define X_MAX_POS 526.7//312 //Distance between extruders
 	#endif
 	//#define X_MAX_POS 210 //Bed X
@@ -680,10 +715,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define Z_RAISE_BEFORE_HOMING 7       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
 
-  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
-  #define XY_TRAVEL_SPEED15 12000         // X and Y axis travel speed between probes, in mm/min  
+  #define XY_TRAVEL_SPEED 8000          // X and Y axis travel speed between probes, in mm/min
+  #define XY_TRAVEL_SPEED15 12000       // X and Y axis travel speed between probes, in mm/min  
 
-  #define Z_RAISE_BEFORE_PROBING 5    //How much the extruder will be raised before traveling to the first probing point.
+  #define Z_RAISE_BEFORE_PROBING 5      //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 2.5  //How much the extruder will be raised when traveling from between next probing points
 
   //#define Z_PROBE_SLED // turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
@@ -794,17 +829,19 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_OLD_BED_TEMP	PLA_BED_TEMP;
 
 
-//Rapduch
-//Insert Filament parameters
-#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-	#define BOWDEN_LENGTH 875
+//LOAD Filament parameters
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+	#define BOWDEN_LENGTH 925
 #endif
-#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
-	#define BOWDEN_LENGTH 1050
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
+	#define BOWDEN_LENGTH 1100
 #endif
+#define PURGE_LENGHT_UNLOAD 25
+#define PURGE_SPEED_UNLOAD 450.0
 #define EXTRUDER_LENGTH 50
-#define INSERT_FAST_SPEED 3600	//max speed 60mm/s
-#define INSERT_SLOW_SPEED 150
+#define INSERT_FAST_SPEED 3600.0	//max speed 60mm/s R16/R17
+#define INSERT_FAST_R18_SPEED 2400.0	//max speed 40mm/s R18
+#define INSERT_SLOW_SPEED	150
 #define REMOVE_FIL_TEMP		170
 #define INSERT_FIL_TEMP		230
 
@@ -819,11 +856,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 #ifdef Z_SIGMA_HOME
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 		#define Z_SIGMA_HOME_X_POINT 58
+		#define Z_SIGMA_PROBE_X_POINT 56
 	#endif
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 		#define Z_SIGMA_HOME_X_POINT 58
+		#define Z_SIGMA_PROBE_X_POINT 61
 	#endif
 	#define Z_SIGMA_HOME_Y_POINT 150
 	
@@ -867,7 +906,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#endif
 	
 	
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 		//Left extruder probe point
 		#define X_SIGMA_PROBE_1_LEFT_EXTR 55
 		#define Y_SIGMA_PROBE_1_LEFT_EXTR 265
@@ -898,7 +937,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#define X_GAP_AVOID_COLLISION_RIGHT	13
 		
 	#endif
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 		//Left extruder probe point
 		#define X_SIGMA_PROBE_1_LEFT_EXTR 58.5
 		#define Y_SIGMA_PROBE_1_LEFT_EXTR 265
@@ -933,7 +972,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #ifdef  SIGMA_BED_AUTOCALIB
 //Calibration WIZARD --------
 	#define PAS_M5 0.80
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 		//Screw positions on BED for
 		#define CARGOL_1_X  152
 		//#define CARGOL_1_X  104;
@@ -946,7 +985,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#define CARGOL_3_X  230.5
 		//#define CARGOL_3_X  192;
 		#define CARGOL_3_Y 19
-	#elif BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+	#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 		//Screw positions on BED for
 		#define CARGOL_1_X  263.5
 		//#define CARGOL_1_X  104;
@@ -970,7 +1009,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		
 	#define X_CALIB_STARTING_X 117.5
 	#define X_CALIB_STARTING_Y 99.5
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 		#define X_OFFSET_CALIB_PROCEDURES 109
 		#define X_OFFSET_BEDCOMPENSATION_PROCEDURE 102
 	#endif
@@ -1000,13 +1039,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#define EXTRUDER_OFFSET_Z {0.0 , 0.0}
 #endif
 
-#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	#define NOZZLE_PARK_DISTANCE_BED_X0	47
 	#define NOZZLE_PARK_DISTANCE_BED_Y0	-2.5
 	#define PRINTER_BED_X_SIZE	210.0
 #endif
-#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
-	#define NOZZLE_PARK_DISTANCE_BED_X0	54.5
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
+	#define NOZZLE_PARK_DISTANCE_BED_X0	53.5
 	#define NOZZLE_PARK_DISTANCE_BED_Y0	-2.5
 	#define PRINTER_BED_X_SIZE	420.0
 #endif
@@ -1028,8 +1067,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define NUM_LINES 10
+#define LINES_GAP 0.05
+//#define LINES_LAYER_HEIGHT_Z   {0.1,0.15,0.15,0.15,0.2,0.2} /// hotend 0.3 0.4 0.5 0.6 0.8 1.0
+#define LINES_LAYER_HEIGHT_XY 0.2
+
 //#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
-#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	#define HOMING_FEEDRATE {60*60, 90*60, 12*60, 0} ///{75*60, 65*60, 6*60, 0}  // old homing speeds (mm/min)
 #else
 	#define HOMING_FEEDRATE {60*60, 90*60, 12*60, 0} ///{75*60, 65*60, 6*60, 0}  // old homing speeds (mm/min)
@@ -1043,9 +1086,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #ifdef SIGMA_TOUCH_SCREEN //If Sigma Touch Screen enabled
 	#if MOTHERBOARD == BCN3D_BOARD
 		//#define DEFAULT_AXIS_STEPS_PER_UNIT {160,160,3200,608}  //1/32 microstepping for BCN3D Board
-		#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,152}	  //1/16 microstepping for BCN3D Board
-		#elif BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+		#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,492.45}	  //1/16 microstepping for BCN3D Board
+		#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,492.45}	  //1/16 microstepping for bondtech kit BCN3D
 		#endif
 		//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}	  //MK7 1/8 microstepping for BCN3D Board
@@ -1063,8 +1106,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 
-#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-	#define DEFAULT_MAX_FEEDRATE          {200, 200, 12, 60}    // (mm/sec)
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+	#define DEFAULT_MAX_FEEDRATE          {200, 200, 12, 40}    // (mm/sec)
 	#define DEFAULT_MAX_ACCELERATION      {2250,2250,80,800}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 	#define DEFAULT_HYSTERESIS_MM         0, 0, 0, 0  // X, Y, Z, E hysteresis in mm. These are the extra distances that are performed when an axis changes direction to compensate for any mechanical hysteresis your printer has.
 	#define DEFAULT_HYSTERESIS
@@ -1081,7 +1124,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define DEFAULT_XYJERK                5.0    // (mm/sec)
 	#define DEFAULT_ZJERK                 0.4     // (mm/sec)
 	#define DEFAULT_EJERK                 5.0    // (mm/sec)
-#elif BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
+#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 	#define DEFAULT_MAX_FEEDRATE          {200, 200, 12, 40}    // (mm/sec)
 	#define DEFAULT_MAX_ACCELERATION      {2250,2250,80,800}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 	#define DEFAULT_HYSTERESIS_MM         0, 0, 0, 0  // X, Y, Z, E hysteresis in mm. These are the extra distances that are performed when an axis changes direction to compensate for any mechanical hysteresis your printer has.
@@ -1344,9 +1387,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 /////////////////////////////////BCN3D SIGMA  CONFIG////////////////////////////////////////////////////////////////////
 
-//////	BED COMPENSATION G36
+//////	RETRACT SETTINGS
 
-#define RETRACT_SPEED_G36		2100
+#define RETRACT_SPEED_PRINT_TEST		2100.0
 
 
 //////	FULL CALIBRATION SETTINGS
@@ -1378,13 +1421,20 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define NYLON_TEMP_COOLDOWN_THRESHOLD		 60			//(ºC)
 
 //////	PAUSE PRINT
-
-
-#define PAUSE_G69_RETRACT		 4				//(mm)
-#define PAUSE_G69_XYMOVE		 5				//(mm)
-#define PAUSE_G70_ZMOVE			 2				//(mm)
-#define PAUSE_G70_PURGE			 10				//(mm)
-
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
+	#define RETRACT_PRINTER_FACTOR			 8				//(mm)
+	#define RETRACT_PRINT_TEST_FACTOR		 8				//(mm)
+	#define PAUSE_G69_XYMOVE				 5				//(mm)
+	#define PAUSE_G70_ZMOVE					 2				//(mm)
+	#define PURGE_PRINTER_FACTOR			 20				//(mm)
+#endif
+#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+	#define RETRACT_PRINTER_FACTOR			 6				//(mm)
+	#define RETRACT_PRINT_TEST_FACTOR		 6				//(mm)
+	#define PAUSE_G69_XYMOVE				 5				//(mm)
+	#define PAUSE_G70_ZMOVE					 2				//(mm)
+	#define PURGE_PRINTER_FACTOR			 20				//(mm)
+#endif
 //////	THERMISTOR LECTURE PROTECTION 
 
 #define	THERMAL_LECTURE_FAILURE
@@ -1404,22 +1454,24 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 ///////	GIFs SETUP 
 
 //	FRAME RATE
-
+#define GIF_FRAMERATE2				100   /// 50ms------> 20fps
 #define GIF_FRAMERATE				40   /// 40ms------> 25fps
 
 //NUMBER OF FRAMES PER GIF
 
 #define GIF_FRAMES_SUCCESS				40
 #define GIF_FRAMES_NYLONSTEP3			22
-#define GIF_FRAMES_PURGELOAD			35    
-#define GIF_FRAMES_BEDSCREW				43     
-#define GIF_FRAMES_ZCALIB				49
+#define GIF_FRAMES_PURGELOAD			8
+#define GIF_FRAMES_PURGEUNLOAD			8
+#define GIF_FRAMES_BEDSCREW				43
+#define GIF_FRAMES_ZCALIB				22
+#define GIF_FRAMES_ZCALIB_GAUGE			38
 #define GIF_FRAMES_ZSET					49
 #define GIF_FRAMES_CALIBTEST			36
-#define GIF_FRAMES_PROCESSING			15
-#define GIF_FRAMES_CHANGEFILAMENTTEMP   43
+#define GIF_FRAMES_PROCESSING			42
+//#define GIF_FRAMES_CHANGEFILAMENTTEMP   43
 #define GIF_FRAMES_ADJUSTINGTEMPS		44
-#define GIF_FRAMES_NYLONTEMPS			43
+//#define GIF_FRAMES_NYLONTEMPS			43
 #define GIF_FRAMES_ERROR				44
 #define GIF_FRAMES_PREHEAT				41
 #define GIF_FRAMES_INIT_FIRST_RUN		124
@@ -1444,9 +1496,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define PROCESSING_SAVE_PRINT_SUCCESS		'E'
 #define PROCESSING_UTILITIES_MAINTENANCE_NYLONCLEANING_STEP4				'F'
 #define PROCESSING_PURGE_LOAD				'G'
-#define PROCESSING_CHANGE_FILAMENT_TEMPS	'H'
+#define PROCESSING_PURGE_UNLOAD				'H'
 #define PROCESSING_ADJUSTING				'I'
-#define PROCESSING_UTILITIES_MAINTENANCE_NYLONCLEANING_TEMPS				'J'
+//#define PROCESSING_UTILITIES_MAINTENANCE_NYLONCLEANING_TEMPS				'J'
 #define PROCESSING_BED						'K'
 #define PROCESSING_CALIB_ZL					'L'
 #define PROCESSING_CALIB_ZR					'M'
@@ -1454,7 +1506,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define PROCESSING_BED_FIRST				'O'
 #define PROCESSING_TEST						'P'
 #define PROCESSING_UTILITIES_MAINTENANCE_NYLONCLEANING_STEP3				'Q'
-
+#define PROCESSING_CALIB_Z_GAUGE			'R'
 //PRINTER STATE DEFINITIONS
 
 #define STATE_NONE							'\0'
@@ -1463,10 +1515,14 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define STATE_NYLONCLEANING					'C'
 #define STATE_CALIBRATION					'D'
 #define STATE_AUTOTUNEPID					'E'
+#define STATE_CHANGEHOTEND					'F'
 /*
 #define PROCESSING_Z_SET_0					'R'
 #define PROCESSING_Z_SET_1					'S'
 */
+
+#define PATTERN_Z_CALIB						 0
+
 #include "Configuration_adv.h"
 #include "thermistortables.h"
 

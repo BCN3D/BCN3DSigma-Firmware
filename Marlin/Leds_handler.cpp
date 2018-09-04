@@ -1,6 +1,6 @@
 /*
 - Leds_manager.cpp - A class that manages the Led colours
-Last Update: 15/01/2017
+Last Update: 01/08/2018
 Author: Alejandro Garcia (S3mt0x)
 */
 
@@ -8,7 +8,7 @@ Author: Alejandro Garcia (S3mt0x)
 #include "Configuration.h"
 #include "Marlin.h"
 #include "ConfigurationStore.h"
-
+#include "BCN3D_customregisters.h"
 void SetupTimer2();
 uint8_t counter_red = 255;
 uint8_t counter_green = 255;

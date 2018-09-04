@@ -453,7 +453,7 @@ void lcd_preheat_pla0()
     setTargetBed(max(bed_temp_l,bed_temp_r));
     fanSpeed = plaPreheatFanSpeed;
     lcd_return_to_status();
-    setWatch(); // heater sanity check timer
+      // heater sanity check timer
 }
 
 void lcd_preheat_abs0()
@@ -462,7 +462,7 @@ void lcd_preheat_abs0()
     setTargetBed(max(bed_temp_l,bed_temp_r));
     fanSpeed = absPreheatFanSpeed;
     lcd_return_to_status();
-    setWatch(); // heater sanity check timer
+      // heater sanity check timer
 }
 
 #if TEMP_SENSOR_1 != 0 //2nd extruder preheat
@@ -472,7 +472,7 @@ void lcd_preheat_pla1()
     setTargetBed(max(bed_temp_l,bed_temp_r));
     fanSpeed = plaPreheatFanSpeed;
     lcd_return_to_status();
-    setWatch(); // heater sanity check timer
+      // heater sanity check timer
 }
 
 void lcd_preheat_abs1()
@@ -481,7 +481,7 @@ void lcd_preheat_abs1()
     setTargetBed(max(bed_temp_l,bed_temp_r));
     fanSpeed = absPreheatFanSpeed;
     lcd_return_to_status();
-    setWatch(); // heater sanity check timer
+      // heater sanity check timer
 }
 #endif //2nd extruder preheat
 
@@ -492,7 +492,7 @@ void lcd_preheat_pla2()
     setTargetBed(max(bed_temp_l,bed_temp_r));
     fanSpeed = plaPreheatFanSpeed;
     lcd_return_to_status();
-    setWatch(); // heater sanity check timer
+      // heater sanity check timer
 }
 
 void lcd_preheat_abs2()
@@ -501,7 +501,7 @@ void lcd_preheat_abs2()
     setTargetBed(max(bed_temp_l,bed_temp_r));
     fanSpeed = absPreheatFanSpeed;
     lcd_return_to_status();
-    setWatch(); // heater sanity check timer
+      // heater sanity check timer
 }
 #endif //3 extruder preheat
 
@@ -514,7 +514,7 @@ void lcd_preheat_pla012()
     setTargetBed(max(bed_temp_l,bed_temp_r));
     fanSpeed = plaPreheatFanSpeed;
     lcd_return_to_status();
-    setWatch(); // heater sanity check timer
+      // heater sanity check timer
 }
 
 void lcd_preheat_abs012()
@@ -525,7 +525,7 @@ void lcd_preheat_abs012()
     setTargetBed(max(bed_temp_l,bed_temp_r));
     fanSpeed = absPreheatFanSpeed;
     lcd_return_to_status();
-    setWatch(); // heater sanity check timer
+      // heater sanity check timer
 }
 #endif //more than one extruder present
 
@@ -534,7 +534,7 @@ void lcd_preheat_pla_bedonly()
     setTargetBed(max(bed_temp_l,bed_temp_r));
     fanSpeed = plaPreheatFanSpeed;
     lcd_return_to_status();
-    setWatch(); // heater sanity check timer
+      // heater sanity check timer
 }
 
 void lcd_preheat_abs_bedonly()
@@ -542,7 +542,7 @@ void lcd_preheat_abs_bedonly()
     setTargetBed(max(bed_temp_l,bed_temp_r));
     fanSpeed = absPreheatFanSpeed;
     lcd_return_to_status();
-    setWatch(); // heater sanity check timer
+      // heater sanity check timer
 }
 
 static void lcd_preheat_pla_menu()

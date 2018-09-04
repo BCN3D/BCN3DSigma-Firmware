@@ -14,7 +14,7 @@ Author: Alejandro Garcia (S3mt0x)
 	#include "Configuration.h"
 	#include "stepper.h"
 	#include "cardreader.h"
-	
+	#include "BCN3D_customregisters.h"
 	
 	
 	
@@ -24,6 +24,7 @@ class Listfiles
 	Listfiles();
 	void get_lineduration(bool fromfilepoiter, char* name);
 	int check_extract_ensure_duplication_print();
+	int check_extract_match_hotendsize_print();
 	int get_hours(void);
 	int get_minutes(void);
 	int get_filmetros1(void);
@@ -48,6 +49,7 @@ class Listfiles
 	int search_line_data_commentary(void);
 	void extract_data(void);
 	void extract_data1(void);
+	float extract_ensure_hotend_gcode_setup_t(uint8_t tool);
 	int extract_ensure_duplication_print(void);
 	int extract_ensure_duplication_print_with_raft_simplify(void);
 	int extract_ensure_duplication_print_with_raft_cura(void);

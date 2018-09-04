@@ -6,12 +6,21 @@
 
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size)
 {
-	do
-	{
-		eeprom_write_byte((unsigned char*)pos, *value);
+	while (size--) {
+		uint8_t * const p = (uint8_t * const)pos;
+		uint8_t v = *value;
+		// EEPROM has only ~100,000 write cycles,
+		// so only write bytes that have changed!
+		if (v != eeprom_read_byte(p)) {
+			eeprom_write_byte(p, v);
+			if (eeprom_read_byte(p) != v) {
+				Serial.println(F("Error Write EEPROM"));
+				return;
+			}
+		}
 		pos++;
 		value++;
-	}while(--size);
+	};
 }
 #define EEPROM_WRITE_VAR(pos, value) _EEPROM_writeData(pos, (uint8_t*)&value, sizeof(value))
 void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
@@ -164,7 +173,7 @@ void Config_StoreSettings()
 	EEPROM_WRITE_VAR(i,saved_temp0);
 	EEPROM_WRITE_VAR(i,saved_tempbed);
 	EEPROM_WRITE_VAR(i,saved_fanlayer);
-	EEPROM_WRITE_VAR(i,saved_feedmulti);
+	EEPROM_WRITE_VAR(i,saved_feedmulti0);
 	EEPROM_WRITE_VAR(i,saved_workDir_vector_lenght);
 	EEPROM_WRITE_VAR(i,saved_workDir_vector[0]);
 	EEPROM_WRITE_VAR(i,saved_workDir_vector[1]);
@@ -189,6 +198,14 @@ void Config_StoreSettings()
 	EEPROM_WRITE_VAR(i,Flag_fanSpeed_mirror);
 	EEPROM_WRITE_VAR(i,bed_offset_version);
 	EEPROM_WRITE_VAR(i,flag_utilities_calibration_zcomensationmode_gauges);
+	EEPROM_WRITE_VAR(i,led_brightness);
+	EEPROM_WRITE_VAR(i,saved_feedmulti1);
+	EEPROM_WRITE_VAR(i,flag_utilities_maintenance_changehotend);
+	EEPROM_WRITE_VAR(i,hotend_size_setup);
+	EEPROM_WRITE_VAR(i,Flag_FRS_enabled);
+	EEPROM_WRITE_VAR(i,log_XY_distance);
+	EEPROM_WRITE_VAR(i,UI_registercode);
+	EEPROM_WRITE_VAR(i,log_XY_distanceRegist);	
 	char ver2[4]=EEPROM_VERSION;
 	i=EEPROM_OFFSET;
 	EEPROM_WRITE_VAR(i,ver2); // validate data
@@ -358,7 +375,8 @@ void Config_PrintSAVESettings()
 	SERIAL_ECHOPAIR(", saved_temp0: " ,(float)saved_temp0);
 	SERIAL_ECHOPAIR(", saved_tempbed: " ,(float)saved_tempbed);
 	SERIAL_ECHOPAIR(", saved_fanlayer: " ,(float)saved_fanlayer);
-	SERIAL_ECHOPAIR(", saved_feedrate: " ,(float)saved_feedmulti);
+	SERIAL_ECHOPAIR(", saved_feedrate0: " ,(float)saved_feedmulti0);
+	SERIAL_ECHOPAIR(", saved_feedrate1: " ,(float)saved_feedmulti1);
 	SERIAL_ECHOPAIR(", saved_Flag_fanlayer_mirror: " ,(float)saved_Flag_fanSpeed_mirror);
 	SERIAL_ECHOLN("");
 	
@@ -491,7 +509,7 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,saved_temp0);
 		EEPROM_READ_VAR(i,saved_tempbed);
 		EEPROM_READ_VAR(i,saved_fanlayer);
-		EEPROM_READ_VAR(i,saved_feedmulti);
+		EEPROM_READ_VAR(i,saved_feedmulti0);
 		EEPROM_READ_VAR(i,saved_workDir_vector_lenght);
 		EEPROM_READ_VAR(i,saved_workDir_vector[0]);
 		EEPROM_READ_VAR(i,saved_workDir_vector[1]);
@@ -516,10 +534,19 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,saved_Flag_fanSpeed_mirror);
 		EEPROM_READ_VAR(i,bed_offset_version);
 		EEPROM_READ_VAR(i,flag_utilities_calibration_zcomensationmode_gauges);
+		EEPROM_READ_VAR(i,led_brightness);
+		EEPROM_READ_VAR(i,saved_feedmulti1);
+		EEPROM_READ_VAR(i,flag_utilities_maintenance_changehotend);
+		EEPROM_READ_VAR(i,hotend_size_setup);
+		EEPROM_READ_VAR(i,Flag_FRS_enabled);	
+		EEPROM_READ_VAR(i,log_XY_distance);
+		EEPROM_READ_VAR(i,UI_registercode);
+		EEPROM_READ_VAR(i,log_XY_distanceRegist);	
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
 		SERIAL_ECHO_START;
-		if (UI_SerialID0 <= 0 || UI_SerialID0 >= 123 || UI_SerialID2 >= 9999 || UI_SerialID1 >= 999999 || UI_SerialID2 <= 0 || UI_SerialID1 <= 0){
+		led_brightness = constrain(led_brightness,0,255);
+		if (UI_SerialID0 <= 0 || UI_SerialID0 >= 999 || UI_SerialID2 >= 9999 || UI_SerialID1 >= 999999 || UI_SerialID2 <= 0 || UI_SerialID1 <= 0){
 			UI_SerialID0 = 0;
 			UI_SerialID1 = 0;
 			UI_SerialID2 = 0;
@@ -533,6 +560,18 @@ void Config_RetrieveSettings()
 		}
 		if(bed_offset_version > 1000 || isnan(bed_offset_version)){
 			bed_offset_version = 0;
+		}
+		if(log_XY_distance < 0 || isnan(log_XY_distance)){
+			log_XY_distance = 0;
+		}
+		if(log_XY_distanceRegist < 0 || isnan(log_XY_distanceRegist)){
+			log_XY_distanceRegist = 0;
+		}
+		if(isnan(hotend_size_setup[0]) || isnan(hotend_size_setup[1])  || hotend_size_setup[0] > 1.01 || hotend_size_setup[0] < 0.29 || hotend_size_setup[1] > 1.01 || hotend_size_setup[1] < 0.29)
+		{
+			hotend_size_setup[1]=BCN3D_NOZZLE_DEFAULT_SIZE;
+			hotend_size_setup[0]=BCN3D_NOZZLE_DEFAULT_SIZE;
+			Config_StoreSettings();
 		}
 		if(isnan(manual_fine_calib_offset[0]) || isnan(manual_fine_calib_offset[1])  || isnan(manual_fine_calib_offset [2]) || isnan(manual_fine_calib_offset[3]))
 		{
@@ -561,7 +600,7 @@ void Config_ResetDefault()
 	float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
 	float tmp2[]=DEFAULT_MAX_FEEDRATE;
 	long tmp3[]=DEFAULT_MAX_ACCELERATION;
-	for (short i=0;i<4;i++)
+	for (short i=0;i<3;i++)
 	{
 		axis_steps_per_unit[i]=tmp1[i];
 		max_feedrate[i]=tmp2[i];
@@ -625,6 +664,7 @@ void Config_ResetDefault()
 	log_minutes_lastprint = 0;
 	log_hours_lastprint = 0;
 	FLAG_First_Start_Wizard = 1888;
+	flag_utilities_maintenance_changehotend = 888;
 	
 	/*
 	//Extruder Offset
@@ -660,6 +700,14 @@ void Config_ResetDefault()
 void Config_Reset_Calib(){
 	//Extruder Offset
 	//extruder_offset = {EXTRUDER_OFFSET_X,EXTRUDER_OFFSET_Y,EXTRUDER_OFFSET_Z};
+	version_number = VERSION_NUMBER;
+	float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
+	float tmp2[]=DEFAULT_MAX_FEEDRATE;
+	long tmp3[]=DEFAULT_MAX_ACCELERATION;
+	axis_steps_per_unit[E_AXIS]=tmp1[E_AXIS];
+	max_feedrate[E_AXIS]=tmp2[E_AXIS];
+	max_acceleration_units_per_sq_second[E_AXIS]=tmp3[E_AXIS];
+	
 	manual_fine_calib_offset[0] = 0.0;
 	manual_fine_calib_offset[1] = 0.0;
 	manual_fine_calib_offset[2] = 0.0;
@@ -709,6 +757,9 @@ void Config_Reset_Statistics(int data){
 		log_Y_mmdone = 0;
 		log_E0_mmdone = 0;
 		log_E1_mmdone = 0;
+		log_XY_distance = 0;
+		log_XY_distanceRegist = 0;
+		UI_registercode = 0;
 		FLAG_First_Start_Wizard = 1888;
 		SERIAL_PROTOCOLLNPGM("STATISTICS RESET");
 	}

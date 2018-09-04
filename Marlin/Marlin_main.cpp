@@ -1,6 +1,6 @@
 /*
 - Marlin_main.cpp - Here there are the Main loop, Serial Communications processing and GCODE processing.
-Last Update: 15/01/2018
+Last Update: 01/08/2018
 Author: Alejandro Garcia (S3mt0x)
 */
 
@@ -59,8 +59,9 @@ http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
 #include "LCD_FSM.h"
 #include "Leds_handler.h"
 #include "macros.h"
+#include "BCN3D_customregisters.h"
 //static Genie genie;
-Genie genie;
+Genie display;
 //void myGenieEventHandler();
 //-------------------------
 
@@ -102,6 +103,8 @@ G33 - Autolevel Bed
 G34 - Autocal Bed
 G40 - Wizard X
 G41 - Square
+G36 - Cal bed
+G715- New layer
 
 G90 - Use Absolute Coordinates
 G91 - Use Relative Coordinates
@@ -234,9 +237,13 @@ Listfiles listsd;
 int UI_SerialID0 = 0;
 long UI_SerialID1 = 0;
 int UI_SerialID2 = 0;
+int UI_registercode = 0;
+bool notice_registercode = false;
 //Rapduch
 #ifdef SIGMA_TOUCH_SCREEN
 bool waiting_temps = false;
+int8_t which_extruder_setup=-1;
+int8_t which_hotend_setup[2]={-1,-1};
 bool screen_sdcard = false;
 bool surfing_utilities = false;
 bool surfing_temps = false;
@@ -246,6 +253,7 @@ uint16_t filepointer = 0;
 String screen_status = "Printing...";
 uint8_t which_extruder=0;
 char filament_mode='O';
+bool is_checking_filament=false;
 bool is_changing_filament=false;
 bool is_purging_filament=false;
 String currentSDFileName;
@@ -269,6 +277,7 @@ int raft_line = 0;
 int raft_line_counter = 0;
 int raft_line_counter_g = 0;
 float raft_z_init = 0.0;
+bool Flag_serial_new_layer = false;
 bool Flag_raft_last_line = false;
 float raft_extrusion_adjusting = 1.0;
 float destination_X_2 = 0.0;
@@ -288,7 +297,8 @@ int saved_temp0;
 int saved_tempbed;
 int saved_feedspeed;
 int saved_fanlayer;
-int saved_feedmulti;
+int saved_feedmulti0;
+int saved_feedmulti1;
 int saved_workDir_vector[MAX_DIR_DEPTH];
 int saved_Flag_fanSpeed_mirror;
 uint8_t saved_workDir_vector_lenght=0;
@@ -306,6 +316,7 @@ uint8_t workDir_vector_lenght=0;
 #ifdef FIRST_START_WIZARD
 
 int FLAG_First_Start_Wizard = 1888;
+int FLAG_Printer_Setup_Assistant = 1888;
 bool Step_First_Start_Wizard = false; // State
 
 #endif
@@ -332,36 +343,76 @@ int old_unload_temp_r;
 int old_print_temp_r;
 int old_bed_temp_r;
 
-int preheat_E0_value;
-int preheat_E1_value;
-int preheat_B_value;
+
 
 
 
 ////// end Temperatures of current material for two extruders //////
-bool screen_change_nozz1up = false;
-bool screen_change_nozz2up = false;
-bool screen_change_bedup = false;
-bool screen_change_speedup = false;
-bool screen_change_nozz1down = false;
-bool screen_change_nozz2down = false;
-bool screen_change_beddown = false;
-bool screen_change_speeddown = false;
+
+uint32_t screen_change_register = 0;
+
 bool home_made = false;
 bool home_made_Z = false;
 bool doblocking = false;
 bool saved_doblocking = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
-int feedmultiply=100; //100->1 200->2
-int saved_feedmultiply;
 int8_t saved_active_extruder = 0;
 int extrudemultiply=100; //100->1 200->2
+int fanSpeed_offset[EXTRUDERS] = {0
+	#if EXTRUDERS > 1
+	, 0
+	#if EXTRUDERS > 2
+	, 0
+	#endif
+	#endif
+};
 bool flag_ending_gcode = false;
 bool FLAG_thermal_runaway = false;
 bool FLAG_thermal_runaway_screen = false;
 int ID_thermal_runaway = 0;
+
+uint16_t led_brightness = 255; //0-255
+
+#if PATTERN_Z_CALIB == 0
+
+void draw_print_line(uint8_t patternid, float y_destination, float layerh);
+#endif
+
+
+float hotend_size_setup[EXTRUDERS] = {BCN3D_NOZZLE_DEFAULT_SIZE
+	#if EXTRUDERS > 1
+	, BCN3D_NOZZLE_DEFAULT_SIZE
+	#if EXTRUDERS > 2
+	, BCN3D_NOZZLE_DEFAULT_SIZE
+	#endif
+	#endif
+};
+int saved_feedmultiply[EXTRUDERS] = {100
+	#if EXTRUDERS > 1
+	, 100
+	#if EXTRUDERS > 2
+	, 100
+	#endif
+	#endif
+};
+int feedmultiply[EXTRUDERS] = {100
+	#if EXTRUDERS > 1
+	, 100
+	#if EXTRUDERS > 2
+	, 100
+	#endif
+	#endif
+};
 int extruder_multiply[EXTRUDERS] = {100
+	#if EXTRUDERS > 1
+	, 100
+	#if EXTRUDERS > 2
+	, 100
+	#endif
+	#endif
+};
+int saved_extruder_multiply[EXTRUDERS] = {100
 	#if EXTRUDERS > 1
 	, 100
 	#if EXTRUDERS > 2
@@ -393,6 +444,7 @@ float bed_offset_left_screw=0.0;
 float bed_offset_right_screw=0.0;
 unsigned int bed_offset_version=0;
 int flag_utilities_calibration_zcomensationmode_gauges = 888;
+int flag_utilities_maintenance_changehotend = 888;
 //bools to control which kind of process are actually running
 
 /////// Processing Gifs	/////////
@@ -431,8 +483,17 @@ int long long log_X1_mmdone;
 int long long log_Y_mmdone;
 int long long log_E0_mmdone;
 int long long log_E1_mmdone;
-
+int long log_XY_distance = 0;
+int long log_XY_distanceRegist = 0;
 //////// end PRINT STATS ////////
+
+//////// start check filament ///////
+bool Flag_checkfil = false;
+bool Flag_FRS_enabled = true;
+uint8_t which_extruder_needs_fil;
+int target_temperature_check_filament_cooldown_save[EXTRUDERS];
+//////// end check filament ////////
+
 
 // Extruder offset
 #if EXTRUDERS > 1
@@ -571,7 +632,9 @@ static float feedrate = 1500.0, next_feedrate, saved_feedrate;
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
-
+#ifdef ENABLE_DUPLI_MIRROR
+static char buffer_comment[MAX_CMD_SIZE];
+#endif
 static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
 static bool fromsd[BUFSIZE];
 int bufindr = 0;
@@ -617,6 +680,7 @@ boolean chdkActive = false;
 //===========================================================================
 //=============================Routines======================================
 //===========================================================================
+void checkfilament();
 int TimerCooldownInactivity(bool restartOrRun);
 void get_arc_coordinates();
 bool setTargetedHotend(int code);
@@ -642,6 +706,43 @@ extern "C"{
 		free_memory = ((int)&free_memory) - ((int)__brkval);
 
 		return free_memory;
+	}
+}
+
+void checkfilament(){
+	static uint32_t timer_fil = millis();
+	static uint8_t times_fail0 = 0;
+	static uint8_t times_fail1 = 0;
+	
+	if(card.sdprinting && Flag_FRS_enabled && home_made){
+		if(timer_fil < millis()){
+			if(!digitalRead(E0_STOP) && !Flag_checkfil && (active_extruder == 0 || extruder_duplication_enabled || extruder_duplication_mirror_enabled)){
+				times_fail0++;
+				if(times_fail0>3){
+					Flag_checkfil = true;
+					which_extruder_needs_fil = 10;
+					bitSet(flag_sdprinting_register,flag_sdprinting_register_printpause);
+					times_fail0 = 0;
+				}
+			}else{
+				times_fail0=0;
+			}
+			
+			if(!digitalRead(E1_STOP) && !Flag_checkfil && (active_extruder == 1 || extruder_duplication_enabled || extruder_duplication_mirror_enabled)){
+				times_fail1++;
+				if(times_fail1>3){
+					Flag_checkfil = true;
+					which_extruder_needs_fil = 11;
+					bitSet(flag_sdprinting_register,flag_sdprinting_register_printpause);
+					times_fail1 = 0;
+				}
+				
+			}else{
+				times_fail1=0;
+			}
+			timer_fil = millis() + 1000; //check every 1
+		}
+		
 	}
 }
 
@@ -755,8 +856,6 @@ void servo_init()
 
 void setup()
 {
-	int led = 0;
-	static uint32_t waitPeriod = millis(); //Processing back home
 	setup_killpin();
 	setup_powerhold();
 	st_init();    // Initialize stepper, this enables interrupts!
@@ -805,7 +904,7 @@ void setup()
 	log_max_temp_r = 0;
 	log_max_bed =0;
 	Config_RetrieveSettings();
-		
+	
 	
 	tp_init();    // Initialize temperature loop
 	plan_init();  // Initialize planner;
@@ -818,9 +917,9 @@ void setup()
 	
 	
 	#if MOTHERBOARD == BCN3D_BOARD
-		
+	
 	//enable 24V
-		
+	
 	delay(1);
 	digitalWrite(RELAY, HIGH); //Relay On
 
@@ -838,10 +937,6 @@ void setup()
 	pinMode(SERVO0_PIN, OUTPUT);
 	digitalWrite(SERVO0_PIN, LOW); // turn it off
 	#endif // Z_PROBE_SLED
-
-	preheat_E0_value = print_temp_l;
-	preheat_E1_value = print_temp_r;
-	preheat_B_value = max(bed_temp_l,bed_temp_r);
 	
 	Serial.println(F("display offline"));
 }
@@ -887,13 +982,14 @@ void loop()
 		#endif //SDSUPPORT
 		buflen = (buflen-1);
 		bufindr = (bufindr + 1)%BUFSIZE;
+		
 	}
 	//check heater every n milliseconds
 	manage_heater();
 	manage_inactivity();
 	checkHitEndstops();
 	checkMaxTemps();
-	
+	checkfilament();
 	//lcd_update();
 	#ifdef SIGMA_TOUCH_SCREEN
 	touchscreen_update();
@@ -956,27 +1052,27 @@ const int8_t e=-2
 
 void print_heaterstates() {
 	#if TEMP_0_PIN
-		print_heater_state(degHotend(tmp_extruder), degTargetHotend(tmp_extruder)
-			#if ENABLED(SHOW_TEMP_ADC_VALUES)
-			, rawHotendTemp(tmp_extruder)
-			#endif
-		);
+	print_heater_state(degHotend(tmp_extruder), degTargetHotend(tmp_extruder)
+	#if ENABLED(SHOW_TEMP_ADC_VALUES)
+	, rawHotendTemp(tmp_extruder)
+	#endif
+	);
 	#endif
 	#if TEMP_BED_PIN
-		print_heater_state(degBed(), degTargetBed(),
-			#if ENABLED(SHOW_TEMP_ADC_VALUES)
-			rawBedTemp(),
-			#endif
-			-1 // BED
-		);
+	print_heater_state(degBed(), degTargetBed(),
+	#if ENABLED(SHOW_TEMP_ADC_VALUES)
+	rawBedTemp(),
+	#endif
+	-1 // BED
+	);
 	#endif
 	#if EXTRUDERS > 1
-		HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e),
-			#if ENABLED(SHOW_TEMP_ADC_VALUES)
-			rawHotendTemp(e),
-			#endif
-			e
-		);
+	HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e),
+	#if ENABLED(SHOW_TEMP_ADC_VALUES)
+	rawHotendTemp(e),
+	#endif
+	e
+	);
 	#endif
 	SERIAL_PROTOCOLPGM(" @:");
 	SERIAL_PROTOCOL(getHeaterPower(tmp_extruder));
@@ -1027,165 +1123,248 @@ void thermal_error_screen_on(){
 bool touchscreen_init(){
 	static char state_init = '0';
 	
-		static long waitPeriod = millis();
-		static long startupTime = millis();
-		
-		if(state_init == '0'){
-			if(!genie.Begin(MYSERIAL_SCREEN)) // Set up Genie to use Serial2, but also returns if the Display has responded and is online
-			{
-				if (millis() >= waitPeriod){
-				
-					Serial.print(F("."));
-					waitPeriod = 100+millis();
-				}
-			}
-			else{
-				state_init = 'A';
-			}
-		}
-		if (genie.online() && state_init == 'A') // When the display has responded above, do the following once its online
+	static uint32_t waitPeriod = millis();
+	static uint32_t startupTime = millis();
+	
+	if(state_init == '0'){
+		if(!display.Begin(MYSERIAL_SCREEN)) // Set up Genie to use Serial2, but also returns if the Display has responded and is online
 		{
-			Serial.println();
-			Serial.println(F("display online!"));
-			Serial.print(F("Took ")); Serial.print(millis()-startupTime); Serial.println(F(" to Start Display from Reset"));
-			genie.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
-			/* Changes timeout flag (ms) to force disconnection,
-			Don't go too low,if you see it connecting and disconnecting, increase the value
-			Higher value leads to longer time before disconnection */
-			//genie.timeout(500); // Default: 1250ms
-			
-			//genie.debug(Serial, 6); // prints debug information to the serial monitor port, all reports & critical info
-			genie.WriteStr(STRING_INIT_FIRWAREVERSION,VERSION_STRING);
-			state_init = 'B';
+			if (millis() >= waitPeriod){
+				
+				Serial.print(F("."));
+				waitPeriod = 100+millis();
+			}
 		}
-		if(state_init == 'B'){
-			static uint8_t i = 0;
+		else{
+			state_init = 'A';
+		}
+	}
+	if (display.online() && state_init == 'A') // When the display has responded above, do the following once its online
+	{
+		Serial.println();
+		Serial.println(F("display online!"));
+		Serial.print(F("Took ")); Serial.print(millis()-startupTime); Serial.println(F(" to Start Display from Reset"));
+		display.AttachEventHandler(myGenieEventHandler); // Attach the user function Event Handler for processing events
+		/* Changes timeout flag (ms) to force disconnection,
+		Don't go too low,if you see it connecting and disconnecting, increase the value
+		Higher value leads to longer time before disconnection */
+		//genie.timeout(500); // Default: 1250ms
+		
+		//genie.debug(Serial, 6); // prints debug information to the serial monitor port, all reports & critical info
+		display.WriteStr(STRING_INIT_FIRWAREVERSION,VERSION_STRING);
+		state_init = 'B';
+	}
+	if(state_init == 'B'){
+		static uint8_t i = 0;
+		
+		if ( i<83){
+			if (millis() >= waitPeriod){
+				
+				display_SetFrame(0,i);
+				i+=1;
+				waitPeriod = GIF_FRAMERATE+millis();	//Every 5s
+			}
 			
-			if ( i<83){
+			}else{
+			state_init = 'C';
+		}
+	}
+	if(state_init == 'C'){
+		static unsigned int led = 0;
+		if(led < 256){
+			if (millis() >= waitPeriod)
+			{
+				analogWrite(RED,led);
+				analogWrite(GREEN,led);
+				analogWrite(BLUE,led);
+				waitPeriod=4+millis();
+				led++;
+			}
+		}
+		else{
+			display.autoPinger();
+			digitalWrite(RED,HIGH);
+			digitalWrite(GREEN,HIGH);
+			digitalWrite(BLUE,HIGH);
+			state_init = 'D';
+		}
+	}
+	if(state_init == 'D'){
+		static unsigned int led1 = 255;
+		if(led1 > led_brightness){
+			if (millis() >= waitPeriod)
+			{
+				analogWrite(RED,led1);
+				analogWrite(GREEN,led1);
+				analogWrite(BLUE,led1);
+				waitPeriod=4+millis();
+				led1--;
+			}
+			}else{
+			analogWrite(RED,led_brightness);
+			analogWrite(GREEN,led_brightness);
+			analogWrite(BLUE,led_brightness);
+			state_init = 'E';
+		}
+	}
+	if(state_init == 'E'){
+		if(version_number < 122){
+			version_number = VERSION_NUMBER;
+			Config_ResetDefault();
+			FLAG_Printer_Setup_Assistant=888;
+			FLAG_First_Start_Wizard=888;
+			Config_StoreSettings();
+			}
+			else if(VERSION_NUMBER < version_number){
+				version_number = VERSION_NUMBER;
+				Config_ResetDefault();
+				FLAG_First_Start_Wizard=888;
+				FLAG_Printer_Setup_Assistant=1888;
+				Config_StoreSettings();
+			}
+			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+			else if(130 > version_number){
+				version_number = VERSION_NUMBER;
+				Config_ResetDefault();
+				FLAG_Printer_Setup_Assistant=888;
+				FLAG_First_Start_Wizard=888;
+				Config_StoreSettings();
+			}
+			#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
+			else if(230 > version_number){
+				version_number = VERSION_NUMBER;
+				Config_ResetDefault();
+				FLAG_Printer_Setup_Assistant=888;
+				FLAG_First_Start_Wizard=888;
+				Config_StoreSettings();
+			}
+			#endif
+			else if(VERSION_NUMBER != version_number){
+			version_number = VERSION_NUMBER;
+			Config_ResetDefault();
+			FLAG_Printer_Setup_Assistant=1888;
+			FLAG_First_Start_Wizard=888;
+			Config_StoreSettings();
+			}
+		
+		
+		if(saved_print_flag == 1888){
+			bool successSD = false;
+			
+			card.initsd();
+			if (card.cardOK){
+				
+				workDir_vector_lenght=saved_workDir_vector_lenght;
+				for(int i=0; i<saved_workDir_vector_lenght && i < 10;i++){
+					card.getWorkDirName();
+					card.getfilename(saved_workDir_vector[i]);
+					workDir_vector[i]=saved_workDir_vector[i];
+					if (!card.filenameIsDir){
+						SERIAL_PROTOCOLLNPGM("gcode found");
+						successSD = true;
+						}else{
+						if (card.chdir(card.filename)!=-1){
+							successSD = false;
+						}
+					}
+					
+				}
+				
+				
+			}
+			if(successSD){
+				screen_sdcard = true;
+				display_ChangeForm(FORM_RECOVERY_PRINT_ASK,0);
+				listsd.get_lineduration(true, NULL);
+				setfilenames(7);
+				}else{
+				display_ChangeForm(FORM_MAIN,0);
+				saved_print_flag = 888;
+				Config_StoreSettings();
+			}
+			
+		}
+		
+		else if(flag_utilities_calibration_zcomensationmode_gauges == 1888 || flag_utilities_calibration_zcomensationmode_gauges == 2888 ){
+			if (FLAG_First_Start_Wizard==1888) Step_First_Start_Wizard = true;
+			display_ChangeForm(FORM_Z_COMPENSATION_COMFIRMATION,0);
+		}
+		else if(flag_utilities_maintenance_changehotend == 1888 || flag_utilities_maintenance_changehotend == 2888 ){
+			display_ChangeForm(FORM_PRINTERSETUP_CHANGEHOTEND_ASK,0);
+		}
+		else if (FLAG_First_Start_Wizard == 1888){
+			display_ChangeForm(FORM_SETUPASSISTANT_INIT,0);
+			int j = 0;
+			while ( j<GIF_FRAMES_INIT_FIRST_RUN){
 				if (millis() >= waitPeriod){
 					
-					genie.WriteObject(GENIE_OBJ_VIDEO,0,i);
-					i+=1;
+					display_SetFrame(GIF_SETUPASSISTANT_INIT,j);
+					j+=1;
 					waitPeriod = GIF_FRAMERATE+millis();	//Every 5s
 				}
 				
-			}else{
-				state_init = 'C';
+				
+				
+			}
+			if(!check_regiter_num(UI_registercode) && UI_SerialID2 >= SERIAL_ID_THRESHOLD){
+				display_ChangeForm(FORM_PRINTERREGISTER_ASK,0);
+				}else{
+				display_ChangeForm(FORM_SETUPASSISTANT_YESNOT,0);
 			}
 		}
-		if(state_init == 'C'){			
-			static unsigned int led = 0;
-			if(led < 256){
-				if (millis() >= waitPeriod)
-				{
-					analogWrite(RED,led);
-					analogWrite(GREEN,led);
-					analogWrite(BLUE,led);
-					waitPeriod=4+millis();
-					led++;
+		else if (FLAG_Printer_Setup_Assistant == 888){
+			
+			display_ChangeForm(FORM_PRINTERSETUPASSISTANT_WELCOME,0);
+			int j = 0;
+			while ( j<GIF_FRAMES_INIT_FIRST_RUN){
+				if (millis() >= waitPeriod){
+					
+					display_SetFrame(GIF_PRINTERSETUPASSISTANT_WELCOME,j);
+					j+=1;
+					waitPeriod = GIF_FRAMERATE+millis();	//Every 5s
 				}
 			}
-			else{
-				digitalWrite(RED,HIGH);
-				digitalWrite(GREEN,HIGH);
-				digitalWrite(BLUE,HIGH);
-
-				state_init = 'D';
+			if (axis_steps_per_unit[E_AXIS]<=152.5 && axis_steps_per_unit[E_AXIS]>=151.5){
+				which_extruder_setup = 1;
+				}else if (axis_steps_per_unit[E_AXIS]<=493 && axis_steps_per_unit[E_AXIS]>=492){
+				which_extruder_setup = 2;
+				}else{
+				which_extruder_setup = -1;
 			}
+			which_hotend_setup[0] =(uint8_t)(hotend_size_setup[0]*10);
+			which_hotend_setup[1] = (uint8_t)(hotend_size_setup[1]*10);
+			
+			display_ChangeForm(FORM_PRINTERSETUPASSISTANT_LHOTEND,0);
 		}
-		if(state_init == 'D'){
-			if(version_number < 122 || VERSION_NUMBER < version_number){
-				Config_ResetDefault();
-				version_number = VERSION_NUMBER;
-				FLAG_First_Start_Wizard=888;
-				Config_StoreSettings();
-				}else if(VERSION_NUMBER != version_number){
-				Config_ResetDefault();
-				version_number = VERSION_NUMBER;
-				FLAG_First_Start_Wizard=888;
-				Config_StoreSettings();
-			}
+		else if ((log_X0_mmdone+log_X1_mmdone+log_Y_mmdone)/1000000L > 250 + log_XY_distance){
 			
-			if(saved_print_flag == 1888){
-				bool successSD = false;
-				
-				card.initsd();
-				if (card.cardOK){
-					
-					workDir_vector_lenght=saved_workDir_vector_lenght;
-					for(int i=0; i<saved_workDir_vector_lenght && i < 10;i++){
-						card.getWorkDirName();
-						card.getfilename(saved_workDir_vector[i]);
-						workDir_vector[i]=saved_workDir_vector[i];
-						if (!card.filenameIsDir){
-							SERIAL_PROTOCOLLNPGM("gcode found");
-							successSD = true;
-							}else{
-							if (card.chdir(card.filename)!=-1){
-								successSD = false;
-							}
-						}
-						
-					}
-					
-					
-				}
-				if(successSD){
-					screen_sdcard = true;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_RECOVERY_PRINT_ASK,0);
-					listsd.get_lineduration(true, NULL);
-					if(listsd.get_minutes() == -1){
-						sprintf(listsd.commandline2, "");
-					}
-					else{
-						sprintf(listsd.commandline2, "%d%% - %4d:%.2dh",listsd.get_percentage_save(saved_fileposition), listsd.get_hoursremaining_save(saved_fileposition), listsd.get_minutesremaining_save(saved_fileposition));
-					}
-					setfilenames(7);
-					}else{
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN,0);
-					saved_print_flag = 888;
-					Config_StoreSettings();
-				}
-				
-				}
-				#if BCN3D_SCREEN_VERSION_SETUP == BCN3D_SIGMA_PRINTER_SIGMAX
-				else if(flag_utilities_calibration_zcomensationmode_gauges == 1888 || flag_utilities_calibration_zcomensationmode_gauges == 2888 ){
-					if (FLAG_First_Start_Wizard==1888) Step_First_Start_Wizard = true;
-					genie.WriteObject(GENIE_OBJ_FORM, FORM_Z_COMPENSATION_COMFIRMATION,0);
-				}
-				#endif
-				
-				else if (FLAG_First_Start_Wizard==1888){
-				genie.WriteObject(GENIE_OBJ_FORM,FORN_SETUPASSISTANT_INIT,0);
-				int j = 0;
-				while ( j<GIF_FRAMES_INIT_FIRST_RUN){
-					if (millis() >= waitPeriod){
-						
-						genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SETUPASSISTANT_INIT,j);
-						j+=1;
-						waitPeriod = GIF_FRAMERATE+millis();	//Every 5s
-					}
-					
-					
-					
-				}
-				genie.WriteObject(GENIE_OBJ_FORM,FORN_SETUPASSISTANT_YESNOT,0);
-			}
-			
-			
-			else{
-				
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN,0);
-				
-			}
-			state_init = 'F';
-			
-			SERIAL_PROTOCOLLNPGM("Ready to Start");
-			return 1;
-			
+			display_ChangeForm(FORM_MAINTENANCENOTICE,0);
+			char buffer[10];
+			int distancxy = (int)((log_X0_mmdone+log_X1_mmdone+log_Y_mmdone)/1000000L - log_XY_distance);
+			sprintf_P(buffer, PSTR("%d km."),distancxy);
+			display.WriteStr(STRING_MAINTENANCENOTICE,buffer);
+			log_XY_distance = (log_X0_mmdone+log_X1_mmdone+log_Y_mmdone)/1000000L;
 			
 		}
-		if(state_init != 'F')return 0;
+		else if (!check_regiter_num(UI_registercode) && UI_SerialID2 >= SERIAL_ID_THRESHOLD && (log_X0_mmdone+log_X1_mmdone+log_Y_mmdone)/1000000L > 100 + log_XY_distanceRegist){
+			display_ChangeForm(FORM_PRINTERREGISTER_ASK,0);
+			notice_registercode = true;
+			log_XY_distanceRegist = (log_X0_mmdone+log_X1_mmdone+log_Y_mmdone)/1000000L;
+		}
+		else{
+			
+			display_ChangeForm(FORM_MAIN,0);
+			
+		}
+		state_init = 'F';
+		
+		SERIAL_PROTOCOLLNPGM("Ready to Start");
+		
+		return true;
+		
+		
+	}
+	return false;
 	
 }
 
@@ -1194,13 +1373,13 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 {
 	static bool start_lcd_ready = false;
 	
+	
 	if(!start_lcd_ready){
 		if(touchscreen_init())start_lcd_ready = true;
 	}
 	else{
 		
-		genie.DoEvents(0);						//Processes the TouchScreen Queued Events. Calls LCD_Handler.h ->myGenieEventHandler()
-		
+		display.DoEvents(0);						//Processes the TouchScreen Queued Events. Calls LCD_Handler.h ->myGenieEventHandler()
 		lcd_animation_handler();				//Processes the lcd animations. Calls LCD_FSM.h ->lcd_animation_handler()
 		
 		if(!lcd_busy)lcd_fsm_lcd_input_logic();		//Processes the lcd Events given by a button received on myGenieEventHandler()
@@ -1214,6 +1393,14 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 
 void get_command()
 {
+	
+	static int raft_indicator = 0;
+	static int raft_indicator_is_Gcode = 0;
+	static uint32_t fileraftstart = 0;
+	static float current_z_raft_seen = 0.0;
+	//static char buffer_comment[BUFSIZE];
+	static int comment_count = 0;
+	
 	while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
 		serial_char = MYSERIAL.read();
 		if(serial_char == '\n' ||
@@ -1221,12 +1408,14 @@ void get_command()
 		(serial_char == ':' && comment_mode == false) ||
 		serial_count >= (MAX_CMD_SIZE - 1) )
 		{
-			//Serial.println(cmdbuffer[bufindw]);
+			
+							
 			if(!serial_count) { //if empty line
 				comment_mode = false; //for new command
 				return;
 			}
 			cmdbuffer[bufindw][serial_count] = 0; //terminate string
+			
 			if(!comment_mode){
 				comment_mode = false; //for new command
 				fromsd[bufindw] = false;
@@ -1281,12 +1470,51 @@ void get_command()
 						SERIAL_ERRORPGM(MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM);
 						SERIAL_ERRORLN(gcode_LastN);
 						while(MYSERIAL.available()){  //is there anything to read?
-							char getData = MYSERIAL.read();  //if yes, read it
+							MYSERIAL.read();  //if yes, read it
 						}   // don't do anything with it.
+						MYSERIAL.flush();
 						serial_count = 0;
 						return;
 					}
 				}
+				
+				
+				#ifdef ENABLE_DUPLI_MIRROR
+				
+				
+				if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
+					if(raft_indicator){
+						strchr_pointer = strchr(cmdbuffer[bufindw], 'Z');
+						if(strchr_pointer != NULL){
+							current_z_raft_seen = strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL);
+							if(raft_line == 1){
+								raft_z_init = current_z_raft_seen;
+								
+								}else{
+								
+								if(raft_z_init==current_z_raft_seen){
+									}else{
+									if(Flag_serial_new_layer){
+										//Z layer
+										Flag_serial_new_layer = false;
+										raft_line_counter_g++;
+										serial_count = MAX_CMD_SIZE;
+										memset( cmdbuffer[bufindw], '\0', sizeof(cmdbuffer[bufindw]));
+										gcode_LastN = fileraftstart;
+										sprintf(cmdbuffer[bufindw], "G92 E0 Z0 R%d%c", raft_line_counter_g,0);
+										
+									}
+								}
+							}
+						}
+						
+						raft_indicator = 0;
+					}
+					raft_indicator_is_Gcode = 0;
+					
+				}
+				#endif
+				
 				if((strchr(cmdbuffer[bufindw], 'G') != NULL)){
 					strchr_pointer = strchr(cmdbuffer[bufindw], 'G');
 					switch((int)((strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL)))){
@@ -1306,6 +1534,14 @@ void get_command()
 							LCD_MESSAGEPGM(MSG_STOPPED);
 						}
 						break;
+						
+						case 715:
+						if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
+							if(raft_line >= 1){
+								Flag_serial_new_layer = true;
+							}
+						}
+						break;
 						default:
 						break;
 					}
@@ -1314,7 +1550,12 @@ void get_command()
 
 				//If command was e-stop process now
 				if(strcmp(cmdbuffer[bufindw], "M112") == 0)
-				kill();				
+				kill();
+				
+				//Serial.print("ID gc: ");
+				//Serial.println(bufindw);
+				//Serial.print("get_commands: ");
+				//Serial.println(cmdbuffer[bufindw]);
 				
 				bufindw = (bufindw + 1)%BUFSIZE;
 				buflen += 1;
@@ -1323,8 +1564,26 @@ void get_command()
 		}
 		else
 		{
-			if(serial_char == ';') comment_mode = true;
+			if(serial_char == ';'){
+				comment_mode = true;
+			}
 			if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
+			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){//5 = dual mode raft
+				if(serial_char == 'G'&& !comment_mode) raft_indicator_is_Gcode = 1;
+				if(raft_indicator_is_Gcode){
+					if(serial_char == 'Z' && !comment_mode){
+						raft_indicator = 1;
+						raft_line++;
+						if(raft_line == 1){
+							fileraftstart = gcode_N;
+							raft_line_counter_g = 1;
+							raft_line_counter = 1;
+						}
+						
+					}
+				}
+				
+			}
 		}
 	}
 	#ifdef SDSUPPORT
@@ -1333,177 +1592,162 @@ void get_command()
 		
 
 		
-		
-		//*********PAUSE POSITION AND RESUME POSITION IN PROBES
-		if (flag_sdprinting_pausepause && !flag_sdprinting_pauseresume){
 			
-			enquecommand_P(((PSTR("G69"))));
-			flag_sdprinting_pausepause = false;
-			SERIAL_PROTOCOLPGM("pause detected \n");
-			gif_processing_state = PROCESSING_DEFAULT;
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_PROCESSING,0);
-		}
-		
-		//****************************************************/
-		if(flag_sdprinting_printsavejobcommand){
+			//*********PAUSE POSITION AND RESUME POSITION IN PROBES
+			if (bitRead(flag_sdprinting_register,flag_sdprinting_register_pausepause) && !bitRead(flag_sdprinting_register,flag_sdprinting_register_pauseresume)){				
+				enquecommand_P(PSTR("G69"));
+				bitClear(flag_sdprinting_register,flag_sdprinting_register_pausepause);
+				gif_processing_state = PROCESSING_DEFAULT;
+				display_ChangeForm(FORM_PROCESSING,0);
+				SERIAL_PROTOCOLLNPGM("Pause parking");
+				//Serial.println(bufindw);
+				//Serial.println(buflen);
+			}
 			
+			//****************************************************/
+		if(bitRead(flag_sdprinting_register,flag_sdprinting_register_printsavejobcommand)){
+				
 			enquecommand_P(PSTR("M33")); //Home X and Y;
-			flag_sdprinting_printsavejobcommand = false;
+			bitClear(flag_sdprinting_register,flag_sdprinting_register_printsavejobcommand);
 		}
-		#endif
-		return;
-	}
-
-	//'#' stops reading from SD to the buffer prematurely, so procedural macro calls are possible
-	// if it occurs, stop_buffering is triggered and the buffer is ran dry.
-	// this character _can_ occur in serial com, due to checksums. however, no checksums are used in SD printing
-
-	static bool stop_buffering=false;
-	if(buflen==0) stop_buffering=false;
-	#ifdef ENABLE_DUPLI_MIRROR
-	static int raft_indicator = 0;
-	static int raft_indicator_is_Gcode = 0;
-	static uint32_t fileraftstart = 0;
-	static float current_z_raft_seen = 0.0;
 	#endif
-	while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
-		int16_t n=card.get();
-		serial_char = (char)n;
-		if(serial_char == '\n' ||
-		serial_char == '\r' ||
-		(serial_char == '#' && comment_mode == false) ||
-		(serial_char == ':' && comment_mode == false) ||
-		serial_count >= (MAX_CMD_SIZE - 1)||n==-1)
+	return;
+}
+
+//'#' stops reading from SD to the buffer prematurely, so procedural macro calls are possible
+// if it occurs, stop_buffering is triggered and the buffer is ran dry.
+// this character _can_ occur in serial com, due to checksums. however, no checksums are used in SD printing
+
+static bool stop_buffering=false;
+if(buflen==0) stop_buffering=false;
+while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
+	int16_t n=card.get();
+	serial_char = (char)n;
+	if(serial_char == '\n' ||
+	serial_char == '\r' ||
+	(serial_char == '#' && comment_mode == false) ||
+	(serial_char == ':' && comment_mode == false) ||
+	serial_count >= (MAX_CMD_SIZE - 1)||n==-1)
+	{
+		
+		if(card.eof()){
+			SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+			stoptime=millis();
+			char time[30];
+			unsigned long t=(stoptime-starttime)/1000;
+			int hours, minutes;
+			minutes=(t/60)%60;
+			hours=t/60/60;
+			sprintf_P(time, PSTR("%i hours %i minutes"),hours, minutes);
+			SERIAL_ECHO_START;
+			SERIAL_ECHOLN(time);
+			lcd_setstatus(time);
+			card.printingHasFinished();
+			card.checkautostart(true);
+
+		}
+		if(serial_char=='#')
+		stop_buffering=true;
+		if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
+			if(comment_count > 0){
+				#ifdef ENABLE_DUPLI_MIRROR
+				buffer_comment[comment_count]=0;
+				#endif
+				comment_count = 0;
+			}
+		}
+		if(!serial_count)
 		{
-			
-			if(card.eof()){
-				SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
-				stoptime=millis();
-				char time[30];
-				unsigned long t=(stoptime-starttime)/1000;
-				int hours, minutes;
-				minutes=(t/60)%60;
-				hours=t/60/60;
-				sprintf_P(time, PSTR("%i hours %i minutes"),hours, minutes);
-				SERIAL_ECHO_START;
-				SERIAL_ECHOLN(time);
-				lcd_setstatus(time);
-				card.printingHasFinished();
-				card.checkautostart(true);
-
-			}
-			if(serial_char=='#')
-			stop_buffering=true;
-
-			if(!serial_count)
-			{
-				comment_mode = false; //for new command
-				return; //if empty line
-			}
-			cmdbuffer[bufindw][serial_count] = 0; //terminate string
-			#ifdef ENABLE_DUPLI_MIRROR
-			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
-				switch(raft_indicator){
-					
-					case 1://valor de Z <--si valor es diferente de z_init se deja proceder
-					strchr_pointer = strchr(cmdbuffer[bufindw], 'Z');//posible bug
-					if(strchr_pointer != NULL){
-						current_z_raft_seen = strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL);
-						if(raft_line == 1){
-							raft_z_init = current_z_raft_seen;
-							raft_indicator = 0;
-							}else{
+			comment_mode = false; //for new command
+			return; //if empty line
+		}
+		cmdbuffer[bufindw][serial_count] = 0; //terminate string
+		
+		#ifdef ENABLE_DUPLI_MIRROR
+		if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
+			if(raft_indicator){
+								
+				strchr_pointer = strchr(cmdbuffer[bufindw], 'Z');
+				if(strchr_pointer != NULL){
+					current_z_raft_seen = strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL);
+					if(raft_line == 1){
+						raft_z_init = current_z_raft_seen;
+						
+						}else{
+						
+						if(raft_z_init==current_z_raft_seen){
 							
-							if(raft_z_init==current_z_raft_seen){
-								raft_indicator = 0;
+							}else{
+							if(strncmp_P(buffer_comment,PSTR(";LAYER"), 6)==0 || strncmp_P(buffer_comment,PSTR("; layer"), 7)==0){
+								SERIAL_PROTOCOLLNPGM("New layer detected");
+								//Z layer
+								raft_line_counter_g++;
+								serial_count = MAX_CMD_SIZE;
+								comment_mode = true;
+								memset( cmdbuffer[bufindw], '\0', sizeof(cmdbuffer[bufindw]));
+								card.setIndex(fileraftstart);
+
+								sprintf(cmdbuffer[bufindw], "G92 E0 Z0 R%d%c", raft_line_counter_g,0);
+																					
 							}
 						}
 					}
-					//buscando
-					break;
-					
-					case 3://only a X
-					raft_indicator = 1;
-					break;
-					
-					case 4://only a Y
-					raft_indicator = 1;
-					break;
-					
-					case 5://only a E
-					raft_indicator = 1;
-					break;
-					
-					case 6:
-					raft_indicator = 0; //Z hopping
-					SERIAL_PROTOCOLPGM("Z hopping detected");
-					break;
-					
-					case 10:
-					SERIAL_PROTOCOLPGM("New layer detected");
-					//Z layer
-					raft_line_counter_g++;
-					serial_count = MAX_CMD_SIZE;
-					comment_mode = true;
-					memset( cmdbuffer[bufindw], '\0', sizeof(cmdbuffer[bufindw]));
-					card.setIndex(fileraftstart);
-
-					//float z_dif = current_z_raft_seen-raft_z_init;
-					//sprintf_P(cmdbuffer[bufindw], PSTR("G92 E0 R%d Z%d.%d%d%d"), raft_line_counter_g, (int)z_dif,(int)(z_dif*10)%10,(int)(z_dif*100)%10,(int)(z_dif*1000)%10);
-					sprintf_P(cmdbuffer[bufindw], PSTR("G92 E0 Z0 R%d"), raft_line_counter_g);
-					//dtostrf((double)z_dif,6,3,&cmdbuffer[bufindw][strlen(cmdbuffer[bufindw])]);
-					cmdbuffer[bufindw][serial_count] = 0; //terminate string
-					raft_indicator = 0;
-					break;
-					
 				}
-				raft_indicator_is_Gcode = 0;
+				
+				raft_indicator = 0;
 			}
-			#endif
-			
-			
-			
-			//      if(!comment_mode){
-			fromsd[bufindw] = true;
-			buflen += 1;
-			bufindw = (bufindw + 1)%BUFSIZE;
-			//      }
-			comment_mode = false; //for new command
-			serial_count = 0; //clear buffer
-			//Serial.print("cmdbuffer new from sd: ");
-			//Serial.println(cmdbuffer[bufindw]);
-			
+			raft_indicator_is_Gcode = 0;
 		}
-		else
-		{
-			
-			if(serial_char == ';') comment_mode = true;
-			if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
-			#ifdef ENABLE_DUPLI_MIRROR
-			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){//5 = dual mode raft
-				if(serial_char == 'G'&& !comment_mode) raft_indicator_is_Gcode = 1;
-				if(raft_indicator_is_Gcode){
-					if(serial_char == 'Z' && !comment_mode){
-						raft_indicator = 1;
-						raft_line++;
-						if(raft_line == 1){
-							fileraftstart = card.getIndex()-serial_count;
-							raft_line_counter_g = 1;
-							raft_line_counter = 1;
-						}
-						
-					}
-					if(raft_indicator >= 1 && !comment_mode){
-						if(serial_char == 'X')raft_indicator=raft_indicator+2;
-						if(serial_char == 'Y')raft_indicator=raft_indicator+3;
-						if(serial_char == 'E')raft_indicator=raft_indicator+4;
-					}
-				}
-			}
-			#endif
-		}
+		#endif
+		
+		
+		
+		//      if(!comment_mode){
+		fromsd[bufindw] = true;
+		buflen += 1;
+		bufindw = (bufindw + 1)%BUFSIZE;
+		//      }
+		comment_mode = false; //for new command
+		serial_count = 0; //clear buffer
+		//Serial.print("cmdbuffer new from sd: ");
+		//Serial.println(cmdbuffer[bufindw]);
+		
 	}
-	#endif //SDSUPPORT
+	else
+	{
+		
+		if(serial_char == ';'){
+			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
+				comment_count = 0;
+			}
+			comment_mode = true;
+		}
+		if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
+		#ifdef ENABLE_DUPLI_MIRROR
+		if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){//5 = dual mode raft
+			if(serial_char == 'G'&& !comment_mode) raft_indicator_is_Gcode = 1;
+			if(raft_indicator_is_Gcode){
+				if(serial_char == 'Z' && !comment_mode){
+					raft_indicator = 1;
+					raft_line++;
+					if(raft_line == 1){
+						fileraftstart = card.getIndex()-serial_count;
+						raft_line_counter_g = 1;
+						raft_line_counter = 1;
+					}
+					
+				}
+			}
+			if(comment_mode){
+				buffer_comment[comment_count++]=serial_char;
+			}
+		}
+		
+		
+		#endif
+	}
+}
+#endif //SDSUPPORT
 
 }
 
@@ -1517,10 +1761,10 @@ long code_value_long()
 {
 	return (strtol(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL, 10));
 }
-float extrusion_multiplier(float distance)
+float extrusion_multiplier(float distance, float layerh)
 {
-	float flow = 1.05*BCN3D_NOZZLE_DEFAULD_SIZE/0.4;
-	return distance*(0.2*flow*0.3284/(0.188*29.402)); ////////// (distance * flow * extrusion value)------- extrusion multiplier = 1.05*(layer height*0.3284/(0.188*29.402))
+	float flow = 1.05*hotend_size_setup[active_extruder]/0.4;
+	return distance*(layerh*flow*0.3284/(0.188*29.402)); ////////// (distance * flow * extrusion value)------- extrusion multiplier = 1.05*(layer height*0.3284/(0.188*29.402))
 }
 
 bool code_seen(char code)
@@ -1560,13 +1804,10 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 #error "Please use canonical x-carriage assignment" // the x-carriages are defined by their homing directions
 #endif
 
-#define DXC_FULL_CONTROL_MODE 0
-#define DXC_AUTO_PARK_MODE    1
-#define DXC_DUPLICATION_MODE  2
-#define DXC_DUPLICATION_MIRROR_MODE  4
-#define DXC_DUPLICATION_MODE_RAFT  5
-#define DXC_DUPLICATION_MIRROR_MODE_RAFT  6
+
+
 static int dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+bool Flag_Raft_Dual_Mode_On_exit = false;
 bool Flag_Raft_Dual_Mode_On = false;
 void set_dual_x_carriage_mode(int mode);
 int get_dual_x_carriage_mode();
@@ -1622,7 +1863,7 @@ static void axis_is_at_home(int axis) {
 	if (axis == X_AXIS) {
 		if (active_extruder != 0) {
 			current_position[X_AXIS] = x_home_pos(active_extruder);
-			min_pos[X_AXIS] =          X2_MIN_POS;
+			min_pos[X_AXIS] =          X2_MIN_POS+NOZZLE_PARK_DISTANCE_BED_X0;
 			//Rapduch : Changing to only allow the Extruder offset set the max position for right extruder
 			max_pos[X_AXIS] =          extruder_offset[X_AXIS][1];
 			//max_pos[X_AXIS] =          max(extruder_offset[X_AXIS][1], X2_MAX_POS);
@@ -1633,6 +1874,12 @@ static void axis_is_at_home(int axis) {
 			min_pos[X_AXIS] =          base_min_pos(X_AXIS) + add_homing[X_AXIS];
 			max_pos[X_AXIS] =          min(base_max_pos(X_AXIS) + add_homing[X_AXIS],
 			max(extruder_offset[X_AXIS][1], X2_MAX_POS) - duplicate_extruder_x_offset);
+			return;
+		}
+		else if (dual_x_carriage_mode != DXC_DUPLICATION_MODE && active_extruder == 0){
+			current_position[X_AXIS] = base_home_pos(X_AXIS) + add_homing[X_AXIS];
+			min_pos[X_AXIS] =          base_min_pos(X_AXIS) + add_homing[X_AXIS];
+			max_pos[X_AXIS] =          extruder_offset[X_AXIS][1] + add_homing[X_AXIS]-NOZZLE_PARK_DISTANCE_BED_X0;
 			return;
 		}
 	}
@@ -1766,7 +2013,7 @@ static void run_z_probe() {
 	// move back up slowly to find bed
 	
 	zPosition -= home_retract_mm(Z_AXIS) * 2;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], 4, active_extruder);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], 2, active_extruder);
 	st_synchronize();
 
 	current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
@@ -1781,7 +2028,7 @@ static void do_blocking_move_to(float x, float y, float z) {
 	current_position[X_AXIS] = x;
 	current_position[Y_AXIS] = y;
 	current_position[Z_AXIS] = z;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 150, active_extruder);
 	st_synchronize();
 }
 
@@ -1791,8 +2038,8 @@ static void do_blocking_move_relative(float offset_x, float offset_y, float offs
 
 static void setup_for_endstop_move() {
 	saved_feedrate = feedrate;
-	saved_feedmultiply = feedmultiply;
-	feedmultiply = 100;
+	saved_feedmultiply[active_extruder] = feedmultiply[active_extruder];
+	feedmultiply[active_extruder] = 100;
 	previous_millis_cmd = millis();
 
 	enable_endstops(true);
@@ -1804,7 +2051,7 @@ static void clean_up_after_endstop_move() {
 	#endif
 
 	feedrate = saved_feedrate;
-	feedmultiply = saved_feedmultiply;
+	feedmultiply[active_extruder] = saved_feedmultiply[active_extruder];
 	previous_millis_cmd = millis();
 }
 
@@ -2015,7 +2262,7 @@ static void homeaxis(int axis) {
 		
 		destination[axis] = 2*home_retract_mm(axis) * axis_home_dir;
 
-		feedrate = homing_feedrate[axis]/2;
+		feedrate = homing_feedrate[axis]/3;
 		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); //Slow
 		st_synchronize();
 		
@@ -2220,7 +2467,7 @@ inline void gcode_G28(){
 	st_synchronize();
 	if(card.sdprinting){
 		doblocking = true;
-		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SDPRINTING_PAUSE,1);
+		 
 	}
 	saved_doblocking = doblocking;
 	doblocking = true;
@@ -2237,8 +2484,8 @@ inline void gcode_G28(){
 	#endif
 	
 	saved_feedrate = feedrate;
-	saved_feedmultiply = feedmultiply;
-	feedmultiply = 100;
+	feedmultiply[active_extruder] = feedmultiply[active_extruder];
+	feedmultiply[active_extruder] = 100;
 	previous_millis_cmd = millis();
 	HeaterCooldownInactivity(false);
 	enable_endstops(true); //Activate endstops
@@ -2361,8 +2608,9 @@ inline void gcode_G28(){
 		}
 		
 		feedrate = SIGMA_Z_HOME_TRAVEL_SPEED;
-		current_position[Z_AXIS] = 0;
 		destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
+		if(!home_made_Z) current_position[Z_AXIS] = 0;
+		else Serial.println("Safe Home");
 		destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
 		destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		
@@ -2488,7 +2736,7 @@ inline void gcode_G28(){
 	#endif
 
 	feedrate = saved_feedrate;
-	feedmultiply = saved_feedmultiply;
+	feedmultiply[active_extruder] = saved_feedmultiply[active_extruder];
 	previous_millis_cmd = millis();
 	endstops_hit_on_purpose();
 
@@ -2537,32 +2785,34 @@ inline void gcode_G40(){
 	//1) Set temps and wait
 	setTargetHotend0(print_temp_l);
 	setTargetHotend1(print_temp_r);
+	 
 	setTargetBed(max(bed_temp_l,bed_temp_r));
+	 
 	doblocking = true;
 	while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)&& degBed()<(max(bed_temp_l,bed_temp_r)-2)){ //Waiting to heat the extruder
 		
 		manage_heater();
 		touchscreen_update();
-		if(gif_processing_state == PROCESSING_ERROR) return;
+		ERROR_SCREEN_WARNING2;
 	}
 	
 	current_position[Z_AXIS]=2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15 , active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	
-	current_position[E_AXIS]+=15;
+	current_position[E_AXIS]+=PURGE_PRINTER_FACTOR;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60 , active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	current_position[E_AXIS]-=4;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
+	ERROR_SCREEN_WARNING2;
+	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	
 	gif_processing_state = PROCESSING_STOP;
 	touchscreen_update();
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_PRINTINGTEST,0);
+	display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_PRINTINGTEST,0);
 	gif_processing_state = PROCESSING_TEST;
 	
 	
@@ -2573,109 +2823,140 @@ inline void gcode_G40(){
 	float mm_left_lines_x_down = 234;
 	float mm_right_lines_x_up = 233;
 	float mm_right_lines_x_down = 199.5;
-	
 	for (int i=0;(i<(NUM_LINES));i++)
 	{
 		if (i == 0){
 			//draw borders
 			current_position[Y_AXIS]=275.5;
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 			current_position[X_AXIS] = 197.5;//Move X and Z
 			#else
 			current_position[X_AXIS] = 197.5 + X_OFFSET_CALIB_PROCEDURES;
 			#endif
-			current_position[Z_AXIS]=0.2;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
+			current_position[Z_AXIS]=LINES_LAYER_HEIGHT_XY;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100, active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-			current_position[E_AXIS]+=4.1;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
+			ERROR_SCREEN_WARNING2;
+			current_position[E_AXIS]+=(RETRACT_PRINTER_FACTOR+0.1);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1200/60, active_extruder);//Retract
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
 			//current_position[X_AXIS]=109.5; current_position[E_AXIS]+=((197.5-109.5)*1.05*(current_position[Z_AXIS]*0.3284/(0.188*29.402)));
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 			current_position[X_AXIS] = 109.5;
 			#else
 			current_position[X_AXIS] = 109.5 + X_OFFSET_CALIB_PROCEDURES;
 			#endif
-			current_position[E_AXIS]+= extrusion_multiplier(197.5-109.5); ////////// (distance * flow * extrusion value)------- extrusion multiplier = 1.05*(current_position[Z_AXIS]*0.3284/(0.188*29.402))
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
+			current_position[E_AXIS]+= extrusion_multiplier(197.5-109.5, LINES_LAYER_HEIGHT_XY); ////////// (distance * flow * extrusion value)------- extrusion multiplier = 1.05*(current_position[Z_AXIS]*0.3284/(0.188*29.402))
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-			current_position[Y_AXIS]=191.5; current_position[E_AXIS]+=extrusion_multiplier(275.5-191.5);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
+			ERROR_SCREEN_WARNING2;
+			current_position[Y_AXIS]=191.5; current_position[E_AXIS]+=extrusion_multiplier(275.5-191.5, LINES_LAYER_HEIGHT_XY);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-			current_position[E_AXIS]-=4;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
+			ERROR_SCREEN_WARNING2;
+			
+			current_position[X_AXIS]+=hotend_size_setup[active_extruder]; current_position[E_AXIS]+=extrusion_multiplier(hotend_size_setup[active_extruder], LINES_LAYER_HEIGHT_XY);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+			current_position[Y_AXIS]=mm_left_lines_x_up; current_position[E_AXIS]+=extrusion_multiplier(mm_left_lines_x_up-191.5, LINES_LAYER_HEIGHT_XY);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
+			st_synchronize();
+			ERROR_SCREEN_WARNING2;
+			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 			current_position[X_AXIS] = mm_left_offset;
 			#else
 			current_position[X_AXIS] = mm_left_offset + X_OFFSET_CALIB_PROCEDURES;
 			#endif
-			current_position[Y_AXIS]=mm_left_lines_x_up;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
+			current_position[E_AXIS]+=extrusion_multiplier(mm_left_offset-109.5, LINES_LAYER_HEIGHT_XY);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25, active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
 		}
-		current_position[E_AXIS]+=4.1;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Move Y and extrude
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+		ERROR_SCREEN_WARNING2;
+		#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 		current_position[X_AXIS] = mm_left_offset+(mm_each_extrusion*i);
 		#else
 		current_position[X_AXIS] = mm_left_offset+(mm_each_extrusion*i) + X_OFFSET_CALIB_PROCEDURES;
 		#endif
-		current_position[Y_AXIS]=mm_left_lines_x_down;current_position[E_AXIS]+=extrusion_multiplier(mm_left_lines_x_up-mm_left_lines_x_down);
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40, active_extruder);//Move Y and extrude
+		current_position[E_AXIS]+=extrusion_multiplier(mm_each_extrusion, LINES_LAYER_HEIGHT_XY);
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25, active_extruder);//Move Y and extrude
 		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		current_position[E_AXIS]-=4;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Move Y and extrude
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		if (i != 9) {
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-			current_position[X_AXIS] = mm_left_offset+(mm_each_extrusion*(i+1));
-			#else
-			current_position[X_AXIS] = mm_left_offset+(mm_each_extrusion*(i+1)) + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			current_position[Y_AXIS]=mm_left_lines_x_up;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
-			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-		}
+		
+		draw_print_line(X_AXIS,mm_left_lines_x_down-mm_left_lines_x_up,LINES_LAYER_HEIGHT_XY);
+		
+		ERROR_SCREEN_WARNING2;
+		
 	}
-
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	
-	//changeTool(1);
-	gcode_T0_T1_auto(1);
+	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60 , active_extruder);
+	st_synchronize();
+	ERROR_SCREEN_WARNING2;
+		
+	gcode_T0_T1_auto(RIGHT_EXTRUDER);
 	
 	current_position[Z_AXIS]=2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15 , active_extruder); //Raise for a layer of Z=2
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	//Purge & up
-	current_position[E_AXIS]+=15;
+	current_position[E_AXIS]+=PURGE_PRINTER_FACTOR;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60 , active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	current_position[E_AXIS]-=4;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
+	ERROR_SCREEN_WARNING2;
+	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	current_position[Y_AXIS]=275.5;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200 , active_extruder); //Move Y and Z
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100 , active_extruder); //Move Y and Z
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	//Second Extruder (correcting)
-	for (int i=0; i<(NUM_LINES);i++) //N times
+	
+	
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+	current_position[X_AXIS] = 197.5;
+	#else
+	current_position[X_AXIS] =197.5 + X_OFFSET_CALIB_PROCEDURES;
+	#endif
+	current_position[Z_AXIS]=LINES_LAYER_HEIGHT_XY;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100 , active_extruder);
+	st_synchronize();
+	ERROR_SCREEN_WARNING2;
+	current_position[E_AXIS]+=(RETRACT_PRINTER_FACTOR+0.1);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60 , active_extruder);
+	st_synchronize();
+	ERROR_SCREEN_WARNING2;
+	current_position[Y_AXIS] = 191.5;current_position[E_AXIS]+=extrusion_multiplier(275.5-191.5, LINES_LAYER_HEIGHT_XY);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
+	st_synchronize();
+	ERROR_SCREEN_WARNING2;
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+	current_position[X_AXIS] = 109.5;
+	#else
+	current_position[X_AXIS] = 109.5 + X_OFFSET_CALIB_PROCEDURES;
+	#endif
+	current_position[E_AXIS]+=extrusion_multiplier(197.5-109.5, LINES_LAYER_HEIGHT_XY);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
+	st_synchronize();
+	ERROR_SCREEN_WARNING2;
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+	current_position[X_AXIS] = mm_left_offset+mm_second_extruder[0];
+	#else
+	current_position[X_AXIS] = mm_left_offset+mm_second_extruder[0] + X_OFFSET_CALIB_PROCEDURES;
+	#endif
+	current_position[E_AXIS]+=extrusion_multiplier(mm_left_offset+mm_second_extruder[0]-109.5, LINES_LAYER_HEIGHT_XY);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
+	st_synchronize();
+	current_position[Y_AXIS]= mm_right_lines_x_down;
+	current_position[E_AXIS]+=extrusion_multiplier(mm_right_lines_x_down-191.5, LINES_LAYER_HEIGHT_XY);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
+	st_synchronize();
+	
+	for (int j=0; j<(NUM_LINES);j++) //N times		//////////////////////////CONTINUAR CON EL PATRON
 	{
-		if (i == 0) {
+		/*if (j == 0) {
 			
 			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
 			current_position[X_AXIS] = 197.5;
@@ -2683,80 +2964,63 @@ inline void gcode_G40(){
 			current_position[X_AXIS] =197.5 + X_OFFSET_CALIB_PROCEDURES;
 			#endif
 			current_position[Z_AXIS]=0.2;
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200 , active_extruder);
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-			current_position[E_AXIS]+=4.1;
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
+			ERROR_SCREEN_WARNING2;
+			current_position[E_AXIS]+=(RETRACT_PRINTER_FACTOR+0.1);
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
 			current_position[Y_AXIS] = 191.5;current_position[E_AXIS]+=extrusion_multiplier(275.5-191.5);
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
 			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
 			current_position[X_AXIS] = 109.5;
 			#else
 			current_position[X_AXIS] = 109.5 + X_OFFSET_CALIB_PROCEDURES;
 			#endif
 			current_position[E_AXIS]+=extrusion_multiplier(197.5-109.5);
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-			current_position[E_AXIS]-=4;
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
-			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
 			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-			current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i)));
+			current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[j]+(mm_each_extrusion*(j)));
 			#else
-			current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))) + X_OFFSET_CALIB_PROCEDURES;
+			current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[j]+(mm_each_extrusion*(j))) + X_OFFSET_CALIB_PROCEDURES;
 			#endif
-			current_position[Y_AXIS]= mm_right_lines_x_down;
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200 , active_extruder);
+			current_position[E_AXIS]+=extrusion_multiplier(mm_left_offset+mm_second_extruder[j]-109.5);
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			current_position[Y_AXIS]= mm_right_lines_x_down;
+			current_position[E_AXIS]+=extrusion_multiplier(mm_right_lines_x_down-191.5);
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
+			st_synchronize();
 		}
+		*/
+		ERROR_SCREEN_WARNING2;
 		
-		current_position[E_AXIS]+=4.1;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		Serial.println(mm_second_extruder[i]);
-		current_position[Y_AXIS]= mm_right_lines_x_up;
-		#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-		current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i)));
+		#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+		current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[j]+(mm_each_extrusion*(j)));
 		#else
-		current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i))) + X_OFFSET_CALIB_PROCEDURES;
+		current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[j]+(mm_each_extrusion*(j))) + X_OFFSET_CALIB_PROCEDURES;
 		#endif
-		current_position[E_AXIS]+=extrusion_multiplier(mm_right_lines_x_up-mm_right_lines_x_down);
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40, active_extruder);//Move Y and extrude
+		current_position[E_AXIS]+=extrusion_multiplier(mm_each_extrusion, LINES_LAYER_HEIGHT_XY);
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25, active_extruder);//Move Y and extrude
 		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		current_position[E_AXIS]-=4;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		if (i != 9){
-			current_position[Y_AXIS]= mm_right_lines_x_down;
-			
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-			current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i+1)));
-			#else
-			current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[i]+(mm_each_extrusion*(i+1))) + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
-			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-		}
+		
+		draw_print_line(X_AXIS,mm_right_lines_x_up-mm_right_lines_x_down,LINES_LAYER_HEIGHT_XY);
+		
 	}
-
-	current_position[Z_AXIS]+=2;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);
+	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60 , active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	current_position[Z_AXIS]+=2;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 10, active_extruder);
+	st_synchronize();
+	ERROR_SCREEN_WARNING2;
 	home_axis_from_code(true,true,false);
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	changeTool(0);
 	//Go to Calibration select screen
 	gif_processing_state = PROCESSING_STOP;
@@ -2764,8 +3028,24 @@ inline void gcode_G40(){
 	enquecommand_P(PSTR("M84"));
 	setTargetHotend0(print_temp_l-30);
 	setTargetHotend1(print_temp_r-30);
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_RESULTSX,0);
+	 
+	ERROR_SCREEN_WARNING2;
+	display.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_TITLE,0);
+	display.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_INFO,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT1,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT2,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT3,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT4,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT5,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT6,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT7,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT8,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT9,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT10,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_CONFIRM,0);
+	display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY,0);
+	calib_zxy = 1;
+	calib_confirmation = 1888;
 
 	#endif //EXTRUDER_CALIBRATION_WIZARD
 
@@ -2777,13 +3057,15 @@ inline void gcode_G41(){
 	//1) Set temps and wait
 	setTargetHotend0(print_temp_l);
 	setTargetHotend1(print_temp_r);
+	 
 	setTargetBed(max(bed_temp_l,bed_temp_r));
+	 
 	doblocking = true;
 	while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-2)){ //Waiting to heat the extruder
 		
 		manage_heater();
 		touchscreen_update();
-		if(gif_processing_state == PROCESSING_ERROR) return;
+		ERROR_SCREEN_WARNING2;
 	}
 	//Raise for a layer of Z=0.2
 	current_position[Z_AXIS]=2;
@@ -2792,18 +3074,18 @@ inline void gcode_G41(){
 
 	//2)Extruder one prints
 	//Purge & up
-	current_position[E_AXIS]+=15;
+	current_position[E_AXIS]+=PURGE_PRINTER_FACTOR;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60 , active_extruder);
 	st_synchronize();
 	
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	current_position[E_AXIS]-=4;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_G36/60, active_extruder);//Retract
+	ERROR_SCREEN_WARNING2;
+	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	gif_processing_state = PROCESSING_STOP;
 	touchscreen_update();
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_PRINTINGTEST,0);
+	display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_PRINTINGTEST,0);
 	gif_processing_state = PROCESSING_TEST;
 	
 	
@@ -2815,177 +3097,183 @@ inline void gcode_G41(){
 	float mm_right_lines_y_l = 154;
 	float mm_right_lines_y_r = 193.5;
 	
-	for (int i=0; i<(NUM_LINES);i++) //4 times
-	{
+	for (int i=0; i<NUM_LINES;i++){
+		
 		if (i == 0){
 			current_position[Y_AXIS]=23.5;
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 			current_position[X_AXIS] = 109.5;
 			#else
 			current_position[X_AXIS] = 109.5 + X_OFFSET_CALIB_PROCEDURES;
 			#endif
-			current_position[Z_AXIS]=0.2;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],200, active_extruder);
-			current_position[E_AXIS]+=4.1;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_G36/60 , active_extruder);
+			current_position[Z_AXIS]=LINES_LAYER_HEIGHT_XY;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],100, active_extruder);
+			
+			current_position[E_AXIS]+=(RETRACT_PRINTER_FACTOR+0.1);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
+			
 			current_position[Y_AXIS]=103.5;
-			current_position[E_AXIS]+=extrusion_multiplier(103.5-23.5);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
-			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+			current_position[E_AXIS]+=extrusion_multiplier(103.5-23.5, LINES_LAYER_HEIGHT_XY);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
+			st_synchronize();			
+			ERROR_SCREEN_WARNING2;
+			
+			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 			current_position[X_AXIS] = 197.5;
 			#else
 			current_position[X_AXIS] = 197.5 + X_OFFSET_CALIB_PROCEDURES;
 			#endif
-			current_position[E_AXIS]+=extrusion_multiplier(197.5-109.5);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
+			current_position[E_AXIS]+=extrusion_multiplier(197.5-109.5, LINES_LAYER_HEIGHT_XY);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-			current_position[E_AXIS]-=4;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_G36/60 , active_extruder);
+			ERROR_SCREEN_WARNING2;
+			
+			current_position[Y_AXIS]-=hotend_size_setup[active_extruder];
+			current_position[E_AXIS]+=extrusion_multiplier(hotend_size_setup[active_extruder], LINES_LAYER_HEIGHT_XY);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+			ERROR_SCREEN_WARNING2;
+			
+			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 			current_position[X_AXIS] = mm_left_lines_y_l;
 			#else
 			current_position[X_AXIS] = mm_left_lines_y_l + X_OFFSET_CALIB_PROCEDURES;
 			#endif
-			current_position[Y_AXIS]=99.5;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200 , active_extruder);
+			current_position[E_AXIS]+=extrusion_multiplier(197.5-mm_left_lines_y_l, LINES_LAYER_HEIGHT_XY);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			
+			current_position[E_AXIS]+=extrusion_multiplier(103.5-hotend_size_setup[active_extruder]-y_first_line, LINES_LAYER_HEIGHT_XY);
+			current_position[Y_AXIS]=y_first_line;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
+			st_synchronize();			
+			ERROR_SCREEN_WARNING2;
 		}
 		
-		current_position[E_AXIS]+=4.1; //Move the Retracted space
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60 , active_extruder);
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-		current_position[X_AXIS] = mm_left_lines_y_r;
-		#else
-		current_position[X_AXIS] = mm_left_lines_y_r + X_OFFSET_CALIB_PROCEDURES;
-		#endif
-		current_position[E_AXIS]+=extrusion_multiplier(mm_left_lines_y_r-mm_left_lines_y_l);
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40, active_extruder);
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		current_position[E_AXIS]-=4;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_G36/60, active_extruder);
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		if(i != 9){
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-			current_position[X_AXIS] = mm_left_lines_y_l;
-			#else
-			current_position[X_AXIS] = mm_left_lines_y_l + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			current_position[Y_AXIS] = y_first_line-((i+1)*mm_each_extrusion);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
+		draw_print_line(Y_AXIS,mm_left_lines_y_r-mm_left_lines_y_l,LINES_LAYER_HEIGHT_XY);
+		
+		
+		if(i!=9){
+			current_position[Y_AXIS]=y_first_line-((i+1)*mm_each_extrusion);current_position[E_AXIS]+=extrusion_multiplier(mm_each_extrusion, LINES_LAYER_HEIGHT_XY);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25, active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
 		}
 	}
+	
+	current_position[E_AXIS]-=RETRACT_PRINT_TEST_FACTOR;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);
+	st_synchronize();
+	
+	current_position[Z_AXIS]=2;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 10 ,active_extruder);
 	
 	gcode_T0_T1_auto(1);
 	
 	
-	current_position[Z_AXIS]=2;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15 , active_extruder);
+	
 
 	//Purge & up
-	current_position[E_AXIS]+=15;
+	current_position[E_AXIS]+=PURGE_PRINTER_FACTOR;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60 , active_extruder);
 	
-	current_position[E_AXIS]-=4;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_G36/60, active_extruder);//Retract
+	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	for (int i=0; i<(NUM_LINES);i++)
+	ERROR_SCREEN_WARNING2;
+	for (int j=0; j<NUM_LINES;j++)
 	{
-		if (i == 0) {
+		
+		if (j == 0) {
 			
 			current_position[Y_AXIS]=23.5;
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 			current_position[X_AXIS] = 109.5;
 			#else
 			current_position[X_AXIS] = 109.5 + X_OFFSET_CALIB_PROCEDURES;
 			#endif
-			current_position[Z_AXIS]=0.2; //Move X and Z
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);//Retract
+			current_position[Z_AXIS]=LINES_LAYER_HEIGHT_XY; //Move X and Z
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100, active_extruder);//Retract
 			
 			
-			current_position[E_AXIS]+=4.1;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_G36/60 , active_extruder);
+			current_position[E_AXIS]+=(RETRACT_PRINTER_FACTOR+0.1);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+			ERROR_SCREEN_WARNING2;
+			
+			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 			current_position[X_AXIS] = 197.5;
 			#else
 			current_position[X_AXIS] = 197.5 + X_OFFSET_CALIB_PROCEDURES;
 			#endif
-			current_position[E_AXIS]+=extrusion_multiplier(197.5-109.5);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
+			current_position[E_AXIS]+=extrusion_multiplier(197.5-109.5, LINES_LAYER_HEIGHT_XY);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
+			
 			current_position[Y_AXIS]=103.5;
-			current_position[E_AXIS]+=extrusion_multiplier(103.5-23.5);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40 , active_extruder);
+			current_position[E_AXIS]+=extrusion_multiplier(103.5-23.5, LINES_LAYER_HEIGHT_XY);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-			current_position[E_AXIS]-=4;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_G36/60 , active_extruder);
+			ERROR_SCREEN_WARNING2;
+			
+			current_position[X_AXIS]-= hotend_size_setup[active_extruder];
+			current_position[E_AXIS]+=extrusion_multiplier(hotend_size_setup[active_extruder], LINES_LAYER_HEIGHT_XY);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+			
+			
+			
+			
+			current_position[E_AXIS]+=extrusion_multiplier(103.5-hotend_size_setup[active_extruder]-99.5, LINES_LAYER_HEIGHT_XY);
+			current_position[Y_AXIS]=99.5;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
+			st_synchronize();
+			
+			
+			
+			
+			ERROR_SCREEN_WARNING2;
+			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 			current_position[X_AXIS] = mm_right_lines_y_r;
 			#else
 			current_position[X_AXIS] = mm_right_lines_y_r + X_OFFSET_CALIB_PROCEDURES;
 			#endif
-			current_position[Y_AXIS]=y_first_line-((i)*mm_each_extrusion)-mm_second_extruder[i];
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200 , active_extruder);
+			current_position[E_AXIS]+=extrusion_multiplier(197.5-hotend_size_setup[active_extruder]-mm_right_lines_y_r, LINES_LAYER_HEIGHT_XY);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
+			
+			current_position[Y_AXIS]=y_first_line-((j)*mm_each_extrusion)-mm_second_extruder[j];
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
+				
+			
+			
 		}
 		
-		current_position[E_AXIS]+=4.1;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_G36/60 , active_extruder);
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-		current_position[X_AXIS] = mm_right_lines_y_l;
-		#else
-		current_position[X_AXIS] = mm_right_lines_y_l + X_OFFSET_CALIB_PROCEDURES;
-		#endif
-		current_position[E_AXIS]+=extrusion_multiplier(mm_right_lines_y_r-mm_right_lines_y_l);
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 40, active_extruder);
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		current_position[E_AXIS]-=4;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_G36/60, active_extruder);
+		draw_print_line(Y_AXIS,mm_right_lines_y_l-mm_right_lines_y_r,LINES_LAYER_HEIGHT_XY);
 		
-		if (i != 9){
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-			current_position[X_AXIS] = mm_right_lines_y_r;
-			#else
-			current_position[X_AXIS] = mm_right_lines_y_r + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			current_position[Y_AXIS]=y_first_line-((i+1)*mm_each_extrusion)-mm_second_extruder[i+1];
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
+		if(j!=9){
+			current_position[E_AXIS]+=extrusion_multiplier(mm_each_extrusion, LINES_LAYER_HEIGHT_XY);
+			current_position[Y_AXIS]=y_first_line-((j+1)*mm_each_extrusion)-mm_second_extruder[j+1];
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25, active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
 		}
 		
 	}
-	
-	current_position[Z_AXIS]+=2;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);
+	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	current_position[Z_AXIS]+=2;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 10, active_extruder);
+	st_synchronize();
+	ERROR_SCREEN_WARNING2;
 	home_axis_from_code(true,true,false);
 	
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	changeTool(0);
 	
 	gif_processing_state = PROCESSING_STOP;
@@ -2994,8 +3282,24 @@ inline void gcode_G41(){
 	//Go to Calibration select screen
 	setTargetHotend0(print_temp_l-30);
 	setTargetHotend1(print_temp_r-30);
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_RESULTSY,0);
+	 
+	ERROR_SCREEN_WARNING2;
+	display.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_TITLE,1);
+	display.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_INFO,1);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT1,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT2,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT3,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT4,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT5,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT6,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT7,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT8,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT9,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT10,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_CONFIRM,0);
+	display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY,0);
+	calib_zxy = 2;
+	calib_confirmation = 1888;
 	#endif //EXTRUDER_CALIBRATION_WIZARD
 	
 }
@@ -3010,33 +3314,33 @@ inline void gcode_G43(){
 	
 	/*
 	
-				+--------+
-				|        |
-				|        |
-				|        |
-				|        |
-				+--------+					z =  max upper position -5.0mm
-				 \      /
-				  \____/
-					\/		_______________ z = 0
-									/\
-									0.75 mm
-									\/
-				___________________________ z = Init position
+	+--------+
+	|        |
+	|        |
+	|        |
+	|        |
+	+--------+					z =  max upper position -5.0mm
+	\      /
+	 \____/
+	   \/		_______________ z = 0
+	   /\
+	   0.75 mm
+	    \/
+	___________________________ z = Init position
 	
-											z =  max lower position 1.25mm
+	z =  max lower position 1.25mm
 	*/
 	
 	current_position[Y_AXIS]=Y_MAX_POS/2;
 	if(active_extruder == LEFT_EXTRUDER) {
 		
-		#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+		#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 		current_position[X_AXIS] = 150;
 		#else
 		current_position[X_AXIS] = 150 + X_OFFSET_CALIB_PROCEDURES;
 		#endif
 		}else{
-		#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+		#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 		current_position[X_AXIS] = 170;
 		#else
 		current_position[X_AXIS] = 170 + X_OFFSET_CALIB_PROCEDURES;
@@ -3048,15 +3352,15 @@ inline void gcode_G43(){
 	
 	//Now we are in position to do the calibration MANUALLY with the TOUCHSCREEN
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	//Go to Z Calibration select screen if first time!
 	gif_processing_state = PROCESSING_STOP;
 	touchscreen_update();
 	if (active_extruder==LEFT_EXTRUDER) {
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_CALIBZL,0);
+		display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_CALIBZL,0);
 		gif_processing_state = PROCESSING_CALIB_ZL;
 		}else{
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_CALIBZR,0);
+		display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_CALIBZR,0);
 		gif_processing_state = PROCESSING_CALIB_ZR;
 	}
 	
@@ -3109,7 +3413,7 @@ inline void gcode_G33(){
 	feedrate=homing_feedrate[X_AXIS];
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	//current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER);
 	
 	active_extruder=RIGHT_EXTRUDER;
@@ -3125,7 +3429,7 @@ inline void gcode_G33(){
 	current_position[X_AXIS]+=15;
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]); // We are now at position
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	//STARTING THE ACTUAL PROBE
 	setup_for_endstop_move();
 	
@@ -3149,7 +3453,7 @@ inline void gcode_G33(){
 	feedrate=homing_feedrate[Z_AXIS];
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	
 	//Now the right extruder joins the party!
 	active_extruder=RIGHT_EXTRUDER;
@@ -3182,7 +3486,7 @@ inline void gcode_G33(){
 	feedrate = XY_TRAVEL_SPEED;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	
 	clean_up_after_endstop_move();
 	
@@ -3277,7 +3581,7 @@ inline void gcode_G33(){
 	///////////////////////////
 
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	// make sure the bed_level_rotation_matrix is identity or the planner will get it incorrectly
 	//vector_3 corrected_position = plan_get_position_mm();
 	//corrected_position.debug("position before G29");
@@ -3484,10 +3788,12 @@ inline void gcode_G34(){
 	homing_feedrate[Z_AXIS]= CALIB_FEEDRATE_ZAXIS;
 	doblocking= true;
 	
-	if (flag_utilities_calibration_calibfull || flag_utilities_calibration_calibfull_skipZcalib){
+	if (bitRead(flag_utilities_calibration_register,flag_utilities_calibration_register_calibfull) || bitRead(flag_utilities_calibration_register,flag_utilities_calibration_register_calibfull_skipZcalib)){
 		setTargetHotend0(CALIBFULL_HOTEND_STANDBY_TEMP);
 		setTargetHotend1(CALIBFULL_HOTEND_STANDBY_TEMP);
+		 
 		setTargetBed(max(bed_temp_l,bed_temp_r));
+		 
 	}
 	
 	#if Z_MIN_PIN == -1
@@ -3535,7 +3841,7 @@ inline void gcode_G34(){
 	current_position[X_AXIS]+=X_GAP_AVOID_COLLISION_LEFT;
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]); // We are now at position
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	
 	//STARTING THE ACTUAL PROBE
 	setup_for_endstop_move();
@@ -3560,7 +3866,7 @@ inline void gcode_G34(){
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, LEFT_EXTRUDER);
 	
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	
 	//Now the right extruder joins the party!
 	
@@ -3586,7 +3892,7 @@ inline void gcode_G34(){
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 200, RIGHT_EXTRUDER);
 	
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	clean_up_after_endstop_move();
 	
 	
@@ -3622,19 +3928,19 @@ inline void gcode_G34(){
 	float z2_1=(-planeNormal_1.x*(CARGOL_2_X-X_SIGMA_PROBE_1_LEFT_EXTR)-planeNormal_1.y*(CARGOL_2_Y-Y_SIGMA_PROBE_3_LEFT_EXTR))/planeNormal_1.z;
 	float z3_1=(-planeNormal_1.x*(CARGOL_3_X-X_SIGMA_PROBE_1_LEFT_EXTR)-planeNormal_1.y*(CARGOL_3_Y-Y_SIGMA_PROBE_3_LEFT_EXTR))/planeNormal_1.z;
 	
-	SERIAL_PROTOCOLPGM("planeNormal_0.x: ");
-	Serial.println(planeNormal_0.x);
-	SERIAL_PROTOCOLPGM("planeNormal_0.y: ");
-	Serial.println(planeNormal_0.y);
-	SERIAL_PROTOCOLPGM("planeNormal_0.z: ");
-	Serial.println(planeNormal_0.z);
-	
-	SERIAL_PROTOCOLPGM("planeNormal_1.x: ");
-	Serial.println(planeNormal_1.x);
-	SERIAL_PROTOCOLPGM("planeNormal_1.y: ");
-	Serial.println(planeNormal_1.y);
-	SERIAL_PROTOCOLPGM("planeNormal_1.z: ");
-	Serial.println(planeNormal_1.z);
+	//SERIAL_PROTOCOLPGM("planeNormal_0.x: ");
+	//Serial.println(planeNormal_0.x);
+	//SERIAL_PROTOCOLPGM("planeNormal_0.y: ");
+	//Serial.println(planeNormal_0.y);
+	//SERIAL_PROTOCOLPGM("planeNormal_0.z: ");
+	//Serial.println(planeNormal_0.z);
+	//
+	//SERIAL_PROTOCOLPGM("planeNormal_1.x: ");
+	//Serial.println(planeNormal_1.x);
+	//SERIAL_PROTOCOLPGM("planeNormal_1.y: ");
+	//Serial.println(planeNormal_1.y);
+	//SERIAL_PROTOCOLPGM("planeNormal_1.z: ");
+	//Serial.println(planeNormal_1.z);
 	
 	SERIAL_PROTOCOLPGM("Zscroll_0: ");
 	Serial.println(Zscroll_0);
@@ -3752,42 +4058,44 @@ inline void gcode_G34(){
 	if (aprox2==0 && aprox3==0) //If the calibration it's ok
 	{
 		
-		if (flag_utilities_calibration_calibfull){
+		if (bitRead(flag_utilities_calibration_register,flag_utilities_calibration_register_calibfull)){
 			
 			active_extruder = LEFT_EXTRUDER;
 			//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 			//gif_processing_state = PROCESSING_DEFAULT;
 			setTargetHotend0(CALIBFULL_HOTEND_STANDBY_TEMP);
 			setTargetHotend1(CALIBFULL_HOTEND_STANDBY_TEMP);
+			 
 			setTargetBed(max(bed_temp_l,bed_temp_r));
-			
+			 
 			
 			
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
 			enquecommand_P(PSTR("T0"));
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBZL,0);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBZL_SKIP,0);
+			display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBZL,0);
+			display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBZL_SKIP,0);
 			if(Step_First_Start_Wizard){
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBZL_SKIP,1);
+				display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBZL_SKIP,1);
 			}
 			
 			flag_continue_calib = true;
 		}
-		else if(flag_utilities_calibration_calibfull_skipZcalib){
-			flag_utilities_calibration_calibfull_skipZcalib = false;
+		else if(bitRead(flag_utilities_calibration_register,flag_utilities_calibration_register_calibfull_skipZcalib)){
+			bitClear(flag_utilities_calibration_register,flag_utilities_calibration_register_calibfull_skipZcalib);
 			active_extruder = LEFT_EXTRUDER;
 			setTargetHotend0(CALIBFULL_HOTEND_STANDBY_TEMP);
 			setTargetHotend1(CALIBFULL_HOTEND_STANDBY_TEMP);
+			 
 			setTargetBed(max(bed_temp_l,bed_temp_r));
-			
+			 
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
 			enquecommand_P(PSTR("T0"));
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBX,0);
+			display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_GOCALIBX,0);
 			
 		}
-		else if(flag_utilities_calibration_bedcomensationmode){
+		else if(bitRead(flag_utilities_calibration_register,flag_utilities_calibration_register_bedcomensationmode)){
 			
 			active_extruder = which_extruder;
 			//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -3797,20 +4105,20 @@ inline void gcode_G34(){
 			
 			Bed_Compensation_state = 2;
 			Bed_compensation_redo_offset = 0;
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
 			if(which_extruder==0){
 				enquecommand_P(PSTR("T0"));
 				}else{
 				enquecommand_P(PSTR("T1"));
 			}
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_CLEANBED,0);
+			display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_CLEANBED,0);
 			
 		}
 		else{
 			#ifdef SIGMA_TOUCH_SCREEN
 			printer_state = STATE_CALIBRATION;
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_UTILITIES_CALIBRATION_SUCCESS,0);
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_SUCCESS,0);
+			display_SetFrame(GIF_UTILITIES_CALIBRATION_SUCCESS,0);
+			display_ChangeForm(FORM_UTILITIES_CALIBRATION_SUCCESS,0);
 			gif_processing_state = PROCESSING_BED_SUCCESS;
 			#endif
 			SERIAL_PROTOCOL(" Platform is Calibrated! ");
@@ -3821,11 +4129,11 @@ inline void gcode_G34(){
 		bed_calibration_times++;
 		#ifdef SIGMA_TOUCH_SCREEN
 		if (bed_calibration_times >= 2) {
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBBED_ADJUSTSCREWASK,0);
+			display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBBED_ADJUSTSCREWASK,0);
 			gif_processing_state = PROCESSING_BED;
 		}
 		else{
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBBED_ADJUSTSCREWASKFIRST,0);
+			display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBBED_ADJUSTSCREWASKFIRST,0);
 			gif_processing_state = PROCESSING_BED_FIRST;
 		}
 
@@ -3891,11 +4199,11 @@ if (active_extruder != LEFT_EXTRUDER) changeTool(LEFT_EXTRUDER);
 current_position[E_AXIS]+=15;  //0.5 + 0.15 per ajustar una bona alçada
 plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
 st_synchronize();
-if(gif_processing_state == PROCESSING_ERROR) return;
+ERROR_SCREEN_WARNING2;
 current_position[Z_AXIS]=2; //0.5 + 0.15 per ajustar una bona alçada
 plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
 st_synchronize();
-if(gif_processing_state == PROCESSING_ERROR) return;
+ERROR_SCREEN_WARNING2;
 current_position[E_AXIS]-=4;
 plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
 //Step 1
@@ -3916,7 +4224,7 @@ bed_test_print_code(192.0,-220.0, 0);
 #endif
 
 home_axis_from_code(true,true,false);
-if(gif_processing_state == PROCESSING_ERROR) return;
+ERROR_SCREEN_WARNING2;
 doblocking = false;
 
 
@@ -3939,9 +4247,7 @@ inline void gcode_G36()
 	Bed_Compensation_Lines_Selected[0] = 0;
 	Bed_Compensation_Lines_Selected[1] = 0;
 	Bed_Compensation_Lines_Selected[2] = 0;
-	flag_utilities_calibration_bedcomensationmode = true;
-	setTargetHotend0(print_temp_l);
-	setTargetHotend1(0);
+	bitSet(flag_utilities_calibration_register,flag_utilities_calibration_register_bedcomensationmode);
 	if(which_extruder == 0 ){
 		setTargetHotend0(print_temp_l);
 		setTargetHotend1(0);
@@ -3951,7 +4257,9 @@ inline void gcode_G36()
 		setTargetHotend1(print_temp_r);
 		setTargetBed(bed_temp_r);
 	}
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_PROCESSING,0);
+	 
+	 
+	display_ChangeForm(FORM_PROCESSING,0);
 	gif_processing_state = PROCESSING_DEFAULT;
 	doblocking= true;
 	home_axis_from_code(true,true,true);
@@ -3964,15 +4272,19 @@ inline void gcode_G69(){//Pause
 	saved_position[X_AXIS] = current_position[X_AXIS];
 	saved_position[Y_AXIS] = current_position[Y_AXIS];
 	saved_position[Z_AXIS] = current_position[Z_AXIS];
-	saved_position[E_AXIS] = current_position[E_AXIS];
+	saved_position[E_AXIS] = current_position[E_AXIS]*raft_extrusion_adjusting;
 	saved_feedrate = feedrate;
 	saved_fanSpeed = fanSpeed;
+	saved_extruder_multiply[LEFT_EXTRUDER]=extruder_multiply[LEFT_EXTRUDER];
+	saved_extruder_multiply[RIGHT_EXTRUDER]=extruder_multiply[RIGHT_EXTRUDER];
+	extruder_multiply[LEFT_EXTRUDER]=100;
+	extruder_multiply[RIGHT_EXTRUDER]=100;
 	fanSpeed = 0;
 	//*********************************//
 	saved_active_extruder = active_extruder;
 	//********Retract
-	current_position[E_AXIS]-=PAUSE_G69_RETRACT;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
+	current_position[E_AXIS] = saved_position[E_AXIS] - RETRACT_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
 	st_synchronize();
 	//*********************************//
 	feedrate=homing_feedrate[X_AXIS];
@@ -3995,7 +4307,7 @@ inline void gcode_G69(){//Pause
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 	st_synchronize();
 	
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, INSERT_FAST_SPEED/60, active_extruder);	//Retract
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, RETRACT_SPEED_PRINT_TEST/60, active_extruder);	//Retract
 	st_synchronize();
 	if(dual_x_carriage_mode == DXC_DUPLICATION_MODE){
 		feedrate=homing_feedrate[X_AXIS];
@@ -4019,24 +4331,46 @@ inline void gcode_G69(){//Pause
 			current_position[X_AXIS] = extruder_offset[X_AXIS][1];
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 		}
-		st_synchronize();
+		
 	}
-	if(dual_x_carriage_mode ==DXC_DUPLICATION_MIRROR_MODE)	extruder_duplication_mirror_enabled =false;
-	
+	st_synchronize();
+	if(dual_x_carriage_mode == DXC_DUPLICATION_MIRROR_MODE)	extruder_duplication_mirror_enabled = false;
 	//*********************************//
-	flag_sdprinting_pausepause = false;
+	bitClear(flag_sdprinting_register,flag_sdprinting_register_pausepause);
 	doblocking = true;
+	
+	if(Flag_checkfil){
+		target_temperature_check_filament_cooldown_save[0]=target_temperature[0];
+		target_temperature_check_filament_cooldown_save[1]=target_temperature[1];
+		setTargetHotend0(0);
+		setTargetHotend1(0);
+		
+		current_position[Z_AXIS]=Z_MAX_POS-15;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS], active_extruder); //check speed
+		st_synchronize();
+		
+		display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_FILAMENTDETECTOR_UNLOAD_NOTICE,(which_extruder_needs_fil== 10)?0:1);
+		display_ChangeForm(FORM_FILAMENTDETECTOR_NOTICE_UNLOAD,0);
+		
+		
+		
+		screen_printing_pause_form = screen_printing_pause_form1;
+		}else{
+		display_ChangeForm(FORM_SDPRINTING_PAUSE,0);
+		screen_printing_pause_form = screen_printing_pause_form1;
+		display.WriteStr(STRING_SDPRINTING_PAUSE_GCODE,namefilegcode);
+		bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
+	}
 	gif_processing_state = PROCESSING_STOP;
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_SDPRINTING_PAUSE,0);
-	screen_printing_pause_form = screen_printing_pause_form1;
-	genie.WriteStr(STRING_SDPRINTING_PAUSE_GCODE,namefilegcode);
-	flag_sdprinting_dararefresh = true;
 	#endif //ENABLE_AUTO_BED_LEVELING
 }
 inline void gcode_G70(){//Resume
+	
+	unsigned long codenum; //throw away variable
+	
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	////*******LOAD ACTUIAL POSITION
-	
+	Flag_checkfil = false;
 	//Serial.println(current_position[Z_AXIS]);
 	//*********************************//
 	doblocking = true;
@@ -4057,22 +4391,36 @@ inline void gcode_G70(){//Resume
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MIRROR_MODE)	extruder_duplication_mirror_enabled =true;
 	
-	current_position[E_AXIS]+=PAUSE_G70_PURGE;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
+	current_position[E_AXIS]+=PURGE_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50.0/60, active_extruder);//Purge
 	st_synchronize();
-	current_position[E_AXIS]-=4;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Purge
+	
+	codenum =4000;
+	codenum += millis();  // keep track of when we started waiting
+	previous_millis_cmd = millis();
+	while(millis() < codenum) {
+		manage_heater();
+		manage_inactivity();
+		//lcd_update();
+		#ifdef SIGMA_TOUCH_SCREEN
+		touchscreen_update();
+		#endif
+		
+	}
+	
+	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Purge
 	st_synchronize();
 	
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =false;
 	
 	current_position[X_AXIS] = saved_position[X_AXIS];
 	
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 200, active_extruder);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED/60, active_extruder);
 	
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE){
 		plan_set_position(extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-		plan_buffer_line(current_position[X_AXIS]+duplicate_extruder_x_offset, current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 200, RIGHT_EXTRUDER);
+		plan_buffer_line(current_position[X_AXIS]+duplicate_extruder_x_offset, current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED/60, RIGHT_EXTRUDER);
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 	}
 	
@@ -4082,38 +4430,41 @@ inline void gcode_G70(){//Resume
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
 	
 	current_position[Z_AXIS] = saved_position[Z_AXIS];
-	feedrate=homing_feedrate[Z_AXIS];
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 8, active_extruder);
 	destination[Z_AXIS] = current_position[Z_AXIS];
 	st_synchronize();
 	
-	current_position[E_AXIS]+=3;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Purge
+	current_position[E_AXIS]+=RETRACT_PRINTER_FACTOR;
+	//current_position[E_AXIS]+=RETRACT_PRINTER_FACTOR-1;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Purge
 	st_synchronize();
 	
-	current_position[E_AXIS] = saved_position[E_AXIS];
-	plan_set_e_position(current_position[E_AXIS]);
+	current_position[E_AXIS] = saved_position[E_AXIS]/raft_extrusion_adjusting;
+	plan_set_e_position(saved_position[E_AXIS]);
 	
 	
 	//*********************************//
 	
 	feedrate = saved_feedrate;
-	
+	extruder_multiply[LEFT_EXTRUDER]=saved_extruder_multiply[LEFT_EXTRUDER];
+	extruder_multiply[RIGHT_EXTRUDER]=saved_extruder_multiply[RIGHT_EXTRUDER];
 	gif_processing_state = PROCESSING_STOP;
 	screen_printing_pause_form = screen_printing_pause_form0;
-	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SDPRINTING_STOP,0);
-	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SDPRINTING_PAUSE,1);
-	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SDPRINTING_SETTINGS,0);
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_SDPRINTING,0);
-	genie.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);
-	flag_sdprinting_dararefresh = true;
-	flag_sdprinting_pauseresume = false;
+	display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SDPRINTING,0);
+	display_ButtonState(BUTTON_SDPRINTING_STOP,0);
+	display_ButtonState(BUTTON_SDPRINTING_PAUSE,0); 
+	display_ButtonState(BUTTON_SDPRINTING_SETTINGS,0);
+	display_ChangeForm(FORM_SDPRINTING,0);
+	display.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);
+	bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
+	bitClear(flag_sdprinting_register,flag_sdprinting_register_pauseresume);
 	
 	#endif //ENABLE_AUTO_BED_LEVELING
 	
 }
 inline void gcode_G71(){//Grinding avoider go park
 	saved_position[X_AXIS] = current_position[X_AXIS];
+	
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled = false;
 	if(dual_x_carriage_mode == DXC_DUPLICATION_MODE){
 		current_position[X_AXIS] = 0;
@@ -4124,7 +4475,7 @@ inline void gcode_G71(){//Grinding avoider go park
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 		st_synchronize();
 		
-		}else if(dual_x_carriage_mode == DXC_FULL_SIGMA_MODE || dual_x_carriage_mode == DXC_DUPLICATION_MIRROR_MODE){
+		}else{
 		if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
 			current_position[X_AXIS] = 0;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
@@ -4135,7 +4486,8 @@ inline void gcode_G71(){//Grinding avoider go park
 		st_synchronize();
 	}
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled = true;
-	
+	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE_RAFT)destination_X_2=current_position[X_AXIS]-duplicate_extruder_x_offset;
+	if(dual_x_carriage_mode ==DXC_DUPLICATION_MIRROR_MODE_RAFT)destination_X_2=extruder_offset[X_AXIS][RIGHT_EXTRUDER]-current_position[X_AXIS];
 }
 inline void gcode_G72(){////Grinding avoider resume
 	
@@ -4382,7 +4734,9 @@ inline void gcode_G92(){
 	}
 	
 }
-
+inline void gcode_G715(){
+	//SERIAL_PROTOCOLLNPGM("New layer from serial print");
+}
 
 
 inline void gcode_M0_M1(){
@@ -4482,14 +4836,21 @@ inline void gcode_M24(){
 	
 	card.startFileprint();
 	starttime=millis();
-	//Rapduch
+	Flag_checkfil = false;
 	Flag_fanSpeed_mirror=0;
+	extrudemultiply=100;
 	hotend0_relative_temp = 0;
 	hotend1_relative_temp = 0;
 	setTargetBed(0);
 	setTargetHotend0(0);
 	setTargetHotend1(0);
-	feedmultiply = 100;
+	feedmultiply[LEFT_EXTRUDER]=100;
+	feedmultiply[RIGHT_EXTRUDER]=100;
+	fanSpeed_offset[LEFT_EXTRUDER]=0;
+	fanSpeed_offset[RIGHT_EXTRUDER]=0;
+	extruder_multiply[LEFT_EXTRUDER]=100;
+	extruder_multiply[RIGHT_EXTRUDER]=100;
+	fanSpeed = 0;
 	raft_line = 0;
 	raft_line_counter = 0;
 	raft_line_counter_g = 0;
@@ -4510,34 +4871,35 @@ inline void gcode_M24(){
 	//st_synchronize();
 	screen_printing_pause_form = screen_printing_pause_form0;
 	#ifdef SIGMA_TOUCH_SCREEN
-	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SDPRINTING_PAUSE,0);
+	display_ButtonState(BUTTON_SDPRINTING_PAUSE,0);
 	is_on_printing_screen=true;//We are entering printing screen
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_SDPRINTING,0);
-	flag_sdprinting_dararefresh = true;
+	display_ChangeForm(FORM_SDPRINTING,0);
+	bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
 	
 	//char buffer[13];
+	int i = 0;
 	memset(namefilegcode, '\0', sizeof(namefilegcode) );
-	if (String(card.longFilename).length()>12){
-		for (int i = 0; i<12 ; i++)
+	if (String(card.longFilename).length()>16){
+		for (i = 0; i<16 ; i++)
 		{
-			namefilegcode[i]=card.longFilename[i];
+			if (card.longFilename[i] == '.') break; //go out of the for
+			else {
+				namefilegcode[i]=card.longFilename[i];
+			}
 		}
-		namefilegcode[12]='.';
-		namefilegcode[13]='.';
-		namefilegcode[14]='.';
-		namefilegcode[15]='\0';
-		SERIAL_PROTOCOLPGM("Card Name: ");
-		Serial.println(namefilegcode);
-		genie.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);//Printing form
 		}else{
-		for (unsigned int i = 0; i<=String(card.longFilename).length(); i++)
+		for (i = 0; i<=String(card.longFilename).length(); i++)
 		{
-			if (namefilegcode[i] == '.')break;
+			if (card.longFilename[i] == '.')break;
 			else namefilegcode[i]=card.longFilename[i];
 		}
-		genie.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);//Printing form//Printing form
+		
 	}
-	
+	namefilegcode[i]='.';
+	namefilegcode[i+1]='.';
+	namefilegcode[i+2]='.';
+	namefilegcode[i+3]='\0';
+	display.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);//Printing form//Printing form
 	#endif
 	#endif //SDSUPPORT
 }
@@ -4629,9 +4991,9 @@ inline void gcode_M32(){
 		
 		//Rapduch
 		#ifdef SIGMA_TOUCH_SCREEN
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_SDPRINTING,0);
-		genie.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);
-		flag_sdprinting_dararefresh = true;
+		display_ChangeForm(FORM_SDPRINTING,0);
+		display.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);
+		bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
 		#endif
 	}
 	
@@ -4640,12 +5002,12 @@ inline void gcode_M32(){
 }
 inline void gcode_M33(){
 	#ifdef SDSUPPORT
-	flag_sdprinting_printsavejob = true;
+	bitSet(flag_sdprinting_register,flag_sdprinting_register_printsavejob);
 	cancel_heatup = true;
 	if (card.cardOK){
 		card.closefile(true);
 		saved_position[Z_AXIS] = current_position[Z_AXIS];
-		current_position[E_AXIS]-=PAUSE_G69_RETRACT;
+		current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retract
 		st_synchronize();
 		//*********************************//
@@ -4718,7 +5080,10 @@ inline void gcode_M34(){
 			setTargetBed(saved_tempbed);
 			setTargetHotend0(saved_temp0);
 			setTargetHotend1(saved_temp1);
-			feedmultiply = saved_feedmulti;
+			 
+			 
+			feedmultiply[LEFT_EXTRUDER] = saved_feedmulti0;
+			feedmultiply[RIGHT_EXTRUDER] = saved_feedmulti1;
 			screen_printing_pause_form = screen_printing_pause_form0;
 			is_on_printing_screen=true;//We are entering printing screen
 			
@@ -4762,7 +5127,7 @@ inline void gcode_M34(){
 			
 			if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
 			
-			current_position[E_AXIS]+=PAUSE_G70_PURGE;
+			current_position[E_AXIS]+=PURGE_PRINTER_FACTOR;
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
 			st_synchronize();
 			
@@ -4800,9 +5165,9 @@ inline void gcode_M34(){
 			Serial.println(current_position[Y_AXIS]);
 			waiting_temps = false;
 			saved_print_smartpurge_flag = true;
-			if(degTargetHotend[0]>145)Flag_hotend0_relative_temp = true;
-			if(degTargetHotend[1]>145)Flag_hotend1_relative_temp = true;
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SDPRINTING_PAUSE,1);
+			if(target_temperature[0]>145)Flag_hotend0_relative_temp = true;
+			if(target_temperature[1]>145)Flag_hotend1_relative_temp = true;
+			 
 		}
 		#endif //SDSUPPORT
 	}
@@ -4811,6 +5176,12 @@ inline void gcode_M34(){
 inline void gcode_M35(){
 	
 	feedrate=homing_feedrate[X_AXIS];
+	current_position[E_AXIS]=0;
+	plan_set_e_position(current_position[E_AXIS]);
+	st_synchronize();
+	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
+	st_synchronize();
 	if (active_extruder == LEFT_EXTRUDER && current_position[X_AXIS] != 0){															//Move X axis, controlling the current_extruder
 		current_position[X_AXIS] = current_position[X_AXIS]-PAUSE_G69_XYMOVE;
 		current_position[Y_AXIS] = current_position[Y_AXIS]+PAUSE_G69_XYMOVE;
@@ -5159,14 +5530,14 @@ inline void gcode_M104(){
 	if(setTargetedHotend(104)){
 		return;
 	}
-	if (code_seen('S')){ 
-	setTargetHotend(code_value()+(tmp_extruder==0 ? hotend0_relative_temp:hotend1_relative_temp), tmp_extruder);	
-	#ifdef DUAL_X_CARRIAGE
-	if ((dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_DUPLICATION_MIRROR_MODE) && tmp_extruder == 0)
-	setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + hotend1_relative_temp + duplicate_extruder_temp_offset);
-	#endif
+	if (code_seen('S')){
+		setTargetHotend(code_value()+(tmp_extruder==0 ? hotend0_relative_temp:hotend1_relative_temp), tmp_extruder);
+		#ifdef DUAL_X_CARRIAGE
+		if ((dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_DUPLICATION_MIRROR_MODE) && tmp_extruder == 0)
+		setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + hotend1_relative_temp + duplicate_extruder_temp_offset);
+		#endif
 	}
-	setWatch();
+	 
 	thermal_runaway_reset_hotend_state = true;
 }
 inline void gcode_M112(){
@@ -5174,28 +5545,29 @@ inline void gcode_M112(){
 }
 inline void gcode_M140(){
 	if (code_seen('S')) setTargetBed(code_value());
+	 
 	thermal_runaway_reset_bed_state = true;
 }
 inline void gcode_M105(){
 	if(setTargetedHotend(105)){
 		return;
 	}
-	  #if TEMP_BED_PIN || TEMP_BED_PIN
-	  SERIAL_PROTOCOLPGM(MSG_OK);
-	  print_heaterstates();
-	  #else // !HAS_TEMP_HOTEND && !HAS_TEMP_BED
-	  SERIAL_ERROR_START();
-	  SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
-	  #endif
+	#if TEMP_BED_PIN || TEMP_BED_PIN
+	SERIAL_PROTOCOLPGM(MSG_OK);
+	print_heaterstates();
+	#else // !HAS_TEMP_HOTEND && !HAS_TEMP_BED
+	SERIAL_ERROR_START();
+	SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
+	#endif
 
-	  SERIAL_EOL();
+	SERIAL_EOL();
 	
 }
 inline void gcode_M190(){
 	unsigned long codenum;
 	waiting_temps = true;
 	doblocking = false;
-	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SDPRINTING_PAUSE,1);
+	 
 	HeaterCooldownInactivity(false);
 	#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
 	LCD_MESSAGEPGM(MSG_BED_HEATING);
@@ -5214,6 +5586,7 @@ inline void gcode_M190(){
 	cancel_heatup = false;
 	target_direction = isHeatingBed(); // true if heating, false if cooling
 	thermal_runaway_reset_bed_state = true;
+	 
 	while ( (target_direction)&&(!cancel_heatup) ? (isHeatingBed()) : (isCoolingBed()&&(CooldownNoWait==false)) )
 	{
 		if(( millis() - codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
@@ -5236,7 +5609,7 @@ inline void gcode_M190(){
 			codenum = millis();
 		}
 		manage_heater();
-		if(gif_processing_state == PROCESSING_ERROR) return;
+		ERROR_SCREEN_WARNING2;
 		manage_inactivity();
 		//lcd_update();
 		#ifdef SIGMA_TOUCH_SCREEN
@@ -5253,22 +5626,37 @@ inline void gcode_M190(){
 	doblocking = true;
 	SERIAL_PROTOCOLLNPGM("Bed Heated");
 	LCD_MESSAGEPGM(MSG_BED_DONE);
-	previous_millis_cmd = millis();	
+	previous_millis_cmd = millis();
 	#endif
 }
 inline void gcode_M106(){
 	#if defined(FAN_PIN) && FAN_PIN > -1
 	if (code_seen('S')){
 		fanSpeed=constrain(code_value(),0,255);
+		int realfanspeedl=(((int)round((100.0*fanSpeed)/255.0)+fanSpeed_offset[LEFT_EXTRUDER])*255)/100;
+		int realfanspeedr=(((int)round((100.0*fanSpeed)/255.0)+fanSpeed_offset[RIGHT_EXTRUDER])*255)/100;
+		if (realfanspeedl < 0){
+			fanSpeed_offset[LEFT_EXTRUDER]=(0-fanSpeed)*100/255;
+			}else if(realfanspeedl > 255){
+			fanSpeed_offset[LEFT_EXTRUDER]=(255-fanSpeed)*100/255;
+		}
+		if (realfanspeedr < 0){
+			fanSpeed_offset[RIGHT_EXTRUDER]=(0-fanSpeed)*100/255;
+			}else if(realfanspeedr > 255){
+			fanSpeed_offset[RIGHT_EXTRUDER]=(255-fanSpeed)*100/255;
+		}
 	}
 	else {
 		fanSpeed=255;
+		memset(fanSpeed_offset, 0, sizeof(fanSpeed_offset)); // clear position
+		
 	}
 	#endif //FAN_PIN
 }
 inline void gcode_M107(){
 	#if defined(FAN_PIN) && FAN_PIN > -1
 	fanSpeed = 0;
+	memset(fanSpeed_offset, 0, sizeof(fanSpeed_offset)); // clear position
 	#endif //FAN_PIN
 }
 inline void gcode_M108(){// Enable dual fan mode: P0 to disable and P1 to enable
@@ -5329,6 +5717,7 @@ inline void gcode_M110(){
 		}else{
 		gcode_LastN = 0;
 	}
+	display_ChangeForm(FORM_SERIALPRINTJOB,0);
 }
 inline void gcode_M109(){
 	waiting_temps = true;
@@ -5371,7 +5760,7 @@ inline void gcode_M109(){
 	}
 	#endif
 
-	setWatch();
+	 
 	codenum = millis();
 
 	/* See if we are heating up or cooling down */
@@ -5407,7 +5796,7 @@ inline void gcode_M109(){
 			
 		}
 		manage_heater();
-		if(gif_processing_state == PROCESSING_ERROR) return;
+		ERROR_SCREEN_WARNING2;
 		manage_inactivity();
 		//lcd_update();
 		#ifdef SIGMA_TOUCH_SCREEN
@@ -5459,7 +5848,7 @@ inline void gcode_M109(){
 			codenum = millis();
 		}
 		manage_heater();
-		if(gif_processing_state == PROCESSING_ERROR) return;
+		ERROR_SCREEN_WARNING2;
 		manage_inactivity();
 		//lcd_update();
 		#ifdef SIGMA_TOUCH_SCREEN
@@ -5482,8 +5871,8 @@ inline void gcode_M109(){
 		#endif //TEMP_RESIDENCY_TIME
 	}
 	#endif //TEMP_RESIDENCY_TIME
-	if(degTargetHotend[0]>145)Flag_hotend0_relative_temp = true;
-	if(degTargetHotend[1]>145)Flag_hotend1_relative_temp = true;
+	if(target_temperature[0]>145)Flag_hotend0_relative_temp = true;
+	if(target_temperature[1]>145)Flag_hotend1_relative_temp = true;
 	waiting_temps = false;
 	SERIAL_PROTOCOLLNPGM("Extruder Heated");
 	LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
@@ -5567,6 +5956,9 @@ inline void gcode_M84(){
 			}
 			#endif
 		}
+	}
+	if(gcode_LastN>0){
+		display_ChangeForm(FORM_MAIN,0);
 	}
 	doblocking = false;
 	fanSpeed = 0;
@@ -5935,7 +6327,7 @@ inline void gcode_M218(){
 inline void gcode_M220(){
 	if(code_seen('S'))
 	{
-		feedmultiply = code_value() ;
+		feedmultiply[active_extruder] = code_value() ;
 	}
 }
 inline void gcode_M221(){
@@ -6418,6 +6810,17 @@ inline void gcode_M507(){//Check if there is a recovery ready
 		SERIAL_PROTOCOLLNPGM("Not print recovery up");
 	}
 }
+
+//inline void gcode_M508(){//Check Code if it is a genuine one
+	//int input = 0;
+	//if (code_seen('C')) input = (int)code_value();//First number
+	//if(check_regiter_num(input)){
+		//SERIAL_PROTOCOLLNPGM("Genuine code");
+	//}else{
+		//SERIAL_PROTOCOLLNPGM("Not Genuine code");
+	//}
+	//UI_registercode = input;//Version test
+//}
 inline void gcode_M510(){//Set Preheat Temps at L
 	int i_temp_l = 0, r_temp_l = 0 , p_temp_l = 0, b_temp_l =0;
 	if (code_seen('I')) i_temp_l = code_value();
@@ -6673,13 +7076,17 @@ inline void gcode_M605(){
 	{
 		dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 	}
-	
+	raft_line = 0;
+	raft_line_counter = 0;
+	raft_line_counter_g = 0;
+	raft_extrusion_adjusting = 1.0;
+	Flag_raft_last_line = false;
 	active_extruder_parked = false;
 	extruder_duplication_enabled = false;
 	extruder_duplication_mirror_enabled = false;
 	Flag_Raft_Dual_Mode_On = false;
 	delayed_move_time = 0;
-	
+	Flag_serial_new_layer = false;
 	switch(dual_x_carriage_mode){
 		case DXC_DUPLICATION_MODE:
 		case DXC_DUPLICATION_MODE_RAFT:
@@ -6854,6 +7261,12 @@ inline void gcode_M800(){ //Smart purge smartPurge_Distant(double A, double B, d
 		#endif
 	}
 }
+//inline void gcode_M860(){
+	//if (code_seen('Z'))
+	//{
+		//display_ChangeForm((int)code_value_long(),0);
+	//}
+//}
 inline void gcode_M999(){
 	Stopped = false;
 	lcd_reset_alert_level();
@@ -7134,11 +7547,9 @@ void gcode_T0_T1_auto(int code){
 
 void process_commands()
 {
-	unsigned long codenum; //throw away variable
-	char *starpos = NULL;
-	#ifdef ENABLE_AUTO_BED_LEVELING
-	float x_tmp, y_tmp, z_tmp, real_z;
-	#endif
+	//Serial.print("ID: ");
+	//Serial.println(bufindr);
+	//Serial.print("proceed_commands: ");
 	//Serial.println(cmdbuffer[bufindr]);
 	
 	if(code_seen('G'))
@@ -7253,6 +7664,10 @@ void process_commands()
 			
 			case 92: // G92
 			gcode_G92();
+			break;
+			
+			case 715: // G715
+			gcode_G715();
 			break;
 		}
 	}
@@ -7657,6 +8072,10 @@ void process_commands()
 			gcode_M507();
 			break;
 			
+			//case 508:
+			//gcode_M508();
+			//break;
+			
 			case 510:  //left hotend
 			gcode_M510();
 			break;
@@ -7702,6 +8121,10 @@ void process_commands()
 			case 800: // M800 Smart purge
 			gcode_M800();
 			break;
+			
+			//case 860: // M860 Display dev
+			//gcode_M860();
+			//break;
 
 			case 907: // M907 Set digital trimpot motor current using axis codes.
 			gcode_M907();
@@ -7739,8 +8162,7 @@ void process_commands()
 		SERIAL_ECHO(cmdbuffer[bufindr]);
 		SERIAL_ECHOLNPGM("\"");
 	}
-	
-	ClearToSend();
+	ClearToSend();	
 }
 
 
@@ -7796,7 +8218,7 @@ void changeToolSigma(int tool){
 //Rapduch
 //Hardcoded  function for tool change
 #ifdef  DUAL_X_CARRIAGE
-void changeTool(int ntool) { //ntool select the tool that will be active
+inline void changeTool(int ntool) { //ntool select the tool that will be active
 	tmp_extruder = ntool;
 	if(tmp_extruder >= EXTRUDERS) {
 		SERIAL_ECHO_START;
@@ -7805,7 +8227,7 @@ void changeTool(int ntool) { //ntool select the tool that will be active
 		SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
 	}
 	else {
-		boolean make_move = false;
+		//boolean make_move = false;
 		//if(code_seen('F')) {
 		//make_move = true;
 		//next_feedrate = code_value();
@@ -7914,7 +8336,7 @@ void changeTool(int ntool) { //ntool select the tool that will be active
 void FlushSerialRequestResend()
 {
 	while(MYSERIAL.available()){  //is there anything to read?
-		char getData = MYSERIAL.read();  //if yes, read it
+		MYSERIAL.read();  //if yes, read it
 	}   // don't do anything with it.
 	MYSERIAL.flush();
 	SERIAL_PROTOCOLPGM(MSG_RESEND);
@@ -8052,11 +8474,11 @@ void calculate_delta(float cartesian[3])
 }
 #endif
 #ifdef ENABLE_DUPLI_MIRROR
-inline void dual_mode_duplication_z_adjust_raft(void);
-inline void dual_mode_duplication_extruder_parked(void);
-inline void dual_mode_duplication_mirror_extruder_parked(void);
-inline void dual_mode_duplication_extruder_parked_purge(void);
-inline void dual_mode_duplication_z_adjust_raft(void){
+void dual_mode_duplication_z_adjust_raft(void);
+void dual_mode_duplication_extruder_parked(void);
+void dual_mode_duplication_mirror_extruder_parked(void);
+void dual_mode_duplication_extruder_parked_purge(void);
+void dual_mode_duplication_z_adjust_raft(void){
 	if((raft_z_init*raft_line_counter+RAFT_Z_THRESHOLD) >= abs(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]) && !Flag_raft_last_line){
 		destination[Z_AXIS] = abs(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]) - raft_z_init*(raft_line_counter-1);
 		raft_extrusion_adjusting = destination[Z_AXIS]/raft_z_init;
@@ -8068,48 +8490,74 @@ inline void dual_mode_duplication_z_adjust_raft(void){
 	}
 	
 }
-inline void dual_mode_duplication_extruder_parked(void){
+void dual_mode_duplication_extruder_parked(void){
 	// move duplicate extruder into correct duplication position.
 	plan_set_position(extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 	plan_buffer_line(current_position[X_AXIS] + duplicate_extruder_x_offset, current_position[Y_AXIS], current_position[Z_AXIS],
 	current_position[E_AXIS], max_feedrate[X_AXIS], 1);
-	if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]>0.0 && Flag_Raft_Dual_Mode_On){
+	if(!Flag_Raft_Dual_Mode_On_exit){
+		if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]>0.0 && Flag_Raft_Dual_Mode_On){
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			}else{
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - extruder_offset[Z_AXIS][RIGHT_EXTRUDER], current_position[E_AXIS]);
+		}
+		if(!Flag_Raft_Dual_Mode_On){
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - extruder_offset[Z_AXIS][RIGHT_EXTRUDER]/2, current_position[E_AXIS]);
+		}
+	}else{
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-		}else{
-		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - extruder_offset[Z_AXIS][RIGHT_EXTRUDER], current_position[E_AXIS]);
-	}
-	if(!Flag_Raft_Dual_Mode_On){
-		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - extruder_offset[Z_AXIS][RIGHT_EXTRUDER]/2, current_position[E_AXIS]);
 	}
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
 	st_synchronize();
 	extruder_duplication_enabled = true;
 	active_extruder_parked = false;
 	dual_x_carriage_mode = DXC_DUPLICATION_MODE;
-	SERIAL_PROTOCOLLNPGM("Dual Mode ON");
+	SERIAL_PROTOCOLLNPGM("Dupli Mode ON");
 }
-inline void dual_mode_duplication_mirror_extruder_parked (void){
-	if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]>0.0  && Flag_Raft_Dual_Mode_On){
+void dual_mode_duplication_mirror_extruder_parked (void){
+	if(!Flag_Raft_Dual_Mode_On_exit){
+		if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]>0.0  && Flag_Raft_Dual_Mode_On){
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			}else{
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - extruder_offset[Z_AXIS][RIGHT_EXTRUDER], current_position[E_AXIS]);
+		}
+		if(!Flag_Raft_Dual_Mode_On){
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - extruder_offset[Z_AXIS][RIGHT_EXTRUDER]/2, current_position[E_AXIS]);
+		}
+	}else{
+		current_position[X_AXIS]=0;
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-		}else{
-		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - extruder_offset[Z_AXIS][RIGHT_EXTRUDER], current_position[E_AXIS]);
-	}
-	if(!Flag_Raft_Dual_Mode_On){
-		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - extruder_offset[Z_AXIS][RIGHT_EXTRUDER]/2, current_position[E_AXIS]);
 	}
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
 	st_synchronize();
 	extruder_duplication_mirror_enabled = true;
 	active_extruder_parked = false;
 	dual_x_carriage_mode = DXC_DUPLICATION_MIRROR_MODE;
-	SERIAL_PROTOCOLLNPGM("Dual Mirror Mode ON");
+	SERIAL_PROTOCOLLNPGM("Mirror Mode ON");
 }
-inline void dual_mode_duplication_extruder_parked_purge(void){
+void dual_mode_duplication_extruder_parked_purge(void){
+	
+	unsigned long codenum; //throw away variable
+	
 	extruder_duplication_enabled = true;
-	current_position[E_AXIS]+=10;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);	///PURGE
-	current_position[E_AXIS]-=4;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);	///Retract
+	current_position[E_AXIS]+=PURGE_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50.0/60, active_extruder);	///PURGE
+	
+	codenum =4000;
+	codenum += millis();  // keep track of when we started waiting
+	previous_millis_cmd = millis();
+	while(millis() < codenum) {
+		manage_heater();
+		manage_inactivity();
+		//lcd_update();
+		#ifdef SIGMA_TOUCH_SCREEN
+		touchscreen_update();
+		#endif
+		
+	}
+	
+	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);	///Retract
 	st_synchronize();
 	extruder_duplication_enabled = false;
 }
@@ -8118,6 +8566,7 @@ void prepare_move()
 {
 	clamp_to_software_endstops(destination);
 	previous_millis_cmd = millis();
+	
 	#ifdef DUAL_X_CARRIAGE
 	if (active_extruder_parked)//We recently have done a toolChange
 	{
@@ -8136,7 +8585,6 @@ void prepare_move()
 			}
 			st_synchronize();
 			active_extruder_parked = false;
-			SERIAL_PROTOCOLLNPGM("Dual Mode OFF");
 		}
 		
 		if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE) // handle unparking of head
@@ -8181,8 +8629,8 @@ void prepare_move()
 						if(!Flag_Raft_Dual_Mode_On){
 							dual_mode_duplication_extruder_parked();
 							}else{
-							current_position[E_AXIS]-=PAUSE_G69_RETRACT;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
+							current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
 							st_synchronize();
 							current_position[Z_AXIS] = 5;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);	//BACK PARKING
@@ -8192,12 +8640,12 @@ void prepare_move()
 							st_synchronize();
 							dual_mode_duplication_extruder_parked_purge();
 							//DUAL PROTOCOL
-							
+							Flag_Raft_Dual_Mode_On_exit = true;
 							dual_mode_duplication_extruder_parked();
-							
+							Flag_Raft_Dual_Mode_On_exit = false;
 							Flag_Raft_Dual_Mode_On = true;
 							
-							current_position[E_AXIS]-=3;
+							current_position[E_AXIS] = -(RETRACT_PRINTER_FACTOR);
 							plan_set_e_position(current_position[E_AXIS]);
 							raft_extrusion_adjusting=1.0;
 						}
@@ -8214,8 +8662,8 @@ void prepare_move()
 						if(!Flag_Raft_Dual_Mode_On){
 							dual_mode_duplication_extruder_parked();
 							}else{
-							current_position[E_AXIS]-=PAUSE_G69_RETRACT;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
+							current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
 							st_synchronize();
 							current_position[Z_AXIS] = 5;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);	//BACK PARKING
@@ -8228,9 +8676,11 @@ void prepare_move()
 							//DUAL PROTOCOL
 							current_position[X_AXIS] = 0.0;
 							raft_extrusion_adjusting=1.0;
+							Flag_Raft_Dual_Mode_On_exit = true;
 							dual_mode_duplication_extruder_parked();
+							Flag_Raft_Dual_Mode_On_exit = false;
 							Flag_Raft_Dual_Mode_On = true;
-							current_position[E_AXIS]-=3;
+							current_position[E_AXIS] = -(RETRACT_PRINTER_FACTOR);
 							plan_set_e_position(current_position[E_AXIS]);
 						}
 						}else{
@@ -8266,8 +8716,8 @@ void prepare_move()
 						if(!Flag_Raft_Dual_Mode_On){
 							dual_mode_duplication_mirror_extruder_parked();
 							}else{
-							current_position[E_AXIS]-=PAUSE_G69_RETRACT;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
+							current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
 							st_synchronize();
 							current_position[Z_AXIS] = 5;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 15, active_extruder);	//BACK PARKING
@@ -8278,9 +8728,11 @@ void prepare_move()
 							dual_mode_duplication_extruder_parked_purge();
 							//DUAL PROTOCOL
 							raft_extrusion_adjusting=1.0;
+							Flag_Raft_Dual_Mode_On_exit = true;
 							dual_mode_duplication_mirror_extruder_parked();
+							Flag_Raft_Dual_Mode_On_exit = false;
 							Flag_Raft_Dual_Mode_On = true;
-							current_position[E_AXIS]-=3;
+							current_position[E_AXIS] = -(RETRACT_PRINTER_FACTOR);
 							plan_set_e_position(current_position[E_AXIS]);
 						}
 						}else{
@@ -8299,7 +8751,7 @@ void prepare_move()
 							
 							dual_mode_duplication_mirror_extruder_parked();
 							}else{
-							current_position[E_AXIS]-=PAUSE_G69_RETRACT;
+							current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, active_extruder);//Retract
 							st_synchronize();
 							current_position[Z_AXIS] = 5;
@@ -8312,12 +8764,12 @@ void prepare_move()
 							dual_mode_duplication_extruder_parked_purge();
 							current_position[X_AXIS] = 0.0;
 							//DUAL PROTOCOL
+							Flag_Raft_Dual_Mode_On_exit = true;
 							dual_mode_duplication_mirror_extruder_parked();
+							Flag_Raft_Dual_Mode_On_exit = false;
 							Flag_Raft_Dual_Mode_On = true;
-							current_position[E_AXIS]-=3;
+							current_position[E_AXIS] = -(RETRACT_PRINTER_FACTOR);
 							plan_set_e_position(current_position[E_AXIS]);
-							Serial.print("FeedRate after park: ");
-							Serial.println(feedrate);
 							raft_extrusion_adjusting=1.0;
 						}
 						}else{
@@ -8349,7 +8801,7 @@ void prepare_move()
 		
 	}
 	else {
-		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS]*raft_extrusion_adjusting, feedrate*feedmultiply/60/100.0, active_extruder);
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS]*raft_extrusion_adjusting, feedrate*feedmultiply[active_extruder]/60/100.0, active_extruder);
 	}
 
 	for(int8_t i=0; i < NUM_AXIS; i++) {
@@ -8361,7 +8813,7 @@ void prepare_arc_move(char isclockwise) {
 	float r = hypot(offset[X_AXIS], offset[Y_AXIS]); // Compute arc radius for mc_arc
 
 	// Trace the arc
-	mc_arc(current_position, destination, offset, X_AXIS, Y_AXIS, Z_AXIS, feedrate*feedmultiply/60/100.0, r, isclockwise, active_extruder);
+	mc_arc(current_position, destination, offset, X_AXIS, Y_AXIS, Z_AXIS, feedrate*feedmultiply[active_extruder]/60/100.0, r, isclockwise, active_extruder);
 
 	// As far as the parser is concerned, the position is now == target. In reality the
 	// motion control system might still be processing the action and the real tool position
@@ -8370,6 +8822,7 @@ void prepare_arc_move(char isclockwise) {
 		current_position[i] = destination[i];
 	}
 	previous_millis_cmd = millis();
+	
 }
 
 #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
@@ -8546,8 +8999,8 @@ void manage_inactivity()
 				if(!doblocking){
 					disable_x();
 					disable_y();
+					disable_z();
 				}
-				disable_z();
 				disable_e0();
 				disable_e1();
 				disable_e2();
@@ -8751,138 +9204,799 @@ bool setTargetedHotend(int code){
 	return false;
 }
 
+#if PATTERN_Z_CALIB == 0
+
+void draw_print_line(uint8_t patternid, float xy_destination_relative, float layerh){// pattern id Z = 2 ; X = 0, Y = 1;
+	
+	float extrusion_distance = extrusion_multiplier(abs(xy_destination_relative), layerh);
+	
+	uint8_t mainaxis = (patternid!=Y_AXIS?Y_AXIS:X_AXIS);
+	uint8_t secondaryaxis = (patternid==Y_AXIS?Y_AXIS:X_AXIS);
+	
+	current_position[mainaxis] += xy_destination_relative;  current_position[E_AXIS]+=extrusion_distance;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
+	
+	current_position[secondaryaxis] = current_position[secondaryaxis] + -1*((patternid==X_AXIS?-1:1))*hotend_size_setup[active_extruder];
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
+	
+	current_position[mainaxis] -= xy_destination_relative;  current_position[E_AXIS]+=extrusion_distance;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
+	
+	st_synchronize();
+			
+	
+}
+
 
 void z_test_print_code(int tool, float x_offset){
 	////////////////////
-	//LEFT Z TEST PRINT/
+	// Z TEST PRINT//
 	////////////////////
+	float layer_height = 0;
+	switch((int)(hotend_size_setup[tool]*10)){
+		case 3:
+		layer_height = 0.2;
+		break;
+		case 4:
+		layer_height = 0.2;
+		break;
+		case 5:
+		layer_height = 0.2;
+		break;
+		case 6:
+		layer_height = 0.2;
+		break;
+		case 8:
+		layer_height = 0.2;
+		break;
+		case 10:
+		layer_height = 0.2;
+		break;
+	}
+	int	  distance_x = 4;
+	int	  distance_y = 72;
+	float initial_x_pos = 145.5 + x_offset;
+	float initial_y_pos = 183.5;
+	float initial_z_pos = layer_height+3*LINES_GAP;
+	
+	Serial.print(F("layer height: "));
+	Serial.println(layer_height);
 	doblocking = true;
 	changeTool(tool);
 	current_position[E_AXIS]+=15;  //0.5 + 0.15 per ajustar una bona alçada
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	current_position[Z_AXIS]=2; //0.5 + 0.15 per ajustar una bona alçada
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	current_position[E_AXIS]-=4;
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_G36/60,active_extruder);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
 	
 	
-	//SKIRT_v2
-	//Positioning
+	//POS A
 	current_position[Y_AXIS] = 187.5;
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	current_position[X_AXIS] = 125.5 + x_offset;
 	#else
 	current_position[X_AXIS] = 125.5 + x_offset + X_OFFSET_CALIB_PROCEDURES;
 	#endif
-	current_position[Z_AXIS] = 0.2;
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],200,active_extruder);
+	current_position[Z_AXIS] = layer_height;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],100,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	current_position[E_AXIS]+=4.1;
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_G36/60,active_extruder);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	//start print the skirt
-	current_position[Y_AXIS] = 107.5; current_position[E_AXIS] += extrusion_multiplier(187.5-107.5);
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
+	ERROR_SCREEN_WARNING2;
+	//POS B
+	current_position[Y_AXIS] = 107.5; current_position[E_AXIS] += extrusion_multiplier(187.5-107.5, layer_height);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	ERROR_SCREEN_WARNING2;
+	//POS C
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	current_position[X_AXIS] = 149.5 + x_offset;
 	#else
 	current_position[X_AXIS] = 149.5 + x_offset + X_OFFSET_CALIB_PROCEDURES;
 	#endif
-	current_position[E_AXIS] += extrusion_multiplier(149.5-125.5);
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
+	current_position[E_AXIS] += extrusion_multiplier(149.5-125.5, layer_height);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	current_position[Y_AXIS] = 187.5; current_position[E_AXIS] += extrusion_multiplier(187.5-107.5);
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
+	ERROR_SCREEN_WARNING2;
+	//POS D
+	current_position[Y_AXIS] = 187.5; current_position[E_AXIS] += extrusion_multiplier(187.5-107.5, layer_height);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	ERROR_SCREEN_WARNING2;
+	//POS A
+	
+	current_position[Z_AXIS] = initial_z_pos;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],100,active_extruder);
+	st_synchronize();
+	
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	current_position[X_AXIS] = 125.5 + x_offset;
 	#else
 	current_position[X_AXIS] = 125.5 + x_offset + X_OFFSET_CALIB_PROCEDURES;
 	#endif
-	current_position[E_AXIS] += extrusion_multiplier(149.5-125.5);
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
-	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	current_position[E_AXIS]-=4;
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_G36/60,active_extruder);
-	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	int	  distance_x = 4;
-	int	  distance_y = 72;
-	float initial_x_pos = 145.5 + x_offset;
-	float initial_y_pos = 183.5;
-	float initial_z_pos = 0.3;
-	//float z_layer_test = 0.2;
 	
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	current_position[E_AXIS] += extrusion_multiplier(145.5-125.5, layer_height);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
+	st_synchronize();
+	
+	current_position[E_AXIS] += extrusion_multiplier(hotend_size_setup[tool], layer_height);
+	current_position[Y_AXIS] -=hotend_size_setup[tool];
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
+	st_synchronize();
+	ERROR_SCREEN_WARNING2;
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	current_position[X_AXIS] = initial_x_pos;
 	#else
 	current_position[X_AXIS] = initial_x_pos + X_OFFSET_CALIB_PROCEDURES;
 	#endif
-	current_position[Y_AXIS] = initial_y_pos;
-	current_position[Z_AXIS]= initial_z_pos;
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],200,active_extruder);
+	current_position[E_AXIS] += extrusion_multiplier(149.5-125.5, layer_height);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	current_position[Y_AXIS] = initial_y_pos;
+	current_position[E_AXIS] += extrusion_multiplier(187.5-initial_y_pos, layer_height);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
+	st_synchronize();
+	ERROR_SCREEN_WARNING2;
+	
+	//float z_layer_test = 0.2;
+	
+	ERROR_SCREEN_WARNING2;
 	for(int i = 1; i<=5;i++){
 		
-		current_position[E_AXIS]+= 4.1;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_G36/60,active_extruder);
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		current_position[Y_AXIS] = initial_y_pos-distance_y;  current_position[E_AXIS]+=extrusion_multiplier(distance_y);
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		current_position[E_AXIS]-=4;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_G36/60,active_extruder);
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
+		
+		ERROR_SCREEN_WARNING2;
+		
+		draw_print_line(Z_AXIS,-distance_y,layer_height);
+		
+		//dibujo de una linea
+		
+		ERROR_SCREEN_WARNING2;
 		if(i != 5){
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+			current_position[Z_AXIS]-= LINES_GAP;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
+			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 			current_position[X_AXIS] = initial_x_pos-(distance_x*i);
 			#else
 			current_position[X_AXIS] = initial_x_pos-(distance_x*i) + X_OFFSET_CALIB_PROCEDURES;
 			#endif
-			current_position[Y_AXIS] = initial_y_pos;
-			current_position[Z_AXIS]-= 0.05;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],200,active_extruder);
-			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
+			current_position[E_AXIS]+=extrusion_multiplier(distance_x-hotend_size_setup[tool], layer_height);
+			ERROR_SCREEN_WARNING2;
 		}
 	}
 	
 	
+	current_position[E_AXIS]-=4;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
+	
 	//RETIRE HOTEND
 	current_position[Z_AXIS]+= 2;
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],10,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	home_axis_from_code(true,true,false);
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	doblocking = false;
 	//SELECT LINES SCREEN
 	gif_processing_state = PROCESSING_STOP;
 	
+	calib_confirmation = 1888;
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT1,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT2,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT3,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT4,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT5,0);
+	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_CONFIRM,0);
 	if(tool == LEFT_EXTRUDER){
-		setTargetHotend0(CALIBFULL_HOTEND_STANDBY_TEMP);
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZL,0);
+		setTargetHotend0(print_temp_l-30);
+		display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR,0);
+		calib_zxy = 3;
 		}else if(tool == RIGHT_EXTRUDER){
-		setTargetHotend1(CALIBFULL_HOTEND_STANDBY_TEMP);
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZR,0);
+		setTargetHotend1(print_temp_r-30);
+		display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR,1);
+		calib_zxy = 4;
+	}
+	display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR,0);
+}
+
+#elif PATTERN_Z_CALIB == 1
+
+int z_test_print_code(int tool, float x_offset, int z_offset, bool repeat){
+	float distance_x = 0;
+	float distance_y = active_extruder==LEFT_EXTRUDER?5:-5;
+	float initial_x_pos = 0;
+	float initial_y_pos = 0;
+	float layer_increment = 0.05;
+	
+	float layer_height = 0;
+	float layers_height_cfg[]=LINES_LAYER_HEIGHT_Z;
+	switch(hotend_size_setup[tool]){
+		case 0.3:
+		layer_height = layers_height_cfg[0];
+		break;
+		case 0.4:
+		layer_height = layers_height_cfg[1];
+		break;
+		case 0.5:
+		layer_height = layers_height_cfg[2];
+		break;
+		case 0.6:
+		layer_height = layers_height_cfg[3];
+		break;
+		case 0.8:
+		layer_height = layers_height_cfg[4];
+		break;
+		case 1.0:
+		layer_height = layers_height_cfg[5];
+		break;
+	}
+	//float layer_height = layer_height+z_offset*layer_increment;
+	float initial_z_pos = layer_height + 2 * layer_increment;
+	doblocking = true;
+	changeTool(tool);
+	current_position[E_AXIS]+=PURGE_PRINTER_FACTOR;  //0.5 + 0.15 per ajustar una bona alçada
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
+	st_synchronize();
+	if(gif_processing_state == PROCESSING_ERROR) return 1999;
+	current_position[Z_AXIS]=2; //0.5 + 0.15 per ajustar una bona alçada
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+	st_synchronize();
+	if(gif_processing_state == PROCESSING_ERROR) return 1999;
+	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
+	
+	for(int j=0; j<2;j++){
+		//SKIRT POSICION A
+		if(!repeat){
+			current_position[Y_AXIS] = active_extruder==LEFT_EXTRUDER?235:60;
+			if(tool == LEFT_EXTRUDER){
+				current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (j == 0?2-hotend_size_setup[active_extruder]:PRINTER_BED_X_SIZE-(2-hotend_size_setup[active_extruder]));
+			}else{
+				current_position[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + (j == 0?PRINTER_BED_X_SIZE-(2-hotend_size_setup[active_extruder]):2-hotend_size_setup[active_extruder]));
+			}
+			
+		}
+		else {
+			
+			current_position[Y_AXIS] = active_extruder==LEFT_EXTRUDER?235-2*hotend_size_setup[active_extruder]:60+2*hotend_size_setup[active_extruder];
+			
+			if(tool == LEFT_EXTRUDER){
+				
+				current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (j == 0?2:PRINTER_BED_X_SIZE-2);
+				
+			}else{
+				current_position[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + (j == 0?PRINTER_BED_X_SIZE-2:2));
+			}
+			
+		}
+		
+		current_position[Z_AXIS] = layer_height;
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],150,active_extruder);
+		st_synchronize();
+		if(gif_processing_state == PROCESSING_ERROR) return 1999;
+		current_position[E_AXIS]+=RETRACT_PRINT_TEST_FACTOR+0.1;
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1200/60,active_extruder);
+		st_synchronize();
+		if(gif_processing_state == PROCESSING_ERROR) return 1999;
+		
+		//SKIRT POSICION AB
+		if(!repeat){
+			if(j==0){
+				
+				if(tool == LEFT_EXTRUDER){
+					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+42+hotend_size_setup[LEFT_EXTRUDER];
+				}
+				else{
+					current_position[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER] -(NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42-hotend_size_setup[RIGHT_EXTRUDER]);	
+				}
+			}
+			else{
+				
+				if(tool == LEFT_EXTRUDER){
+					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42-hotend_size_setup[LEFT_EXTRUDER];
+				}else{
+					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] -(NOZZLE_PARK_DISTANCE_BED_X0+42+hotend_size_setup[RIGHT_EXTRUDER]);
+				}
+			}
+			current_position[E_AXIS] += extrusion_multiplier(40+hotend_size_setup[tool]*2, layer_height);
+		}
+		else{
+								
+			
+			if(j==0){
+			
+				if(tool == LEFT_EXTRUDER){
+					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+42-hotend_size_setup[LEFT_EXTRUDER];
+				}
+				else{
+					
+					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42+hotend_size_setup[RIGHT_EXTRUDER]);
+				}
+			}
+			else{ 
+				if(tool == LEFT_EXTRUDER){
+					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42+hotend_size_setup[LEFT_EXTRUDER];
+				}
+				else{
+					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+42-hotend_size_setup[RIGHT_EXTRUDER]);
+				}
+			}
+			
+			current_position[E_AXIS] += extrusion_multiplier(40-hotend_size_setup[tool], layer_height);
+		}
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
+		
+		//SKIRT POSICION BC
+		if(!repeat){
+			if(tool == LEFT_EXTRUDER){
+				current_position[Y_AXIS]=155;
+			}
+			else{
+				current_position[Y_AXIS]=140;
+			}
+			current_position[E_AXIS] += extrusion_multiplier(235-155, layer_height);
+		}
+		else{
+			if(tool == LEFT_EXTRUDER){
+				current_position[Y_AXIS]=195;
+			}
+			else{
+				current_position[Y_AXIS]=110;
+			}
+			current_position[E_AXIS] += extrusion_multiplier(235-195, layer_height);
+		}
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
+		//SKIRT POSICION CD
+		if(!repeat){
+			if(j==0){
+				if(tool == LEFT_EXTRUDER){
+					current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (2-hotend_size_setup[LEFT_EXTRUDER]);
+				}
+				else{
+					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + PRINTER_BED_X_SIZE-(2-hotend_size_setup[RIGHT_EXTRUDER]));
+				}
+			}else{
+				if(tool == LEFT_EXTRUDER){
+					current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (PRINTER_BED_X_SIZE-(2-hotend_size_setup[LEFT_EXTRUDER]));
+				}
+				else{
+					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + 2-hotend_size_setup[RIGHT_EXTRUDER]);
+				}
+			}
+			
+			current_position[E_AXIS] += extrusion_multiplier(40+hotend_size_setup[tool], layer_height);
+		}
+		else{
+			
+			if(j==0){
+				if(tool == LEFT_EXTRUDER){
+					current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + 2;
+				}
+				else{
+					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + PRINTER_BED_X_SIZE-2);
+				}
+				}else{
+				if(tool == LEFT_EXTRUDER){
+					current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + PRINTER_BED_X_SIZE-2;
+				}
+				else{
+					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + 2);
+				}
+			}
+						
+			current_position[E_AXIS] += extrusion_multiplier(40-hotend_size_setup[tool], layer_height);
+		}
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
+		//SKIRT POSICION DA
+		if(!repeat){
+			if(tool == LEFT_EXTRUDER){
+				current_position[Y_AXIS] = 235 - hotend_size_setup[LEFT_EXTRUDER];
+			}
+			else{
+				current_position[Y_AXIS] = 60 + hotend_size_setup[RIGHT_EXTRUDER];
+			}
+			current_position[E_AXIS] += extrusion_multiplier(235-155-hotend_size_setup[active_extruder], layer_height);
+		}
+		else{
+			if(tool == LEFT_EXTRUDER){
+				current_position[Y_AXIS] = 235-3*hotend_size_setup[LEFT_EXTRUDER];
+			}
+			else{
+				current_position[Y_AXIS] = 60+3*hotend_size_setup[RIGHT_EXTRUDER];
+			}
+			current_position[E_AXIS] += extrusion_multiplier(235-195-3*hotend_size_setup[active_extruder], layer_height);
+		}
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
+		//SKIRT POSICION AB
+		current_position[Z_AXIS]= initial_z_pos;
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
+		if(!repeat){
+			if(j==0){
+				if(tool == LEFT_EXTRUDER){
+					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+42;
+				}else{
+					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42);
+				}
+			}
+			else{
+				if(tool == LEFT_EXTRUDER){
+					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42;
+					}else{
+					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+42);
+				}
+			}
+			current_position[E_AXIS] += extrusion_multiplier(40+hotend_size_setup[tool], layer_height);
+			}else{
+			if(j==0){
+				
+				if(tool == LEFT_EXTRUDER){
+					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+42-2*hotend_size_setup[LEFT_EXTRUDER];
+					}else{
+					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42+2*hotend_size_setup[RIGHT_EXTRUDER]);
+				}
+				
+			}
+			else{
+				
+				if(tool == LEFT_EXTRUDER){
+					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42+2*hotend_size_setup[LEFT_EXTRUDER];
+					}else{
+					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+42-2*hotend_size_setup[RIGHT_EXTRUDER]);
+				}
+			}
+			current_position[E_AXIS] += extrusion_multiplier(40-3*hotend_size_setup[tool], layer_height);
+		}
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
+		
+		//POSICION B to TEST
+		if(!repeat){
+			if(tool == LEFT_EXTRUDER){
+				current_position[Y_AXIS] = 185;
+			}
+			else{
+				current_position[Y_AXIS] = 110;
+			}
+			current_position[E_AXIS] += extrusion_multiplier(235-185, layer_height);
+		}
+		else{
+			if(tool == LEFT_EXTRUDER){
+				current_position[Y_AXIS] = 225;
+			}
+			else{
+				current_position[Y_AXIS] = 70;
+			}
+			current_position[E_AXIS] += extrusion_multiplier(235-225, layer_height);
+		}
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
+		
+		if(gif_processing_state == PROCESSING_ERROR) return 1999;
+		
+		
+		
+		//float z_layer_test = 0.2;
+		if(!repeat){
+			distance_x = 40;
+			if(tool == LEFT_EXTRUDER){
+				if(j==0){
+					initial_x_pos = NOZZLE_PARK_DISTANCE_BED_X0+42;
+					}else{
+					initial_x_pos = NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42;
+				}
+				initial_y_pos = 185-hotend_size_setup[LEFT_EXTRUDER];
+				}else{
+				if(j==0){
+					initial_x_pos = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42);
+					}else{
+					initial_x_pos = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+42);
+				}
+				initial_y_pos = 110+hotend_size_setup[RIGHT_EXTRUDER];
+			}
+			}else{
+			distance_x = 40-3*hotend_size_setup[tool];
+			if(tool == LEFT_EXTRUDER){
+				if(j==0){
+					initial_x_pos = NOZZLE_PARK_DISTANCE_BED_X0+(42-2*hotend_size_setup[LEFT_EXTRUDER]);
+					}else{
+					initial_x_pos = NOZZLE_PARK_DISTANCE_BED_X0+(PRINTER_BED_X_SIZE-42+2*hotend_size_setup[LEFT_EXTRUDER]);
+				}
+				initial_y_pos = 225-hotend_size_setup[LEFT_EXTRUDER];
+				}else{
+				if(j==0){
+					initial_x_pos = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42+2*hotend_size_setup[RIGHT_EXTRUDER]);
+					}else{
+					initial_x_pos = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+42-2*hotend_size_setup[RIGHT_EXTRUDER]);
+				}
+				initial_y_pos = 70+hotend_size_setup[RIGHT_EXTRUDER];
+			}
+		}
+		current_position[X_AXIS] = initial_x_pos;
+		current_position[Y_AXIS] = initial_y_pos;
+		//current_position[Z_AXIS]= initial_z_pos;
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
+		st_synchronize();
+		if(gif_processing_state == PROCESSING_ERROR) return 1999;
+		for(int i = 1; i<=5;i++){
+			/*
+			for(int i = 1; i*2*hotend_size_setup[tool]<=4.0;i++){
+			ERROR_SCREEN_WARNING2;
+			current_position[Y_AXIS] -=active_extruder==LEFT_EXTRUDER?hotend_size_setup[tool]:-hotend_size_setup[tool]; current_position[E_AXIS]+=extrusion_multiplier(hotend_size_setup[tool]);
+			current_position[X_AXIS] = initial_x_pos+(j == 0?-distance_x:distance_x);  current_position[E_AXIS]+=extrusion_multiplier(distance_x);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],30,active_extruder);
+			current_position[Y_AXIS] -=active_extruder==LEFT_EXTRUDER?hotend_size_setup[tool]:-hotend_size_setup[tool]; current_position[E_AXIS]+=extrusion_multiplier(hotend_size_setup[tool]);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],30,active_extruder);
+			current_position[X_AXIS] = initial_x_pos; current_position[E_AXIS]+=extrusion_multiplier(distance_x);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],30,active_extruder);
+			st_synchronize();
+			}*/
+			
+			
+			if(gif_processing_state == PROCESSING_ERROR) return 1999;
+			current_position[X_AXIS] = initial_x_pos+(j == 0?-distance_x:distance_x);  current_position[E_AXIS]+=extrusion_multiplier(distance_x, layer_height);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+			current_position[Y_AXIS] -=active_extruder==LEFT_EXTRUDER?hotend_size_setup[tool]:-hotend_size_setup[tool]; current_position[E_AXIS]+=extrusion_multiplier(hotend_size_setup[tool], layer_height);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+			current_position[X_AXIS] = initial_x_pos; current_position[E_AXIS]+=extrusion_multiplier(distance_x, layer_height);
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+			st_synchronize();
+			
+			if(gif_processing_state == PROCESSING_ERROR) return 1999;
+			if(i != 5){
+				current_position[Z_AXIS]-= layer_increment;
+				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+				current_position[E_AXIS]+=extrusion_multiplier(current_position[Y_AXIS]-initial_y_pos-(distance_y*i), layer_height); current_position[Y_AXIS] = initial_y_pos-(distance_y*i);
+				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+				st_synchronize();
+			}else{
+				current_position[Z_AXIS]+= layer_increment*5;
+				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+				current_position[E_AXIS]+=extrusion_multiplier(current_position[Y_AXIS]-initial_y_pos-(distance_y*i), layer_height); current_position[Y_AXIS] = initial_y_pos-(distance_y*i);
+				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+				st_synchronize();
+			}
+		}
+		
+		current_position[E_AXIS]-=RETRACT_PRINT_TEST_FACTOR;
+		//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1200/60,active_extruder);
+		st_synchronize();
+		current_position[Z_AXIS]+= 2;
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+		st_synchronize();
 	}
 	
+	changeTool(LEFT_EXTRUDER);
+	
+	setup_for_endstop_move();
+	float z_at_pt_ref = probe_pt(Z_SIGMA_PROBE_X_POINT,initial_y_pos+(distance_y), Z_RAISE_BEFORE_PROBING);
+	float z_at_pt_5 = probe_pt(Z_SIGMA_PROBE_X_POINT,initial_y_pos, Z_RAISE_BEFORE_PROBING) - z_at_pt_ref;
+	float z_at_pt_4 = probe_pt(Z_SIGMA_PROBE_X_POINT,initial_y_pos-(distance_y), current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING) - z_at_pt_ref;
+	float z_at_pt_3 = probe_pt(Z_SIGMA_PROBE_X_POINT,initial_y_pos-(distance_y*2), current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING) - z_at_pt_ref;
+	float z_at_pt_2 = probe_pt(Z_SIGMA_PROBE_X_POINT,initial_y_pos-(distance_y*3), current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING) - z_at_pt_ref;
+	float z_at_pt_1 = probe_pt(Z_SIGMA_PROBE_X_POINT,initial_y_pos-(distance_y*4), current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING) - z_at_pt_ref;
+	clean_up_after_endstop_move();
+	//Serial.print(F("LINEA 5 (0.35): "));
+	//Serial.println(z_at_pt_5);
+	//Serial.print(F("LINEA 4 (0.275): "));
+	//Serial.println(z_at_pt_4);
+	//Serial.print(F("LINEA 3 (0.2): "));
+	//Serial.println(z_at_pt_3);
+	//Serial.print(F("LINEA 2 (0.125): "));
+	//Serial.println(z_at_pt_2);
+	//Serial.print(F("LINEA 1 (0.05): "));
+	//Serial.println(z_at_pt_1);
+	current_position[Z_AXIS]+= 2;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
+	st_synchronize();
+	changeTool(RIGHT_EXTRUDER);
+	setup_for_endstop_move();
+	float z_at_pt_ref_r = probe_pt(extruder_offset[X_AXIS][active_extruder]-Z_SIGMA_PROBE_X_POINT,initial_y_pos+(distance_y), Z_RAISE_BEFORE_PROBING);
+	float z_at_pt_5_r = probe_pt(extruder_offset[X_AXIS][active_extruder]-Z_SIGMA_PROBE_X_POINT,initial_y_pos, Z_RAISE_BEFORE_PROBING) - z_at_pt_ref_r;
+	float z_at_pt_4_r = probe_pt(extruder_offset[X_AXIS][active_extruder]-Z_SIGMA_PROBE_X_POINT,initial_y_pos-(distance_y), current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING) - z_at_pt_ref_r;
+	float z_at_pt_3_r = probe_pt(extruder_offset[X_AXIS][active_extruder]-Z_SIGMA_PROBE_X_POINT,initial_y_pos-(distance_y*2), current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING) - z_at_pt_ref_r;
+	float z_at_pt_2_r = probe_pt(extruder_offset[X_AXIS][active_extruder]-Z_SIGMA_PROBE_X_POINT,initial_y_pos-(distance_y*3), current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING) - z_at_pt_ref_r;
+	float z_at_pt_1_r = probe_pt(extruder_offset[X_AXIS][active_extruder]-Z_SIGMA_PROBE_X_POINT,initial_y_pos-(distance_y*4), current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING) - z_at_pt_ref_r;
+	clean_up_after_endstop_move();
+	
+	
+	//Serial.print(F("LINEA 5 (0.35): "));
+	//Serial.println(z_at_pt_5_r);
+	//Serial.print(F("LINEA 4 (0.275): "));
+	//Serial.println(z_at_pt_4_r);
+	//Serial.print(F("LINEA 3 (0.2): "));
+	//Serial.println(z_at_pt_3_r);
+	//Serial.print(F("LINEA 2 (0.125): "));
+	//Serial.println(z_at_pt_2_r);
+	//Serial.print(F("LINEA 1 (0.05): "));
+	//Serial.println(z_at_pt_1_r);
+	current_position[Z_AXIS]+= 2;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+	st_synchronize();
+	
+	if(gif_processing_state == PROCESSING_ERROR) return 1999;
+	home_axis_from_code(true,true,false);
+	if(gif_processing_state == PROCESSING_ERROR) return 1999;
+	doblocking = false;
+	//SELECT LINES SCREEN
+	gif_processing_state = PROCESSING_STOP;
+	changeTool(tool);
+	
+	// EL DECISOR
+	
+	//Principo de coherencia
+	
+	//izquierda
+	bool flag_coherence = false;
+	
+	if(z_at_pt_1 < z_at_pt_2 && z_at_pt_2 < z_at_pt_3 && z_at_pt_3 < z_at_pt_4 && z_at_pt_4 < z_at_pt_5){
+		//Serial.println(F("Hay coherencia en la izquierda"));
+		}else {
+		flag_coherence = true;
+		//Serial.println(F("No hay coherencia en la izquierda"));
+		
+	}
+	
+	if(z_at_pt_1_r< z_at_pt_2_r && z_at_pt_2_r < z_at_pt_3_r && z_at_pt_3_r < z_at_pt_4_r && z_at_pt_4_r < z_at_pt_5_r){
+		//Serial.println(F("Hay coherencia en la derecha"));
+		
+		}else {
+		flag_coherence = true;
+		//Serial.println(F("No hay coherencia en la derecha"));
+	}
+	
+	// Revisando alturas
+	byte flag_acceptable = 0x00;
+	float resultados_aceptablilidad[5];
+	float max_margin, min_margin;
+	if(flag_coherence){
+		max_margin = 0.3;
+		min_margin = 0.1;
+	}else{
+		max_margin = 0.25;
+		min_margin = 0.15;
+	}
+	resultados_aceptablilidad[4]=(z_at_pt_5 + z_at_pt_5_r)/2;
+	resultados_aceptablilidad[3]=(z_at_pt_4 + z_at_pt_4_r)/2;
+	resultados_aceptablilidad[2]=(z_at_pt_3 + z_at_pt_3_r)/2;
+	resultados_aceptablilidad[1]=(z_at_pt_2 + z_at_pt_2_r)/2;
+	resultados_aceptablilidad[0]=(z_at_pt_1 + z_at_pt_1_r)/2;
+	//Serial.println(resultados_aceptablilidad[4]);
+	//Serial.println(resultados_aceptablilidad[3]);
+	//Serial.println(resultados_aceptablilidad[2]);
+	//Serial.println(resultados_aceptablilidad[1]);
+	//Serial.println(resultados_aceptablilidad[0]);
+	
+	if(resultados_aceptablilidad[4] < max_margin && resultados_aceptablilidad[4] > min_margin){
+		bitSet(flag_acceptable,5);
+	}else {if(repeat)resultados_aceptablilidad[4]=0.0;}
+	if(resultados_aceptablilidad[3] < max_margin && resultados_aceptablilidad[3] > min_margin){
+		bitSet(flag_acceptable,4);
+	}else {if(repeat)resultados_aceptablilidad[3]=0.0;}
+	if(resultados_aceptablilidad[2] < max_margin && resultados_aceptablilidad[2] > min_margin){
+		bitSet(flag_acceptable,3);
+	}else {if(repeat)resultados_aceptablilidad[2]=0.0;}
+	if(resultados_aceptablilidad[1] < max_margin && resultados_aceptablilidad[1] > min_margin){
+		bitSet(flag_acceptable,2);
+	}else {if(repeat)resultados_aceptablilidad[1]=0.0;}
+	if(resultados_aceptablilidad[0] < max_margin && resultados_aceptablilidad[0] > min_margin){
+		bitSet(flag_acceptable,1);
+	}else {if(repeat)resultados_aceptablilidad[0]=0.0;}
+		
+	if(!flag_acceptable){
+		if(resultados_aceptablilidad[4] < max_margin && resultados_aceptablilidad[4] > min_margin){
+			bitSet(flag_acceptable,5);
+		}else resultados_aceptablilidad[4]=0.0;
+		if(resultados_aceptablilidad[3] < max_margin && resultados_aceptablilidad[3] > min_margin){
+			bitSet(flag_acceptable,4);
+		}else resultados_aceptablilidad[3]=0.0;
+		if(resultados_aceptablilidad[2] < max_margin && resultados_aceptablilidad[2] > min_margin){
+			bitSet(flag_acceptable,3);
+		}else resultados_aceptablilidad[2]=0.0;
+		if(resultados_aceptablilidad[1] < max_margin && resultados_aceptablilidad[1] > min_margin){
+			bitSet(flag_acceptable,2);
+		}else resultados_aceptablilidad[1]=0.0;
+		if(resultados_aceptablilidad[0] < max_margin && resultados_aceptablilidad[0] > min_margin){
+			bitSet(flag_acceptable,1);
+		}else resultados_aceptablilidad[0]=0.0;
+		
+		if(flag_acceptable) flag_coherence = true;
+	}
+	
+	
+	if(!flag_acceptable){
+		//Serial.println(F("Ninguna linea es aceptable"));
+		return 1999;
+		}else{
+		//Serial.println(F("Buscando la mejor linea"));
+		
+		float bestresultado = resultados_aceptablilidad[0];
+		uint8_t linebest = 1;
+		for (int k=1; k<5;++k){
+			if(abs(bestresultado-0.2) > abs(resultados_aceptablilidad[k]-0.2)){bestresultado = resultados_aceptablilidad[k]; linebest = k+1;}
+		}
+		Serial.print(F("Best line:  "));
+		Serial.println(linebest);
+		Serial.println(resultados_aceptablilidad[linebest-1]);
+		int retorno = round((0.2 - resultados_aceptablilidad[linebest-1])/0.05) + linebest-3;
+		Serial.println(retorno);
+		if(flag_coherence && repeat){
+			return 1999;
+		}else if(flag_coherence){
+			
+			return retorno;
+		}
+		float compensacion = 0.0;
+		
+		switch(linebest){
+			
+			case 5:
+			
+			compensacion = (float)-layer_increment*(2+z_offset);
+			
+			break;
+			
+			case 4:
+			
+			compensacion = (float)-layer_increment*(1+z_offset);
+			
+			break;
+			
+			case 2:
+			
+			compensacion = (float)layer_increment*(1+z_offset);
+			
+			break;
+			
+			case 1:
+			
+			compensacion = (float)layer_increment*(2+z_offset);
+			
+			break;
+			
+			default:
+			compensacion = (float)layer_increment*z_offset;
+			break;
+		}
+		
+		compensacion = compensacion + (resultados_aceptablilidad[linebest-1] - 0.2);
+		Serial.print(F("Compensacion "));
+		Serial.println(compensacion);
+		if(tool == LEFT_EXTRUDER){
+			Full_calibration_ZL_set(compensacion);
+		}
+		else {
+			Full_calibration_ZR_set(compensacion);
+		}
+		return 2999;
+	}
+	
+	
+	// FINAL
+	
+	
+	
+	
+	
+	/*
+	if(tool == LEFT_EXTRUDER){
+	setTargetHotend0(CALIBFULL_HOTEND_STANDBY_TEMP);
+	display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZL,0);
+	}else if(tool == RIGHT_EXTRUDER){
+	setTargetHotend1(CALIBFULL_HOTEND_STANDBY_TEMP);
+	display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZR,0);
+	}*/
+	
 }
+
+#endif
+
+
 
 void bed_test_print_code(float x_offset, float y_offset, int zline){
 
@@ -8894,61 +10008,61 @@ void bed_test_print_code(float x_offset, float y_offset, int zline){
 	current_position[E_AXIS]+=15;  //0.5 + 0.15 per ajustar una bona alçada
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	current_position[Z_AXIS]=2; //0.5 + 0.15 per ajustar una bona alçada
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	current_position[E_AXIS]-=4;
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_G36/60,active_extruder);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
 	
 	//SKIRT_v2
 	//Positioning
 	current_position[Y_AXIS] = 280 + y_offset;
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + 118 + x_offset;
 	#else
 	current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + 118 + x_offset + X_OFFSET_BEDCOMPENSATION_PROCEDURE;
 	#endif
-	current_position[Z_AXIS] = 0.2;
+	current_position[Z_AXIS] = LINES_LAYER_HEIGHT_XY;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],200,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	current_position[E_AXIS]+=4.1;
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_G36/60,active_extruder);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	//start print the skirt
-	current_position[Y_AXIS] = 230 + y_offset; current_position[E_AXIS] += extrusion_multiplier(280-230);
+	current_position[Y_AXIS] = 230 + y_offset; current_position[E_AXIS] += extrusion_multiplier(280-230, LINES_LAYER_HEIGHT_XY);
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	ERROR_SCREEN_WARNING2;
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + 92 + x_offset;
 	#else
 	current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + 92 + x_offset + X_OFFSET_BEDCOMPENSATION_PROCEDURE;
 	#endif
-	current_position[E_AXIS] += extrusion_multiplier(118-92);
+	current_position[E_AXIS] += extrusion_multiplier(118-92, LINES_LAYER_HEIGHT_XY);
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	current_position[Y_AXIS] = 280 + y_offset; current_position[E_AXIS] += extrusion_multiplier(280-230);
+	ERROR_SCREEN_WARNING2;
+	current_position[Y_AXIS] = 280 + y_offset; current_position[E_AXIS] += extrusion_multiplier(280-230, LINES_LAYER_HEIGHT_XY);
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	ERROR_SCREEN_WARNING2;
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + 118 + x_offset;
 	#else
 	current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + 118 + x_offset + X_OFFSET_BEDCOMPENSATION_PROCEDURE;
 	#endif
-	current_position[E_AXIS] += extrusion_multiplier(118-92);
+	current_position[E_AXIS] += extrusion_multiplier(118-92, LINES_LAYER_HEIGHT_XY);
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	current_position[E_AXIS]-=4;
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_G36/60,active_extruder);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	
 	
 	
@@ -8960,7 +10074,7 @@ void bed_test_print_code(float x_offset, float y_offset, int zline){
 	float initial_z_pos = 0.4 + 0.1*zline;
 	//float z_layer_test = 0.2;
 	
-	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	current_position[X_AXIS] = initial_x_pos;
 	#else
 	current_position[X_AXIS] = initial_x_pos + X_OFFSET_BEDCOMPENSATION_PROCEDURE;
@@ -8969,23 +10083,23 @@ void bed_test_print_code(float x_offset, float y_offset, int zline){
 	current_position[Z_AXIS]= initial_z_pos;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],200,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	for(int i = 1; i<=5;i++){
 		
 		current_position[E_AXIS]+= 4.1;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_G36/60,active_extruder);
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
 		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
-		current_position[Y_AXIS] = initial_y_pos-distance_y;  current_position[E_AXIS]+=extrusion_multiplier(distance_y);
+		ERROR_SCREEN_WARNING2;
+		current_position[Y_AXIS] = initial_y_pos-distance_y;  current_position[E_AXIS]+=extrusion_multiplier(distance_y, LINES_LAYER_HEIGHT_XY);
 		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
+		ERROR_SCREEN_WARNING2;
 		current_position[E_AXIS]-=4;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_G36/60,active_extruder);
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
 		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return;
+		ERROR_SCREEN_WARNING2;
 		if(i != 5){
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
+			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 			current_position[X_AXIS] = initial_x_pos+(distance_x*i);
 			#else
 			current_position[X_AXIS] = initial_x_pos+(distance_x*i) + X_OFFSET_BEDCOMPENSATION_PROCEDURE;
@@ -8994,7 +10108,7 @@ void bed_test_print_code(float x_offset, float y_offset, int zline){
 			current_position[Z_AXIS]-= 0.1;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],200,active_extruder);
 			st_synchronize();
-			if(gif_processing_state == PROCESSING_ERROR) return;
+			ERROR_SCREEN_WARNING2;
 		}
 	}
 	
@@ -9003,7 +10117,7 @@ void bed_test_print_code(float x_offset, float y_offset, int zline){
 	current_position[Z_AXIS]+= 2;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],40,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return;
+	ERROR_SCREEN_WARNING2;
 	home_axis_from_code(true, true, false);
 }
 
@@ -9023,8 +10137,8 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 	#endif
 	
 	saved_feedrate = feedrate;
-	saved_feedmultiply = feedmultiply;
-	feedmultiply = 100;
+	saved_feedmultiply[active_extruder] = feedmultiply[active_extruder];
+	feedmultiply[active_extruder] = 100;
 	previous_millis_cmd = millis();
 	HeaterCooldownInactivity(false);
 	enable_endstops(true); //Activate endstops
@@ -9134,16 +10248,18 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
 		}
 		feedrate = SIGMA_Z_HOME_TRAVEL_SPEED;
-		current_position[Z_AXIS] = 0;
+		
 		destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
-		destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+		if(!home_made_Z) current_position[Z_AXIS] = 0;
+		else Serial.println("Safe Home");
+		destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING;    // Set destination away from bed
 		destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
 		
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 		
-		plan_buffer_line(current_position[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);//Left Extruder
+		plan_buffer_line(current_position[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
 		st_synchronize();
-		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);//Left Extruder
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
 		st_synchronize();
 		
 		current_position[X_AXIS] = destination[X_AXIS];
@@ -9254,7 +10370,7 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 	#endif
 
 	feedrate = saved_feedrate;
-	feedmultiply = saved_feedmultiply;
+	feedmultiply[active_extruder] = saved_feedmultiply[active_extruder];
 	previous_millis_cmd = millis();
 	endstops_hit_on_purpose();
 

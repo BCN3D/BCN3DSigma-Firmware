@@ -2,7 +2,7 @@
 // License: GPL
 /*
 - Marlin.h - 
-Last Update: 15/01/2018
+Last Update: 01/08/2018
 Author: Alejandro Garcia (S3mt0x)
 */
 #ifndef MARLIN_H
@@ -26,7 +26,7 @@ Author: Alejandro Garcia (S3mt0x)
 #include "Configuration.h"
 #include "cardreader.h"
 #include "pins.h"
-
+#include "BCN3D_customregisters.h"
 #include "genieArduino.h"
 
 //#ifndef AT90USB
@@ -70,6 +70,8 @@ Author: Alejandro Garcia (S3mt0x)
 #define screen_printing_pause_form0		'A'
 #define screen_printing_pause_form1		'B'
 #define screen_printing_pause_form2		'C'
+#define screen_printing_pause_form3		'D'
+
 
 #define SERIAL_CHAR(x) ((void)MYSERIAL.write(x))
 #define SERIAL_EOL() SERIAL_CHAR('\n')
@@ -229,7 +231,8 @@ extern bool home_made;
 extern bool home_made_Z;
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
-extern int feedmultiply;
+extern float hotend_size_setup[EXTRUDERS];
+extern int feedmultiply[EXTRUDERS];
 extern int extrudemultiply; // Sets extrude multiply factor (in percent) for all extruders
 extern int extruder_multiply[EXTRUDERS]; // sets extrude multiply factor (in percent) for each extruder individually
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
@@ -253,6 +256,7 @@ extern float bed_offset_left_screw;
 extern float bed_offset_right_screw;
 extern unsigned int bed_offset_version;
 extern int flag_utilities_calibration_zcomensationmode_gauges;
+extern int flag_utilities_maintenance_changehotend;
 extern int fanSpeed;
 extern int Flag_fanSpeed_mirror;
 #ifdef BARICUDA
@@ -296,10 +300,17 @@ extern void digipot_i2c_set_current( int channel, float current );
 extern void digipot_i2c_init();
 #endif
 
-//Rapduch
-extern Genie genie;
+
+extern Genie display;
+
+#define display_ButtonState(x,y)	{if(x>=300){display.WriteObject(GENIE_OBJ_4DBUTTON, constrain(x-300,0,255), y);}else{display.WriteObject(GENIE_OBJ_USERBUTTON, constrain(x,0,255), y);}}
+#define display_ChangeForm(x,y)		(display.WriteObject(GENIE_OBJ_FORM, x, y))
+#define display_SetFrame(x,y)		(display.WriteObject(GENIE_OBJ_VIDEO, x, y))
+#define ERROR_SCREEN_WARNING		if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
+#define ERROR_SCREEN_WARNING2		if(gif_processing_state == PROCESSING_ERROR){ return;}
 void touchscreen_update();
 extern bool flag_ending_gcode;
+extern int fanSpeed_offset[EXTRUDERS];
 extern uint16_t filepointer;
 extern int8_t saved_active_extruder;
 extern String screen_status;
@@ -307,13 +318,18 @@ extern bool waiting_temps;
 extern int UI_SerialID0;
 extern long UI_SerialID1;
 extern int UI_SerialID2;
+extern int UI_registercode;
+extern bool notice_registercode;
 extern bool surfing_utilities;
 extern bool screen_sdcard;
 extern bool surfing_temps;
 extern bool is_on_printing_screen;
 extern long time_inactive_extruder[2];
 extern uint8_t which_extruder;
+extern int8_t which_extruder_setup;
+extern int8_t which_hotend_setup[2];
 extern char filament_mode;
+extern bool is_checking_filament;
 extern bool is_changing_filament;
 extern bool is_purging_filament;
 extern int getBuflen();
@@ -350,6 +366,7 @@ extern char gif_processing_state;
 extern uint8_t processing_z_set;
 extern bool printing_error_temps;
 extern int FLAG_First_Start_Wizard;
+extern int FLAG_Printer_Setup_Assistant;
 extern bool FLAG_thermal_runaway;
 extern bool FLAG_thermal_runaway_screen;
 extern int ID_thermal_runaway;
@@ -360,7 +377,11 @@ extern bool back_home;
 extern bool cancel_heatup;
 //extern int quick_guide_step;
 //extern unsigned long previous_millis_cmd;
+#if PATTERN_Z_CALIB == 0
 extern void z_test_print_code(int tool, float x_offset);
+#else
+extern int z_test_print_code(int tool, float x_offset, int z_offset, bool repeat);
+#endif
 extern void bed_test_print_code(float x_offset, float y_offset, int zline);
 extern bool heatting;
 extern char namefilegcode[24];
@@ -397,7 +418,8 @@ extern long saved_fileposition;
 extern int saved_temp1;
 extern int saved_temp0;
 extern int saved_tempbed;
-extern int saved_feedmulti;
+extern int saved_feedmulti0;
+extern int saved_feedmulti1;
 extern int saved_fanlayer;
 extern int saved_print_flag;	
 extern bool saved_print_smartpurge_flag;
@@ -415,9 +437,6 @@ extern void PID_autotune_Save(float temp, int extruder, int ncycles, float K_p);
 extern void Config_Reset_Calib();
 extern void Config_StoreSettings();
 extern bool doblocking;
-extern int preheat_E0_value;
-extern int preheat_E1_value;
-extern int preheat_B_value;
 
 //////// PRINT STATS ////////
 
@@ -435,18 +454,21 @@ extern int long long log_X1_mmdone;
 extern int long long log_Y_mmdone;
 extern int long long log_E0_mmdone;
 extern int long long log_E1_mmdone;
-
+extern int long log_XY_distance;
+extern int long log_XY_distanceRegist;
 //////// end PRINT STATS ////////
 
+//////// start check filament ///////
+extern bool Flag_checkfil;
+extern bool Flag_FRS_enabled;
+extern uint8_t which_extruder_needs_fil;
+extern int target_temperature_check_filament_cooldown_save[EXTRUDERS];
+//////// end check filament ////////
+
+extern uint16_t led_brightness;
 extern char screen_printing_pause_form;
-extern bool screen_change_nozz1up;
-extern bool screen_change_nozz2up;
-extern bool screen_change_bedup;
-extern bool screen_change_speedup;
-extern bool screen_change_nozz1down;
-extern bool screen_change_nozz2down;
-extern bool screen_change_beddown;
-extern bool screen_change_speeddown;
+extern uint32_t screen_change_register;
+
 extern void set_dual_x_carriage_mode(int mode);
 extern int get_dual_x_carriage_mode();
 extern void set_duplicate_extruder_x_offset(int offset);

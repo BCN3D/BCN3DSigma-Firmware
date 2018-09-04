@@ -1,6 +1,6 @@
 /*
 LCD_Handler.h - A place to hold all interactions between LCD and printer. It is called from Marlin_main.cpp when using genie.DoEvents().
-Last Update: 15/01/2018
+Last Update: 01/08/2018
 Author: Alejandro Garcia (S3mt0x)
 */
 
@@ -24,39 +24,64 @@ void myGenieEventHandler();
 void myGenieEventHandler(void) //Handler for the do.Events() function
 {
 	genieFrame Event;
-	genie.DequeueEvent(&Event);
+	display.DequeueEvent(&Event);
 	//static long waitPeriod = millis();
 	
 	//If the cmd received is from a Reported Event (Events triggered from the Events tab of Workshop4 objects)
 	if (Event.reportObject.cmd == GENIE_REPORT_EVENT)
 	{
 		
-		if (Event.reportObject.object == GENIE_OBJ_USERBUTTON) //Userbuttons to select GCODE from SD
+		//USERBUTTONS------------------------------------------------------
+		if (Event.reportObject.object == GENIE_OBJ_USERBUTTON) //Userbuttons 
 		{
 			if(!lcd_busy)LCD_FSM_input_buton_flag = Event.reportObject.index;
 		}
-		//USERBUTTONS------------------------------------------------------
-
+		//4DBUTTONS------------------------------------------------------
+		if (Event.reportObject.object == GENIE_OBJ_4DBUTTON) //4Dbuttons 
+		{
+			if(!lcd_busy)LCD_FSM_input_buton_flag = 300 + Event.reportObject.index;
+		}
+		//SLIDER------------------------------------------------------
+		if (Event.reportObject.object == GENIE_OBJ_ISMARTSLIDER) //SLIDER
+		{	
+			led_brightness = (Event.reportObject.data_msb << 8) + Event.reportObject.data_lsb;	
+					
+			switch(Event.reportObject.index){
+								
+				case SMARTSLIDER_PRINTERSETUP_LED_BRIGHTNESS:
+				
+				Serial.print(F("BRIGHTNESS: "));
+				Serial.println(led_brightness);
+				analogWrite(RED,led_brightness);
+				analogWrite(GREEN,led_brightness);
+				analogWrite(BLUE,led_brightness);
+				
+				break;
+				
+				default:
+				break;
+			}
+		}
 		
 		//FORMS--------------------------------------------------------
 		if (Event.reportObject.object == GENIE_OBJ_FORM)
 		{
-			char buffer[256];
+			
 			switch(Event.reportObject.index){
-				
+				/*
 				case FORM_SDLIST:
-					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_SDLIST_FOLDERBACK,0);
-					genie.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_SDLIST_FOLDERFILE,0);
+					display_ButtonState( BUTTON_SDLIST_FOLDERBACK,0);
+					display.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_SDLIST_FOLDERFILE,0);
 					screen_sdcard = true;
-					flag_sdlist_goinit = true;
+					bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_goinit);
 				break;
-				
+				*/
 				case FORM_SDPRINTING:
 					
 					is_on_printing_screen = true;
 					surfing_utilities = false;
-					genie.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);
-					flag_sdprinting_dararefresh = true;
+					display.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);
+					bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
 				break;
 				
 				case FORM_MAIN:
@@ -82,34 +107,19 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					SERIAL_PROTOCOLPGM("Purge Filament\n");
 					if(purge_extruder_selected == 0) {
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_UTILITIES_FILAMENT_PURGE_SELECT0,1);
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_UTILITIES_FILAMENT_PURGE_SELECT1,0);
+						display_ButtonState(BUTTON_UTILITIES_FILAMENT_PURGE_SELECT0,1);
+						display_ButtonState(BUTTON_UTILITIES_FILAMENT_PURGE_SELECT1,0);
 					}
 					else {
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_UTILITIES_FILAMENT_PURGE_SELECT0,0);
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_UTILITIES_FILAMENT_PURGE_SELECT1,1);
+						display_ButtonState(BUTTON_UTILITIES_FILAMENT_PURGE_SELECT0,0);
+						display_ButtonState(BUTTON_UTILITIES_FILAMENT_PURGE_SELECT1,1);
 					}
-					
-					sprintf_P(buffer, PSTR("%3d %cC"),int(degHotend(0)),0x00B0);
-					genie.WriteStr(STRING_UTILITIES_FILAMENT_PURGE_LEFTTARGET,buffer);	Serial.println(buffer);
-					sprintf_P(buffer, PSTR("%3d %cC"),int(degHotend(1)),0x00B0);
-					genie.WriteStr(STRING_UTILITIES_FILAMENT_PURGE_RIGHTTARGET,buffer);	Serial.println(buffer);
+										
+					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_PURGE_LEFTTARGET,int(degHotend(0)));
+					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_PURGE_RIGHTTARGET,int(degHotend(1)));
 				break;
 				
-				case FORM_INFO_UI:
-					sprintf(buffer, "%s%s",VERSION_STRING,BUILD_DATE);
-					genie.WriteStr(STRING_INFO_UI_VERSION,buffer);
-					if(UI_SerialID0 || UI_SerialID1 || UI_SerialID2){
-						sprintf(buffer, "%03d.%03d%03d.%04d",UI_SerialID0, (int)(UI_SerialID1/1000),(int)(UI_SerialID1%1000), UI_SerialID2);
-						//sprintf(buffer, "%03d.%03d%03d.%04d",1020, 1151,1021, 10002);
-						genie.WriteStr(STRING_INFO_UI_SERIALID,buffer);
-						}else{
-						genie.WriteStr(STRING_INFO_UI_SERIALID,UI_SerialID);
-					}
-					sprintf(buffer, "%d h",log_hours_print);
-					//Serial.println(buffer);
-					genie.WriteStr(STRING_INFO_PRINTINGTIME,buffer);
-				break;
+				
 			}
 		}
 	}

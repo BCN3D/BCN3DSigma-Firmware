@@ -176,12 +176,12 @@
 #define E0_STEP_PIN		29
 #define E0_DIR_PIN		27
 #define E0_ENABLE_PIN	28
-//#define E0_STOP		//26
+#define E0_STOP		    26
 
 #define E1_STEP_PIN		57//A3
 #define E1_DIR_PIN		55//A1
 #define E1_ENABLE_PIN	56//A2
-//#define E1_STOP		 //A0
+#define E1_STOP		    A0
 
 #define Z_STEP_PIN		25
 #define Z_DIR_PIN		23

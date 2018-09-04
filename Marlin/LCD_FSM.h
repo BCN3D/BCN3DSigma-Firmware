@@ -1,6 +1,6 @@
 /*
 - LCD_FSM.h - A class that manages the FSM related with some printer process
-Last Update: 15/01/2017
+Last Update: 01/08/2018
 Author: Alejandro Garcia (S3mt0x)
 */
 #ifndef _LCD_FSM_h
@@ -21,7 +21,7 @@ Author: Alejandro Garcia (S3mt0x)
 #include "temperature.h"
 #include "SD_ListFiles.h"
 #include "language.h"
-
+#include "BCN3D_customregisters.h"
 
 
 
@@ -47,51 +47,21 @@ extern void update_screen_noprinting();
 //inline void ListFileSelect5();
 extern void setfoldernames(int jint);
 extern void folder_navigation_register(bool upchdir);
-extern bool flag_utilities_maintenance_nyloncleaning;
-extern bool flag_utilities_maintenance_autotune;
-extern bool flag_utilities_filament_home;
-extern bool flag_utilities_filament_acceptok;
-extern bool flag_utilities_filament_purgeselect0;
-extern bool flag_utilities_filament_purgeselect1;
-extern bool flag_utilities_filament_purgeload;
-extern bool flag_utilities_filament_purgeunload;
-extern bool flag_utilities_calibration_calibfull;
-extern bool flag_utilities_calibration_calibfull_skipZcalib;
-extern bool flag_utilities_calibration_calibbeddone;
-extern bool flag_utilities_calibration_bedcomensationmode;
 extern bool flag_temp_gifhotent0;
 extern bool flag_temp_gifhotent1;
 extern bool flag_temp_gifbed;
-extern bool flag_sdprinting_pausepause;
-extern bool flag_sdprinting_printstop;
-extern bool flag_sdprinting_printsavejob;
-extern bool flag_sdprinting_printpause;
-extern bool flag_sdprinting_printresume;
-extern bool flag_sdprinting_pauseresume;
-extern bool flag_sdprinting_settings;
-extern bool flag_sdprinting_showdata;
-extern bool flag_sdprinting_dararefresh;
-extern bool flag_sdprinting_printsavejobcommand;
-extern bool flag_sdlist_filesupdown;
-extern bool flag_sdlist_select0;
-extern bool flag_sdlist_select1;
-extern bool flag_sdlist_select2;
-extern bool flag_sdlist_select3;
-extern bool flag_sdlist_select4;
-extern bool flag_sdlist_select5;
-extern bool flag_sdlist_godown;
-extern bool flag_sdlist_goup;
-extern bool flag_sdlist_goinit;
-extern bool flag_sdlist_gofolderback;
-extern bool flag_maintenance_zdjust100up;
-extern bool flag_maintenance_zdjust10up;
-extern bool flag_maintenance_zdjust100down;
-extern bool flag_maintenance_zdjust10down;
 extern bool lcd_busy;
+extern uint16_t flag_sdprinting_register;
+extern uint8_t flag_utilities_filament_register;
+extern uint8_t flag_utilities_maintenance_register;
+extern uint16_t flag_sdlist_resgiter;
+extern uint8_t flag_utilities_calibration_register;
 extern int raft_advise_accept_cancel;//0 cancel ; 1 accept
 extern int Temp_ChangeFilament_Saved;
 extern int Tref1;
 extern int Tfinal1;
+extern int calib_confirmation;
+extern int8_t calib_zxy;
 extern int  print_setting_tool;
 extern void Calib_check_temps(void);
 extern void Z_compensation_decisor(void);
@@ -99,7 +69,7 @@ extern void Full_calibration_ZL_set(float offset);
 extern void Full_calibration_ZR_set(float offset);
 extern void Full_calibration_X_set(float offset);
 extern void Full_calibration_Y_set(float offset);
-extern void Z_compensation_coolingdown(void);
+extern void Coolingdown_Shutdown(int mode);
 
 // Bed compensation
 extern void Bed_Compensation_Set_Lines(int jint);
@@ -111,6 +81,7 @@ extern uint8_t Bed_Compensation_state;// state 0: First Bed Calib, state 1: ZL C
 // end Bed compensation
 
 extern int redo_source;
+extern bool check_regiter_num(unsigned int n);
 extern void lcd_fsm_lcd_input_logic();
 extern void lcd_fsm_output_logic();
 extern long LCD_FSM_input_buton_flag;

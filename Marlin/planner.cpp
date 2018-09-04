@@ -516,18 +516,29 @@ void check_axes_activity()
   //Rapduch
   #if MOTHERBOARD == BCN3D_BOARD
   
-	if(extruder_duplication_enabled || extruder_duplication_mirror_enabled || (Flag_fanSpeed_mirror==1)){
+	if(extruder_duplication_enabled || extruder_duplication_mirror_enabled){
+		tail_fan_speed=constrain((((int)round((100.0*fanSpeed)/255.0)+fanSpeed_offset[LEFT_EXTRUDER])*255)/100,0,255);
 		analogWrite(FAN_PIN,tail_fan_speed);
 		analogWrite(FAN2_PIN,tail_fan_speed);
 	}
-	else{
+	else if(Flag_fanSpeed_mirror==1){
+		tail_fan_speed=constrain((((int)round((100.0*fanSpeed)/255.0)+fanSpeed_offset[LEFT_EXTRUDER])*255)/100,0,255);
+		analogWrite(FAN_PIN,tail_fan_speed);
+		tail_fan_speed=constrain((((int)round((100.0*fanSpeed)/255.0)+fanSpeed_offset[RIGHT_EXTRUDER])*255)/100,0,255);
+		analogWrite(FAN2_PIN,tail_fan_speed);
+	}
+	else
+	{
 		if (active_extruder == LEFT_EXTRUDER){
+			tail_fan_speed=constrain((((int)round((100.0*fanSpeed)/255.0)+(card.sdprinting?fanSpeed_offset[LEFT_EXTRUDER]:0))*255)/100,0,255);	
 			analogWrite(FAN_PIN,tail_fan_speed);
 			analogWrite(FAN2_PIN,0);
 		}
 		else if (active_extruder == RIGHT_EXTRUDER){
+			tail_fan_speed=constrain((((int)round((100.0*fanSpeed)/255.0)+ (card.sdprinting?fanSpeed_offset[RIGHT_EXTRUDER]:0))*255)/100,0,255);	
 			analogWrite(FAN_PIN,0);
 			analogWrite(FAN2_PIN,tail_fan_speed);
+			
 		}
 	}
 	
@@ -708,7 +719,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 	block->steps_z = labs(target[Z_AXIS]-position[Z_AXIS]);
 	block->steps_e = labs(target[E_AXIS]-position[E_AXIS]);
 	block->steps_e *= volumetric_multiplier[active_extruder];
-	block->steps_e *= extrudemultiply;
+	block->steps_e *= extruder_multiply[active_extruder];
 	block->steps_e /= 100;
 	block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
 
@@ -814,7 +825,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 			enable_e2(); 
 		}
 	}
-
 	if (block->steps_e == 0)
 	{
 		if(best_feedrate<mintravelfeedrate) best_feedrate=mintravelfeedrate;

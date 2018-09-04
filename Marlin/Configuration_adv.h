@@ -15,8 +15,11 @@
 // If the temperature has not increased at the end of that period, the target temperature is set to zero.
 // It can be reset with another M104/M109. This check is also only triggered if the target temperature and the current temperature
 //  differ by at least 2x WATCH_TEMP_INCREASE
-//#define WATCH_TEMP_PERIOD 40000 //40 seconds
-//#define WATCH_TEMP_INCREASE 10  //Heat up at least 10 degree in 20 seconds
+#define WATCH_TEMP_PERIOD 30000 //30 seconds
+#define WATCH_TEMP_INCREASE 10  //Heat up at least 10 degree in 30 seconds
+
+#define WATCH_BED_TEMP_PERIOD 60000 //60 seconds
+#define WATCH_BED_TEMP_INCREASE 2  //Heat up at least 2 degree in 60 seconds
 
 #ifdef PIDTEMP
   // this adds an experimental additional term to the heating power, proportional to the extrusion speed.

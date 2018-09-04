@@ -53,3 +53,5 @@ Debug/
 *.xml
 Marlin/__vm/Compile.vmps.xml
 *.xml
+
+Marlin/register_codes.h

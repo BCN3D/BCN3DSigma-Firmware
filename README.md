@@ -1,5 +1,5 @@
 ﻿# BCN3D Sigma Firmware based on Marlin
-![image](https://user-images.githubusercontent.com/17469944/33208531-37d92f5c-d112-11e7-83e0-91fad775a7ec.png)
+![image](https://user-images.githubusercontent.com/17469944/45097127-679ac200-b122-11e8-9a7a-f060e23c3201.jpg)
 
 This is the repository that contains the firmware for the BCN3D Sigma 3D Printer. It's based on the well-known Marlin but with some modifications.
 
@@ -13,10 +13,13 @@ Please refer to the [wiki][8] in order to get instructions on how to upgrade the
 ## Features
 
 - Dual independent X extruders.
+- Duplication & Mirror modes.
 - Autolevel, autocalibration of XYZ axis.
 - LCD Touchscreen support.
-- Insert/Remove filament
+- Shims installation assisted.
+- Load/Unload filament.
 - Refined firmware for better printing experience.
+- Filament Runout Sensor.
 
 This firmware was first developed by [Jordi Calduch][1] then was [Xavier Gómez][2] and now the current developer is [Alejandro Garcia][6] at [BCN3D Technologies][3]. This firmware is a rework of the popular [Marlin][4].
 
@@ -45,9 +48,9 @@ The `master` branch is stable  and it's currently on version `2.0.2`.
 
 [1]:https://github.com/dryrain
 [2]:https://github.com/xawox
-[3]:http://www.bcn3dtechnologies.com/
+[3]:https://www.bcn3dtechnologies.com/
 [4]:https://github.com/MarlinFirmware/Marlin
-[5]:https://github.com/BCN3D/BCN3D-Cura-Windows/wiki/Updating-the-SD-Files-from-the-LCD-Display
+[5]:https://www.bcn3dtechnologies.com/wp-content/themes/BCN3D/pdfs/how-to-change-the-micro-sd-card-files-of-the-lcd-screen.pdf
 [6]:https://github.com/AlejandroGarcia92
 [7]:https://github.com/BCN3D/BCN3DSigma-Firmware/releases
 [8]:https://github.com/BCN3D/BCN3D-Cura-Windows/wiki

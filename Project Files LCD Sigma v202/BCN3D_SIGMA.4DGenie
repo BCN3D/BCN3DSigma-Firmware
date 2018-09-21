@@ -9245,7 +9245,7 @@ UserButton
     Stretch                      No
     Top                          257
     Width                        480
-    OnChanged                    ''
+    OnChanged                    'Report Message'
 end
 UserButton
     Name                         Userbutton58

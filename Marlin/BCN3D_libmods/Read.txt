@@ -1,0 +1,1 @@
+Library modified at <{Arduino directory}\hardware\arduino\avr\cores\arduino>

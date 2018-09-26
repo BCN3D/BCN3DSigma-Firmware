@@ -380,7 +380,7 @@ extern bool cancel_heatup;
 #if PATTERN_Z_CALIB == 0
 extern void z_test_print_code(int tool, float x_offset);
 #else
-extern int z_test_print_code(int tool, float x_offset, int z_offset, bool repeat);
+extern int z_test_print_code(int tool, int z_offset, bool repeat);
 #endif
 extern void bed_test_print_code(float x_offset, float y_offset, int zline);
 extern bool heatting;

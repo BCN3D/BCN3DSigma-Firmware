@@ -25,7 +25,7 @@
 // example_configurations/SCARA directory.
 //
 
-#define BUILD_DATE  "|M09.26"
+#define BUILD_DATE  "|M09.27"
 //#define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
 //#define DEFAULT_QUICK_GUIDE  0;
@@ -837,10 +837,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define BOWDEN_LENGTH 1100
 #endif
 #define PURGE_LENGHT_UNLOAD 25
-#define PURGE_SPEED_UNLOAD 400.0
+#define PURGE_SPEED_UNLOAD 450.0
 #define EXTRUDER_LENGTH 50
 #define INSERT_FAST_SPEED 3600.0	//max speed 60mm/s R16/R17
-#define INSERT_FAST_R18_SPEED 2400.0	//max speed 40mm/s R18
+#define INSERT_FAST_R19_SPEED 2400.0	//max speed 40mm/s R18
 #define INSERT_SLOW_SPEED	150.0
 #define REMOVE_FIL_TEMP		170
 #define INSERT_FIL_TEMP		230

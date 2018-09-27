@@ -707,7 +707,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				ERROR_SCREEN_WARNING;
 				current_position[E_AXIS] += ((BOWDEN_LENGTH-EXTRUDER_LENGTH)-15);//BOWDEN_LENGTH-300+340);
 				if (axis_steps_per_unit[E_AXIS]<=493 && axis_steps_per_unit[E_AXIS]>=492){
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_R18_SPEED/60, which_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_R19_SPEED/60, which_extruder);
 					}else{
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
 				}
@@ -2235,7 +2235,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				st_synchronize();
 				Serial.println(current_position[E_AXIS]);
 				if (axis_steps_per_unit[E_AXIS]<=493 && axis_steps_per_unit[E_AXIS]>=492){
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_R18_SPEED/60, which_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_R19_SPEED/60, which_extruder);
 				}else{
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
 				}
@@ -2800,6 +2800,8 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			else if(printer_state == STATE_AUTOTUNEPID){
 				if(flag_utilities_maintenance_changehotend == 3888){
 					display_ChangeForm( FORM_PRINTERSETUP_CHANGEHOTEND_CALIBRATION, 0);
+					flag_utilities_maintenance_changehotend = 888;
+					Config_StoreSettings();
 					printer_state = STATE_NONE;
 				}
 			}
@@ -4379,7 +4381,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			#endif
 			case BUTTON_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_BACK:			
 			case BUTTON_PRINTERSETUP_PRINTERCONFIG:
-			if(FLAG_Printer_Setup_Assistant != 888 && flag_utilities_maintenance_changehotend == 888){
+			if(FLAG_Printer_Setup_Assistant != 888 && flag_utilities_maintenance_changehotend != 1888 && flag_utilities_maintenance_changehotend != 2888){
 			if (axis_steps_per_unit[E_AXIS]<=152.5 && axis_steps_per_unit[E_AXIS]>=151.5){
 				which_extruder_setup = 1;
 				}else if (axis_steps_per_unit[E_AXIS]<=493 && axis_steps_per_unit[E_AXIS]>=492){
@@ -4521,6 +4523,15 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 			case BUTTON_PRINTERSETUP_PRINTERCONFIG_FRS_2:
+			if(Flag_FRS_enabled){
+				Flag_FRS_enabled = false;
+				display_ButtonState(BUTTON_PRINTERSETUP_PRINTERCONFIG_FRS_2,0);
+				}else{
+				Flag_FRS_enabled = true;
+				display_ButtonState(BUTTON_PRINTERSETUP_PRINTERCONFIG_FRS_2,1);
+			}
+			Config_StoreSettings();
+			break;
 			#endif
 			case BUTTON_PRINTERSETUP_PRINTERCONFIG_FRS:
 			if(Flag_FRS_enabled){
@@ -4666,7 +4677,6 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_ADJUSTING_TEMPERATURES, percentage);
 			PID_autotune_Save(flag_utilities_maintenance_changehotend==1888?print_temp_l:print_temp_r, flag_utilities_maintenance_changehotend==1888?0:1, AUTOTUNE_ITERATIONS, 25.0);
 			flag_utilities_maintenance_changehotend = 3888;
-			Config_StoreSettings();
 			gif_processing_state = PROCESSING_STOP;
 			touchscreen_update();
 			display_ChangeForm( FORM_UTILITIES_CALIBRATION_SUCCESS, 0);
@@ -4854,7 +4864,22 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			case BUTTON_PRINTERSETUPASSISTANT_LHOTEND:
 			case BUTTON_PRINTERSETUPASSISTANT_RHOTEND:
 			case BUTTON_PRINTERSETUP_CHANGEHOTEND_ASK_YES:
-			
+				#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+				if(LCD_FSM_input_buton_flag == BUTTON_PRINTERSETUP_PRINTERCONFIG_LHOTEND || LCD_FSM_input_buton_flag == BUTTON_PRINTERSETUP_PRINTERCONFIG_LHOTEND_2){
+					display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_DESCRIPTION,0);
+					display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_HEADER,0);
+					display_ButtonState(BUTTON_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_SAVE,0);
+					display_ButtonState(BUTTON_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_BACK,0);
+					which_extruder = LEFT_EXTRUDER;
+				}
+				else if(LCD_FSM_input_buton_flag == BUTTON_PRINTERSETUP_PRINTERCONFIG_RHOTEND || LCD_FSM_input_buton_flag == BUTTON_PRINTERSETUP_PRINTERCONFIG_RHOTEND_2){
+					display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_DESCRIPTION,0);
+					display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_HEADER,1);
+					display_ButtonState(BUTTON_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_SAVE,0);
+					display_ButtonState(BUTTON_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_BACK,0);
+					which_extruder = RIGHT_EXTRUDER;
+				}
+				#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX 
 				if(LCD_FSM_input_buton_flag == BUTTON_PRINTERSETUP_PRINTERCONFIG_LHOTEND){
 					display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_DESCRIPTION,0);
 					display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_HEADER,0);
@@ -4869,6 +4894,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					display_ButtonState(BUTTON_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_BACK,0);
 					which_extruder = RIGHT_EXTRUDER;
 				}
+				#endif
 				else if(flag_utilities_maintenance_changehotend == 1888){
 					display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_DESCRIPTION,1);
 					display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PRINTERSETUP_PRINTERCONFIG_SELECTSIZE_HEADER,2);
@@ -7263,6 +7289,7 @@ void unloadfilament_procedure(void){//Removing...
 		display_ChangeForm(FORM_PROCESSING,0);
 		gif_processing_state = PROCESSING_DEFAULT;
 		
+		/*
 		current_position[E_AXIS] +=8;
 				
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);
@@ -7270,7 +7297,7 @@ void unloadfilament_procedure(void){//Removing...
 		current_position[E_AXIS] -=4;
 		
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_R18_SPEED/60, which_extruder);				
-		
+		*/
 		current_position[E_AXIS] +=PURGE_LENGHT_UNLOAD;
 		
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], PURGE_SPEED_UNLOAD/60, which_extruder);
@@ -7285,7 +7312,7 @@ void unloadfilament_procedure(void){//Removing...
 			
 		current_position[E_AXIS] -= (BOWDEN_LENGTH + EXTRUDER_LENGTH + PURGE_LENGHT_UNLOAD + 100);//Extra extrusion at fast feedrate
 		if (axis_steps_per_unit[E_AXIS]<=493 && axis_steps_per_unit[E_AXIS]>=492){
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_R18_SPEED/60, which_extruder);
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_R19_SPEED/60, which_extruder);
 			}else{
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
 		}

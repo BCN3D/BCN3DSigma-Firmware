@@ -215,11 +215,6 @@ inline void Listfiles::extract_data1(void){
 			calgramos = (float) 7.974264375 * calgramos;//filamentDensity = 1.25; distanceMultiplier = pi * (2.85/2)^2 * filamentDensity; grams = distanceFromGcodeInMeters * distanceMultiplier
 			filgramos1 = (int) round(calgramos);
 			
-			Serial.print("metros : ");
-			Serial.println(calgramos);
-			Serial.print("gramos : ");
-			Serial.println(filgramos1);
-			
 			}else{
 			sscanf_P(commandline, PSTR(";Filament used: %d.%dm %d.%dg"), &filmetros1, &filmetros2, &filgramos1, &filgramos2);
 			if(filgramos1 < 0){

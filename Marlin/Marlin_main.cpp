@@ -374,10 +374,8 @@ int ID_thermal_runaway = 0;
 
 uint16_t led_brightness = 255; //0-255
 
-#if PATTERN_Z_CALIB == 0
-
-void draw_print_line(uint8_t patternid, float y_destination, float layerh);
-#endif
+void draw_print_line(int8_t patternid, float y_destination, float layerh);
+void draw_print_line_scrirt(uint8_t axis, float y_destination);
 
 
 float hotend_size_setup[EXTRUDERS] = {BCN3D_NOZZLE_DEFAULT_SIZE
@@ -1131,7 +1129,7 @@ bool touchscreen_init(){
 		{
 			if (millis() >= waitPeriod){
 				
-				Serial.print(F("."));
+				Serial.println(F("."));
 				waitPeriod = 100+millis();
 			}
 		}
@@ -1228,7 +1226,7 @@ bool touchscreen_init(){
 				Config_ResetDefault();
 				FLAG_Printer_Setup_Assistant=888;
 				FLAG_First_Start_Wizard=888;
-				Config_StoreSettings();
+				Flag_FRS_enabled = false;
 			}
 			#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 			else if(230 > version_number){
@@ -1236,7 +1234,7 @@ bool touchscreen_init(){
 				Config_ResetDefault();
 				FLAG_Printer_Setup_Assistant=888;
 				FLAG_First_Start_Wizard=888;
-				Config_StoreSettings();
+				Flag_FRS_enabled = false;
 			}
 			#endif
 			else if(VERSION_NUMBER != version_number){
@@ -2785,9 +2783,9 @@ inline void gcode_G40(){
 	//1) Set temps and wait
 	setTargetHotend0(print_temp_l);
 	setTargetHotend1(print_temp_r);
-	 
+	
 	setTargetBed(max(bed_temp_l,bed_temp_r));
-	 
+	
 	doblocking = true;
 	while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)&& degBed()<(max(bed_temp_l,bed_temp_r)-2)){ //Waiting to heat the extruder
 		
@@ -2816,13 +2814,7 @@ inline void gcode_G40(){
 	gif_processing_state = PROCESSING_TEST;
 	
 	
-	float mm_second_extruder[NUM_LINES] = {-0.5, -0.4, -0.3, -0.2, -0.1 ,0 ,0.1, 0.2, 0.3, 0.4};
-	float mm_each_extrusion = 8;
-	float mm_left_offset = X_CALIB_STARTING_X;
-	float mm_left_lines_x_up = 271.5;
-	float mm_left_lines_x_down = 234;
-	float mm_right_lines_x_up = 233;
-	float mm_right_lines_x_down = 199.5;
+	
 	for (int i=0;(i<(NUM_LINES));i++)
 	{
 		if (i == 0){
@@ -2835,56 +2827,34 @@ inline void gcode_G40(){
 			#endif
 			current_position[Z_AXIS]=LINES_LAYER_HEIGHT_XY;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100, active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
+			
 			current_position[E_AXIS]+=(RETRACT_PRINTER_FACTOR+0.1);
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 1200/60, active_extruder);//Retract
 			st_synchronize();
 			ERROR_SCREEN_WARNING2;
-			//current_position[X_AXIS]=109.5; current_position[E_AXIS]+=((197.5-109.5)*1.05*(current_position[Z_AXIS]*0.3284/(0.188*29.402)));
-			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-			current_position[X_AXIS] = 109.5;
-			#else
-			current_position[X_AXIS] = 109.5 + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			current_position[E_AXIS]+= extrusion_multiplier(197.5-109.5, LINES_LAYER_HEIGHT_XY); ////////// (distance * flow * extrusion value)------- extrusion multiplier = 1.05*(current_position[Z_AXIS]*0.3284/(0.188*29.402))
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
-			current_position[Y_AXIS]=191.5; current_position[E_AXIS]+=extrusion_multiplier(275.5-191.5, LINES_LAYER_HEIGHT_XY);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
 			
-			current_position[X_AXIS]+=hotend_size_setup[active_extruder]; current_position[E_AXIS]+=extrusion_multiplier(hotend_size_setup[active_extruder], LINES_LAYER_HEIGHT_XY);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
-			current_position[Y_AXIS]=mm_left_lines_x_up; current_position[E_AXIS]+=extrusion_multiplier(mm_left_lines_x_up-191.5, LINES_LAYER_HEIGHT_XY);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
-			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-			current_position[X_AXIS] = mm_left_offset;
-			#else
-			current_position[X_AXIS] = mm_left_offset + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			current_position[E_AXIS]+=extrusion_multiplier(mm_left_offset-109.5, LINES_LAYER_HEIGHT_XY);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25, active_extruder);
+			draw_print_line_scrirt(X_AXIS, -88.0);
+
+			
+			draw_print_line_scrirt(Y_AXIS, -84.0);
+			
+			draw_print_line_scrirt(X_AXIS, hotend_size_setup[active_extruder]);
+			
+			draw_print_line_scrirt(Y_AXIS, 80.0);
+			
+			draw_print_line_scrirt(X_AXIS, 8.0-hotend_size_setup[active_extruder]);
+			
 			st_synchronize();
 			ERROR_SCREEN_WARNING2;
 		}
-		ERROR_SCREEN_WARNING2;
-		#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-		current_position[X_AXIS] = mm_left_offset+(mm_each_extrusion*i);
-		#else
-		current_position[X_AXIS] = mm_left_offset+(mm_each_extrusion*i) + X_OFFSET_CALIB_PROCEDURES;
-		#endif
-		current_position[E_AXIS]+=extrusion_multiplier(mm_each_extrusion, LINES_LAYER_HEIGHT_XY);
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25, active_extruder);//Move Y and extrude
+		
+		if (i != 0){
+			draw_print_line_scrirt(X_AXIS, 8.0 - hotend_size_setup[active_extruder]);
+		}
+		
+		draw_print_line(X_AXIS, -37.5 ,LINES_LAYER_HEIGHT_XY);
+		
 		st_synchronize();
-		
-		draw_print_line(X_AXIS,mm_left_lines_x_down-mm_left_lines_x_up,LINES_LAYER_HEIGHT_XY);
-		
 		ERROR_SCREEN_WARNING2;
 		
 	}
@@ -2892,7 +2862,7 @@ inline void gcode_G40(){
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60 , active_extruder);
 	st_synchronize();
 	ERROR_SCREEN_WARNING2;
-		
+	
 	gcode_T0_T1_auto(RIGHT_EXTRUDER);
 	
 	current_position[Z_AXIS]=2;
@@ -2918,98 +2888,39 @@ inline void gcode_G40(){
 	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	current_position[X_AXIS] = 197.5;
 	#else
-	current_position[X_AXIS] =197.5 + X_OFFSET_CALIB_PROCEDURES;
+	current_position[X_AXIS] = 197.5 + X_OFFSET_CALIB_PROCEDURES;
 	#endif
 	current_position[Z_AXIS]=LINES_LAYER_HEIGHT_XY;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100 , active_extruder);
-	st_synchronize();
-	ERROR_SCREEN_WARNING2;
+	
 	current_position[E_AXIS]+=(RETRACT_PRINTER_FACTOR+0.1);
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60 , active_extruder);
 	st_synchronize();
 	ERROR_SCREEN_WARNING2;
-	current_position[Y_AXIS] = 191.5;current_position[E_AXIS]+=extrusion_multiplier(275.5-191.5, LINES_LAYER_HEIGHT_XY);
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
+	
+	draw_print_line_scrirt(Y_AXIS, -84.0);
+	
+	draw_print_line_scrirt(X_AXIS, -88.0 + hotend_size_setup[active_extruder]);
+
+	draw_print_line_scrirt(Y_AXIS, hotend_size_setup[active_extruder]);
+	
+	draw_print_line_scrirt(X_AXIS, 8.0-hotend_size_setup[active_extruder] - 0.5);
+	
+	draw_print_line_scrirt(Y_AXIS, 4.0-hotend_size_setup[active_extruder]);
+	
 	st_synchronize();
 	ERROR_SCREEN_WARNING2;
-	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-	current_position[X_AXIS] = 109.5;
-	#else
-	current_position[X_AXIS] = 109.5 + X_OFFSET_CALIB_PROCEDURES;
-	#endif
-	current_position[E_AXIS]+=extrusion_multiplier(197.5-109.5, LINES_LAYER_HEIGHT_XY);
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-	st_synchronize();
-	ERROR_SCREEN_WARNING2;
-	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-	current_position[X_AXIS] = mm_left_offset+mm_second_extruder[0];
-	#else
-	current_position[X_AXIS] = mm_left_offset+mm_second_extruder[0] + X_OFFSET_CALIB_PROCEDURES;
-	#endif
-	current_position[E_AXIS]+=extrusion_multiplier(mm_left_offset+mm_second_extruder[0]-109.5, LINES_LAYER_HEIGHT_XY);
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-	st_synchronize();
-	current_position[Y_AXIS]= mm_right_lines_x_down;
-	current_position[E_AXIS]+=extrusion_multiplier(mm_right_lines_x_down-191.5, LINES_LAYER_HEIGHT_XY);
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-	st_synchronize();
 	
 	for (int j=0; j<(NUM_LINES);j++) //N times		//////////////////////////CONTINUAR CON EL PATRON
 	{
-		/*if (j == 0) {
-			
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-			current_position[X_AXIS] = 197.5;
-			#else
-			current_position[X_AXIS] =197.5 + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			current_position[Z_AXIS]=0.2;
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100 , active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
-			current_position[E_AXIS]+=(RETRACT_PRINTER_FACTOR+0.1);
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60 , active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
-			current_position[Y_AXIS] = 191.5;current_position[E_AXIS]+=extrusion_multiplier(275.5-191.5);
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-			current_position[X_AXIS] = 109.5;
-			#else
-			current_position[X_AXIS] = 109.5 + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			current_position[E_AXIS]+=extrusion_multiplier(197.5-109.5);
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
-			#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_SIGMA
-			current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[j]+(mm_each_extrusion*(j)));
-			#else
-			current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[j]+(mm_each_extrusion*(j))) + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			current_position[E_AXIS]+=extrusion_multiplier(mm_left_offset+mm_second_extruder[j]-109.5);
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
-			current_position[Y_AXIS]= mm_right_lines_x_down;
-			current_position[E_AXIS]+=extrusion_multiplier(mm_right_lines_x_down-191.5);
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
-		}
-		*/
+		
 		ERROR_SCREEN_WARNING2;
 		
-		#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-		current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[j]+(mm_each_extrusion*(j)));
-		#else
-		current_position[X_AXIS] = mm_left_offset+(mm_second_extruder[j]+(mm_each_extrusion*(j))) + X_OFFSET_CALIB_PROCEDURES;
-		#endif
-		current_position[E_AXIS]+=extrusion_multiplier(mm_each_extrusion, LINES_LAYER_HEIGHT_XY);
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25, active_extruder);//Move Y and extrude
-		st_synchronize();
+		if (j != 0){
+			draw_print_line_scrirt(X_AXIS, 8.0 - hotend_size_setup[active_extruder] + 0.1);
+		}
 		
-		draw_print_line(X_AXIS,mm_right_lines_x_up-mm_right_lines_x_down,LINES_LAYER_HEIGHT_XY);
+		draw_print_line(X_AXIS, 37.5,LINES_LAYER_HEIGHT_XY);
 		
 	}
 	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
@@ -3028,7 +2939,7 @@ inline void gcode_G40(){
 	enquecommand_P(PSTR("M84"));
 	setTargetHotend0(print_temp_l-30);
 	setTargetHotend1(print_temp_r-30);
-	 
+	
 	ERROR_SCREEN_WARNING2;
 	display.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_TITLE,0);
 	display.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_INFO,0);
@@ -3057,9 +2968,9 @@ inline void gcode_G41(){
 	//1) Set temps and wait
 	setTargetHotend0(print_temp_l);
 	setTargetHotend1(print_temp_r);
-	 
+	
 	setTargetBed(max(bed_temp_l,bed_temp_r));
-	 
+	
 	doblocking = true;
 	while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-2)){ //Waiting to heat the extruder
 		
@@ -3088,15 +2999,6 @@ inline void gcode_G41(){
 	display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_PRINTINGTEST,0);
 	gif_processing_state = PROCESSING_TEST;
 	
-	
-	float mm_second_extruder[NUM_LINES] = {-0.5, -0.4, -0.3, -0.2, -0.1 ,0 ,0.1, 0.2, 0.3, 0.4};
-	float mm_each_extrusion = 8;
-	float y_first_line = 99.5;
-	float mm_left_lines_y_l = 113.5;
-	float mm_left_lines_y_r = 153;
-	float mm_right_lines_y_l = 154;
-	float mm_right_lines_y_r = 193.5;
-	
 	for (int i=0; i<NUM_LINES;i++){
 		
 		if (i == 0){
@@ -3114,52 +3016,27 @@ inline void gcode_G41(){
 			st_synchronize();
 			ERROR_SCREEN_WARNING2;
 			
-			current_position[Y_AXIS]=103.5;
-			current_position[E_AXIS]+=extrusion_multiplier(103.5-23.5, LINES_LAYER_HEIGHT_XY);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();			
-			ERROR_SCREEN_WARNING2;
+			draw_print_line_scrirt(Y_AXIS, 80.0);
 			
-			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-			current_position[X_AXIS] = 197.5;
-			#else
-			current_position[X_AXIS] = 197.5 + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			current_position[E_AXIS]+=extrusion_multiplier(197.5-109.5, LINES_LAYER_HEIGHT_XY);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
+			draw_print_line_scrirt(X_AXIS, 88.0);
+			
+			draw_print_line_scrirt(Y_AXIS, -hotend_size_setup[active_extruder]);
+			
+			draw_print_line_scrirt(X_AXIS, -84.0);
+			
+			draw_print_line_scrirt(Y_AXIS, -4.0+hotend_size_setup[active_extruder]);
+			
 			st_synchronize();
-			ERROR_SCREEN_WARNING2;
-			
-			current_position[Y_AXIS]-=hotend_size_setup[active_extruder];
-			current_position[E_AXIS]+=extrusion_multiplier(hotend_size_setup[active_extruder], LINES_LAYER_HEIGHT_XY);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
-			
-			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-			current_position[X_AXIS] = mm_left_lines_y_l;
-			#else
-			current_position[X_AXIS] = mm_left_lines_y_l + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			current_position[E_AXIS]+=extrusion_multiplier(197.5-mm_left_lines_y_l, LINES_LAYER_HEIGHT_XY);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
-			
-			current_position[E_AXIS]+=extrusion_multiplier(103.5-hotend_size_setup[active_extruder]-y_first_line, LINES_LAYER_HEIGHT_XY);
-			current_position[Y_AXIS]=y_first_line;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();			
 			ERROR_SCREEN_WARNING2;
 		}
 		
-		draw_print_line(Y_AXIS,mm_left_lines_y_r-mm_left_lines_y_l,LINES_LAYER_HEIGHT_XY);
+		draw_print_line(Y_AXIS, 39,LINES_LAYER_HEIGHT_XY);
 		
 		
 		if(i!=9){
-			current_position[Y_AXIS]=y_first_line-((i+1)*mm_each_extrusion);current_position[E_AXIS]+=extrusion_multiplier(mm_each_extrusion, LINES_LAYER_HEIGHT_XY);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25, active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
+			
+			draw_print_line_scrirt(Y_AXIS, -8.0+hotend_size_setup[active_extruder]);
+			
 		}
 	}
 	
@@ -3203,64 +3080,29 @@ inline void gcode_G41(){
 			st_synchronize();
 			ERROR_SCREEN_WARNING2;
 			
-			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-			current_position[X_AXIS] = 197.5;
-			#else
-			current_position[X_AXIS] = 197.5 + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			current_position[E_AXIS]+=extrusion_multiplier(197.5-109.5, LINES_LAYER_HEIGHT_XY);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
 			
-			current_position[Y_AXIS]=103.5;
-			current_position[E_AXIS]+=extrusion_multiplier(103.5-23.5, LINES_LAYER_HEIGHT_XY);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
+			draw_print_line_scrirt(X_AXIS, 88.0);
 			
-			current_position[X_AXIS]-= hotend_size_setup[active_extruder];
-			current_position[E_AXIS]+=extrusion_multiplier(hotend_size_setup[active_extruder], LINES_LAYER_HEIGHT_XY);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
+			
+			draw_print_line_scrirt(Y_AXIS, 80.0-hotend_size_setup[active_extruder]);
+			
+			
+			draw_print_line_scrirt(X_AXIS, -hotend_size_setup[active_extruder]);
 			
 			
 			
-			
-			current_position[E_AXIS]+=extrusion_multiplier(103.5-hotend_size_setup[active_extruder]-99.5, LINES_LAYER_HEIGHT_XY);
-			current_position[Y_AXIS]=99.5;
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
+			draw_print_line_scrirt(Y_AXIS, -4.0+hotend_size_setup[active_extruder]+0.5);
 			
 			
-			
-			
-			ERROR_SCREEN_WARNING2;
-			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-			current_position[X_AXIS] = mm_right_lines_y_r;
-			#else
-			current_position[X_AXIS] = mm_right_lines_y_r + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			current_position[E_AXIS]+=extrusion_multiplier(197.5-hotend_size_setup[active_extruder]-mm_right_lines_y_r, LINES_LAYER_HEIGHT_XY);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			
-			current_position[Y_AXIS]=y_first_line-((j)*mm_each_extrusion)-mm_second_extruder[j];
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25 , active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
-				
+			draw_print_line_scrirt(X_AXIS, -4.0);
 			
 			
 		}
 		
-		draw_print_line(Y_AXIS,mm_right_lines_y_l-mm_right_lines_y_r,LINES_LAYER_HEIGHT_XY);
+		draw_print_line(Y_AXIS,-39,LINES_LAYER_HEIGHT_XY);
 		
 		if(j!=9){
-			current_position[E_AXIS]+=extrusion_multiplier(mm_each_extrusion, LINES_LAYER_HEIGHT_XY);
-			current_position[Y_AXIS]=y_first_line-((j+1)*mm_each_extrusion)-mm_second_extruder[j+1];
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25, active_extruder);
-			st_synchronize();
-			ERROR_SCREEN_WARNING2;
+			draw_print_line_scrirt(Y_AXIS, -8.0+hotend_size_setup[active_extruder]-0.1);
 		}
 		
 	}
@@ -3282,7 +3124,7 @@ inline void gcode_G41(){
 	//Go to Calibration select screen
 	setTargetHotend0(print_temp_l-30);
 	setTargetHotend1(print_temp_r-30);
-	 
+	
 	ERROR_SCREEN_WARNING2;
 	display.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_TITLE,1);
 	display.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_INFO,1);
@@ -7267,6 +7109,13 @@ inline void gcode_M800(){ //Smart purge smartPurge_Distant(double A, double B, d
 		//display_ChangeForm((int)code_value_long(),0);
 	//}
 //}
+inline void gcode_M840(){
+}
+inline void gcode_M841(){
+}
+inline void gcode_M842(){
+}
+
 inline void gcode_M999(){
 	Stopped = false;
 	lcd_reset_alert_level();
@@ -8118,6 +7967,18 @@ void process_commands()
 			gcode_M605();
 			break;
 
+			case 840: // M840 Report info cura from gcode file
+			gcode_M840();
+			break;
+			
+			case 841: // M841 Report Extruder info
+			gcode_M841();
+			break;
+			
+			case 842: // M841 Report feedback
+			gcode_M842();
+			break;
+			
 			case 800: // M800 Smart purge
 			gcode_M800();
 			break;
@@ -9204,34 +9065,69 @@ bool setTargetedHotend(int code){
 	return false;
 }
 
-#if PATTERN_Z_CALIB == 0
-
-void draw_print_line(uint8_t patternid, float xy_destination_relative, float layerh){// pattern id Z = 2 ; X = 0, Y = 1;
+void draw_print_line(int8_t patternid, float xy_destination_relative, float layerh){// pattern id Z = 2 ; X = 0, Y = 1;
 	
 	float extrusion_distance = extrusion_multiplier(abs(xy_destination_relative), layerh);
 	
-	uint8_t mainaxis = (patternid!=Y_AXIS?Y_AXIS:X_AXIS);
-	uint8_t secondaryaxis = (patternid==Y_AXIS?Y_AXIS:X_AXIS);
+	uint8_t mainaxis = (patternid==Y_AXIS || patternid==-1?X_AXIS:Y_AXIS);
+	uint8_t secondaryaxis = (patternid==Y_AXIS || patternid==-1?Y_AXIS:X_AXIS);
 	
 	current_position[mainaxis] += xy_destination_relative;  current_position[E_AXIS]+=extrusion_distance;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
 	
-	current_position[secondaryaxis] = current_position[secondaryaxis] + -1*((patternid==X_AXIS?-1:1))*hotend_size_setup[active_extruder];
+	current_position[secondaryaxis] = current_position[secondaryaxis] + -1*((patternid==X_AXIS || patternid==-1?-1:1))*hotend_size_setup[active_extruder];
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
 	
 	current_position[mainaxis] -= xy_destination_relative;  current_position[E_AXIS]+=extrusion_distance;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
 	
 	st_synchronize();
-			
+	
+}
+
+void draw_print_line_scrirt(uint8_t axis, float xy_destination_relative){// pattern id Z = 2 ; X = 0, Y = 1;
+	
+	float extrusion_distance = extrusion_multiplier(abs(xy_destination_relative), LINES_LAYER_HEIGHT_XY);
+	
+	current_position[axis] += xy_destination_relative;  current_position[E_AXIS]+=extrusion_distance;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
 	
 }
 
 
+#if PATTERN_Z_CALIB == 0
+
+
 void z_test_print_code(int tool, float x_offset){
-	////////////////////
-	// Z TEST PRINT//
-	////////////////////
+
+	
+	//		PATTERN Z TEST PRINT
+	//
+	//					layer height
+	//		+-----------------------+
+	//		|  0.15	   0.25    0.35 |	
+	//		|	||	||	||	||	||	|
+	//		|	||	||	||	||	||	|
+	//		|	||	||	||	||	||	|
+	//		|	||	||	||	||	||	|
+	//		|	||	||	||	||	||	|
+	//		|	||	||	||	||	||	|
+	//		|	||	||	||	||	||	|
+	//		|	||	||	||	||	||	|
+	//		|	||	||	||	||	||	|
+	//		|	||	||	||	||	||	|
+	//		|	||	||	||	||	||	|
+	//		|	||	||	||	||	||	|
+	//		|	||	||	||	||	||	|
+	//		|	||	||	||	||	||	|	
+	//		|	    0.2	    0.3		|
+	//		+-----------------------+
+	//		
+	//
+	
+	
+	
+	
 	float layer_height = 0;
 	switch((int)(hotend_size_setup[tool]*10)){
 		case 3:
@@ -9253,24 +9149,19 @@ void z_test_print_code(int tool, float x_offset){
 		layer_height = 0.2;
 		break;
 	}
-	int	  distance_x = 4;
-	int	  distance_y = 72;
-	float initial_x_pos = 145.5 + x_offset;
-	float initial_y_pos = 183.5;
-	float initial_z_pos = layer_height+3*LINES_GAP;
+
 	
 	Serial.print(F("layer height: "));
 	Serial.println(layer_height);
 	doblocking = true;
 	changeTool(tool);
+	
 	current_position[E_AXIS]+=15;  //0.5 + 0.15 per ajustar una bona alçada
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
-	st_synchronize();
-	ERROR_SCREEN_WARNING2;
+
 	current_position[Z_AXIS]=2; //0.5 + 0.15 per ajustar una bona alçada
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
-	st_synchronize();
-	ERROR_SCREEN_WARNING2;
+
 	current_position[E_AXIS]-=4;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
 	
@@ -9283,67 +9174,45 @@ void z_test_print_code(int tool, float x_offset){
 	current_position[X_AXIS] = 125.5 + x_offset + X_OFFSET_CALIB_PROCEDURES;
 	#endif
 	current_position[Z_AXIS] = layer_height;
+	
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],100,active_extruder);
+	
 	st_synchronize();
 	ERROR_SCREEN_WARNING2;
+	
+	
 	current_position[E_AXIS]+=4.1;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
-	st_synchronize();
-	ERROR_SCREEN_WARNING2;
+	
 	//POS B
-	current_position[Y_AXIS] = 107.5; current_position[E_AXIS] += extrusion_multiplier(187.5-107.5, layer_height);
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
-	st_synchronize();
-	ERROR_SCREEN_WARNING2;
+	draw_print_line_scrirt(Y_AXIS,-80.0);
+	
+	
 	//POS C
-	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-	current_position[X_AXIS] = 149.5 + x_offset;
-	#else
-	current_position[X_AXIS] = 149.5 + x_offset + X_OFFSET_CALIB_PROCEDURES;
-	#endif
-	current_position[E_AXIS] += extrusion_multiplier(149.5-125.5, layer_height);
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
-	st_synchronize();
-	ERROR_SCREEN_WARNING2;
+	
+	draw_print_line_scrirt(X_AXIS, 24.0);
+	
 	//POS D
-	current_position[Y_AXIS] = 187.5; current_position[E_AXIS] += extrusion_multiplier(187.5-107.5, layer_height);
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
-	st_synchronize();
-	ERROR_SCREEN_WARNING2;
+	
+	draw_print_line_scrirt(Y_AXIS, 80.0);
 	//POS A
 	
-	current_position[Z_AXIS] = initial_z_pos;
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],100,active_extruder);
+	current_position[Z_AXIS] = layer_height+3*LINES_GAP;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS], 8 ,active_extruder);
 	st_synchronize();
 	
-	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-	current_position[X_AXIS] = 125.5 + x_offset;
-	#else
-	current_position[X_AXIS] = 125.5 + x_offset + X_OFFSET_CALIB_PROCEDURES;
-	#endif
+	draw_print_line_scrirt(X_AXIS, -24.0);
 	
-	current_position[E_AXIS] += extrusion_multiplier(145.5-125.5, layer_height);
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
+	
+	draw_print_line_scrirt(Y_AXIS, -hotend_size_setup[tool]);
+	
+
+	draw_print_line_scrirt(X_AXIS, 21.0-hotend_size_setup[tool]);
+	
 	st_synchronize();
 	
-	current_position[E_AXIS] += extrusion_multiplier(hotend_size_setup[tool], layer_height);
-	current_position[Y_AXIS] -=hotend_size_setup[tool];
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
-	st_synchronize();
-	ERROR_SCREEN_WARNING2;
-	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-	current_position[X_AXIS] = initial_x_pos;
-	#else
-	current_position[X_AXIS] = initial_x_pos + X_OFFSET_CALIB_PROCEDURES;
-	#endif
-	current_position[E_AXIS] += extrusion_multiplier(149.5-125.5, layer_height);
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
-	st_synchronize();
-	current_position[Y_AXIS] = initial_y_pos;
-	current_position[E_AXIS] += extrusion_multiplier(187.5-initial_y_pos, layer_height);
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
-	st_synchronize();
-	ERROR_SCREEN_WARNING2;
+	draw_print_line_scrirt(Y_AXIS, -4.0+hotend_size_setup[tool]);
+	
 	
 	//float z_layer_test = 0.2;
 	
@@ -9353,22 +9222,18 @@ void z_test_print_code(int tool, float x_offset){
 		
 		ERROR_SCREEN_WARNING2;
 		
-		draw_print_line(Z_AXIS,-distance_y,layer_height);
+		draw_print_line(Z_AXIS,-72,layer_height);
 		
 		//dibujo de una linea
 		
 		ERROR_SCREEN_WARNING2;
 		if(i != 5){
+			
 			current_position[Z_AXIS]-= LINES_GAP;
 			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
-			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-			current_position[X_AXIS] = initial_x_pos-(distance_x*i);
-			#else
-			current_position[X_AXIS] = initial_x_pos-(distance_x*i) + X_OFFSET_CALIB_PROCEDURES;
-			#endif
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],25,active_extruder);
-			current_position[E_AXIS]+=extrusion_multiplier(distance_x-hotend_size_setup[tool], layer_height);
-			ERROR_SCREEN_WARNING2;
+			
+			draw_print_line_scrirt(X_AXIS, -4+hotend_size_setup[active_extruder]);
+			
 		}
 	}
 	
@@ -9408,370 +9273,245 @@ void z_test_print_code(int tool, float x_offset){
 
 #elif PATTERN_Z_CALIB == 1
 
-int z_test_print_code(int tool, float x_offset, int z_offset, bool repeat){
-	float distance_x = 0;
-	float distance_y = active_extruder==LEFT_EXTRUDER?5:-5;
-	float initial_x_pos = 0;
-	float initial_y_pos = 0;
+void draw_z_auto_pattern_v1(int8_t x, int8_t y, float layerh){
+	
+	float layer_height = layerh;
 	float layer_increment = 0.05;
 	
-	float layer_height = 0;
-	float layers_height_cfg[]=LINES_LAYER_HEIGHT_Z;
-	switch(hotend_size_setup[tool]){
-		case 0.3:
-		layer_height = layers_height_cfg[0];
-		break;
-		case 0.4:
-		layer_height = layers_height_cfg[1];
-		break;
-		case 0.5:
-		layer_height = layers_height_cfg[2];
-		break;
-		case 0.6:
-		layer_height = layers_height_cfg[3];
-		break;
-		case 0.8:
-		layer_height = layers_height_cfg[4];
-		break;
-		case 1.0:
-		layer_height = layers_height_cfg[5];
-		break;
+	current_position[Y_AXIS] = active_extruder==LEFT_EXTRUDER?235:60;
+	if(active_extruder == LEFT_EXTRUDER){
+		current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (x == 1?2-hotend_size_setup[active_extruder]:PRINTER_BED_X_SIZE-(2-hotend_size_setup[active_extruder]));
+		}else{
+		current_position[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + (x == 1?PRINTER_BED_X_SIZE-(2-hotend_size_setup[active_extruder]):2-hotend_size_setup[active_extruder]));
 	}
-	//float layer_height = layer_height+z_offset*layer_increment;
-	float initial_z_pos = layer_height + 2 * layer_increment;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],100,active_extruder);
+	
+	current_position[Z_AXIS] = layer_height;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],6,active_extruder);
+	st_synchronize();
+	
+	current_position[E_AXIS]+=RETRACT_PRINT_TEST_FACTOR+0.1;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1200/60,active_extruder);
+	st_synchronize();
+	
+	draw_print_line_scrirt(X_AXIS, (40+hotend_size_setup[active_extruder])*x);		//SKIRT POSICION AB
+	
+	draw_print_line_scrirt(Y_AXIS, (-80)*y);										//SKIRT POSICION BC
+	
+	draw_print_line_scrirt(X_AXIS, -(40+hotend_size_setup[active_extruder])*x);		//SKIRT POSICION CD
+	
+	draw_print_line_scrirt(Y_AXIS, (80-hotend_size_setup[active_extruder])*y);		//SKIRT POSICION DA
+	
+	current_position[Z_AXIS] = layer_height + 2 * layer_increment;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],6,active_extruder);
+	
+	draw_print_line_scrirt(X_AXIS, 40*x);											//SKIRT POSICION AB
+	
+	draw_print_line_scrirt(Y_AXIS, (-50)*y);										//SKIRT POSICION B to pattern
+	
+	
+	for(int i = 1; i<=5;i++){
+	
+			
+			draw_print_line(y,-x*40, layer_height);
+			
+			if(i != 5){
+				current_position[Z_AXIS]-= layer_increment;
+				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+				draw_print_line_scrirt(Y_AXIS, (-y*(5-hotend_size_setup[active_extruder])));
+				st_synchronize();
+			}else{
+				current_position[Z_AXIS]+= layer_increment*5;
+				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+				draw_print_line_scrirt(Y_AXIS, (-y*(5-hotend_size_setup[active_extruder])));
+				st_synchronize();
+			}
+		}
+	current_position[E_AXIS]-=RETRACT_PRINT_TEST_FACTOR;
+	//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1200/60,active_extruder);
+	st_synchronize();
+	current_position[Z_AXIS]+= 2;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+	st_synchronize();
+}
+void draw_z_auto_pattern_v2(int8_t x, int8_t y, float layerh){
+	
+	float layer_height = layerh;
+	float layer_increment = 0.05;
+	
+	
+	current_position[Y_AXIS] = active_extruder==LEFT_EXTRUDER?235-2*hotend_size_setup[active_extruder]:60+2*hotend_size_setup[active_extruder];
+	
+	if(active_extruder == LEFT_EXTRUDER){
+		
+		current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (x == 1?2:PRINTER_BED_X_SIZE-2);
+		
+		}else{
+		current_position[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + (x == 1?PRINTER_BED_X_SIZE-2:2));
+	}
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],100,active_extruder);
+	current_position[Z_AXIS] = layer_height;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],6,active_extruder);
+	st_synchronize();
+	
+	current_position[E_AXIS]+=RETRACT_PRINT_TEST_FACTOR+0.1;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1200/60,active_extruder);
+	st_synchronize();
+	
+	draw_print_line_scrirt(X_AXIS, (40-hotend_size_setup[active_extruder])*x);		//SKIRT POSICION AB
+	
+	draw_print_line_scrirt(Y_AXIS, (-40)*y);										//SKIRT POSICION BC
+	
+	draw_print_line_scrirt(X_AXIS, -(40-hotend_size_setup[active_extruder])*x);		//SKIRT POSICION CD
+	
+	draw_print_line_scrirt(Y_AXIS, (40-hotend_size_setup[active_extruder])*y);		//SKIRT POSICION DA
+	
+	current_position[Z_AXIS] = layer_height + 2 * layer_increment;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],6,active_extruder);
+	
+	draw_print_line_scrirt(X_AXIS, (40-2*hotend_size_setup[active_extruder])*x);	//SKIRT POSICION AB
+	
+	draw_print_line_scrirt(Y_AXIS, (-10)*y);										//SKIRT POSICION B to pattern
+	
+	
+	for(int i = 1; i<=5;i++){
+		
+		
+		draw_print_line(y,-x*(40-3*hotend_size_setup[active_extruder]), layer_height);
+		
+		if(i != 5){
+			current_position[Z_AXIS]-= layer_increment;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+			draw_print_line_scrirt(Y_AXIS, (-y*(5-hotend_size_setup[active_extruder])));
+			st_synchronize();
+			}else{
+			current_position[Z_AXIS]+= layer_increment*5;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+			draw_print_line_scrirt(Y_AXIS, (-y*(5-hotend_size_setup[active_extruder])));
+			st_synchronize();
+		}
+	}
+	
+	current_position[E_AXIS]-=RETRACT_PRINT_TEST_FACTOR;
+	//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1200/60,active_extruder);
+	st_synchronize();
+	current_position[Z_AXIS]+= 2;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
+	st_synchronize();
+	
+}
+
+int z_test_print_code(int tool, int z_offset, bool repeat){
+
+	float distance_y = active_extruder==LEFT_EXTRUDER?5:-5;
+	float layer_increment = 0.05;
+	
+	//		PATTERN Z AUTO
+	//
+	//					layer height
+	//		+-----------+
+	//		|			|
+	//		|			|
+	//		|-----------|0.3
+	//		|			|
+	//		|-----------|0.25
+	//		|			|
+	//		|-----------|0.2
+	//		|			|
+	//		|-----------|0.15
+	//		|			|
+	//		|-----------|0.1
+	//		|			|
+	//		+-----------+
+	//
+	//
+	
+	float layer_height = 0;
+		switch((int)(hotend_size_setup[tool]*10)){
+			case 3:
+			layer_height = 0.2;
+			break;
+			case 4:
+			layer_height = 0.2;
+			break;
+			case 5:
+			layer_height = 0.2;
+			break;
+			case 6:
+			layer_height = 0.2;
+			break;
+			case 8:
+			layer_height = 0.2;
+			break;
+			case 10:
+			layer_height = 0.2;
+			break;
+		}
+
+		
+	Serial.print(F("layer height: "));
+	Serial.println(layer_height);
+	
+	layer_height = layer_height+z_offset*layer_increment;
+	
 	doblocking = true;
 	changeTool(tool);
 	current_position[E_AXIS]+=PURGE_PRINTER_FACTOR;  //0.5 + 0.15 per ajustar una bona alçada
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return 1999;
+	
 	current_position[Z_AXIS]=2; //0.5 + 0.15 per ajustar una bona alçada
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
 	st_synchronize();
-	if(gif_processing_state == PROCESSING_ERROR) return 1999;
+	
 	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
 	
-	for(int j=0; j<2;j++){
-		//SKIRT POSICION A
-		if(!repeat){
-			current_position[Y_AXIS] = active_extruder==LEFT_EXTRUDER?235:60;
-			if(tool == LEFT_EXTRUDER){
-				current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (j == 0?2-hotend_size_setup[active_extruder]:PRINTER_BED_X_SIZE-(2-hotend_size_setup[active_extruder]));
+	
+	
+	
+	
+	if(!repeat){
+		
+		if(tool == LEFT_EXTRUDER){
+			draw_z_auto_pattern_v1(1,1,layer_height);
+			draw_z_auto_pattern_v1(-1,1,layer_height);
 			}else{
-				current_position[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + (j == 0?PRINTER_BED_X_SIZE-(2-hotend_size_setup[active_extruder]):2-hotend_size_setup[active_extruder]));
-			}
-			
+			draw_z_auto_pattern_v1(1,-1,layer_height);
+			draw_z_auto_pattern_v1(-1,-1,layer_height);
 		}
-		else {
+		}else{
 			
-			current_position[Y_AXIS] = active_extruder==LEFT_EXTRUDER?235-2*hotend_size_setup[active_extruder]:60+2*hotend_size_setup[active_extruder];
-			
-			if(tool == LEFT_EXTRUDER){
-				
-				current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (j == 0?2:PRINTER_BED_X_SIZE-2);
-				
+		if(tool == LEFT_EXTRUDER){
+			draw_z_auto_pattern_v2(1,1,layer_height);
+			draw_z_auto_pattern_v2(-1,1,layer_height);
 			}else{
-				current_position[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + (j == 0?PRINTER_BED_X_SIZE-2:2));
-			}
-			
+			draw_z_auto_pattern_v2(1,-1,layer_height);
+			draw_z_auto_pattern_v2(-1,-1,layer_height);
 		}
-		
-		current_position[Z_AXIS] = layer_height;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],150,active_extruder);
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return 1999;
-		current_position[E_AXIS]+=RETRACT_PRINT_TEST_FACTOR+0.1;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1200/60,active_extruder);
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return 1999;
-		
-		//SKIRT POSICION AB
-		if(!repeat){
-			if(j==0){
-				
-				if(tool == LEFT_EXTRUDER){
-					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+42+hotend_size_setup[LEFT_EXTRUDER];
-				}
-				else{
-					current_position[X_AXIS] = extruder_offset[X_AXIS][RIGHT_EXTRUDER] -(NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42-hotend_size_setup[RIGHT_EXTRUDER]);	
-				}
-			}
-			else{
-				
-				if(tool == LEFT_EXTRUDER){
-					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42-hotend_size_setup[LEFT_EXTRUDER];
-				}else{
-					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] -(NOZZLE_PARK_DISTANCE_BED_X0+42+hotend_size_setup[RIGHT_EXTRUDER]);
-				}
-			}
-			current_position[E_AXIS] += extrusion_multiplier(40+hotend_size_setup[tool]*2, layer_height);
-		}
-		else{
-								
-			
-			if(j==0){
-			
-				if(tool == LEFT_EXTRUDER){
-					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+42-hotend_size_setup[LEFT_EXTRUDER];
-				}
-				else{
-					
-					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42+hotend_size_setup[RIGHT_EXTRUDER]);
-				}
-			}
-			else{ 
-				if(tool == LEFT_EXTRUDER){
-					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42+hotend_size_setup[LEFT_EXTRUDER];
-				}
-				else{
-					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+42-hotend_size_setup[RIGHT_EXTRUDER]);
-				}
-			}
-			
-			current_position[E_AXIS] += extrusion_multiplier(40-hotend_size_setup[tool], layer_height);
-		}
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
-		
-		//SKIRT POSICION BC
-		if(!repeat){
-			if(tool == LEFT_EXTRUDER){
-				current_position[Y_AXIS]=155;
-			}
-			else{
-				current_position[Y_AXIS]=140;
-			}
-			current_position[E_AXIS] += extrusion_multiplier(235-155, layer_height);
-		}
-		else{
-			if(tool == LEFT_EXTRUDER){
-				current_position[Y_AXIS]=195;
-			}
-			else{
-				current_position[Y_AXIS]=110;
-			}
-			current_position[E_AXIS] += extrusion_multiplier(235-195, layer_height);
-		}
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
-		//SKIRT POSICION CD
-		if(!repeat){
-			if(j==0){
-				if(tool == LEFT_EXTRUDER){
-					current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (2-hotend_size_setup[LEFT_EXTRUDER]);
-				}
-				else{
-					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + PRINTER_BED_X_SIZE-(2-hotend_size_setup[RIGHT_EXTRUDER]));
-				}
-			}else{
-				if(tool == LEFT_EXTRUDER){
-					current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + (PRINTER_BED_X_SIZE-(2-hotend_size_setup[LEFT_EXTRUDER]));
-				}
-				else{
-					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + 2-hotend_size_setup[RIGHT_EXTRUDER]);
-				}
-			}
-			
-			current_position[E_AXIS] += extrusion_multiplier(40+hotend_size_setup[tool], layer_height);
-		}
-		else{
-			
-			if(j==0){
-				if(tool == LEFT_EXTRUDER){
-					current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + 2;
-				}
-				else{
-					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + PRINTER_BED_X_SIZE-2);
-				}
-				}else{
-				if(tool == LEFT_EXTRUDER){
-					current_position[X_AXIS] = NOZZLE_PARK_DISTANCE_BED_X0 + PRINTER_BED_X_SIZE-2;
-				}
-				else{
-					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0 + 2);
-				}
-			}
-						
-			current_position[E_AXIS] += extrusion_multiplier(40-hotend_size_setup[tool], layer_height);
-		}
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
-		//SKIRT POSICION DA
-		if(!repeat){
-			if(tool == LEFT_EXTRUDER){
-				current_position[Y_AXIS] = 235 - hotend_size_setup[LEFT_EXTRUDER];
-			}
-			else{
-				current_position[Y_AXIS] = 60 + hotend_size_setup[RIGHT_EXTRUDER];
-			}
-			current_position[E_AXIS] += extrusion_multiplier(235-155-hotend_size_setup[active_extruder], layer_height);
-		}
-		else{
-			if(tool == LEFT_EXTRUDER){
-				current_position[Y_AXIS] = 235-3*hotend_size_setup[LEFT_EXTRUDER];
-			}
-			else{
-				current_position[Y_AXIS] = 60+3*hotend_size_setup[RIGHT_EXTRUDER];
-			}
-			current_position[E_AXIS] += extrusion_multiplier(235-195-3*hotend_size_setup[active_extruder], layer_height);
-		}
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
-		//SKIRT POSICION AB
-		current_position[Z_AXIS]= initial_z_pos;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
-		if(!repeat){
-			if(j==0){
-				if(tool == LEFT_EXTRUDER){
-					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+42;
-				}else{
-					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42);
-				}
-			}
-			else{
-				if(tool == LEFT_EXTRUDER){
-					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42;
-					}else{
-					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+42);
-				}
-			}
-			current_position[E_AXIS] += extrusion_multiplier(40+hotend_size_setup[tool], layer_height);
-			}else{
-			if(j==0){
-				
-				if(tool == LEFT_EXTRUDER){
-					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+42-2*hotend_size_setup[LEFT_EXTRUDER];
-					}else{
-					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42+2*hotend_size_setup[RIGHT_EXTRUDER]);
-				}
-				
-			}
-			else{
-				
-				if(tool == LEFT_EXTRUDER){
-					current_position[X_AXIS]=NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42+2*hotend_size_setup[LEFT_EXTRUDER];
-					}else{
-					current_position[X_AXIS]=extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+42-2*hotend_size_setup[RIGHT_EXTRUDER]);
-				}
-			}
-			current_position[E_AXIS] += extrusion_multiplier(40-3*hotend_size_setup[tool], layer_height);
-		}
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
-		
-		//POSICION B to TEST
-		if(!repeat){
-			if(tool == LEFT_EXTRUDER){
-				current_position[Y_AXIS] = 185;
-			}
-			else{
-				current_position[Y_AXIS] = 110;
-			}
-			current_position[E_AXIS] += extrusion_multiplier(235-185, layer_height);
-		}
-		else{
-			if(tool == LEFT_EXTRUDER){
-				current_position[Y_AXIS] = 225;
-			}
-			else{
-				current_position[Y_AXIS] = 70;
-			}
-			current_position[E_AXIS] += extrusion_multiplier(235-225, layer_height);
-		}
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
-		
-		if(gif_processing_state == PROCESSING_ERROR) return 1999;
-		
-		
-		
-		//float z_layer_test = 0.2;
-		if(!repeat){
-			distance_x = 40;
-			if(tool == LEFT_EXTRUDER){
-				if(j==0){
-					initial_x_pos = NOZZLE_PARK_DISTANCE_BED_X0+42;
-					}else{
-					initial_x_pos = NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42;
-				}
-				initial_y_pos = 185-hotend_size_setup[LEFT_EXTRUDER];
-				}else{
-				if(j==0){
-					initial_x_pos = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42);
-					}else{
-					initial_x_pos = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+42);
-				}
-				initial_y_pos = 110+hotend_size_setup[RIGHT_EXTRUDER];
-			}
-			}else{
-			distance_x = 40-3*hotend_size_setup[tool];
-			if(tool == LEFT_EXTRUDER){
-				if(j==0){
-					initial_x_pos = NOZZLE_PARK_DISTANCE_BED_X0+(42-2*hotend_size_setup[LEFT_EXTRUDER]);
-					}else{
-					initial_x_pos = NOZZLE_PARK_DISTANCE_BED_X0+(PRINTER_BED_X_SIZE-42+2*hotend_size_setup[LEFT_EXTRUDER]);
-				}
-				initial_y_pos = 225-hotend_size_setup[LEFT_EXTRUDER];
-				}else{
-				if(j==0){
-					initial_x_pos = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+PRINTER_BED_X_SIZE-42+2*hotend_size_setup[RIGHT_EXTRUDER]);
-					}else{
-					initial_x_pos = extruder_offset[X_AXIS][RIGHT_EXTRUDER] - (NOZZLE_PARK_DISTANCE_BED_X0+42-2*hotend_size_setup[RIGHT_EXTRUDER]);
-				}
-				initial_y_pos = 70+hotend_size_setup[RIGHT_EXTRUDER];
-			}
-		}
-		current_position[X_AXIS] = initial_x_pos;
-		current_position[Y_AXIS] = initial_y_pos;
-		//current_position[Z_AXIS]= initial_z_pos;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],20,active_extruder);
-		st_synchronize();
-		if(gif_processing_state == PROCESSING_ERROR) return 1999;
-		for(int i = 1; i<=5;i++){
-			/*
-			for(int i = 1; i*2*hotend_size_setup[tool]<=4.0;i++){
-			ERROR_SCREEN_WARNING2;
-			current_position[Y_AXIS] -=active_extruder==LEFT_EXTRUDER?hotend_size_setup[tool]:-hotend_size_setup[tool]; current_position[E_AXIS]+=extrusion_multiplier(hotend_size_setup[tool]);
-			current_position[X_AXIS] = initial_x_pos+(j == 0?-distance_x:distance_x);  current_position[E_AXIS]+=extrusion_multiplier(distance_x);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],30,active_extruder);
-			current_position[Y_AXIS] -=active_extruder==LEFT_EXTRUDER?hotend_size_setup[tool]:-hotend_size_setup[tool]; current_position[E_AXIS]+=extrusion_multiplier(hotend_size_setup[tool]);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],30,active_extruder);
-			current_position[X_AXIS] = initial_x_pos; current_position[E_AXIS]+=extrusion_multiplier(distance_x);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],30,active_extruder);
-			st_synchronize();
-			}*/
-			
-			
-			if(gif_processing_state == PROCESSING_ERROR) return 1999;
-			current_position[X_AXIS] = initial_x_pos+(j == 0?-distance_x:distance_x);  current_position[E_AXIS]+=extrusion_multiplier(distance_x, layer_height);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
-			current_position[Y_AXIS] -=active_extruder==LEFT_EXTRUDER?hotend_size_setup[tool]:-hotend_size_setup[tool]; current_position[E_AXIS]+=extrusion_multiplier(hotend_size_setup[tool], layer_height);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
-			current_position[X_AXIS] = initial_x_pos; current_position[E_AXIS]+=extrusion_multiplier(distance_x, layer_height);
-			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
-			st_synchronize();
-			
-			if(gif_processing_state == PROCESSING_ERROR) return 1999;
-			if(i != 5){
-				current_position[Z_AXIS]-= layer_increment;
-				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
-				current_position[E_AXIS]+=extrusion_multiplier(current_position[Y_AXIS]-initial_y_pos-(distance_y*i), layer_height); current_position[Y_AXIS] = initial_y_pos-(distance_y*i);
-				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
-				st_synchronize();
-			}else{
-				current_position[Z_AXIS]+= layer_increment*5;
-				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
-				current_position[E_AXIS]+=extrusion_multiplier(current_position[Y_AXIS]-initial_y_pos-(distance_y*i), layer_height); current_position[Y_AXIS] = initial_y_pos-(distance_y*i);
-				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
-				st_synchronize();
-			}
-		}
-		
-		current_position[E_AXIS]-=RETRACT_PRINT_TEST_FACTOR;
-		//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],RETRACT_SPEED_PRINT_TEST/60,active_extruder);
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1200/60,active_extruder);
-		st_synchronize();
-		current_position[Z_AXIS]+= 2;
-		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
-		st_synchronize();
 	}
 	
+	
 	changeTool(LEFT_EXTRUDER);
+	
+	
+	float initial_y_pos = 0;
+	if(!repeat){
+		if(tool == LEFT_EXTRUDER){			
+			initial_y_pos = 185-hotend_size_setup[LEFT_EXTRUDER];
+			}else{
+			initial_y_pos = 110+hotend_size_setup[RIGHT_EXTRUDER];
+		}
+		}else{
+		if(tool == LEFT_EXTRUDER){
+			initial_y_pos = 225-hotend_size_setup[LEFT_EXTRUDER];
+			}else{
+			initial_y_pos = 70+hotend_size_setup[RIGHT_EXTRUDER];
+		}
+	}
+	
 	
 	setup_for_endstop_move();
 	float z_at_pt_ref = probe_pt(Z_SIGMA_PROBE_X_POINT,initial_y_pos+(distance_y), Z_RAISE_BEFORE_PROBING);
@@ -9819,9 +9559,9 @@ int z_test_print_code(int tool, float x_offset, int z_offset, bool repeat){
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,active_extruder);
 	st_synchronize();
 	
-	if(gif_processing_state == PROCESSING_ERROR) return 1999;
+	
 	home_axis_from_code(true,true,false);
-	if(gif_processing_state == PROCESSING_ERROR) return 1999;
+	
 	doblocking = false;
 	//SELECT LINES SCREEN
 	gif_processing_state = PROCESSING_STOP;

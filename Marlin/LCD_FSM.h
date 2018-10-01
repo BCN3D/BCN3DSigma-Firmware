@@ -60,6 +60,7 @@ extern int raft_advise_accept_cancel;//0 cancel ; 1 accept
 extern int Temp_ChangeFilament_Saved;
 extern int Tref1;
 extern int Tfinal1;
+extern int Tpercentaje_old;
 extern int calib_confirmation;
 extern int8_t calib_zxy;
 extern int  print_setting_tool;

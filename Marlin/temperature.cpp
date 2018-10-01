@@ -417,10 +417,15 @@ void PID_autotune_Save(float temp, int extruder, int ncycles, float K_p)
               Tu = ((float)(t_low + t_high)/1000.0);
               SERIAL_PROTOCOLPGM(" Ku: "); SERIAL_PROTOCOL(Ku);
               SERIAL_PROTOCOLPGM(" Tu: "); SERIAL_PROTOCOLLN(Tu);
-              //Kp[extruder] = 0.6*Ku;
-			  Kp[extruder] = K_p;
-              Ki[extruder] = 2*Kp[extruder]/Tu;
-              Kd[extruder] = Kp[extruder]*Tu/8;
+			  //Kp[extruder] = K_p;
+			  
+              Kp[extruder] = 0.64*Ku;
+              Ki[extruder] = 2.33*Kp[extruder]/Tu;
+              Kd[extruder] = Kp[extruder]*Tu/8.8;
+			  
+			  //Kp[extruder] = 0.6*Ku;
+			  //Ki[extruder] = 2*Kp[extruder]/Tu;
+			  //Kd[extruder] = Kp[extruder]*Tu/8;
 			  
               SERIAL_PROTOCOLLNPGM(" Classic PID ");
               SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp[extruder]);

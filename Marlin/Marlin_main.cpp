@@ -6983,6 +6983,8 @@ inline void gcode_M605(){
 	#endif //DUAL_X_CARRIAGE
 	#endif //BCN3D_SCREEN_VERSION
 }
+
+
 inline void gcode_M907(){
 	#if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
 	for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) digipot_current(i,code_value());
@@ -7982,11 +7984,7 @@ void process_commands()
 			case 800: // M800 Smart purge
 			gcode_M800();
 			break;
-			
-			//case 860: // M860 Display dev
-			//gcode_M860();
-			//break;
-
+						
 			case 907: // M907 Set digital trimpot motor current using axis codes.
 			gcode_M907();
 			break;
@@ -8918,7 +8916,7 @@ void manage_inactivity()
 	check_axes_activity();
 	
 	
-	if(HeaterInactivity){
+	if(HeaterInactivity && !card.sdispaused && !card.sdprinting){
 		if(TimerCooldownInactivity(true)==1){
 			HeaterCooldownInactivity(false);
 			SERIAL_PROTOCOLLNPGM("Cooling Down Heater");

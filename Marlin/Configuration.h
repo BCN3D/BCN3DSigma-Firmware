@@ -25,7 +25,7 @@
 // example_configurations/SCARA directory.
 //
 
-//#define BUILD_DATE  "|M09.27"
+//#define BUILD_DATE  "|M10.04"
 #define BUILD_DATE  " "
 #define UI_SerialID  "At Bottom Sticker"
 //#define DEFAULT_QUICK_GUIDE  0;
@@ -114,11 +114,11 @@
 //This is the version declaration for Sigma/x, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 #if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-	#define VERSION_STRING  "01-2.0.3"
-	#define VERSION_NUMBER  133
+	#define VERSION_STRING  "01-2.0.4"
+	#define VERSION_NUMBER  134
 #elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
-	#define VERSION_STRING  "02-2.0.3"	
-	#define VERSION_NUMBER  233
+	#define VERSION_STRING  "02-2.0.4"	
+	#define VERSION_NUMBER  234
 #endif
 
 
@@ -282,7 +282,7 @@
 // 10 is 100k RS thermistor 198-961 (4.7k pullup)
 // 11 is 100k beta 3950 1% thermistor (4.7k pullup)
 // 12 is 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup) (calibrated for Makibox hot bed)
-// 13 is 100k Hisens 3950  1% up to 300Â°C for hotend "Simple ONE " & "Hotend "All In ONE" 
+// 13 is 100k Hisens 3950  1% up to 300°C for hotend "Simple ONE " & "Hotend "All In ONE" 
 // 20 is the PT100 circuit found in the Ultimainboard V2.x
 // 60 is 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
 //
@@ -380,7 +380,7 @@
  // #define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   
-  //Rapduch ATENCIÃ“
+  //Rapduch ATENCIÓ
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
@@ -836,9 +836,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 	#define BOWDEN_LENGTH 1100
 #endif
-#define PURGE_LENGHT_UNLOAD 25
+#define PURGE_LENGHT_UNLOAD 25.0
 #define PURGE_SPEED_UNLOAD 450.0
-#define EXTRUDER_LENGTH 50
+#define EXTRUDER_LENGTH 50.0
 #define INSERT_FAST_SPEED 3600.0	//max speed 60mm/s R16/R17
 #define INSERT_FAST_R19_SPEED 2400.0	//max speed 40mm/s R18
 #define INSERT_SLOW_SPEED	150.0
@@ -1412,13 +1412,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //////	CHANGE FILAMENT
 
-#define CHANGE_FIL_TEMP_HYSTERESIS		 10				//(ÂºC)
+#define CHANGE_FIL_TEMP_HYSTERESIS		 10				//(ºC)
 
 //////	NYLON CLEANING
 
-#define NYLON_TEMP_HYSTERESIS				 5			//(ÂºC)
-#define NYLON_TEMP_HEATUP_THRESHOLD			 260		//(ÂºC)
-#define NYLON_TEMP_COOLDOWN_THRESHOLD		 60			//(ÂºC)
+#define NYLON_TEMP_HYSTERESIS				 5			//(ºC)
+#define NYLON_TEMP_HEATUP_THRESHOLD			 260		//(ºC)
+#define NYLON_TEMP_COOLDOWN_THRESHOLD		 60			//(ºC)
 
 //////	PAUSE PRINT
 #if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX

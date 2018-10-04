@@ -335,6 +335,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS, CUSTOMDIGITS_ADJUSTING_TEMPERATURES, 0);
 			display_ChangeForm(FORM_ADJUSTING_TEMPERATURES,0);
+			
 			Tref1 = (int)degHotend(which_extruder);
 			Tfinal1 = (int)degTargetHotend(which_extruder)-CHANGE_FIL_TEMP_HYSTERESIS;
 			Tpercentaje_old = 0;
@@ -744,8 +745,6 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				setTargetHotend((float)Temp_ChangeFilament_Saved, which_extruder);
 				Flag_checkfil = false;
 				st_synchronize();
-				HeaterCooldownInactivity(true);
-				
 			}
 			break;
 			
@@ -2018,7 +2017,6 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					/*if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
 					else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);*/
 					touchscreen_update();
-					delay(500);
 					is_changing_filament=true; //We are changing filament
 					
 				}
@@ -2209,7 +2207,6 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			st_synchronize();
 			ERROR_SCREEN_WARNING;
 			touchscreen_update();
-			delay(500);
 			is_changing_filament=true;
 			break;
 			
@@ -7289,15 +7286,7 @@ void unloadfilament_procedure(void){//Removing...
 		display_ChangeForm(FORM_PROCESSING,0);
 		gif_processing_state = PROCESSING_DEFAULT;
 		
-		/*
-		current_position[E_AXIS] +=8;
 				
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);
-		
-		current_position[E_AXIS] -=4;
-		
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_R18_SPEED/60, which_extruder);				
-		*/
 		current_position[E_AXIS] +=PURGE_LENGHT_UNLOAD;
 		
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], PURGE_SPEED_UNLOAD/60, which_extruder);
@@ -7383,8 +7372,6 @@ void unload_get_ready(){
 	Tfinal1 = (int)degTargetHotend(which_extruder)-CHANGE_FIL_TEMP_HYSTERESIS;
 	touchscreen_update();
 	gif_processing_state = PROCESSING_ADJUSTING;
-	
-	delay(500);
 	is_changing_filament=true; //We are changing filament
 }
 void Coolingdown_Shutdown(int mode){

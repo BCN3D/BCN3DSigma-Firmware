@@ -7370,6 +7370,7 @@ void unload_get_ready(){
 	display_ChangeForm(FORM_ADJUSTING_TEMPERATURES,0);
 	Tref1 = (int)degHotend(which_extruder);
 	Tfinal1 = (int)degTargetHotend(which_extruder)-CHANGE_FIL_TEMP_HYSTERESIS;
+	Tpercentaje_old = 0;
 	touchscreen_update();
 	gif_processing_state = PROCESSING_ADJUSTING;
 	is_changing_filament=true; //We are changing filament

@@ -1,7 +1,6 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
-
 ////////////////////////////////PROTOSIGMA///////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Which variables has been affected in the firmware to DHUB machines
 //SIGMA_Z_HOME_TRAVEL_SPEED , XY_SIGMA_TRAVEL_SPEED, HOMING_FEEDRATE, DEFAULT_AXIS_STEPS_PER_UNIT, DEFAULT_MAX_FEEDRATE, DEFAULT_MAX_ACCELERATION, X_MAX_POS   
@@ -25,8 +24,7 @@
 // example_configurations/SCARA directory.
 //
 
-//#define BUILD_DATE  "|M10.04"
-#define BUILD_DATE  " "
+#define BUILD_DATE 
 #define UI_SerialID  "At Bottom Sticker"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
@@ -108,17 +106,17 @@
 #endif
 
 #ifndef BCN3D_PRINTER_SETUP
-	#define BCN3D_PRINTER_SETUP BCN3D_PRINTER_IS_SIGMA
+	#define BCN3D_PRINTER_SETUP BCN3D_PRINTER_IS_SIGMAX
 #endif
 
 //This is the version declaration for Sigma/x, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 #if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-	#define VERSION_STRING  "01-2.0.4"
-	#define VERSION_NUMBER  134
+	#define VERSION_STRING  "01-2.0.5RC"
+	#define VERSION_NUMBER  135
 #elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
-	#define VERSION_STRING  "02-2.0.4"	
-	#define VERSION_NUMBER  234
+	#define VERSION_STRING  "02-2.0.5RC"	
+	#define VERSION_NUMBER  235
 #endif
 
 
@@ -282,7 +280,7 @@
 // 10 is 100k RS thermistor 198-961 (4.7k pullup)
 // 11 is 100k beta 3950 1% thermistor (4.7k pullup)
 // 12 is 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup) (calibrated for Makibox hot bed)
-// 13 is 100k Hisens 3950  1% up to 300°C for hotend "Simple ONE " & "Hotend "All In ONE" 
+// 13 is 100k Hisens 3950  1% up to 300Â°C for hotend "Simple ONE " & "Hotend "All In ONE" 
 // 20 is the PT100 circuit found in the Ultimainboard V2.x
 // 60 is 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
 //
@@ -380,7 +378,7 @@
  // #define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   
-  //Rapduch ATENCIÓ
+  //Rapduch ATENCIÃ“
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
@@ -1412,13 +1410,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //////	CHANGE FILAMENT
 
-#define CHANGE_FIL_TEMP_HYSTERESIS		 10				//(ºC)
+#define CHANGE_FIL_TEMP_HYSTERESIS		 10				//(ÂºC)
 
 //////	NYLON CLEANING
 
-#define NYLON_TEMP_HYSTERESIS				 5			//(ºC)
-#define NYLON_TEMP_HEATUP_THRESHOLD			 260		//(ºC)
-#define NYLON_TEMP_COOLDOWN_THRESHOLD		 60			//(ºC)
+#define NYLON_TEMP_HYSTERESIS				 5			//(ÂºC)
+#define NYLON_TEMP_HEATUP_THRESHOLD			 260		//(ÂºC)
+#define NYLON_TEMP_COOLDOWN_THRESHOLD		 60			//(ÂºC)
 
 //////	PAUSE PRINT
 #if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
@@ -1522,6 +1520,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 */
 
 #define PATTERN_Z_CALIB						 0
+
+//#define ENABLE_CURA_COUNTDOWN_TIMER 
 
 #include "Configuration_adv.h"
 #include "thermistortables.h"

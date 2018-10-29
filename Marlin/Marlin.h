@@ -315,6 +315,11 @@ extern uint16_t filepointer;
 extern int8_t saved_active_extruder;
 extern String screen_status;
 extern bool waiting_temps;
+#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+extern bool flag_is_cura_file;
+extern long is_cura_file_total_time;
+extern long is_cura_file_total_timeelapsed;
+#endif
 extern int UI_SerialID0;
 extern long UI_SerialID1;
 extern int UI_SerialID2;

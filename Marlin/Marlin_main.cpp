@@ -242,6 +242,11 @@ bool notice_registercode = false;
 //Rapduch
 #ifdef SIGMA_TOUCH_SCREEN
 bool waiting_temps = false;
+#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+bool flag_is_cura_file = false;
+long is_cura_file_total_time = 0;
+long is_cura_file_total_timeelapsed = 0;
+#endif
 int8_t which_extruder_setup=-1;
 int8_t which_hotend_setup[2]={-1,-1};
 bool screen_sdcard = false;
@@ -858,6 +863,8 @@ void setup()
 	setup_powerhold();
 	st_init();    // Initialize stepper, this enables interrupts!
 	pinMode(RELAY, OUTPUT);
+	pinMode(SDA_PIN, OUTPUT);
+	digitalWrite(SDA_PIN, LOW);
 	digitalWrite(RELAY, LOW);
 	MYSERIAL.begin(BAUDRATE);
 
@@ -865,7 +872,9 @@ void setup()
 	SERIAL_ECHO_START;
 	SERIAL_PROTOCOLLNPGM("start");
 	SERIAL_PROTOCOLLNPGM(PRINTER_NAME);
-	
+	#ifdef BUILD_DATE
+	SERIAL_PROTOCOLLNPGM(STRING_VERSION_CONFIG_H);
+	#endif
 	//LCD START routine
 	
 	
@@ -1646,20 +1655,44 @@ while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
 		}
 		if(serial_char=='#')
 		stop_buffering=true;
-		if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
-			if(comment_count > 0){
-				#ifdef ENABLE_DUPLI_MIRROR
-				buffer_comment[comment_count]=0;
-				#endif
-				comment_count = 0;
-			}
+		
+		if(comment_count > 0){
+			//#ifdef ENABLE_DUPLI_MIRROR
+			buffer_comment[comment_count]=0;
+			//#endif
+			comment_count = 0;
 		}
+		
+		#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+		
+		if(strncmp_P(buffer_comment,PSTR(";TIME:"), 6)==0){
+			
+			flag_is_cura_file = true;
+			strchr_pointer = strchr(buffer_comment, ':');
+			
+			is_cura_file_total_time = strtol(&buffer_comment[strchr_pointer - buffer_comment + 1], NULL, 10);
+			is_cura_file_total_timeelapsed = 0;
+			Serial.println(buffer_comment);
+			Serial.print("Time Remaining:");
+			Serial.println(is_cura_file_total_time);
+		}
+		if(strncmp_P(buffer_comment,PSTR(";TIME_ELAPSED:"), 14)==0 && flag_is_cura_file){
+			
+			strchr_pointer = strchr(buffer_comment, ':');
+			is_cura_file_total_timeelapsed = strtol(&buffer_comment[strchr_pointer - buffer_comment + 1], NULL, 10);
+			Serial.println(buffer_comment);
+			Serial.print("Time Elapsed:");
+			Serial.println(is_cura_file_total_timeelapsed);			
+		}
+		#endif			
+		
 		if(!serial_count)
 		{
 			comment_mode = false; //for new command
 			return; //if empty line
 		}
 		cmdbuffer[bufindw][serial_count] = 0; //terminate string
+		
 		
 		#ifdef ENABLE_DUPLI_MIRROR
 		if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
@@ -1715,12 +1748,19 @@ while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
 	{
 		
 		if(serial_char == ';'){
-			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
-				comment_count = 0;
-			}
+			
+			comment_count = 0;
+			
 			comment_mode = true;
 		}
 		if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
+		
+		#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+		if(comment_mode){
+			buffer_comment[comment_count++]=serial_char;
+		}
+		#endif
+		
 		#ifdef ENABLE_DUPLI_MIRROR
 		if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){//5 = dual mode raft
 			if(serial_char == 'G'&& !comment_mode) raft_indicator_is_Gcode = 1;
@@ -1736,9 +1776,11 @@ while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
 					
 				}
 			}
+			#ifndef ENABLE_CURA_COUNTDOWN_TIMER
 			if(comment_mode){
 				buffer_comment[comment_count++]=serial_char;
 			}
+			#endif
 		}
 		
 		
@@ -4678,6 +4720,9 @@ inline void gcode_M24(){
 	
 	card.startFileprint();
 	starttime=millis();
+	#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+	flag_is_cura_file = false;
+	#endif
 	Flag_checkfil = false;
 	Flag_fanSpeed_mirror=0;
 	extrudemultiply=100;
@@ -6737,6 +6782,9 @@ inline void gcode_M536(){
 	
 	analogWrite(RED, 255); analogWrite(GREEN, 255); analogWrite(BLUE, 255);
 }
+inline void gcode_M537(){
+	if (code_seen('V')) digitalWrite(SDA_PIN,(int)code_value());
+}
 inline void gcode_M540(){
 	#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 	if(code_seen('S')) abort_on_endstop_hit = code_value() > 0;
@@ -7949,6 +7997,10 @@ void process_commands()
 			
 			case 536:
 			gcode_M536();
+			break;
+			
+			case 537:
+			gcode_M537();
 			break;
 			
 			case 540:

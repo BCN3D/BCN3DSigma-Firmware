@@ -4,6 +4,7 @@ Last Update: 01/08/2018
 Author: Alejandro Garcia (S3mt0x)
 */
 #include "LCD_FSM.h"
+#include "Build_defs.h"
 
 #ifdef SIGMA_TOUCH_SCREEN
 
@@ -2264,14 +2265,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				if (millis() >= waitPeriod_s){
 					int Tinstant;
 					memset(buffer, '\0', sizeof(buffer) );
-					if(Tref > (int)degHotend(which_extruder)){
-						Tinstant = Tref;
-						}else if((int)degHotend(which_extruder) > Tfinal){
-						Tinstant = Tfinal;
-						}else{
-						Tinstant = (int)degHotend(which_extruder);
-					}
-					
+					Tinstant = constrain((int)degHotend(which_extruder), Tref, Tfinal);				
 					percentage = Tfinal-Tref;
 					percentage = 100*(Tinstant-Tref)/percentage;
 					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_ADJUSTING_TEMPERATURES, percentage);
@@ -2302,14 +2296,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				memset(buffer, '\0', sizeof(buffer) );
 				if (millis() >= waitPeriod_s){
 					int Tinstant;
-					if(Tref < (int)degHotend(which_extruder)){
-						Tinstant = Tref;
-						}else if((int)degHotend(which_extruder) < Tfinal){
-						Tinstant = Tfinal;
-						}else{
-						Tinstant = (int)degHotend(which_extruder);
-					}
-					
+					Tinstant = constrain((int)degHotend(which_extruder), Tfinal, Tref);					
 					percentage = ((Tref-Tfinal)-(Tinstant-Tfinal))*100;
 					percentage = percentage/(Tref-Tfinal);
 					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_MAINTENANCE_NYLONCLEANING_STEP3, percentage);
@@ -2354,9 +2341,10 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
 				if (millis() >= waitPeriod_s){
 					memset(buffer, '\0', sizeof(buffer) );
-					
+					int Tinstant;
+					Tinstant = constrain((int)degHotend(which_extruder), Tref, Tfinal);
 					percentage = Tfinal-Tref;
-					percentage = 100*((int)degHotend(which_extruder)-Tref)/percentage;
+					percentage = 100*(Tinstant-Tref)/percentage;
 					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_ADJUSTING_TEMPERATURES, percentage);
 					waitPeriod_s=500+millis();
 				}
@@ -4123,9 +4111,13 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			if(UI_SerialID2<SERIAL_ID_THRESHOLD || (axis_steps_per_unit[E_AXIS]>=493 && axis_steps_per_unit[E_AXIS]<=492) ){
 				
-				
+			
 				display_ChangeForm(FORM_INFO_UI,0);
-				sprintf(buffer, "%s%s",VERSION_STRING,BUILD_DATE);
+				#ifndef BUILD_DATE
+				sprintf_P(buffer, PSTR("%s"),VERSION_STRING);
+				#else
+				sprintf_P(buffer, PSTR("%s|M%02d.%02d"),VERSION_STRING,BUILDTM_MONTH,BUILDTM_DAY);
+				#endif
 				display.WriteStr(STRING_INFO_UI_VERSION,buffer);
 				if(UI_SerialID0 || UI_SerialID1 || UI_SerialID2){
 					sprintf_P(buffer, PSTR("%03d.%03d%03d.%04d"),UI_SerialID0, (int)(UI_SerialID1/1000),(int)(UI_SerialID1%1000), UI_SerialID2);
@@ -4157,7 +4149,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				
 				}else{
 				display_ChangeForm(FORM_INFO_UI_2,0);
-				sprintf(buffer, "%s%s",VERSION_STRING,BUILD_DATE);
+				#ifndef BUILD_DATE
+				sprintf_P(buffer, PSTR("%s"),VERSION_STRING);
+				#else
+				sprintf_P(buffer, PSTR("%s|M%02d.%02d"),VERSION_STRING,BUILDTM_MONTH,BUILDTM_DAY);
+				#endif
 				display.WriteStr(STRING_INFO_UI_VERSION_2,buffer);
 				if(UI_SerialID0 || UI_SerialID1 || UI_SerialID2){
 					sprintf_P(buffer, PSTR("%03d.%03d%03d.%04d"),UI_SerialID0, (int)(UI_SerialID1/1000),(int)(UI_SerialID1%1000), UI_SerialID2);
@@ -4179,7 +4175,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 			
 			display_ChangeForm(FORM_INFO_UI,0);
-			sprintf(buffer, "%s%s",VERSION_STRING,BUILD_DATE);
+			#ifndef BUILD_DATE
+			sprintf_P(buffer, PSTR("%s"),VERSION_STRING);
+			#else
+			sprintf_P(buffer, PSTR("%s|M%02d.%02d"),VERSION_STRING,BUILDTM_MONTH,BUILDTM_DAY);
+			#endif
 			display.WriteStr(STRING_INFO_UI_VERSION,buffer);
 			if(UI_SerialID0 || UI_SerialID1 || UI_SerialID2){
 				sprintf_P(buffer, PSTR("%03d.%03d%03d.%04d"),UI_SerialID0, (int)(UI_SerialID1/1000),(int)(UI_SerialID1%1000), UI_SerialID2);
@@ -5009,6 +5009,7 @@ void lcd_fsm_output_logic(){//We process tasks according to the present state
 }
 void update_screen_endinggcode(){
 	if(!blocks_queued()){
+		if(current_position[Z_AXIS]>Z_MAX_POS-15)plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]-Z_SIGMA_RAISE_BEFORE_HOMING,current_position[E_AXIS],6,active_extruder);
 		doblocking=false;
 		log_prints_finished++;
 		acceleration = acceleration_old;
@@ -5048,6 +5049,9 @@ void update_screen_endinggcode(){
 		ymmdone = 0;
 		e0mmdone = 0;
 		e1mmdone = 0;
+		#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+		flag_is_cura_file = false;
+		#endif
 		Flag_checkfil = false;
 		Config_StoreSettings();
 		//The default states is Left Extruder active
@@ -5409,6 +5413,7 @@ void update_screen_printing(){
 			enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
 			bitClear(flag_sdprinting_register,flag_sdprinting_register_printsavejob);
 		}
+		
 		acceleration = acceleration_old;
 		feedmultiply[LEFT_EXTRUDER]=100;
 		feedmultiply[RIGHT_EXTRUDER]=100;
@@ -5420,6 +5425,10 @@ void update_screen_printing(){
 		SERIAL_PROTOCOLLNPGM(" STOP PRINT ");
 		Flag_fanSpeed_mirror = 0;
 		cancel_heatup = true;
+		#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+		flag_is_cura_file = false;
+		#endif
+		
 		back_home = true;
 		home_made = false;
 		screen_sdcard = false;
@@ -5540,23 +5549,11 @@ void update_screen_printing(){
 				
 				
 				if(Tref1<Tfinal1){
-					
-					if(Tref1 > (int)degHotend(which_extruder)){
-						Tinstant = Tref1;
-						}else if((int)degHotend(which_extruder) > Tfinal1){
-						Tinstant = Tfinal1;
-						}else{
-						Tinstant = (int)degHotend(which_extruder);
-					}
+										
+					Tinstant = constrain((int)degHotend(which_extruder),Tref1,Tfinal1);
 				}
 				else{
-					if(Tref1 < (int)degHotend(which_extruder)){
-						Tinstant = Tref1;
-						}else if((int)degHotend(which_extruder) < Tfinal1){
-						Tinstant = Tfinal1;
-						}else{
-						Tinstant = (int)degHotend(which_extruder);
-					}
+					Tinstant = constrain((int)degHotend(which_extruder),Tfinal1,Tref1);
 				}
 				percentage = Tfinal1-Tref1;
 				percentage = 100*(Tinstant-Tref1)/percentage;
@@ -5884,22 +5881,10 @@ void update_screen_noprinting(){
 				
 				if(Tref1<Tfinal1){
 					
-					if(Tref1 > (int)degHotend(which_extruder)){
-						Tinstant = Tref1;
-						}else if((int)degHotend(which_extruder) > Tfinal1){
-						Tinstant = Tfinal1;
-						}else{
-						Tinstant = (int)degHotend(which_extruder);
-					}
+					Tinstant = constrain((int)degHotend(which_extruder),Tref1,Tfinal1);
 				}
 				else{
-					if(Tref1 < (int)degHotend(which_extruder)){
-						Tinstant = Tref1;
-						}else if((int)degHotend(which_extruder) < Tfinal1){
-						Tinstant = Tfinal1;
-						}else{
-						Tinstant = (int)degHotend(which_extruder);
-					}
+					Tinstant = constrain((int)degHotend(which_extruder),Tfinal1,Tref1);
 				}
 				percentage = Tfinal1-Tref1;
 				percentage = 100*(Tinstant-Tref1)/percentage;
@@ -6117,7 +6102,7 @@ void lcd_animation_handler(){//We process the animations frames
 			log_minutes_lastprint = (int)(log_min_print%60);
 			Config_StoreSettings();
 			cancel_heatup = false;
-			
+			if(current_position[Z_AXIS]>Z_MAX_POS-15)plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]-Z_SIGMA_RAISE_BEFORE_HOMING,current_position[E_AXIS],6,active_extruder);
 			if(FLAG_thermal_runaway){
 				char buffer[80];
 				sprintf(buffer, "ERROR(88): Temperature not reached by Heater_ID: %d",ID_thermal_runaway);
@@ -7127,64 +7112,25 @@ void Calib_check_temps(void){
 				int Tinstanthot0, Tinstanthot1, Tinstantbed;
 				
 				if(Tref0<Tfinal0){
-					
-					if(Tref0 > (int)degHotend(LEFT_EXTRUDER)){
-						Tinstanthot0 = Tref0;
-						}else if((int)degHotend(LEFT_EXTRUDER) > Tfinal0){
-						Tinstanthot0 = Tfinal1;
-						}else if(Tfinal0==0){
-						Tinstanthot0 = 0;
-						Tref0 = 0;
-						}else{
-						Tinstanthot0 = (int)degHotend(LEFT_EXTRUDER);
-					}
+										
+					Tinstanthot0 = constrain((int)degHotend(LEFT_EXTRUDER),Tref0,Tfinal0);
 				}
 				else{
-					if(Tref0 < (int)degHotend(LEFT_EXTRUDER)){
-						Tinstanthot0 = Tref0;
-						}else if((int)degHotend(LEFT_EXTRUDER) < Tfinal0){
-						Tinstanthot0 = Tfinal0;
-						}else if(Tfinal0==0){
-						Tinstanthot0 = 0;
-						Tref0 = 0;
-						}else{
-						Tinstanthot0 = (int)degHotend(LEFT_EXTRUDER);
-					}
+					
+					Tinstanthot0 = constrain((int)degHotend(LEFT_EXTRUDER),Tfinal0,Tref0);
 				}
 				if(Tref1<Tfinal1){
 					
-					if(Tref1 > (int)degHotend(RIGHT_EXTRUDER)){
-						Tinstanthot1 = Tref1;
-						}else if((int)degHotend(RIGHT_EXTRUDER) > Tfinal1){
-						Tinstanthot1 = Tfinal1;
-						}else if(Tfinal1==0){
-						Tinstanthot1 = 0;
-						Tref1 = 0;
-						}else{
-						Tinstanthot1 = (int)degHotend(RIGHT_EXTRUDER);
-					}
+					
+					Tinstanthot1 = constrain((int)degHotend(RIGHT_EXTRUDER),Tref1,Tfinal1);
 				}
 				else{
-					if(Tref1 < (int)degHotend(RIGHT_EXTRUDER)){
-						Tinstanthot1 = Tref1;
-						}else if((int)degHotend(RIGHT_EXTRUDER) < Tfinal1){
-						Tinstanthot1 = Tfinal1;
-						}else if(Tfinal1==0){
-						Tinstanthot1 = 0;
-						Tref1 = 0;
-						}else{
-						Tinstanthot1 = (int)degHotend(RIGHT_EXTRUDER);
-					}
+					Tinstanthot1 = constrain((int)degHotend(RIGHT_EXTRUDER),Tfinal1,Tref1);
 				}
-				if(Trefbed > Tfinalbed){
-					Trefbed = Tfinalbed;
-					Tinstantbed = Tfinalbed;
-					}else if(Trefbed > (int)degBed()){
-					Tinstantbed = Trefbed;
-					}else if((int)degBed() > Tfinalbed){
-					Tinstantbed = Tfinalbed;
-					}else{
-					Tinstantbed = (int)degBed();
+				if(Trefbed < Tfinalbed){
+					Tinstantbed = constrain((int)degBed(),Trefbed,Tfinalbed);
+				}else{
+					Tinstantbed = constrain((int)degBed(),Tfinalbed,Trefbed);
 				}
 				
 				percentage = abs((long)Tfinal0-(long)Tref0)+abs((long)Tfinal1-(long)Tref1)+abs((long)Tfinalbed*5-(long)Trefbed*5);
@@ -7286,7 +7232,7 @@ void unloadfilament_procedure(void){//Removing...
 		display_ChangeForm(FORM_PROCESSING,0);
 		gif_processing_state = PROCESSING_DEFAULT;
 		
-				
+					
 		current_position[E_AXIS] +=PURGE_LENGHT_UNLOAD;
 		
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], PURGE_SPEED_UNLOAD/60, which_extruder);

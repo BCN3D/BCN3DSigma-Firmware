@@ -98,7 +98,7 @@ void Listfiles::get_lineduration(bool fromfilepoiter, char* name){
 		memset(commandline, '\0', sizeof(commandline) );
 		
 		linecomepoint=0;
-		while(linecomepoint < 2 && !card.isEndFile()){
+		while(linecomepoint < 5 && !card.isEndFile()){
 			memset(commandline, '\0', sizeof(commandline) );
 			if (search_line_data_commentary() == -1 ){
 				linecomepoint = 5;
@@ -110,15 +110,20 @@ void Listfiles::get_lineduration(bool fromfilepoiter, char* name){
 				card.closefile();
 				return;
 			}
-			
+			extract_data();
+			if(minutos !=-1)break;
 			linecomepoint++;
 		}
-		extract_data();
+		if(minutos < 0){
+			dias=0;
+			horas=0;
+			minutos = 1;
+		}
 		memset(commandline, '\0', sizeof(commandline) );
 		posi = 0;
 		serial_char='\0';
 		linecomepoint = 0;
-		while(linecomepoint < 3 && !card.isEndFile()){
+		while(linecomepoint < 5 && !card.isEndFile()){
 			memset(commandline, '\0', sizeof(commandline) );
 			if (search_line_data_commentary() == -1 ){
 				linecomepoint = 5;
@@ -130,9 +135,16 @@ void Listfiles::get_lineduration(bool fromfilepoiter, char* name){
 				card.closefile();
 				return;
 			}
+			extract_data1();
+			if(filgramos1 !=-1)break;
 			linecomepoint++;
 		}
-		extract_data1();
+		if(filgramos1 < 0){
+			filgramos1 = 0;
+			filmetros2 = 0;
+			filmetros1 = 0;
+			filgramos2 = 0;
+		}
 		//card.closefile();
 		memset(commandline, '\0', sizeof(commandline));
 	}
@@ -228,12 +240,7 @@ inline void Listfiles::extract_data1(void){
 	}
 	else if ( simplify3D == 1){
 		sscanf_P(commandline, PSTR(";   Plastic weight: %d.%dg"), &filgramos1, &filgramos2);
-		if(filgramos1 < 0){
-			filgramos1 = 0;
-			filmetros2 = 0;
-			filmetros1 = 0;
-			filgramos2 = 0;
-		}
+		
 	}
 
 }
@@ -382,8 +389,10 @@ float Listfiles::extract_ensure_hotend_gcode_setup_t(uint8_t tool){
 		nozzle_digit2 = nozzle_digit4;
 	}
 	if(tool == LEFT_EXTRUDER){
+		if(nozzle_digit1==1 && nozzle_digit2 == -1)nozzle_digit2=0;
 		res = (float) (nozzle_digit1 + nozzle_digit2/10.0);
 	}else{
+		if(nozzle_digit3==1 && nozzle_digit4 == -1)nozzle_digit4=0;
 		res = (float) (nozzle_digit3 + nozzle_digit4/10.0);
 	}
 	
@@ -446,12 +455,8 @@ inline void Listfiles::extract_data(void){
 	}
 	else if (simplify3D == 1){
 		dias = 0;
-		sscanf_P( commandline, PSTR(";   Build time: %d %s %d %s"), &horas, a, &minutos, b);
-		if(minutos == -1){
-			horas = 0;
-			minutos = 1;
-		}
-		
+		sscanf_P( commandline, PSTR(";   Build time: %d %s %d %s\n"), &horas, a, &minutos, b);
+				
 	}
 	
 }
@@ -493,25 +498,44 @@ int Listfiles::get_filgramos2(){
 }
 int Listfiles::get_hoursremaining(){
 	unsigned long long hours = 0;
+	#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+	if(!flag_is_cura_file){
+		if (get_hours()==0)return 0;
+		hours =(unsigned long long)get_hours()*60+(unsigned long long)get_minutes();
+		hours = hours-hours*card.getSdPosition()/card.getFileSize();
+		hours = hours/60;
+	}else{
+		hours = (((unsigned long long)(is_cura_file_total_time - is_cura_file_total_timeelapsed))/3600);
+	}
+	#else
 	if (get_hours()==0)return 0;
 	hours =(unsigned long long)get_hours()*60+(unsigned long long)get_minutes();
-	Serial.println((long)hours);
 	hours = hours-hours*card.getSdPosition()/card.getFileSize();
-	Serial.println((long)hours);
 	hours = hours/60;
-	Serial.println((long)hours);
+	#endif
 	return (int) hours;
 }
 int Listfiles::get_minutesremaining(){
 	unsigned long long minu = 0;
+	#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+	if(!flag_is_cura_file){
+	
 	if (get_minutes()==-1)return 0;
+		
+	}else{
+		minu = (((unsigned long long)(is_cura_file_total_time - is_cura_file_total_timeelapsed))/60)%60;
+		
+	}
+	#else
 	minu = (unsigned long long)get_hours()*60+(unsigned long long)get_minutes();
 	minu = minu-minu*card.getSdPosition()/card.getFileSize();
 	minu = minu%60;
+	#endif
 	return (int) minu;
 }
 int Listfiles::get_hoursremaining_save(long position){
 	unsigned long long hours = 0;
+	
 	if (get_hours()==0)return 0;
 	hours =(unsigned long long)get_hours()*60+(unsigned long long)get_minutes();
 	Serial.println((long)hours);
@@ -519,6 +543,7 @@ int Listfiles::get_hoursremaining_save(long position){
 	Serial.println((long)hours);
 	hours = hours/60;
 	Serial.println((long)hours);
+	
 	return (int) hours;
 }
 int Listfiles::get_minutesremaining_save(long position){

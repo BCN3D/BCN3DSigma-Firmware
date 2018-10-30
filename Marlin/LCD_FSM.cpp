@@ -5008,10 +5008,12 @@ void lcd_fsm_output_logic(){//We process tasks according to the present state
 	}
 }
 void update_screen_endinggcode(){
-	if(!blocks_queued()){
+	if(!blocks_queued() && !buflen){
+		flag_ending_gcode = false;
 		doblocking=false;
 		log_prints_finished++;
 		acceleration = acceleration_old;
+		if(current_position[Z_AXIS]>Z_MAX_POS-15){plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]-Z_SIGMA_RAISE_BEFORE_HOMING,current_position[E_AXIS],6,active_extruder);st_synchronize();};
 		quickStop();		
 		#ifdef SIGMA_TOUCH_SCREEN
 		//also we need to put the platform down and do an autohome to prevent blocking
@@ -5060,8 +5062,7 @@ void update_screen_endinggcode(){
 			//finishAndDisableSteppers();
 			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
 		}
-		autotempShutdown();	
-		flag_ending_gcode = false;
+		autotempShutdown();
 		setTargetHotend0(0);
 		setTargetHotend1(0);
 		setTargetBed(0);

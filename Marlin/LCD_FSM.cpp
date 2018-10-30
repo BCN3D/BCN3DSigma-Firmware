@@ -5009,7 +5009,6 @@ void lcd_fsm_output_logic(){//We process tasks according to the present state
 }
 void update_screen_endinggcode(){
 	if(!blocks_queued()){
-		if(current_position[Z_AXIS]>Z_MAX_POS-15)plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]-Z_SIGMA_RAISE_BEFORE_HOMING,current_position[E_AXIS],6,active_extruder);
 		doblocking=false;
 		log_prints_finished++;
 		acceleration = acceleration_old;
@@ -6102,7 +6101,7 @@ void lcd_animation_handler(){//We process the animations frames
 			log_minutes_lastprint = (int)(log_min_print%60);
 			Config_StoreSettings();
 			cancel_heatup = false;
-			if(current_position[Z_AXIS]>Z_MAX_POS-15)plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]-Z_SIGMA_RAISE_BEFORE_HOMING,current_position[E_AXIS],6,active_extruder);
+			if(current_position[Z_AXIS]>Z_MAX_POS-15){plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]-Z_SIGMA_RAISE_BEFORE_HOMING,current_position[E_AXIS],6,active_extruder);st_synchronize();};
 			if(FLAG_thermal_runaway){
 				char buffer[80];
 				sprintf(buffer, "ERROR(88): Temperature not reached by Heater_ID: %d",ID_thermal_runaway);

@@ -744,6 +744,7 @@ void CardReader::printingHasFinished()
 	else
 	{
 		file.close();
+		if(current_position[Z_AXIS]>Z_MAX_POS-15){plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]-Z_SIGMA_RAISE_BEFORE_HOMING,current_position[E_AXIS],6,active_extruder);st_synchronize();};
 		flag_ending_gcode = true;
 	}
 	

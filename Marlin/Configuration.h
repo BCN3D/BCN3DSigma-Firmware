@@ -106,7 +106,7 @@
 #endif
 
 #ifndef BCN3D_PRINTER_SETUP
-	#define BCN3D_PRINTER_SETUP BCN3D_PRINTER_IS_SIGMAX
+	#define BCN3D_PRINTER_SETUP BCN3D_PRINTER_IS_SIGMA
 #endif
 
 //This is the version declaration for Sigma/x, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to

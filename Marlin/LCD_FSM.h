@@ -26,6 +26,7 @@ Author: Alejandro Garcia (S3mt0x)
 
 
 //#include "ultralcd.h"
+extern int get_nummaxchars(bool isfilegcode, unsigned int totalpixels);
 extern void setfilenames(int jint);
 extern void insertmetod();
 extern void ListFilesParsingProcedure(uint16_t vecto, int jint);

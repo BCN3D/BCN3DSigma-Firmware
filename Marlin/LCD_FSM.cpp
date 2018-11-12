@@ -161,6 +161,19 @@ const unsigned int register_codes[20]=
 	REGIST_CODE_15, REGIST_CODE_16, REGIST_CODE_17, REGIST_CODE_18, REGIST_CODE_19
 	
 };
+const unsigned int pixelsize_char_uppercase[26]=
+{
+	21,16,16,18,14,13,17,18,7,12,17,13,22,
+	19,19,16,19,17,14,13,18,16,25,16,14,16
+
+};
+const unsigned int pixelsize_char_lowercase[26]=///Total 330
+{
+		14,16,14,17,14,8,15,16,7,8,15,7,25,
+		16,15,16,16,16,9,12,15,12,21,13,11,12
+	
+};
+int get_nummaxchars(bool isfilegcode, unsigned int totalpixels);
 void setsdlisthours(int jint, int time_hour);
 void setsdlistmin(int jint, int time_min);
 void setsdlistg(int jint, int weight);
@@ -5381,7 +5394,7 @@ void update_screen_printing(){
 			SERIAL_PROTOCOLLNPGM("RESUME");
 			bitClear(flag_sdprinting_register,flag_sdprinting_register_pauseresume);
 			if(bitRead(flag_sdprinting_register,flag_sdprinting_register_printresume)){
-				enquecommand_P(((PSTR("G70"))));				
+				enquecommand_P((PSTR("G70")));
 				bitClear(flag_sdprinting_register,flag_sdprinting_register_printresume);
 			}
 		}
@@ -6833,96 +6846,91 @@ void ListFileListENTERBACKFORLDERSD(){
 	memset(listsd.commandline2, '\0', sizeof(listsd.commandline2) );
 	
 }
-void setfoldernames(int jint){
-	unsigned int count = 22;
-	char buffer[count+4];
-	int x = 0;
-	memset( buffer, '\0', sizeof(buffer));
-	if (String(card.longFilename).length() == 0){
-		strcpy(buffer, card.filename);
-		display.WriteStr(stringfilename[jint],buffer);//Printing form
-	}
-	else if (String(card.longFilename).length() > count){
-		for (unsigned int i = 0; i<count ; i++)
-		{
-			if (card.longFilename[i] == '.') break; //go out of the for
-			else if(i == 0) buffer[i]=card.longFilename[x];
-			else {
-				buffer[i]=card.longFilename[x];
-			}
-			x++;
-			//Serial.print(i);
+int get_nummaxchars(bool isfilegcode, unsigned int totalpixels){
+	unsigned int totalcount=0;
+	int nchars=0;
+	int length_array = String(card.longFilename).length() - (isfilegcode?6:0); //avoid .gcode
+	//Serial.println("length_array: ");
+	//Serial.println(length_array);
+	unsigned int Char_check = 0;
+	
+	while(nchars < length_array && totalcount < totalpixels){
+		Char_check= (unsigned int)card.longFilename[nchars];
+		if(Char_check>=65 && Char_check<=90){//upper
+			totalcount += pixelsize_char_uppercase[Char_check-65];	
+		}else if(Char_check>=97 && Char_check<=122){//lower
+			totalcount += pixelsize_char_lowercase[Char_check-97];
+		}else{
+			totalcount += 15;
 		}
-		buffer[count]='.';
-		buffer[count+1]='.';
-		buffer[count+2]='.';
-		buffer[count+3]='\0';
+		
+		nchars++;
+	}
+	/*Serial.println("N chars: ");
+	Serial.println(nchars);
+	Serial.println("N Prixeles: ");
+	Serial.println(totalcount);*/
+	return nchars;
+}
+
+void setfoldernames(int jint){
+	
+	unsigned int count = get_nummaxchars(false, 330);
+	char buffer[50];
+	memset( buffer, '\0', sizeof(buffer));
+	
+	if (count == 0){
+		strcpy(buffer, card.filename);
+		display.WriteStr(stringfilename[jint],buffer);//Printing for
+		
+		}else{
+		
+		for (unsigned int i = 0; i < count ; i++)
+		{
+			buffer[i]=card.longFilename[i];
+		}
+		if (String(card.longFilename).length() > count){
+			buffer[count]='.';
+			buffer[count+1]='.';
+			buffer[count+2]='.';
+			buffer[count+3]='\0';
+		}
 		
 		display.WriteStr(stringfilename[jint],buffer);//Printing form
-		//memset( buffer2, '\0', sizeof(buffer2));
-	}
-	else {
-		for (unsigned int i = 0; i<String(card.longFilename).length(); i++)	{
-			if (card.longFilename[i] == '.') break; //go out of the for
-			else if(i == 0) buffer[i]=card.longFilename[x];
-			else {
-				buffer[i]=card.longFilename[x];
-			}
-			x++;
-			//Serial.print(i);
-		}
-		//buffer[count]='\0';
-		display.WriteStr(stringfilename[jint],buffer);//Printing form
-		//Is a file
-		//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+		
 	}
 	Serial.println(buffer);
 	
 	
 }
 void setfilenames(int jint){
-	unsigned int count = 16;
-	char buffer[count+4];
-	int x = 0;
+	
+	unsigned int count = get_nummaxchars(true, ((jint==6 || jint == 7)?290:330));
+	
+	char buffer[50];
 	memset( buffer, '\0', sizeof(buffer));
+	
 	if (String(card.longFilename).length() == 0){
 		strcpy(buffer, card.filename);
 		display.WriteStr(stringfilename[jint],buffer);//Printing for
 		
-	}
-	else if (String(card.longFilename).length() > count){
-		for (unsigned int i = 0; i<count ; i++)
+	}else{
+		
+		for (unsigned int i = 0; i < count ; i++)
 		{
-			if (card.longFilename[i] == '.') break; //go out of the for
-			else if(i == 0) buffer[i]=card.longFilename[x];
-			else {
-				buffer[i]=card.longFilename[x];
-			}
-			x++;
-			//Serial.print(i);
+			buffer[i]=card.longFilename[i];
 		}
-		buffer[count]='.';
-		buffer[count+1]='.';
-		buffer[count+2]='.';
-		buffer[count+3]='\0';
-		display.WriteStr(stringfilename[jint],buffer);//Printing form
-		//memset( buffer2, '\0', sizeof(buffer2));
-	}
-	else {
-		for (unsigned int i = 0; i<String(card.longFilename).length(); i++)	{
-			if (card.longFilename[i] == '.') break; //go out of the for
-			else if(i == 0) buffer[i]=card.longFilename[x];
-			else {
-				buffer[i]=card.longFilename[x];
-			}
-			x++;
-			//Serial.print(i);
+		if ((String(card.longFilename).length() - 6) > count){
+			buffer[count]='.';
+			buffer[count+1]='.';
+			buffer[count+2]='.';
+			buffer[count+3]='\0';
 		}
-		//buffer[count]='\0';
+		
 		display.WriteStr(stringfilename[jint],buffer);//Printing form
-		//Is a file
-		//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+		
 	}
+	
 	if(jint == 6){
 		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[0][0],listsd.get_hours());//Printing form
 		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[1][0],listsd.get_minutes());//Printing form

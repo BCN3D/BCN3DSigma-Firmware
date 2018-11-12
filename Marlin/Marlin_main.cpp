@@ -461,7 +461,7 @@ void thermal_error_screen_on();
 bool flag_error_utilities = false;
 bool heatting = false;
 bool back_home = false;
-char namefilegcode[24];
+char namefilegcode[50];
 int bed_calibration_times = 0; //To control the number of bed calibration to available the skip option
 int purge_extruder_selected = -1;
 //////// MANUAL FINE CALIB ////////
@@ -864,7 +864,7 @@ void setup()
 	st_init();    // Initialize stepper, this enables interrupts!
 	pinMode(RELAY, OUTPUT);
 	pinMode(SDA_PIN, OUTPUT);
-	digitalWrite(SDA_PIN, LOW);
+	digitalWrite(SDA_PIN, HIGH);
 	digitalWrite(RELAY, LOW);
 	MYSERIAL.begin(BAUDRATE);
 
@@ -4149,6 +4149,14 @@ inline void gcode_G36()
 	home_axis_from_code(true,true,true);
 	gcode_G34();
 }
+inline void gcode_G68(){//Pause test
+	display_ChangeForm(FORM_SDPRINTING_PAUSE,0);
+	screen_printing_pause_form = screen_printing_pause_form1;
+	display.WriteStr(STRING_SDPRINTING_PAUSE_GCODE,namefilegcode);
+	bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
+	bitSet(flag_sdprinting_register,flag_sdprinting_register_pausetest);
+	
+}
 inline void gcode_G69(){//Pause
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	SERIAL_PROTOCOLLNPGM("G69 ACTIVATED");
@@ -4249,94 +4257,102 @@ inline void gcode_G69(){//Pause
 	#endif //ENABLE_AUTO_BED_LEVELING
 }
 inline void gcode_G70(){//Resume
-	
-	unsigned long codenum; //throw away variable
-	
-	#ifdef ENABLE_AUTO_BED_LEVELING
-	////*******LOAD ACTUIAL POSITION
-	Flag_checkfil = false;
-	//Serial.println(current_position[Z_AXIS]);
-	//*********************************//
-	doblocking = true;
-	active_extruder = saved_active_extruder;
-	fanSpeed = saved_fanSpeed;
-	
-	current_position[Z_AXIS] = saved_position[Z_AXIS]+PAUSE_G70_ZMOVE;
-	feedrate=homing_feedrate[Z_AXIS];
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-	destination[Z_AXIS] = current_position[Z_AXIS];
-	st_synchronize();
-	
-	current_position[Y_AXIS] = saved_position[Y_AXIS];
-	feedrate=homing_feedrate[Y_AXIS];
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);//Purge
-	st_synchronize();
-	
-	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
-	if(dual_x_carriage_mode ==DXC_DUPLICATION_MIRROR_MODE)	extruder_duplication_mirror_enabled =true;
-	
-	current_position[E_AXIS]+=PURGE_PRINTER_FACTOR;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50.0/60, active_extruder);//Purge
-	st_synchronize();
-	
-	codenum =4000;
-	codenum += millis();  // keep track of when we started waiting
-	previous_millis_cmd = millis();
-	while(millis() < codenum) {
-		manage_heater();
-		manage_inactivity();
-		//lcd_update();
-		#ifdef SIGMA_TOUCH_SCREEN
-		touchscreen_update();
-		#endif
+	if(!bitRead(flag_sdprinting_register,flag_sdprinting_register_pausetest)){
 		
+		
+		
+		unsigned long codenum; //throw away variable
+		
+		#ifdef ENABLE_AUTO_BED_LEVELING
+		////*******LOAD ACTUIAL POSITION
+		Flag_checkfil = false;
+		//Serial.println(current_position[Z_AXIS]);
+		//*********************************//
+		doblocking = true;
+		active_extruder = saved_active_extruder;
+		fanSpeed = saved_fanSpeed;
+		
+		current_position[Z_AXIS] = saved_position[Z_AXIS]+PAUSE_G70_ZMOVE;
+		feedrate=homing_feedrate[Z_AXIS];
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		destination[Z_AXIS] = current_position[Z_AXIS];
+		st_synchronize();
+		
+		current_position[Y_AXIS] = saved_position[Y_AXIS];
+		feedrate=homing_feedrate[Y_AXIS];
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);//Purge
+		st_synchronize();
+		
+		if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
+		if(dual_x_carriage_mode ==DXC_DUPLICATION_MIRROR_MODE)	extruder_duplication_mirror_enabled =true;
+		
+		current_position[E_AXIS]+=PURGE_PRINTER_FACTOR;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50.0/60, active_extruder);//Purge
+		st_synchronize();
+		
+		codenum =4000;
+		codenum += millis();  // keep track of when we started waiting
+		previous_millis_cmd = millis();
+		while(millis() < codenum) {
+			manage_heater();
+			manage_inactivity();
+			//lcd_update();
+			#ifdef SIGMA_TOUCH_SCREEN
+			touchscreen_update();
+			#endif
+			
+		}
+		
+		current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Purge
+		st_synchronize();
+		
+		if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =false;
+		
+		current_position[X_AXIS] = saved_position[X_AXIS];
+		
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED/60, active_extruder);
+		
+		if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE){
+			plan_set_position(extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			plan_buffer_line(current_position[X_AXIS]+duplicate_extruder_x_offset, current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED/60, RIGHT_EXTRUDER);
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		}
+		
+		
+		st_synchronize();
+		
+		if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
+		
+		current_position[Z_AXIS] = saved_position[Z_AXIS];
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 8, active_extruder);
+		destination[Z_AXIS] = current_position[Z_AXIS];
+		st_synchronize();
+		
+		current_position[E_AXIS]+=RETRACT_PRINTER_FACTOR;
+		//current_position[E_AXIS]+=RETRACT_PRINTER_FACTOR-1;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Purge
+		st_synchronize();
+		
+		current_position[E_AXIS] = saved_position[E_AXIS]/raft_extrusion_adjusting;
+		plan_set_e_position(saved_position[E_AXIS]);
+		
+		
+		//*********************************//
+		
+		feedrate = saved_feedrate;
+		extruder_multiply[LEFT_EXTRUDER]=saved_extruder_multiply[LEFT_EXTRUDER];
+		extruder_multiply[RIGHT_EXTRUDER]=saved_extruder_multiply[RIGHT_EXTRUDER];
+		
+		gif_processing_state = PROCESSING_STOP;
+		}else{
+		bitClear(flag_sdprinting_register,flag_sdprinting_register_pausetest);
 	}
 	
-	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Purge
-	st_synchronize();
-	
-	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =false;
-	
-	current_position[X_AXIS] = saved_position[X_AXIS];
-	
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED/60, active_extruder);
-	
-	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE){
-		plan_set_position(extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-		plan_buffer_line(current_position[X_AXIS]+duplicate_extruder_x_offset, current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED/60, RIGHT_EXTRUDER);
-		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-	}
-	
-	
-	st_synchronize();
-	
-	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
-	
-	current_position[Z_AXIS] = saved_position[Z_AXIS];
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 8, active_extruder);
-	destination[Z_AXIS] = current_position[Z_AXIS];
-	st_synchronize();
-	
-	current_position[E_AXIS]+=RETRACT_PRINTER_FACTOR;
-	//current_position[E_AXIS]+=RETRACT_PRINTER_FACTOR-1;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Purge
-	st_synchronize();
-	
-	current_position[E_AXIS] = saved_position[E_AXIS]/raft_extrusion_adjusting;
-	plan_set_e_position(saved_position[E_AXIS]);
-	
-	
-	//*********************************//
-	
-	feedrate = saved_feedrate;
-	extruder_multiply[LEFT_EXTRUDER]=saved_extruder_multiply[LEFT_EXTRUDER];
-	extruder_multiply[RIGHT_EXTRUDER]=saved_extruder_multiply[RIGHT_EXTRUDER];
-	gif_processing_state = PROCESSING_STOP;
 	screen_printing_pause_form = screen_printing_pause_form0;
 	display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SDPRINTING,0);
 	display_ButtonState(BUTTON_SDPRINTING_STOP,0);
-	display_ButtonState(BUTTON_SDPRINTING_PAUSE,0); 
+	display_ButtonState(BUTTON_SDPRINTING_PAUSE,0);
 	display_ButtonState(BUTTON_SDPRINTING_SETTINGS,0);
 	display_ChangeForm(FORM_SDPRINTING,0);
 	display.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);
@@ -4385,6 +4401,7 @@ inline void gcode_G72(){////Grinding avoider resume
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled = true;
 	
 }
+
 inline void gcode_G29(){
 	
 	float x_tmp, y_tmp, z_tmp, real_z;
@@ -4764,28 +4781,35 @@ inline void gcode_M24(){
 	bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
 	
 	//char buffer[13];
-	int i = 0;
+	
+	int count = get_nummaxchars(true, 290);
+	int i = 0;	
 	memset(namefilegcode, '\0', sizeof(namefilegcode) );
-	if (String(card.longFilename).length()>16){
-		for (i = 0; i<16 ; i++)
+	
+	if ((String(card.longFilename).length() - 6) > count){
+		for (i = 0; i<count ; i++)
 		{
-			if (card.longFilename[i] == '.') break; //go out of the for
-			else {
-				namefilegcode[i]=card.longFilename[i];
-			}
+			
+			namefilegcode[i]=card.longFilename[i];
+			
 		}
-		}else{
-		for (i = 0; i<=String(card.longFilename).length(); i++)
+		namefilegcode[i]='.';
+		namefilegcode[i+1]='.';
+		namefilegcode[i+2]='.';
+		namefilegcode[i+3]='\0';
+		
+	}else{
+		
+		for (i = 0; i < String(card.longFilename).length() - 6; i++)
 		{
-			if (card.longFilename[i] == '.')break;
-			else namefilegcode[i]=card.longFilename[i];
+			namefilegcode[i]=card.longFilename[i];
 		}
 		
+		
 	}
-	namefilegcode[i]='.';
-	namefilegcode[i+1]='.';
-	namefilegcode[i+2]='.';
-	namefilegcode[i+3]='\0';
+	
+	
+	
 	display.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);//Printing form//Printing form
 	#endif
 	#endif //SDSUPPORT
@@ -5066,9 +5090,11 @@ inline void gcode_M35(){
 	current_position[E_AXIS]=0;
 	plan_set_e_position(current_position[E_AXIS]);
 	st_synchronize();
-	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
-	st_synchronize();
+	if(target_temperature[active_extruder]-10 > degHotend(active_extruder)){ 
+		current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
+		st_synchronize();
+	}
 	if (active_extruder == LEFT_EXTRUDER && current_position[X_AXIS] != 0){															//Move X axis, controlling the current_extruder
 		current_position[X_AXIS] = current_position[X_AXIS]-PAUSE_G69_XYMOVE;
 		current_position[Y_AXIS] = current_position[Y_AXIS]+PAUSE_G69_XYMOVE;
@@ -5082,9 +5108,9 @@ inline void gcode_M35(){
 	//********MOVE TO PAUSE POSITION
 	
 	if(current_position[Z_AXIS]>=180) current_position[Z_AXIS] += 2;								//
-	else if(current_position[Z_AXIS]>=205) {}
+	else if(current_position[Z_AXIS]>=195) {}
 	else if(current_position[Z_AXIS] == 0){}														//Move the bed, more or less in function of current_position
-	else current_position[Z_AXIS] += 10;															//
+	else current_position[Z_AXIS] += 5;															//
 	int feedrate=homing_feedrate[Z_AXIS];
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 	st_synchronize();
@@ -7519,6 +7545,10 @@ void process_commands()
 			
 			case 36:
 			gcode_G36();
+			break;
+			
+			case 68: //G68 pause print test
+			gcode_G68();
 			break;
 			
 			case 69: //G69 pause print

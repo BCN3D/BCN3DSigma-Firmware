@@ -1650,7 +1650,7 @@ while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
 			SERIAL_ECHOLN(time);
 			lcd_setstatus(time);
 			card.printingHasFinished();
-			card.checkautostart(true);
+			//card.checkautostart(true);
 
 		}
 		if(serial_char=='#')
@@ -6805,7 +6805,8 @@ inline void gcode_M536(){
 	if(led_mode_state == 0){Serial.print(F("**-> "));}Serial.println(F("Mode 0 : default -> RGB: 255 255 255"));
 	if(led_mode_state == 1){Serial.print(F("**-> "));}Serial.println(F("Mode 1 : random  -> RGB: +1 +2 +3, during printing"));
 	if(led_mode_state == 2){Serial.print(F("**-> "));}Serial.println(F("Mode 2 : cycle   -> RGB: 6 states"));
-	
+	if(led_mode_state == 3){Serial.print(F("**-> "));}Serial.println(F("Mode 3 : Psico   -> RGB: Rise&Fall"));
+		
 	analogWrite(RED, 255); analogWrite(GREEN, 255); analogWrite(BLUE, 255);
 }
 inline void gcode_M537(){
@@ -7185,11 +7186,73 @@ inline void gcode_M800(){ //Smart purge smartPurge_Distant(double A, double B, d
 		//display_ChangeForm((int)code_value_long(),0);
 	//}
 //}
-inline void gcode_M840(){
-}
-inline void gcode_M841(){
-}
-inline void gcode_M842(){
+inline void gcode_M990(){
+	if(!blocks_queued()){
+		
+		
+		display_ChangeForm(FORM_MAIN,0);
+		doblocking=false;
+		log_prints_finished++;
+		acceleration = acceleration_old;
+		if(current_position[Z_AXIS]>Z_MAX_POS-15){plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]-Z_SIGMA_RAISE_BEFORE_HOMING,current_position[E_AXIS],6,active_extruder);st_synchronize();};
+		
+		#ifdef SIGMA_TOUCH_SCREEN
+		//also we need to put the platform down and do an autohome to prevent blocking
+		
+		gcode_T0_T1_auto(0);
+		
+		
+		memset(fanSpeed_offset, 0, sizeof(fanSpeed_offset)); // clear position
+		
+		set_dual_x_carriage_mode(DEFAULT_DUAL_X_CARRIAGE_MODE);
+		extrudemultiply=100;
+		Flag_fanSpeed_mirror=0;
+		#ifdef RELATIVE_TEMP_PRINT
+		Flag_hotend0_relative_temp = false;
+		Flag_hotend1_relative_temp = false;
+		#endif
+		feedmultiply[LEFT_EXTRUDER]=100;
+		feedmultiply[RIGHT_EXTRUDER]=100;
+		fanSpeed_offset[LEFT_EXTRUDER]=0;
+		fanSpeed_offset[RIGHT_EXTRUDER]=0;
+		extruder_multiply[LEFT_EXTRUDER]=100;
+		extruder_multiply[RIGHT_EXTRUDER]=100;
+		fanSpeed = 0;
+		saved_print_smartpurge_flag = false;
+		screen_sdcard = false;
+		surfing_utilities=false;
+		surfing_temps = false;
+		log_hours_lastprint = (int)(log_min_print/60);
+		log_minutes_lastprint = (int)(log_min_print%60);
+		log_X0_mmdone += x0mmdone/axis_steps_per_unit[X_AXIS];
+		log_X1_mmdone += x1mmdone/axis_steps_per_unit[X_AXIS];
+		log_Y_mmdone += ymmdone/axis_steps_per_unit[Y_AXIS];
+		log_E0_mmdone += e0mmdone/axis_steps_per_unit[E_AXIS];
+		log_E1_mmdone += e1mmdone/axis_steps_per_unit[E_AXIS];
+		x0mmdone = 0;
+		x1mmdone = 0;
+		ymmdone = 0;
+		e0mmdone = 0;
+		e1mmdone = 0;
+		#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+		flag_is_cura_file = false;
+		#endif
+		Flag_checkfil = false;
+		Config_StoreSettings();
+		//The default states is Left Extruder active
+		#endif
+		if(SD_FINISHED_STEPPERRELEASE)
+		{
+			//finishAndDisableSteppers();
+			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+		}
+		autotempShutdown();
+		setTargetHotend0(0);
+		setTargetHotend1(0);
+		setTargetBed(0);
+		HeaterCooldownInactivity(true);
+		quickStop();
+	}
 }
 
 inline void gcode_M999(){
@@ -8050,19 +8113,7 @@ void process_commands()
 			case 605: // Set dual x-carriage movement mode:
 			gcode_M605();
 			break;
-
-			case 840: // M840 Report info cura from gcode file
-			gcode_M840();
-			break;
-			
-			case 841: // M841 Report Extruder info
-			gcode_M841();
-			break;
-			
-			case 842: // M841 Report feedback
-			gcode_M842();
-			break;
-			
+						
 			case 800: // M800 Smart purge
 			gcode_M800();
 			break;
@@ -8081,6 +8132,10 @@ void process_commands()
 			
 			case 351: // M351 Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
 			gcode_M351();
+			break;
+			
+			case 990: // M990: End Gcode
+			gcode_M990();
 			break;
 			
 			case 999: // M999: Restart after being stopped

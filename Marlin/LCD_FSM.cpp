@@ -2680,7 +2680,12 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 						}else if(which_extruder == RIGHT_EXTRUDER){
 						flag_utilities_maintenance_changehotend = 2888;
 					}
+					display_ChangeForm(FORM_PROCESSING,0);					
+					gif_processing_state = PROCESSING_DEFAULT;
+					Config_StoreSettings();
+					home_axis_from_code(true,true,true);
 					Coolingdown_Shutdown(1);
+					
 					bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_changehotend);
 				}
 				else if(!bitRead(flag_utilities_maintenance_register,flag_utilities_maintenance_register_nyloncleaning)){
@@ -3537,6 +3542,12 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 
 			case BUTTON_Z_COMPENSATION_INSTALL:
 			flag_utilities_calibration_zcomensationmode_gauges = 1888;
+			
+			display_ChangeForm(FORM_PROCESSING,0);			
+			gif_processing_state = PROCESSING_DEFAULT;
+			Config_StoreSettings();
+			
+			home_axis_from_code(true,true,true);
 			Coolingdown_Shutdown(0);
 			break;
 
@@ -3633,10 +3644,20 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 
 			case BUTTON_RAFT_ADVISE_INSTALL_ACCEPT:
 			flag_utilities_calibration_zcomensationmode_gauges = 2888;
+			display_ChangeForm(FORM_PROCESSING,0);			
+			gif_processing_state = PROCESSING_DEFAULT;
+			Config_StoreSettings();
+			
+			home_axis_from_code(true,true,true);
 			Coolingdown_Shutdown(0);
 			break;
 
 			case BUTTON_Z_COMPENSATION_COMFIRMATION_SURECANCEL_NOT:
+			display_ChangeForm(FORM_PROCESSING,0);			
+			gif_processing_state = PROCESSING_DEFAULT;
+			Config_StoreSettings();
+			
+			home_axis_from_code(true,true,true);
 			Coolingdown_Shutdown(0);
 			break;
 
@@ -3717,7 +3738,13 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_CLEANNOZZLE0:
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_CLEANNOZZLE1:
-
+			display_ChangeForm(FORM_PROCESSING,0);
+			gif_processing_state = PROCESSING_DEFAULT;
+			current_position[X_AXIS]=x_home_pos(active_extruder);
+			current_position[Y_AXIS]=Y_MAX_POS;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],XY_TRAVEL_SPEED/60,active_extruder);
+			st_synchronize();
+			gif_processing_state = PROCESSING_STOP;
 			display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_GLUEBED,0);
 			break;
 
@@ -4855,6 +4882,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				flag_utilities_maintenance_changehotend = 2888;
 			}
 			if(which_extruder == 0 || which_extruder == 1){
+				display_ChangeForm(FORM_PROCESSING,0);				
+				gif_processing_state = PROCESSING_DEFAULT;
+				Config_StoreSettings();
+				
+				home_axis_from_code(true,true,true);
 				Coolingdown_Shutdown(1);
 			}
 			break;
@@ -5021,66 +5053,12 @@ void lcd_fsm_output_logic(){//We process tasks according to the present state
 	}
 }
 void update_screen_endinggcode(){
-	if(!blocks_queued() && !buflen){
+	
+	if(buflen < BUFSIZE){
 		flag_ending_gcode = false;
-		doblocking=false;
-		log_prints_finished++;
-		acceleration = acceleration_old;
-		if(current_position[Z_AXIS]>Z_MAX_POS-15){plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]-Z_SIGMA_RAISE_BEFORE_HOMING,current_position[E_AXIS],6,active_extruder);st_synchronize();};
-		quickStop();		
-		#ifdef SIGMA_TOUCH_SCREEN
-		//also we need to put the platform down and do an autohome to prevent blocking
-		display_ChangeForm(FORM_MAIN,0);
-		enquecommand_P(PSTR("T0"));
-		enquecommand_P(PSTR("M107"));
-		set_dual_x_carriage_mode(DEFAULT_DUAL_X_CARRIAGE_MODE);
-		extrudemultiply=100;
-		Flag_fanSpeed_mirror=0;
-		#ifdef RELATIVE_TEMP_PRINT
-		Flag_hotend0_relative_temp = false;
-		Flag_hotend1_relative_temp = false;
-		#endif
-		feedmultiply[LEFT_EXTRUDER]=100;
-		feedmultiply[RIGHT_EXTRUDER]=100;
-		fanSpeed_offset[LEFT_EXTRUDER]=0;
-		fanSpeed_offset[RIGHT_EXTRUDER]=0;
-		extruder_multiply[LEFT_EXTRUDER]=100;
-		extruder_multiply[RIGHT_EXTRUDER]=100;
-		fanSpeed = 0;
-		saved_print_smartpurge_flag = false;
-		screen_sdcard = false;
-		surfing_utilities=false;
-		surfing_temps = false;
-		log_hours_lastprint = (int)(log_min_print/60);
-		log_minutes_lastprint = (int)(log_min_print%60);
-		log_X0_mmdone += x0mmdone/axis_steps_per_unit[X_AXIS];
-		log_X1_mmdone += x1mmdone/axis_steps_per_unit[X_AXIS];
-		log_Y_mmdone += ymmdone/axis_steps_per_unit[Y_AXIS];
-		log_E0_mmdone += e0mmdone/axis_steps_per_unit[E_AXIS];
-		log_E1_mmdone += e1mmdone/axis_steps_per_unit[E_AXIS];
-		x0mmdone = 0;
-		x1mmdone = 0;
-		ymmdone = 0;
-		e0mmdone = 0;
-		e1mmdone = 0;
-		#ifdef ENABLE_CURA_COUNTDOWN_TIMER
-		flag_is_cura_file = false;
-		#endif
-		Flag_checkfil = false;
-		Config_StoreSettings();
-		//The default states is Left Extruder active
-		#endif
-		if(SD_FINISHED_STEPPERRELEASE)
-		{
-			//finishAndDisableSteppers();
-			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-		}
-		autotempShutdown();
-		setTargetHotend0(0);
-		setTargetHotend1(0);
-		setTargetBed(0);
-		HeaterCooldownInactivity(true);
+		enquecommand_P(PSTR("M990"));
 	}
+	
 }
 void update_screen_printing(){
 	static uint32_t waitPeriod = millis();
@@ -7331,21 +7309,19 @@ void unload_get_ready(){
 }
 void Coolingdown_Shutdown(int mode){
 	
-	unsigned long waitPeriod_ss = millis();
 	
-	if(mode == 0)which_extruder = (extruder_offset[Z_AXIS][RIGHT_EXTRUDER]<0 ? RIGHT_EXTRUDER:LEFT_EXTRUDER);
 	
-	display_ChangeForm(FORM_PROCESSING,0);
-	
-	gif_processing_state = PROCESSING_DEFAULT;
-	Config_StoreSettings();
+	if(mode == 0){
+		which_extruder = (extruder_offset[Z_AXIS][RIGHT_EXTRUDER]<0 ? RIGHT_EXTRUDER:LEFT_EXTRUDER);
+	}
+		
 	
 	setTargetBed(0);
 	setTargetHotend0(0);
 	setTargetHotend1(0);
 	
-	home_axis_from_code(true, true, true);
 	
+	unsigned long waitPeriod_ss = millis();
 	
 	if(degHotend(which_extruder)>NYLON_TEMP_COOLDOWN_THRESHOLD){
 		display_ChangeForm(FORM_ADJUSTING_TEMPERATURES,0);
@@ -7360,13 +7336,8 @@ void Coolingdown_Shutdown(int mode){
 			if (millis() >= waitPeriod_ss){
 				
 				int Tinstant;
-				if(Tref < (int)degHotend(which_extruder)){
-					Tinstant = Tref;
-					}else if((int)degHotend(which_extruder) < Tfinal){
-					Tinstant = Tfinal;
-					}else{
-					Tinstant = (int)degHotend(which_extruder);
-				}
+				
+				Tinstant = constrain((int)degHotend(LEFT_EXTRUDER),Tfinal,Tref);
 				
 				percentage = ((Tref-Tfinal)-(Tinstant-Tfinal))*100; //<<<<<<<<<<<<<  0% TO 100%
 				percentage = percentage/(Tref-Tfinal);
@@ -7386,6 +7357,7 @@ void Coolingdown_Shutdown(int mode){
 		touchscreen_update();
 		display_ChangeForm(FORM_PROCESSING,0);
 	}
+	
 	gif_processing_state = PROCESSING_DEFAULT;
 	
 	changeTool(which_extruder);
@@ -7404,7 +7376,7 @@ void Coolingdown_Shutdown(int mode){
 	
 	
 	gif_processing_state = PROCESSING_STOP;
-		
+	
 	if(mode == 0){
 		char offset_string[250];
 		memset(offset_string, '\0', sizeof(offset_string) );

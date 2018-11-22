@@ -4782,7 +4782,7 @@ inline void gcode_M24(){
 	
 	//char buffer[13];
 	
-	int count = get_nummaxchars(true, 290);
+	int count = get_nummaxchars(true, 280);
 	int i = 0;	
 	memset(namefilegcode, '\0', sizeof(namefilegcode) );
 	

@@ -173,6 +173,12 @@ const unsigned int pixelsize_char_lowercase[26]=///Total 330
 		16,15,16,16,16,9,12,15,12,21,13,11,12
 	
 };
+const unsigned int pixelsize_char_symbols[20]=///40 to 59
+{
+	7,7,12,12,7,9,7,8,17,9,13,
+	13,14,13,15,13,15,15,7,7
+	
+};
 int get_nummaxchars(bool isfilegcode, unsigned int totalpixels);
 void setsdlisthours(int jint, int time_hour);
 void setsdlistmin(int jint, int time_min);
@@ -2683,7 +2689,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					display_ChangeForm(FORM_PROCESSING,0);					
 					gif_processing_state = PROCESSING_DEFAULT;
 					Config_StoreSettings();
-					home_axis_from_code(true,true,true);
+					home_axis_from_code(true,true,false);
 					Coolingdown_Shutdown(1);
 					
 					bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_changehotend);
@@ -3547,7 +3553,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			gif_processing_state = PROCESSING_DEFAULT;
 			Config_StoreSettings();
 			
-			home_axis_from_code(true,true,true);
+			home_axis_from_code(true,true,(home_made_Z?false:true));
 			Coolingdown_Shutdown(0);
 			break;
 
@@ -3648,7 +3654,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			gif_processing_state = PROCESSING_DEFAULT;
 			Config_StoreSettings();
 			
-			home_axis_from_code(true,true,true);
+			home_axis_from_code(true,true,(home_made_Z?false:true));
 			Coolingdown_Shutdown(0);
 			break;
 
@@ -3657,7 +3663,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			gif_processing_state = PROCESSING_DEFAULT;
 			Config_StoreSettings();
 			
-			home_axis_from_code(true,true,true);
+			home_axis_from_code(true,true,(home_made_Z?false:true));
 			Coolingdown_Shutdown(0);
 			break;
 
@@ -4886,7 +4892,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				gif_processing_state = PROCESSING_DEFAULT;
 				Config_StoreSettings();
 				
-				home_axis_from_code(true,true,true);
+				home_axis_from_code(true,true,(home_made_Z?false:true));
 				Coolingdown_Shutdown(1);
 			}
 			break;
@@ -6832,16 +6838,18 @@ int get_nummaxchars(bool isfilegcode, unsigned int totalpixels){
 	//Serial.println(length_array);
 	unsigned int Char_check = 0;
 	
-	while(nchars < length_array && totalcount < totalpixels){
+	while(nchars < length_array){
 		Char_check= (unsigned int)card.longFilename[nchars];
 		if(Char_check>=65 && Char_check<=90){//upper
 			totalcount += pixelsize_char_uppercase[Char_check-65];	
 		}else if(Char_check>=97 && Char_check<=122){//lower
 			totalcount += pixelsize_char_lowercase[Char_check-97];
+		}else if(Char_check>=40 && Char_check<=59){//lower
+		totalcount += pixelsize_char_symbols[Char_check-40];
 		}else{
 			totalcount += 15;
 		}
-		
+		if(totalcount > totalpixels)break;
 		nchars++;
 	}
 	/*Serial.println("N chars: ");
@@ -6883,7 +6891,7 @@ void setfoldernames(int jint){
 }
 void setfilenames(int jint){
 	
-	unsigned int count = get_nummaxchars(true, ((jint==6 || jint == 7)?290:330));
+	unsigned int count = get_nummaxchars(true, ((jint==6 || jint == 7)?260:330));
 	
 	char buffer[50];
 	memset( buffer, '\0', sizeof(buffer));
@@ -7323,7 +7331,7 @@ void Coolingdown_Shutdown(int mode){
 	
 	unsigned long waitPeriod_ss = millis();
 	
-	if(degHotend(which_extruder)>NYLON_TEMP_COOLDOWN_THRESHOLD){
+	if((int)degHotend(which_extruder)>NYLON_TEMP_COOLDOWN_THRESHOLD){
 		display_ChangeForm(FORM_ADJUSTING_TEMPERATURES,0);
 		if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
 		else digitalWrite(FAN2_PIN, 1);
@@ -7332,12 +7340,12 @@ void Coolingdown_Shutdown(int mode){
 		int Tfinal = NYLON_TEMP_COOLDOWN_THRESHOLD;
 		int percentage = 0;
 		int percentage_old = 0;
-		while (degHotend(which_extruder)>Tfinal){ //Waiting to heat the extruder
+		while ((int)degHotend(which_extruder)>Tfinal){ //Waiting to heat the extruder
 			if (millis() >= waitPeriod_ss){
 				
 				int Tinstant;
 				
-				Tinstant = constrain((int)degHotend(LEFT_EXTRUDER),Tfinal,Tref);
+				Tinstant = constrain((int)degHotend(which_extruder),Tfinal,Tref);
 				
 				percentage = ((Tref-Tfinal)-(Tinstant-Tfinal))*100; //<<<<<<<<<<<<<  0% TO 100%
 				percentage = percentage/(Tref-Tfinal);

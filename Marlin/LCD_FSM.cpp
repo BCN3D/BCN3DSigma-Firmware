@@ -4,6 +4,7 @@ Last Update: 01/08/2018
 Author: Alejandro Garcia (S3mt0x)
 */
 #include "LCD_FSM.h"
+#include "Build_defs.h"
 
 #ifdef SIGMA_TOUCH_SCREEN
 
@@ -160,6 +161,25 @@ const unsigned int register_codes[20]=
 	REGIST_CODE_15, REGIST_CODE_16, REGIST_CODE_17, REGIST_CODE_18, REGIST_CODE_19
 	
 };
+const unsigned int pixelsize_char_uppercase[26]=
+{
+	21,16,16,18,14,13,17,18,7,12,17,13,22,
+	19,19,16,19,17,14,13,18,16,25,16,14,16
+
+};
+const unsigned int pixelsize_char_lowercase[26]=///Total 330
+{
+		14,16,14,17,14,8,15,16,7,8,15,7,25,
+		16,15,16,16,16,9,12,15,12,21,13,11,12
+	
+};
+const unsigned int pixelsize_char_symbols[20]=///40 to 59
+{
+	7,7,12,12,7,9,7,8,17,9,13,
+	13,14,13,15,13,15,15,7,7
+	
+};
+int get_nummaxchars(bool isfilegcode, unsigned int totalpixels);
 void setsdlisthours(int jint, int time_hour);
 void setsdlistmin(int jint, int time_min);
 void setsdlistg(int jint, int weight);
@@ -2264,14 +2284,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				if (millis() >= waitPeriod_s){
 					int Tinstant;
 					memset(buffer, '\0', sizeof(buffer) );
-					if(Tref > (int)degHotend(which_extruder)){
-						Tinstant = Tref;
-						}else if((int)degHotend(which_extruder) > Tfinal){
-						Tinstant = Tfinal;
-						}else{
-						Tinstant = (int)degHotend(which_extruder);
-					}
-					
+					Tinstant = constrain((int)degHotend(which_extruder), Tref, Tfinal);				
 					percentage = Tfinal-Tref;
 					percentage = 100*(Tinstant-Tref)/percentage;
 					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_ADJUSTING_TEMPERATURES, percentage);
@@ -2302,14 +2315,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				memset(buffer, '\0', sizeof(buffer) );
 				if (millis() >= waitPeriod_s){
 					int Tinstant;
-					if(Tref < (int)degHotend(which_extruder)){
-						Tinstant = Tref;
-						}else if((int)degHotend(which_extruder) < Tfinal){
-						Tinstant = Tfinal;
-						}else{
-						Tinstant = (int)degHotend(which_extruder);
-					}
-					
+					Tinstant = constrain((int)degHotend(which_extruder), Tfinal, Tref);					
 					percentage = ((Tref-Tfinal)-(Tinstant-Tfinal))*100;
 					percentage = percentage/(Tref-Tfinal);
 					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_MAINTENANCE_NYLONCLEANING_STEP3, percentage);
@@ -2354,9 +2360,10 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
 				if (millis() >= waitPeriod_s){
 					memset(buffer, '\0', sizeof(buffer) );
-					
+					int Tinstant;
+					Tinstant = constrain((int)degHotend(which_extruder), Tref, Tfinal);
 					percentage = Tfinal-Tref;
-					percentage = 100*((int)degHotend(which_extruder)-Tref)/percentage;
+					percentage = 100*(Tinstant-Tref)/percentage;
 					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_ADJUSTING_TEMPERATURES, percentage);
 					waitPeriod_s=500+millis();
 				}
@@ -2679,7 +2686,12 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 						}else if(which_extruder == RIGHT_EXTRUDER){
 						flag_utilities_maintenance_changehotend = 2888;
 					}
+					display_ChangeForm(FORM_PROCESSING,0);					
+					gif_processing_state = PROCESSING_DEFAULT;
+					Config_StoreSettings();
+					home_axis_from_code(true,true,false);
 					Coolingdown_Shutdown(1);
+					
 					bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_changehotend);
 				}
 				else if(!bitRead(flag_utilities_maintenance_register,flag_utilities_maintenance_register_nyloncleaning)){
@@ -3536,6 +3548,12 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 
 			case BUTTON_Z_COMPENSATION_INSTALL:
 			flag_utilities_calibration_zcomensationmode_gauges = 1888;
+			
+			display_ChangeForm(FORM_PROCESSING,0);			
+			gif_processing_state = PROCESSING_DEFAULT;
+			Config_StoreSettings();
+			
+			home_axis_from_code(true,true,(home_made_Z?false:true));
 			Coolingdown_Shutdown(0);
 			break;
 
@@ -3632,10 +3650,20 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 
 			case BUTTON_RAFT_ADVISE_INSTALL_ACCEPT:
 			flag_utilities_calibration_zcomensationmode_gauges = 2888;
+			display_ChangeForm(FORM_PROCESSING,0);			
+			gif_processing_state = PROCESSING_DEFAULT;
+			Config_StoreSettings();
+			
+			home_axis_from_code(true,true,(home_made_Z?false:true));
 			Coolingdown_Shutdown(0);
 			break;
 
 			case BUTTON_Z_COMPENSATION_COMFIRMATION_SURECANCEL_NOT:
+			display_ChangeForm(FORM_PROCESSING,0);			
+			gif_processing_state = PROCESSING_DEFAULT;
+			Config_StoreSettings();
+			
+			home_axis_from_code(true,true,(home_made_Z?false:true));
 			Coolingdown_Shutdown(0);
 			break;
 
@@ -3716,7 +3744,13 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_CLEANNOZZLE0:
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_CLEANNOZZLE1:
-
+			display_ChangeForm(FORM_PROCESSING,0);
+			gif_processing_state = PROCESSING_DEFAULT;
+			current_position[X_AXIS]=x_home_pos(active_extruder);
+			current_position[Y_AXIS]=Y_MAX_POS;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],XY_TRAVEL_SPEED/60,active_extruder);
+			st_synchronize();
+			gif_processing_state = PROCESSING_STOP;
 			display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_GLUEBED,0);
 			break;
 
@@ -4123,9 +4157,13 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			if(UI_SerialID2<SERIAL_ID_THRESHOLD || (axis_steps_per_unit[E_AXIS]>=493 && axis_steps_per_unit[E_AXIS]<=492) ){
 				
-				
+			
 				display_ChangeForm(FORM_INFO_UI,0);
-				sprintf(buffer, "%s%s",VERSION_STRING,BUILD_DATE);
+				#ifndef BUILD_DATE
+				sprintf_P(buffer, PSTR("%s"),VERSION_STRING);
+				#else
+				sprintf_P(buffer, PSTR("%s|M%02d.%02d"),VERSION_STRING,BUILDTM_MONTH,BUILDTM_DAY);
+				#endif
 				display.WriteStr(STRING_INFO_UI_VERSION,buffer);
 				if(UI_SerialID0 || UI_SerialID1 || UI_SerialID2){
 					sprintf_P(buffer, PSTR("%03d.%03d%03d.%04d"),UI_SerialID0, (int)(UI_SerialID1/1000),(int)(UI_SerialID1%1000), UI_SerialID2);
@@ -4157,7 +4195,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				
 				}else{
 				display_ChangeForm(FORM_INFO_UI_2,0);
-				sprintf(buffer, "%s%s",VERSION_STRING,BUILD_DATE);
+				#ifndef BUILD_DATE
+				sprintf_P(buffer, PSTR("%s"),VERSION_STRING);
+				#else
+				sprintf_P(buffer, PSTR("%s|M%02d.%02d"),VERSION_STRING,BUILDTM_MONTH,BUILDTM_DAY);
+				#endif
 				display.WriteStr(STRING_INFO_UI_VERSION_2,buffer);
 				if(UI_SerialID0 || UI_SerialID1 || UI_SerialID2){
 					sprintf_P(buffer, PSTR("%03d.%03d%03d.%04d"),UI_SerialID0, (int)(UI_SerialID1/1000),(int)(UI_SerialID1%1000), UI_SerialID2);
@@ -4179,7 +4221,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 			
 			display_ChangeForm(FORM_INFO_UI,0);
-			sprintf(buffer, "%s%s",VERSION_STRING,BUILD_DATE);
+			#ifndef BUILD_DATE
+			sprintf_P(buffer, PSTR("%s"),VERSION_STRING);
+			#else
+			sprintf_P(buffer, PSTR("%s|M%02d.%02d"),VERSION_STRING,BUILDTM_MONTH,BUILDTM_DAY);
+			#endif
 			display.WriteStr(STRING_INFO_UI_VERSION,buffer);
 			if(UI_SerialID0 || UI_SerialID1 || UI_SerialID2){
 				sprintf_P(buffer, PSTR("%03d.%03d%03d.%04d"),UI_SerialID0, (int)(UI_SerialID1/1000),(int)(UI_SerialID1%1000), UI_SerialID2);
@@ -4842,6 +4888,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				flag_utilities_maintenance_changehotend = 2888;
 			}
 			if(which_extruder == 0 || which_extruder == 1){
+				display_ChangeForm(FORM_PROCESSING,0);				
+				gif_processing_state = PROCESSING_DEFAULT;
+				Config_StoreSettings();
+				
+				home_axis_from_code(true,true,(home_made_Z?false:true));
 				Coolingdown_Shutdown(1);
 			}
 			break;
@@ -5008,62 +5059,12 @@ void lcd_fsm_output_logic(){//We process tasks according to the present state
 	}
 }
 void update_screen_endinggcode(){
-	if(!blocks_queued()){
-		doblocking=false;
-		log_prints_finished++;
-		acceleration = acceleration_old;
-		quickStop();		
-		#ifdef SIGMA_TOUCH_SCREEN
-		//also we need to put the platform down and do an autohome to prevent blocking
-		display_ChangeForm(FORM_MAIN,0);
-		enquecommand_P(PSTR("T0"));
-		enquecommand_P(PSTR("M107"));
-		set_dual_x_carriage_mode(DEFAULT_DUAL_X_CARRIAGE_MODE);
-		extrudemultiply=100;
-		Flag_fanSpeed_mirror=0;
-		#ifdef RELATIVE_TEMP_PRINT
-		Flag_hotend0_relative_temp = false;
-		Flag_hotend1_relative_temp = false;
-		#endif
-		feedmultiply[LEFT_EXTRUDER]=100;
-		feedmultiply[RIGHT_EXTRUDER]=100;
-		fanSpeed_offset[LEFT_EXTRUDER]=0;
-		fanSpeed_offset[RIGHT_EXTRUDER]=0;
-		extruder_multiply[LEFT_EXTRUDER]=100;
-		extruder_multiply[RIGHT_EXTRUDER]=100;
-		fanSpeed = 0;
-		saved_print_smartpurge_flag = false;
-		screen_sdcard = false;
-		surfing_utilities=false;
-		surfing_temps = false;
-		log_hours_lastprint = (int)(log_min_print/60);
-		log_minutes_lastprint = (int)(log_min_print%60);
-		log_X0_mmdone += x0mmdone/axis_steps_per_unit[X_AXIS];
-		log_X1_mmdone += x1mmdone/axis_steps_per_unit[X_AXIS];
-		log_Y_mmdone += ymmdone/axis_steps_per_unit[Y_AXIS];
-		log_E0_mmdone += e0mmdone/axis_steps_per_unit[E_AXIS];
-		log_E1_mmdone += e1mmdone/axis_steps_per_unit[E_AXIS];
-		x0mmdone = 0;
-		x1mmdone = 0;
-		ymmdone = 0;
-		e0mmdone = 0;
-		e1mmdone = 0;
-		Flag_checkfil = false;
-		Config_StoreSettings();
-		//The default states is Left Extruder active
-		#endif
-		if(SD_FINISHED_STEPPERRELEASE)
-		{
-			//finishAndDisableSteppers();
-			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-		}
-		autotempShutdown();	
+	
+	if(buflen < BUFSIZE){
 		flag_ending_gcode = false;
-		setTargetHotend0(0);
-		setTargetHotend1(0);
-		setTargetBed(0);
-		HeaterCooldownInactivity(true);
+		enquecommand_P(PSTR("M990"));
 	}
+	
 }
 void update_screen_printing(){
 	static uint32_t waitPeriod = millis();
@@ -5377,7 +5378,7 @@ void update_screen_printing(){
 			SERIAL_PROTOCOLLNPGM("RESUME");
 			bitClear(flag_sdprinting_register,flag_sdprinting_register_pauseresume);
 			if(bitRead(flag_sdprinting_register,flag_sdprinting_register_printresume)){
-				enquecommand_P(((PSTR("G70"))));				
+				enquecommand_P((PSTR("G70")));
 				bitClear(flag_sdprinting_register,flag_sdprinting_register_printresume);
 			}
 		}
@@ -5409,6 +5410,7 @@ void update_screen_printing(){
 			enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
 			bitClear(flag_sdprinting_register,flag_sdprinting_register_printsavejob);
 		}
+		
 		acceleration = acceleration_old;
 		feedmultiply[LEFT_EXTRUDER]=100;
 		feedmultiply[RIGHT_EXTRUDER]=100;
@@ -5420,6 +5422,10 @@ void update_screen_printing(){
 		SERIAL_PROTOCOLLNPGM(" STOP PRINT ");
 		Flag_fanSpeed_mirror = 0;
 		cancel_heatup = true;
+		#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+		flag_is_cura_file = false;
+		#endif
+		
 		back_home = true;
 		home_made = false;
 		screen_sdcard = false;
@@ -5540,23 +5546,11 @@ void update_screen_printing(){
 				
 				
 				if(Tref1<Tfinal1){
-					
-					if(Tref1 > (int)degHotend(which_extruder)){
-						Tinstant = Tref1;
-						}else if((int)degHotend(which_extruder) > Tfinal1){
-						Tinstant = Tfinal1;
-						}else{
-						Tinstant = (int)degHotend(which_extruder);
-					}
+										
+					Tinstant = constrain((int)degHotend(which_extruder),Tref1,Tfinal1);
 				}
 				else{
-					if(Tref1 < (int)degHotend(which_extruder)){
-						Tinstant = Tref1;
-						}else if((int)degHotend(which_extruder) < Tfinal1){
-						Tinstant = Tfinal1;
-						}else{
-						Tinstant = (int)degHotend(which_extruder);
-					}
+					Tinstant = constrain((int)degHotend(which_extruder),Tfinal1,Tref1);
 				}
 				percentage = Tfinal1-Tref1;
 				percentage = 100*(Tinstant-Tref1)/percentage;
@@ -5884,22 +5878,10 @@ void update_screen_noprinting(){
 				
 				if(Tref1<Tfinal1){
 					
-					if(Tref1 > (int)degHotend(which_extruder)){
-						Tinstant = Tref1;
-						}else if((int)degHotend(which_extruder) > Tfinal1){
-						Tinstant = Tfinal1;
-						}else{
-						Tinstant = (int)degHotend(which_extruder);
-					}
+					Tinstant = constrain((int)degHotend(which_extruder),Tref1,Tfinal1);
 				}
 				else{
-					if(Tref1 < (int)degHotend(which_extruder)){
-						Tinstant = Tref1;
-						}else if((int)degHotend(which_extruder) < Tfinal1){
-						Tinstant = Tfinal1;
-						}else{
-						Tinstant = (int)degHotend(which_extruder);
-					}
+					Tinstant = constrain((int)degHotend(which_extruder),Tfinal1,Tref1);
 				}
 				percentage = Tfinal1-Tref1;
 				percentage = 100*(Tinstant-Tref1)/percentage;
@@ -6117,7 +6099,7 @@ void lcd_animation_handler(){//We process the animations frames
 			log_minutes_lastprint = (int)(log_min_print%60);
 			Config_StoreSettings();
 			cancel_heatup = false;
-			
+			if(current_position[Z_AXIS]>Z_MAX_POS-15){plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]-Z_SIGMA_RAISE_BEFORE_HOMING,current_position[E_AXIS],6,active_extruder);st_synchronize();};
 			if(FLAG_thermal_runaway){
 				char buffer[80];
 				sprintf(buffer, "ERROR(88): Temperature not reached by Heater_ID: %d",ID_thermal_runaway);
@@ -6848,96 +6830,93 @@ void ListFileListENTERBACKFORLDERSD(){
 	memset(listsd.commandline2, '\0', sizeof(listsd.commandline2) );
 	
 }
-void setfoldernames(int jint){
-	unsigned int count = 22;
-	char buffer[count+4];
-	int x = 0;
-	memset( buffer, '\0', sizeof(buffer));
-	if (String(card.longFilename).length() == 0){
-		strcpy(buffer, card.filename);
-		display.WriteStr(stringfilename[jint],buffer);//Printing form
-	}
-	else if (String(card.longFilename).length() > count){
-		for (unsigned int i = 0; i<count ; i++)
-		{
-			if (card.longFilename[i] == '.') break; //go out of the for
-			else if(i == 0) buffer[i]=card.longFilename[x];
-			else {
-				buffer[i]=card.longFilename[x];
-			}
-			x++;
-			//Serial.print(i);
+int get_nummaxchars(bool isfilegcode, unsigned int totalpixels){
+	unsigned int totalcount=0;
+	int nchars=0;
+	int length_array = String(card.longFilename).length() - (isfilegcode?6:0); //avoid .gcode
+	//Serial.println("length_array: ");
+	//Serial.println(length_array);
+	unsigned int Char_check = 0;
+	
+	while(nchars < length_array){
+		Char_check= (unsigned int)card.longFilename[nchars];
+		if(Char_check>=65 && Char_check<=90){//upper
+			totalcount += pixelsize_char_uppercase[Char_check-65];	
+		}else if(Char_check>=97 && Char_check<=122){//lower
+			totalcount += pixelsize_char_lowercase[Char_check-97];
+		}else if(Char_check>=40 && Char_check<=59){//lower
+		totalcount += pixelsize_char_symbols[Char_check-40];
+		}else{
+			totalcount += 15;
 		}
-		buffer[count]='.';
-		buffer[count+1]='.';
-		buffer[count+2]='.';
-		buffer[count+3]='\0';
+		if(totalcount > totalpixels)break;
+		nchars++;
+	}
+	/*Serial.println("N chars: ");
+	Serial.println(nchars);
+	Serial.println("N Prixeles: ");
+	Serial.println(totalcount);*/
+	return nchars;
+}
+
+void setfoldernames(int jint){
+	
+	unsigned int count = get_nummaxchars(false, 330);
+	char buffer[50];
+	memset( buffer, '\0', sizeof(buffer));
+	
+	if (count == 0){
+		strcpy(buffer, card.filename);
+		display.WriteStr(stringfilename[jint],buffer);//Printing for
+		
+		}else{
+		
+		for (unsigned int i = 0; i < count ; i++)
+		{
+			buffer[i]=card.longFilename[i];
+		}
+		if (String(card.longFilename).length() > count){
+			buffer[count]='.';
+			buffer[count+1]='.';
+			buffer[count+2]='.';
+			buffer[count+3]='\0';
+		}
 		
 		display.WriteStr(stringfilename[jint],buffer);//Printing form
-		//memset( buffer2, '\0', sizeof(buffer2));
-	}
-	else {
-		for (unsigned int i = 0; i<String(card.longFilename).length(); i++)	{
-			if (card.longFilename[i] == '.') break; //go out of the for
-			else if(i == 0) buffer[i]=card.longFilename[x];
-			else {
-				buffer[i]=card.longFilename[x];
-			}
-			x++;
-			//Serial.print(i);
-		}
-		//buffer[count]='\0';
-		display.WriteStr(stringfilename[jint],buffer);//Printing form
-		//Is a file
-		//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+		
 	}
 	Serial.println(buffer);
 	
 	
 }
 void setfilenames(int jint){
-	unsigned int count = 16;
-	char buffer[count+4];
-	int x = 0;
+	
+	unsigned int count = get_nummaxchars(true, ((jint==6 || jint == 7)?260:330));
+	
+	char buffer[50];
 	memset( buffer, '\0', sizeof(buffer));
+	
 	if (String(card.longFilename).length() == 0){
 		strcpy(buffer, card.filename);
 		display.WriteStr(stringfilename[jint],buffer);//Printing for
 		
-	}
-	else if (String(card.longFilename).length() > count){
-		for (unsigned int i = 0; i<count ; i++)
+	}else{
+		
+		for (unsigned int i = 0; i < count ; i++)
 		{
-			if (card.longFilename[i] == '.') break; //go out of the for
-			else if(i == 0) buffer[i]=card.longFilename[x];
-			else {
-				buffer[i]=card.longFilename[x];
-			}
-			x++;
-			//Serial.print(i);
+			buffer[i]=card.longFilename[i];
 		}
-		buffer[count]='.';
-		buffer[count+1]='.';
-		buffer[count+2]='.';
-		buffer[count+3]='\0';
-		display.WriteStr(stringfilename[jint],buffer);//Printing form
-		//memset( buffer2, '\0', sizeof(buffer2));
-	}
-	else {
-		for (unsigned int i = 0; i<String(card.longFilename).length(); i++)	{
-			if (card.longFilename[i] == '.') break; //go out of the for
-			else if(i == 0) buffer[i]=card.longFilename[x];
-			else {
-				buffer[i]=card.longFilename[x];
-			}
-			x++;
-			//Serial.print(i);
+		if ((String(card.longFilename).length() - 6) > count){
+			buffer[count]='.';
+			buffer[count+1]='.';
+			buffer[count+2]='.';
+			buffer[count+3]='\0';
 		}
-		//buffer[count]='\0';
+		
 		display.WriteStr(stringfilename[jint],buffer);//Printing form
-		//Is a file
-		//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+		
 	}
+	
 	if(jint == 6){
 		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[0][0],listsd.get_hours());//Printing form
 		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[1][0],listsd.get_minutes());//Printing form
@@ -7127,64 +7106,25 @@ void Calib_check_temps(void){
 				int Tinstanthot0, Tinstanthot1, Tinstantbed;
 				
 				if(Tref0<Tfinal0){
-					
-					if(Tref0 > (int)degHotend(LEFT_EXTRUDER)){
-						Tinstanthot0 = Tref0;
-						}else if((int)degHotend(LEFT_EXTRUDER) > Tfinal0){
-						Tinstanthot0 = Tfinal1;
-						}else if(Tfinal0==0){
-						Tinstanthot0 = 0;
-						Tref0 = 0;
-						}else{
-						Tinstanthot0 = (int)degHotend(LEFT_EXTRUDER);
-					}
+										
+					Tinstanthot0 = constrain((int)degHotend(LEFT_EXTRUDER),Tref0,Tfinal0);
 				}
 				else{
-					if(Tref0 < (int)degHotend(LEFT_EXTRUDER)){
-						Tinstanthot0 = Tref0;
-						}else if((int)degHotend(LEFT_EXTRUDER) < Tfinal0){
-						Tinstanthot0 = Tfinal0;
-						}else if(Tfinal0==0){
-						Tinstanthot0 = 0;
-						Tref0 = 0;
-						}else{
-						Tinstanthot0 = (int)degHotend(LEFT_EXTRUDER);
-					}
+					
+					Tinstanthot0 = constrain((int)degHotend(LEFT_EXTRUDER),Tfinal0,Tref0);
 				}
 				if(Tref1<Tfinal1){
 					
-					if(Tref1 > (int)degHotend(RIGHT_EXTRUDER)){
-						Tinstanthot1 = Tref1;
-						}else if((int)degHotend(RIGHT_EXTRUDER) > Tfinal1){
-						Tinstanthot1 = Tfinal1;
-						}else if(Tfinal1==0){
-						Tinstanthot1 = 0;
-						Tref1 = 0;
-						}else{
-						Tinstanthot1 = (int)degHotend(RIGHT_EXTRUDER);
-					}
+					
+					Tinstanthot1 = constrain((int)degHotend(RIGHT_EXTRUDER),Tref1,Tfinal1);
 				}
 				else{
-					if(Tref1 < (int)degHotend(RIGHT_EXTRUDER)){
-						Tinstanthot1 = Tref1;
-						}else if((int)degHotend(RIGHT_EXTRUDER) < Tfinal1){
-						Tinstanthot1 = Tfinal1;
-						}else if(Tfinal1==0){
-						Tinstanthot1 = 0;
-						Tref1 = 0;
-						}else{
-						Tinstanthot1 = (int)degHotend(RIGHT_EXTRUDER);
-					}
+					Tinstanthot1 = constrain((int)degHotend(RIGHT_EXTRUDER),Tfinal1,Tref1);
 				}
-				if(Trefbed > Tfinalbed){
-					Trefbed = Tfinalbed;
-					Tinstantbed = Tfinalbed;
-					}else if(Trefbed > (int)degBed()){
-					Tinstantbed = Trefbed;
-					}else if((int)degBed() > Tfinalbed){
-					Tinstantbed = Tfinalbed;
-					}else{
-					Tinstantbed = (int)degBed();
+				if(Trefbed < Tfinalbed){
+					Tinstantbed = constrain((int)degBed(),Trefbed,Tfinalbed);
+				}else{
+					Tinstantbed = constrain((int)degBed(),Tfinalbed,Trefbed);
 				}
 				
 				percentage = abs((long)Tfinal0-(long)Tref0)+abs((long)Tfinal1-(long)Tref1)+abs((long)Tfinalbed*5-(long)Trefbed*5);
@@ -7286,7 +7226,7 @@ void unloadfilament_procedure(void){//Removing...
 		display_ChangeForm(FORM_PROCESSING,0);
 		gif_processing_state = PROCESSING_DEFAULT;
 		
-				
+					
 		current_position[E_AXIS] +=PURGE_LENGHT_UNLOAD;
 		
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], PURGE_SPEED_UNLOAD/60, which_extruder);
@@ -7377,23 +7317,21 @@ void unload_get_ready(){
 }
 void Coolingdown_Shutdown(int mode){
 	
-	unsigned long waitPeriod_ss = millis();
 	
-	if(mode == 0)which_extruder = (extruder_offset[Z_AXIS][RIGHT_EXTRUDER]<0 ? RIGHT_EXTRUDER:LEFT_EXTRUDER);
 	
-	display_ChangeForm(FORM_PROCESSING,0);
-	
-	gif_processing_state = PROCESSING_DEFAULT;
-	Config_StoreSettings();
+	if(mode == 0){
+		which_extruder = (extruder_offset[Z_AXIS][RIGHT_EXTRUDER]<0 ? RIGHT_EXTRUDER:LEFT_EXTRUDER);
+	}
+		
 	
 	setTargetBed(0);
 	setTargetHotend0(0);
 	setTargetHotend1(0);
 	
-	home_axis_from_code(true, true, true);
 	
+	unsigned long waitPeriod_ss = millis();
 	
-	if(degHotend(which_extruder)>NYLON_TEMP_COOLDOWN_THRESHOLD){
+	if((int)degHotend(which_extruder)>NYLON_TEMP_COOLDOWN_THRESHOLD){
 		display_ChangeForm(FORM_ADJUSTING_TEMPERATURES,0);
 		if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
 		else digitalWrite(FAN2_PIN, 1);
@@ -7402,17 +7340,12 @@ void Coolingdown_Shutdown(int mode){
 		int Tfinal = NYLON_TEMP_COOLDOWN_THRESHOLD;
 		int percentage = 0;
 		int percentage_old = 0;
-		while (degHotend(which_extruder)>Tfinal){ //Waiting to heat the extruder
+		while ((int)degHotend(which_extruder)>Tfinal){ //Waiting to heat the extruder
 			if (millis() >= waitPeriod_ss){
 				
 				int Tinstant;
-				if(Tref < (int)degHotend(which_extruder)){
-					Tinstant = Tref;
-					}else if((int)degHotend(which_extruder) < Tfinal){
-					Tinstant = Tfinal;
-					}else{
-					Tinstant = (int)degHotend(which_extruder);
-				}
+				
+				Tinstant = constrain((int)degHotend(which_extruder),Tfinal,Tref);
 				
 				percentage = ((Tref-Tfinal)-(Tinstant-Tfinal))*100; //<<<<<<<<<<<<<  0% TO 100%
 				percentage = percentage/(Tref-Tfinal);
@@ -7432,6 +7365,7 @@ void Coolingdown_Shutdown(int mode){
 		touchscreen_update();
 		display_ChangeForm(FORM_PROCESSING,0);
 	}
+	
 	gif_processing_state = PROCESSING_DEFAULT;
 	
 	changeTool(which_extruder);
@@ -7450,7 +7384,7 @@ void Coolingdown_Shutdown(int mode){
 	
 	
 	gif_processing_state = PROCESSING_STOP;
-		
+	
 	if(mode == 0){
 		char offset_string[250];
 		memset(offset_string, '\0', sizeof(offset_string) );

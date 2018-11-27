@@ -212,6 +212,9 @@
 #define GREEN			11
 #define	RED				12
 #define BLUE			13
+//SDA SCL
+#define SDA_PIN			20
+#define SDL_PIN			21
 //Power Supply Relay
 #define	RELAY			10
 //HOTEND HEATERS

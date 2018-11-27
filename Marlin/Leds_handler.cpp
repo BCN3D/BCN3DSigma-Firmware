@@ -187,6 +187,41 @@ ISR(TIMER2_OVF_vect) {
 			
 			break;
 			
+			case LED_MODE3:
+			//Code
+			
+			
+			if(rising_red_mode2){
+				if(counter_red < 224)counter_red+=32;
+				else {rising_red_mode2 = false;counter_red=255;}
+			}
+			else{
+				if(counter_red > 31)counter_red-=32;
+				else {rising_red_mode2 = true;counter_red=0;}
+			}
+			if(rising_green_mode2){
+				if(counter_green < 224)counter_green+=32;
+				else {rising_green_mode2 = false;counter_green=255;}
+			}
+			else{
+				if(counter_green > 31)counter_green-=32;
+				else {rising_green_mode2 = true;counter_green=0;}
+			}
+			if(rising_blue_mode2){
+				if(counter_blue < 224)counter_blue+=32;
+				else {rising_blue_mode2 = false;counter_blue=255;}
+			}
+			else{
+				if(counter_blue > 31)counter_blue-=32;
+				else {rising_blue_mode2 = true;counter_blue=0;}
+			}
+			
+			analogWrite(RED, counter_blue);
+			analogWrite(GREEN, counter_green);
+			analogWrite(BLUE, counter_red);
+			
+			break;
+			
 			default:
 			break;
 			

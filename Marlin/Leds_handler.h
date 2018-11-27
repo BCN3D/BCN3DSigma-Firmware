@@ -9,6 +9,7 @@ Author: Alejandro Garcia (S3mt0x)
 #define LED_MODE0	0
 #define LED_MODE1	1
 #define LED_MODE2	2
+#define LED_MODE3	3
 
 #include "Configuration.h"
 #include "Marlin.h"

@@ -315,6 +315,11 @@ extern uint16_t filepointer;
 extern int8_t saved_active_extruder;
 extern String screen_status;
 extern bool waiting_temps;
+#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+extern bool flag_is_cura_file;
+extern long is_cura_file_total_time;
+extern long is_cura_file_total_timeelapsed;
+#endif
 extern int UI_SerialID0;
 extern long UI_SerialID1;
 extern int UI_SerialID2;
@@ -384,7 +389,7 @@ extern int z_test_print_code(int tool, int z_offset, bool repeat);
 #endif
 extern void bed_test_print_code(float x_offset, float y_offset, int zline);
 extern bool heatting;
-extern char namefilegcode[24];
+extern char namefilegcode[50];
 
 ////// Temperatures of current material for two extruders //////
 

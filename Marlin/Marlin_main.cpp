@@ -242,6 +242,11 @@ bool notice_registercode = false;
 //Rapduch
 #ifdef SIGMA_TOUCH_SCREEN
 bool waiting_temps = false;
+#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+bool flag_is_cura_file = false;
+long is_cura_file_total_time = 0;
+long is_cura_file_total_timeelapsed = 0;
+#endif
 int8_t which_extruder_setup=-1;
 int8_t which_hotend_setup[2]={-1,-1};
 bool screen_sdcard = false;
@@ -456,7 +461,7 @@ void thermal_error_screen_on();
 bool flag_error_utilities = false;
 bool heatting = false;
 bool back_home = false;
-char namefilegcode[24];
+char namefilegcode[50];
 int bed_calibration_times = 0; //To control the number of bed calibration to available the skip option
 int purge_extruder_selected = -1;
 //////// MANUAL FINE CALIB ////////
@@ -858,6 +863,8 @@ void setup()
 	setup_powerhold();
 	st_init();    // Initialize stepper, this enables interrupts!
 	pinMode(RELAY, OUTPUT);
+	pinMode(SDA_PIN, OUTPUT);
+	digitalWrite(SDA_PIN, HIGH);
 	digitalWrite(RELAY, LOW);
 	MYSERIAL.begin(BAUDRATE);
 
@@ -865,7 +872,9 @@ void setup()
 	SERIAL_ECHO_START;
 	SERIAL_PROTOCOLLNPGM("start");
 	SERIAL_PROTOCOLLNPGM(PRINTER_NAME);
-	
+	#ifdef BUILD_DATE
+	SERIAL_PROTOCOLLNPGM(STRING_VERSION_CONFIG_H);
+	#endif
 	//LCD START routine
 	
 	
@@ -1641,25 +1650,49 @@ while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
 			SERIAL_ECHOLN(time);
 			lcd_setstatus(time);
 			card.printingHasFinished();
-			card.checkautostart(true);
+			//card.checkautostart(true);
 
 		}
 		if(serial_char=='#')
 		stop_buffering=true;
-		if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
-			if(comment_count > 0){
-				#ifdef ENABLE_DUPLI_MIRROR
-				buffer_comment[comment_count]=0;
-				#endif
-				comment_count = 0;
-			}
+		
+		if(comment_count > 0){
+			//#ifdef ENABLE_DUPLI_MIRROR
+			buffer_comment[comment_count]=0;
+			//#endif
+			comment_count = 0;
 		}
+		
+		#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+		
+		if(strncmp_P(buffer_comment,PSTR(";TIME:"), 6)==0){
+			
+			flag_is_cura_file = true;
+			strchr_pointer = strchr(buffer_comment, ':');
+			
+			is_cura_file_total_time = strtol(&buffer_comment[strchr_pointer - buffer_comment + 1], NULL, 10);
+			is_cura_file_total_timeelapsed = 0;
+			Serial.println(buffer_comment);
+			Serial.print("Time Remaining:");
+			Serial.println(is_cura_file_total_time);
+		}
+		if(strncmp_P(buffer_comment,PSTR(";TIME_ELAPSED:"), 14)==0 && flag_is_cura_file){
+			
+			strchr_pointer = strchr(buffer_comment, ':');
+			is_cura_file_total_timeelapsed = strtol(&buffer_comment[strchr_pointer - buffer_comment + 1], NULL, 10);
+			Serial.println(buffer_comment);
+			Serial.print("Time Elapsed:");
+			Serial.println(is_cura_file_total_timeelapsed);			
+		}
+		#endif			
+		
 		if(!serial_count)
 		{
 			comment_mode = false; //for new command
 			return; //if empty line
 		}
 		cmdbuffer[bufindw][serial_count] = 0; //terminate string
+		
 		
 		#ifdef ENABLE_DUPLI_MIRROR
 		if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
@@ -1715,12 +1748,19 @@ while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
 	{
 		
 		if(serial_char == ';'){
-			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
-				comment_count = 0;
-			}
+			
+			comment_count = 0;
+			
 			comment_mode = true;
 		}
 		if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
+		
+		#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+		if(comment_mode){
+			buffer_comment[comment_count++]=serial_char;
+		}
+		#endif
+		
 		#ifdef ENABLE_DUPLI_MIRROR
 		if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){//5 = dual mode raft
 			if(serial_char == 'G'&& !comment_mode) raft_indicator_is_Gcode = 1;
@@ -1736,9 +1776,11 @@ while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
 					
 				}
 			}
+			#ifndef ENABLE_CURA_COUNTDOWN_TIMER
 			if(comment_mode){
 				buffer_comment[comment_count++]=serial_char;
 			}
+			#endif
 		}
 		
 		
@@ -4107,6 +4149,14 @@ inline void gcode_G36()
 	home_axis_from_code(true,true,true);
 	gcode_G34();
 }
+inline void gcode_G68(){//Pause test
+	display_ChangeForm(FORM_SDPRINTING_PAUSE,0);
+	screen_printing_pause_form = screen_printing_pause_form1;
+	display.WriteStr(STRING_SDPRINTING_PAUSE_GCODE,namefilegcode);
+	bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
+	bitSet(flag_sdprinting_register,flag_sdprinting_register_pausetest);
+	
+}
 inline void gcode_G69(){//Pause
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	SERIAL_PROTOCOLLNPGM("G69 ACTIVATED");
@@ -4207,94 +4257,102 @@ inline void gcode_G69(){//Pause
 	#endif //ENABLE_AUTO_BED_LEVELING
 }
 inline void gcode_G70(){//Resume
-	
-	unsigned long codenum; //throw away variable
-	
-	#ifdef ENABLE_AUTO_BED_LEVELING
-	////*******LOAD ACTUIAL POSITION
-	Flag_checkfil = false;
-	//Serial.println(current_position[Z_AXIS]);
-	//*********************************//
-	doblocking = true;
-	active_extruder = saved_active_extruder;
-	fanSpeed = saved_fanSpeed;
-	
-	current_position[Z_AXIS] = saved_position[Z_AXIS]+PAUSE_G70_ZMOVE;
-	feedrate=homing_feedrate[Z_AXIS];
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-	destination[Z_AXIS] = current_position[Z_AXIS];
-	st_synchronize();
-	
-	current_position[Y_AXIS] = saved_position[Y_AXIS];
-	feedrate=homing_feedrate[Y_AXIS];
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);//Purge
-	st_synchronize();
-	
-	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
-	if(dual_x_carriage_mode ==DXC_DUPLICATION_MIRROR_MODE)	extruder_duplication_mirror_enabled =true;
-	
-	current_position[E_AXIS]+=PURGE_PRINTER_FACTOR;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50.0/60, active_extruder);//Purge
-	st_synchronize();
-	
-	codenum =4000;
-	codenum += millis();  // keep track of when we started waiting
-	previous_millis_cmd = millis();
-	while(millis() < codenum) {
-		manage_heater();
-		manage_inactivity();
-		//lcd_update();
-		#ifdef SIGMA_TOUCH_SCREEN
-		touchscreen_update();
-		#endif
+	if(!bitRead(flag_sdprinting_register,flag_sdprinting_register_pausetest)){
 		
+		
+		
+		unsigned long codenum; //throw away variable
+		
+		#ifdef ENABLE_AUTO_BED_LEVELING
+		////*******LOAD ACTUIAL POSITION
+		Flag_checkfil = false;
+		//Serial.println(current_position[Z_AXIS]);
+		//*********************************//
+		doblocking = true;
+		active_extruder = saved_active_extruder;
+		fanSpeed = saved_fanSpeed;
+		
+		current_position[Z_AXIS] = saved_position[Z_AXIS]+PAUSE_G70_ZMOVE;
+		feedrate=homing_feedrate[Z_AXIS];
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		destination[Z_AXIS] = current_position[Z_AXIS];
+		st_synchronize();
+		
+		current_position[Y_AXIS] = saved_position[Y_AXIS];
+		feedrate=homing_feedrate[Y_AXIS];
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);//Purge
+		st_synchronize();
+		
+		if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
+		if(dual_x_carriage_mode ==DXC_DUPLICATION_MIRROR_MODE)	extruder_duplication_mirror_enabled =true;
+		
+		current_position[E_AXIS]+=PURGE_PRINTER_FACTOR;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50.0/60, active_extruder);//Purge
+		st_synchronize();
+		
+		codenum =4000;
+		codenum += millis();  // keep track of when we started waiting
+		previous_millis_cmd = millis();
+		while(millis() < codenum) {
+			manage_heater();
+			manage_inactivity();
+			//lcd_update();
+			#ifdef SIGMA_TOUCH_SCREEN
+			touchscreen_update();
+			#endif
+			
+		}
+		
+		current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Purge
+		st_synchronize();
+		
+		if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =false;
+		
+		current_position[X_AXIS] = saved_position[X_AXIS];
+		
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED/60, active_extruder);
+		
+		if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE){
+			plan_set_position(extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			plan_buffer_line(current_position[X_AXIS]+duplicate_extruder_x_offset, current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED/60, RIGHT_EXTRUDER);
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		}
+		
+		
+		st_synchronize();
+		
+		if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
+		
+		current_position[Z_AXIS] = saved_position[Z_AXIS];
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 8, active_extruder);
+		destination[Z_AXIS] = current_position[Z_AXIS];
+		st_synchronize();
+		
+		current_position[E_AXIS]+=RETRACT_PRINTER_FACTOR;
+		//current_position[E_AXIS]+=RETRACT_PRINTER_FACTOR-1;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Purge
+		st_synchronize();
+		
+		current_position[E_AXIS] = saved_position[E_AXIS]/raft_extrusion_adjusting;
+		plan_set_e_position(saved_position[E_AXIS]);
+		
+		
+		//*********************************//
+		
+		feedrate = saved_feedrate;
+		extruder_multiply[LEFT_EXTRUDER]=saved_extruder_multiply[LEFT_EXTRUDER];
+		extruder_multiply[RIGHT_EXTRUDER]=saved_extruder_multiply[RIGHT_EXTRUDER];
+		
+		gif_processing_state = PROCESSING_STOP;
+		}else{
+		bitClear(flag_sdprinting_register,flag_sdprinting_register_pausetest);
 	}
 	
-	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Purge
-	st_synchronize();
-	
-	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =false;
-	
-	current_position[X_AXIS] = saved_position[X_AXIS];
-	
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED/60, active_extruder);
-	
-	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE){
-		plan_set_position(extruder_offset[X_AXIS][RIGHT_EXTRUDER], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-		plan_buffer_line(current_position[X_AXIS]+duplicate_extruder_x_offset, current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED/60, RIGHT_EXTRUDER);
-		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-	}
-	
-	
-	st_synchronize();
-	
-	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled =true;
-	
-	current_position[Z_AXIS] = saved_position[Z_AXIS];
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], 8, active_extruder);
-	destination[Z_AXIS] = current_position[Z_AXIS];
-	st_synchronize();
-	
-	current_position[E_AXIS]+=RETRACT_PRINTER_FACTOR;
-	//current_position[E_AXIS]+=RETRACT_PRINTER_FACTOR-1;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Purge
-	st_synchronize();
-	
-	current_position[E_AXIS] = saved_position[E_AXIS]/raft_extrusion_adjusting;
-	plan_set_e_position(saved_position[E_AXIS]);
-	
-	
-	//*********************************//
-	
-	feedrate = saved_feedrate;
-	extruder_multiply[LEFT_EXTRUDER]=saved_extruder_multiply[LEFT_EXTRUDER];
-	extruder_multiply[RIGHT_EXTRUDER]=saved_extruder_multiply[RIGHT_EXTRUDER];
-	gif_processing_state = PROCESSING_STOP;
 	screen_printing_pause_form = screen_printing_pause_form0;
 	display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SDPRINTING,0);
 	display_ButtonState(BUTTON_SDPRINTING_STOP,0);
-	display_ButtonState(BUTTON_SDPRINTING_PAUSE,0); 
+	display_ButtonState(BUTTON_SDPRINTING_PAUSE,0);
 	display_ButtonState(BUTTON_SDPRINTING_SETTINGS,0);
 	display_ChangeForm(FORM_SDPRINTING,0);
 	display.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);
@@ -4343,6 +4401,7 @@ inline void gcode_G72(){////Grinding avoider resume
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled = true;
 	
 }
+
 inline void gcode_G29(){
 	
 	float x_tmp, y_tmp, z_tmp, real_z;
@@ -4678,6 +4737,9 @@ inline void gcode_M24(){
 	
 	card.startFileprint();
 	starttime=millis();
+	#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+	flag_is_cura_file = false;
+	#endif
 	Flag_checkfil = false;
 	Flag_fanSpeed_mirror=0;
 	extrudemultiply=100;
@@ -4719,28 +4781,35 @@ inline void gcode_M24(){
 	bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
 	
 	//char buffer[13];
-	int i = 0;
+	
+	int count = get_nummaxchars(true, 280);
+	int i = 0;	
 	memset(namefilegcode, '\0', sizeof(namefilegcode) );
-	if (String(card.longFilename).length()>16){
-		for (i = 0; i<16 ; i++)
+	
+	if ((String(card.longFilename).length() - 6) > count){
+		for (i = 0; i<count ; i++)
 		{
-			if (card.longFilename[i] == '.') break; //go out of the for
-			else {
-				namefilegcode[i]=card.longFilename[i];
-			}
+			
+			namefilegcode[i]=card.longFilename[i];
+			
 		}
-		}else{
-		for (i = 0; i<=String(card.longFilename).length(); i++)
+		namefilegcode[i]='.';
+		namefilegcode[i+1]='.';
+		namefilegcode[i+2]='.';
+		namefilegcode[i+3]='\0';
+		
+	}else{
+		
+		for (i = 0; i < String(card.longFilename).length() - 6; i++)
 		{
-			if (card.longFilename[i] == '.')break;
-			else namefilegcode[i]=card.longFilename[i];
+			namefilegcode[i]=card.longFilename[i];
 		}
 		
+		
 	}
-	namefilegcode[i]='.';
-	namefilegcode[i+1]='.';
-	namefilegcode[i+2]='.';
-	namefilegcode[i+3]='\0';
+	
+	
+	
 	display.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);//Printing form//Printing form
 	#endif
 	#endif //SDSUPPORT
@@ -5021,9 +5090,11 @@ inline void gcode_M35(){
 	current_position[E_AXIS]=0;
 	plan_set_e_position(current_position[E_AXIS]);
 	st_synchronize();
-	current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
-	st_synchronize();
+	if(target_temperature[active_extruder]-10 > degHotend(active_extruder)){ 
+		current_position[E_AXIS]-=RETRACT_PRINTER_FACTOR;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], RETRACT_SPEED_PRINT_TEST/60, active_extruder);//Retract
+		st_synchronize();
+	}
 	if (active_extruder == LEFT_EXTRUDER && current_position[X_AXIS] != 0){															//Move X axis, controlling the current_extruder
 		current_position[X_AXIS] = current_position[X_AXIS]-PAUSE_G69_XYMOVE;
 		current_position[Y_AXIS] = current_position[Y_AXIS]+PAUSE_G69_XYMOVE;
@@ -5037,9 +5108,9 @@ inline void gcode_M35(){
 	//********MOVE TO PAUSE POSITION
 	
 	if(current_position[Z_AXIS]>=180) current_position[Z_AXIS] += 2;								//
-	else if(current_position[Z_AXIS]>=205) {}
+	else if(current_position[Z_AXIS]>=195) {}
 	else if(current_position[Z_AXIS] == 0){}														//Move the bed, more or less in function of current_position
-	else current_position[Z_AXIS] += 10;															//
+	else current_position[Z_AXIS] += 5;															//
 	int feedrate=homing_feedrate[Z_AXIS];
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 	st_synchronize();
@@ -6734,8 +6805,12 @@ inline void gcode_M536(){
 	if(led_mode_state == 0){Serial.print(F("**-> "));}Serial.println(F("Mode 0 : default -> RGB: 255 255 255"));
 	if(led_mode_state == 1){Serial.print(F("**-> "));}Serial.println(F("Mode 1 : random  -> RGB: +1 +2 +3, during printing"));
 	if(led_mode_state == 2){Serial.print(F("**-> "));}Serial.println(F("Mode 2 : cycle   -> RGB: 6 states"));
-	
+	if(led_mode_state == 3){Serial.print(F("**-> "));}Serial.println(F("Mode 3 : Psico   -> RGB: Rise&Fall"));
+		
 	analogWrite(RED, 255); analogWrite(GREEN, 255); analogWrite(BLUE, 255);
+}
+inline void gcode_M537(){
+	if (code_seen('V')) digitalWrite(SDA_PIN,(int)code_value());
 }
 inline void gcode_M540(){
 	#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
@@ -7111,11 +7186,73 @@ inline void gcode_M800(){ //Smart purge smartPurge_Distant(double A, double B, d
 		//display_ChangeForm((int)code_value_long(),0);
 	//}
 //}
-inline void gcode_M840(){
-}
-inline void gcode_M841(){
-}
-inline void gcode_M842(){
+inline void gcode_M990(){
+	if(!blocks_queued()){
+		
+		
+		display_ChangeForm(FORM_MAIN,0);
+		doblocking=false;
+		log_prints_finished++;
+		acceleration = acceleration_old;
+		if(current_position[Z_AXIS]>Z_MAX_POS-15){plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]-Z_SIGMA_RAISE_BEFORE_HOMING,current_position[E_AXIS],6,active_extruder);st_synchronize();};
+		
+		#ifdef SIGMA_TOUCH_SCREEN
+		//also we need to put the platform down and do an autohome to prevent blocking
+		
+		gcode_T0_T1_auto(0);
+		
+		
+		memset(fanSpeed_offset, 0, sizeof(fanSpeed_offset)); // clear position
+		
+		set_dual_x_carriage_mode(DEFAULT_DUAL_X_CARRIAGE_MODE);
+		extrudemultiply=100;
+		Flag_fanSpeed_mirror=0;
+		#ifdef RELATIVE_TEMP_PRINT
+		Flag_hotend0_relative_temp = false;
+		Flag_hotend1_relative_temp = false;
+		#endif
+		feedmultiply[LEFT_EXTRUDER]=100;
+		feedmultiply[RIGHT_EXTRUDER]=100;
+		fanSpeed_offset[LEFT_EXTRUDER]=0;
+		fanSpeed_offset[RIGHT_EXTRUDER]=0;
+		extruder_multiply[LEFT_EXTRUDER]=100;
+		extruder_multiply[RIGHT_EXTRUDER]=100;
+		fanSpeed = 0;
+		saved_print_smartpurge_flag = false;
+		screen_sdcard = false;
+		surfing_utilities=false;
+		surfing_temps = false;
+		log_hours_lastprint = (int)(log_min_print/60);
+		log_minutes_lastprint = (int)(log_min_print%60);
+		log_X0_mmdone += x0mmdone/axis_steps_per_unit[X_AXIS];
+		log_X1_mmdone += x1mmdone/axis_steps_per_unit[X_AXIS];
+		log_Y_mmdone += ymmdone/axis_steps_per_unit[Y_AXIS];
+		log_E0_mmdone += e0mmdone/axis_steps_per_unit[E_AXIS];
+		log_E1_mmdone += e1mmdone/axis_steps_per_unit[E_AXIS];
+		x0mmdone = 0;
+		x1mmdone = 0;
+		ymmdone = 0;
+		e0mmdone = 0;
+		e1mmdone = 0;
+		#ifdef ENABLE_CURA_COUNTDOWN_TIMER
+		flag_is_cura_file = false;
+		#endif
+		Flag_checkfil = false;
+		Config_StoreSettings();
+		//The default states is Left Extruder active
+		#endif
+		if(SD_FINISHED_STEPPERRELEASE)
+		{
+			//finishAndDisableSteppers();
+			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+		}
+		autotempShutdown();
+		setTargetHotend0(0);
+		setTargetHotend1(0);
+		setTargetBed(0);
+		HeaterCooldownInactivity(true);
+		quickStop();
+	}
 }
 
 inline void gcode_M999(){
@@ -7471,6 +7608,10 @@ void process_commands()
 			
 			case 36:
 			gcode_G36();
+			break;
+			
+			case 68: //G68 pause print test
+			gcode_G68();
 			break;
 			
 			case 69: //G69 pause print
@@ -7951,6 +8092,10 @@ void process_commands()
 			gcode_M536();
 			break;
 			
+			case 537:
+			gcode_M537();
+			break;
+			
 			case 540:
 			gcode_M540();
 			break;
@@ -7968,19 +8113,7 @@ void process_commands()
 			case 605: // Set dual x-carriage movement mode:
 			gcode_M605();
 			break;
-
-			case 840: // M840 Report info cura from gcode file
-			gcode_M840();
-			break;
-			
-			case 841: // M841 Report Extruder info
-			gcode_M841();
-			break;
-			
-			case 842: // M841 Report feedback
-			gcode_M842();
-			break;
-			
+						
 			case 800: // M800 Smart purge
 			gcode_M800();
 			break;
@@ -7999,6 +8132,10 @@ void process_commands()
 			
 			case 351: // M351 Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
 			gcode_M351();
+			break;
+			
+			case 990: // M990: End Gcode
+			gcode_M990();
 			break;
 			
 			case 999: // M999: Restart after being stopped

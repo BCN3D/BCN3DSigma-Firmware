@@ -390,18 +390,26 @@ float Listfiles::extract_ensure_hotend_gcode_setup_t(uint8_t tool){
 	else{
 		sscanf_P( commandline, PSTR(";Extruders used: T%d %d.%d T%d %d.%d"), &nozzle_0, &nozzle_digit1, &nozzle_digit2, &nozzle_1, &nozzle_digit3, &nozzle_digit4);
 	}
-	if(nozzle_0 == 1){
-		nozzle_digit3 = nozzle_digit1;
-		nozzle_digit4 = nozzle_digit2;
-	}
-	if(nozzle_1 == 0){
-		nozzle_digit1 = nozzle_digit3;
-		nozzle_digit2 = nozzle_digit4;
-	}
+	
+	
 	if(tool == LEFT_EXTRUDER){
+		if(nozzle_1 == 0){
+			nozzle_digit1 = nozzle_digit3;
+			nozzle_digit2 = nozzle_digit4;
+		}else if(nozzle_0 == 1){
+			nozzle_digit1 = -1;
+			nozzle_digit2 = -1;
+		}
 		if(nozzle_digit1==1 && nozzle_digit2 == -1)nozzle_digit2=0;
 		res = (float) (nozzle_digit1 + nozzle_digit2/10.0);
 	}else{
+		if(nozzle_0 == 1){
+			nozzle_digit3 = nozzle_digit1;
+			nozzle_digit4 = nozzle_digit2;
+		}else if(nozzle_1 == 0){
+			nozzle_digit3 = -1;
+			nozzle_digit4 = -1;
+		}
 		if(nozzle_digit3==1 && nozzle_digit4 == -1)nozzle_digit4=0;
 		res = (float) (nozzle_digit3 + nozzle_digit4/10.0);
 	}

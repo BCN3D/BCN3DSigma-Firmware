@@ -4365,7 +4365,6 @@ inline void gcode_G70(){//Resume
 inline void gcode_G71(){//Grinding avoider go park
 	saved_position[X_AXIS] = current_position[X_AXIS];
 	st_synchronize();
-	
 	if(dual_x_carriage_mode ==DXC_DUPLICATION_MODE)	extruder_duplication_enabled = false;
 	if(dual_x_carriage_mode == DXC_DUPLICATION_MODE){
 		current_position[X_AXIS] = 0;

@@ -24,7 +24,7 @@
 // example_configurations/SCARA directory.
 //
 
-//#define BUILD_DATE 
+#define BUILD_DATE 
 #define UI_SerialID  "At Bottom Sticker"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
@@ -112,11 +112,11 @@
 //This is the version declaration for Sigma/x, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 #if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-	#define VERSION_STRING  "01-2.0.6"
-	#define VERSION_NUMBER  136
+	#define VERSION_STRING  "01-2.0.7RC"
+	#define VERSION_NUMBER  137
 #elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
-	#define VERSION_STRING  "02-2.0.6"	
-	#define VERSION_NUMBER  236
+	#define VERSION_STRING  "02-2.0.7RC"	
+	#define VERSION_NUMBER  237
 #endif
 
 
@@ -251,7 +251,7 @@
 #if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	#define BCN3D_NOZZLE_DEFAULT_SIZE 0.4
 #elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
-	#define BCN3D_NOZZLE_DEFAULT_SIZE 0.6
+	#define BCN3D_NOZZLE_DEFAULT_SIZE 0.4
 #endif
 
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
@@ -1085,9 +1085,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#if MOTHERBOARD == BCN3D_BOARD
 		//#define DEFAULT_AXIS_STEPS_PER_UNIT {160,160,3200,608}  //1/32 microstepping for BCN3D Board
 		#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,492.45}	  //1/16 microstepping for BCN3D Board
+		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,510.90}	  //1/16 microstepping for BCN3D Board
 		#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
-		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,492.45}	  //1/16 microstepping for bondtech kit BCN3D
+		#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,1600,510.90}	  //1/16 microstepping for bondtech kit BCN3D
 		#endif
 		//#define DEFAULT_AXIS_STEPS_PER_UNIT {40,40,800,102}	  //MK7 1/8 microstepping for BCN3D Board
 	#else

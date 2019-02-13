@@ -1,6 +1,6 @@
 /*
 - LCD_FSM.cpp - A class that manages the FSM related with some printer process
-Last Update: 01/08/2018
+Last Update: 02/01/2019
 Author: Alejandro Garcia (S3mt0x)
 */
 #include "LCD_FSM.h"
@@ -23,101 +23,172 @@ Author: Alejandro Garcia (S3mt0x)
 #include "BCN3D_customregisters.h"
 #include "register_codes.h"
 
-void setfilenames(int jint);
-void insertmetod();
-void ListFilesParsingProcedure(uint16_t vecto, int jint);
-void ListFilesUpfunc();
-void ListFilesDownfunc();
-void ListFileListINITSD();
-void ListFileListENTERBACKFORLDERSD();
-void ListFileSelect_find();
-void ListFileSelect0();
-void ListFileSelect1();
-void ListFileSelect2();
-void ListFileSelect3();
-void ListFileSelect4();
-void lcd_animation_handler();
-void update_screen_printing();
-void update_screen_sdcard();
-void update_screen_noprinting();
-void update_screen_endinggcode();
-//inline void ListFileSelect5();
-void setfoldernames(int jint);
-void folder_navigation_register(bool upchdir);
+/*
+*
+*
 
+	Global variables definitions
+
+*
+*
+*/
+
+//Temperatures animation gif flags:
 bool flag_temp_gifhotent0 = false;
 bool flag_temp_gifhotent1 = false;
 bool flag_temp_gifbed = false;
 
+// Register flags:
 uint16_t flag_sdprinting_register = 0;
 uint8_t flag_utilities_filament_register = 0;
 uint8_t flag_utilities_maintenance_register = 0;
 uint16_t flag_sdlist_resgiter = 0x01;
 uint8_t flag_utilities_calibration_register = 0;
 
+// LCD processing flag:
 bool lcd_busy = false;
-int raft_advise_accept_cancel = -1;//0 cancel ; 1 accept
+
+// raft detection flag:
+int raft_advise_accept_cancel = -1;	// 0 cancel ; 1 accept ; -1 none
+
 int Temp_ChangeFilament_Saved = 0;
-int Tref1 = 0;
-int Tfinal1 = 0;
-int Tpercentaje_old = 0;
-int RegID = 0;
-int RegID_digit_count = 0;
-int  print_setting_tool = 2;
-inline void Calib_check_temps(void);
-inline void Z_compensation_decisor(void);
-void go_loadfilament(uint8_t idbutton);
-void go_loadfilament_next(void);
-void go_loadfilament_back(void);
 
-#if PATTERN_Z_CALIB == 0
-	inline void Full_calibration_ZL_set(float offset);
-	inline void Full_calibration_ZR_set(float offset);
-#else
-	void Full_calibration_ZL_set(float offset);
-	void Full_calibration_ZR_set(float offset);
-#endif
+// Change Filament control temperatures:
+int Tref1 = 0; // Init temperature
+int Tfinal1 = 0; // Target temperature
+int Tpercentage_old = 0; // Temperature Percentage 
 
-void turnoff_buttons_xycalib(void);
-void turnoff_buttons_zcalib(void);
-void inline Full_calibration_X_set(float offset);
-void inline Full_calibration_Y_set(float offset);
-inline void Coolingdown_Shutdown(int mode);
-void unload_get_ready(void);
-inline void unloadfilament_procedure(void);
-void show_data_printconfig(void);
-// Bed compensation
-inline void Bed_Compensation_Set_Lines(int jint);
-void Bed_Compensation_Redo_Lines(int jint);
-int Bed_compensation_redo_offset = 0;
-int8_t Bed_Compensation_Lines_Selected[3] = {0,0,0};
-uint8_t Bed_Compensation_state = 0;// state 0: First Bed Calib, state 1: ZL Calib, state 2: Bed Compensation Back, state 3: Bed Compensation Front Left, state 4: Bed Compensation Front Right
+int RegID = 0; // Register input code
+int RegID_digit_count = 0; // Register digit count up to 4 digits
 
-// end Bed compensation
+float offset_calib_manu[4] = {0.0,0.0,0.0,0.0};	// Manual Fine Calib axis offset to be modified
+unsigned int calib_value_selected;// Manual Fine Calib axis id
 
-float offset_calib_manu[4] = {0.0,0.0,0.0,0.0};
-unsigned int calib_value_selected;
-float offset_x_calib = 0;
-float offset_y_calib = 0;
-int8_t calib_zxy = 0; // 1 X , 2 Y , ZL 3, ZR 4
-int calib_confirmation = 1888;
-int  previous_state = FORM_MAIN;
+int8_t calib_zxy_id = 0; // Calib global variable id, used in redo process: 1 X , 2 Y , ZL 3, ZR 4
+
+int calib_confirmation = 1888;// Calib line selected id: for ZL and ZR(if line gap is 0.05): -3(-0.15) to 1(0.05); for X and Y: -5(-0.5) to 4(0.4);
+
+// Load Custom Filament temperatures:
 int custom_load_temp = 225;
 int custom_unload_temp = 215;
 int custom_print_temp = 215;
 int custom_bed_temp = 65;
-int cyclo_filament = 0; // 0 PLA 1 PVA 2 PET-G 3 ABS 4 Nylon 5 TPU 6 Custom
 
-unsigned int userimagesdlist[5] = {USERIMAGE_SDLIST_FILE_0,USERIMAGE_SDLIST_FILE_1,USERIMAGE_SDLIST_FILE_2,USERIMAGE_SDLIST_FILE_3,USERIMAGE_SDLIST_FILE_4};
-unsigned int buttonsdselected[6] = {BUTTON_SDLIST_SELECT0, BUTTON_SDLIST_SELECT1, BUTTON_SDLIST_SELECT2, BUTTON_SDLIST_SELECT3, BUTTON_SDLIST_SELECT4, 255};
-unsigned int stringfilename[8] = {STRING_SDLIST_NAMEFILE0, STRING_SDLIST_NAMEFILE1, STRING_SDLIST_NAMEFILE2, STRING_SDLIST_NAMEFILE3, STRING_SDLIST_NAMEFILE4, 255,STRING_SDLIST_CONFIRMATION_NAMEFILE,STRING_RECOVERY_PRINT_ASK};
-const unsigned int stringfiledur[3][2]=
+int cycle_filament = 0; // Filament list number: 0 PLA 1 PVA 2 PET-G 3 ABS 4 Nylon 5 TPU 6 Custom
+
+
+long LCD_FSM_input_buton_flag = -1; // Button Pressed id 
+
+int redo_source; // Redo global variable id, used in redo process: 1 X , 2 Y , ZL 3, ZR 4
+
+
+/*
+*
+*
+
+	Functions definitions
+
+*
+*
+*/
+void setfilenames(int jint); // Get filename
+void setfoldernames(int jint); // Get foldername
+
+void insertmetod(); // Init Load filament
+
+void ListFilesParsingProcedure(uint16_t vecto, int jint); // SD list get info from file selected
+void ListFilesUpfunc(); // SD list scroll up
+void ListFilesDownfunc(); // SD list Open down
+void ListFileListINITSD(); // SD list go/back to init
+void ListFileListENTERBACKFORLDERSD(); // SD list back
+void ListFileSelect_open(); // SD list Open selected
+
+// SD list Select first to fifth:
+void ListFileSelect0();
+void ListFileSelect1();
+void ListFileSelect2();
+void ListFileSelect3();
+void ListFileSelect4();
+
+void setsdlisthours(int jint, int time_hour); // Set hours from gcode info
+void setsdlistmin(int jint, int time_min); // Set min from gcode info
+void setsdlistg(int jint, int weight); // Set weight from gcode info
+
+void lcd_animation_handler(); // Animation handler
+void update_screen_printing(); // Printing State handler
+void update_screen_sdcard(); // SD State handler
+void update_screen_noprinting(); // No printing State handler
+void update_screen_endinggcode(); // Ending print State handler
+
+void folder_navigation_register(bool upchdir); // Folder depth count
+
+inline void Calib_check_temps(void); // Calib check temperatures and wait until is reached
+
+inline void Z_compensation_decisor(void); // Decide it shims is needed
+void go_loadfilament(uint8_t idbutton); // load filament by id
+void go_loadfilament_next(void); // filament list next page
+void go_loadfilament_back(void); // filament list back page
+
+#if PATTERN_Z_CALIB == 0 // 0 default calib procedure
+	inline void Full_calibration_ZL_set(float offset); // Set ZL offset
+	inline void Full_calibration_ZR_set(float offset); // Set ZR offset
+#else // 1 auto calib 
+	void Full_calibration_ZL_set(float offset); // Set ZL offset
+	void Full_calibration_ZR_set(float offset); // Set ZR offset
+#endif
+void inline Full_calibration_X_set(float offset); // Set X offset
+void inline Full_calibration_Y_set(float offset); // Set Y offset
+
+void turnoff_buttons_xycalib(void); // Set X & Y calib select line buttons to default state
+void turnoff_buttons_zcalib(void); // Set ZL & ZR calib select line buttons to default state
+
+inline void Coolingdown_Shutdown(int mode); // Cool down temperatures and wait
+
+void unload_get_ready(void); // Go to unload filament position
+inline void unloadfilament_procedure(void); // Proceed to unload filament
+
+void show_data_printconfig(void); // Display printer config, function compatible with different screens
+
+// Bed compensation:
+inline void Bed_Compensation_Set_Lines(int jint); // set due selected line
+void Bed_Compensation_Redo_Lines(int jint); // redo from selected best line
+int Bed_compensation_redo_offset = 0; // offset accumulated 
+int8_t Bed_Compensation_Lines_Selected[3] = {0,0,0}; // offset measured vector
+uint8_t Bed_Compensation_state = 0; // state 0: First Bed Calib, state 1: ZL Calib, state 2: Bed Compensation Back, state 3: Bed Compensation Front Left, state 4: Bed Compensation Front Right
+
+int get_nummaxchars(bool isfilegcode, unsigned int totalpixels); // get number of chars available 
+
+
+void setregiter_num(int n); // introduce register digit
+bool check_regiter_num(unsigned int n); // Verify if code is genuine
+
+void lcd_fsm_lcd_input_logic(); // do a task according to input button pressed
+void lcd_fsm_output_logic(); // do a task depends of the state
+
+/*
+*
+*
+
+	Constants definitions
+
+*
+*
+*/
+
+// User image lcd id vector:
+const unsigned int userimagesdlist[5] = {USERIMAGE_SDLIST_FILE_0,USERIMAGE_SDLIST_FILE_1,USERIMAGE_SDLIST_FILE_2,USERIMAGE_SDLIST_FILE_3,USERIMAGE_SDLIST_FILE_4}; 
+// Button lcd id vector
+const unsigned int buttonsdselected[6] = {BUTTON_SDLIST_SELECT0, BUTTON_SDLIST_SELECT1, BUTTON_SDLIST_SELECT2, BUTTON_SDLIST_SELECT3, BUTTON_SDLIST_SELECT4, 255};
+// String lcd id vector
+const unsigned int stringfilename[8] = {STRING_SDLIST_NAMEFILE0, STRING_SDLIST_NAMEFILE1, STRING_SDLIST_NAMEFILE2, STRING_SDLIST_NAMEFILE3, STRING_SDLIST_NAMEFILE4, 255,STRING_SDLIST_CONFIRMATION_NAMEFILE,STRING_RECOVERY_PRINT_ASK}; // String lcd id vector
+// Custom digits for jint 6 and 7
+const unsigned int stringfiledur[3][2]= 
 {
 	{CUSTOMDIGITS_SDLIST_CONFIRMATION_DURFILE_HOURS	, CUSTOMDIGITS_RECOVERY_PRINT_ASK_DUR_HOURS	},
 	{CUSTOMDIGITS_SDLIST_CONFIRMATION_DURFILE_MIN	, CUSTOMDIGITS_RECOVERY_PRINT_ASK_DUR_MIN	},
 	{CUSTOMDIGITS_SDLIST_CONFIRMATION_DURFILE_G		, CUSTOMDIGITS_RECOVERY_PRINT_ASK_DUR_G		}
 };
-const unsigned int sdfiledurhor[3][5]=
+const unsigned int sdfiledurhor[3][5]= // Custom digits lcd id for hours
 {
 	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	{33, 37, 45, 54, 64},
@@ -129,7 +200,7 @@ const unsigned int sdfiledurhor[3][5]=
 	{30, 32, 52, 50, 59}
 	#endif		
 };
-const unsigned int sdfiledurmin[2][5]=
+const unsigned int sdfiledurmin[2][5]= // Custom digits lcd id for min
 {
 	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	{26, 39, 53, 56, 66},
@@ -139,7 +210,7 @@ const unsigned int sdfiledurmin[2][5]=
 	{25, 35, 43, 42, 62}
 	#endif	
 };
-const unsigned int sdfilepes[4][5]=
+const unsigned int sdfilepes[4][5]= // Custom digits lcd id for weight
 {
 	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	{31, 43, 58, 61, 70},
@@ -153,7 +224,7 @@ const unsigned int sdfilepes[4][5]=
 	{27, 37, 46, 55, 64}
 	#endif	
 };
-const unsigned int register_codes[20]=
+const unsigned int register_codes[20]= // Register codes vector
 {
 	REGIST_CODE_0, REGIST_CODE_1, REGIST_CODE_2, REGIST_CODE_3, REGIST_CODE_4,
 	REGIST_CODE_5, REGIST_CODE_6, REGIST_CODE_7, REGIST_CODE_8, REGIST_CODE_9,
@@ -161,38 +232,37 @@ const unsigned int register_codes[20]=
 	REGIST_CODE_15, REGIST_CODE_16, REGIST_CODE_17, REGIST_CODE_18, REGIST_CODE_19
 	
 };
-const unsigned int pixelsize_char_uppercase[26]=
+const unsigned int pixelsize_char_uppercase[26]= // Upper case dimensionless value size
 {
 	21,16,16,18,14,13,17,18,7,12,17,13,22,
 	19,19,16,19,17,14,13,18,16,25,16,14,16
 
 };
-const unsigned int pixelsize_char_lowercase[26]=///Total 330
+const unsigned int pixelsize_char_lowercase[26]= // Lower case dimensionless value size
 {
 		14,16,14,17,14,8,15,16,7,8,15,7,25,
 		16,15,16,16,16,9,12,15,12,21,13,11,12
 	
 };
-const unsigned int pixelsize_char_symbols[20]=///40 to 59
+const unsigned int pixelsize_char_symbols[20]= // Symbols case dimensionless value size
 {
 	7,7,12,12,7,9,7,8,17,9,13,
 	13,14,13,15,13,15,15,7,7
 	
 };
-int get_nummaxchars(bool isfilegcode, unsigned int totalpixels);
-void setsdlisthours(int jint, int time_hour);
-void setsdlistmin(int jint, int time_min);
-void setsdlistg(int jint, int weight);
-void setregiter_num(int n);
-bool check_regiter_num(unsigned int n);
-long LCD_FSM_input_buton_flag = -1;
-long LCD_FSM_output_buton_flag = -1;
-int redo_source;
-void lcd_fsm_lcd_input_logic();
-void lcd_fsm_output_logic();
-extern int redo_source;
-void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
-	lcd_busy = true;
+
+
+
+void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_input_buton_flag" value
+	/*
+	*
+	*
+
+	Local variables definitions
+
+	*
+	*
+	*/
 	int updir;
 	int tHotend;
 	int tHotend1;
@@ -207,13 +277,15 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 	#endif
 	static uint32_t waitPeriod = millis();
 	static uint32_t waitPeriod_s = millis();
-	if (card.sdprinting || card.sdispaused){
-		
-		//******PRINTING****
+	
+	lcd_busy = true; // MCU is busy
+	
+	if (card.sdprinting || card.sdispaused){ // Printer is printing or paused
 		
 		switch(LCD_FSM_input_buton_flag) {
 			
-			case BUTTON_SDPRINTING_SETTINGS:
+			case BUTTON_SDPRINTING_SETTINGS: // Go to Temperatures Window
+			
 			if(screen_printing_pause_form == screen_printing_pause_form0){
 				display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SDPRINTING,1);
 				display_ButtonState(BUTTON_SDPRINTING_SETTINGS,1);
@@ -224,27 +296,32 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				
 			}else if(screen_printing_pause_form == screen_printing_pause_form3){
 				bitSet(flag_sdprinting_register,flag_sdprinting_register_temps);
-				is_on_printing_screen = false;
+				screen_printing_pause_form = screen_printing_pause_form4; // Set Temps State
 			}
 					
 			break;
 			
-			case BUTTON_SDPRINTING_BACKSTATE:
-				display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SDPRINTING,0);
-				display_ButtonState(BUTTON_SDPRINTING_SETTINGS,0);
-				display_ButtonState(BUTTON_SDPRINTING_PAUSE,0);
-				display_ButtonState(BUTTON_SDPRINTING_STOP,0);
-				display_ButtonState(BUTTON_SDPRINTING_BACKSTATE,0);
-				screen_printing_pause_form = screen_printing_pause_form0;
+			case BUTTON_SDPRINTING_BACKSTATE: // Back to Printer Screen "screen_printing_pause_form0"
+			
+			display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SDPRINTING,0);
+			display_ButtonState(BUTTON_SDPRINTING_SETTINGS,0);
+			display_ButtonState(BUTTON_SDPRINTING_PAUSE,0);
+			display_ButtonState(BUTTON_SDPRINTING_STOP,0);
+			display_ButtonState(BUTTON_SDPRINTING_BACKSTATE,0);
+			screen_printing_pause_form = screen_printing_pause_form0;
+				
 			break;
 			
-			case BUTTON_SDPRINTTING_SETINGS_BACK:
+			case BUTTON_SDPRINTTING_SETINGS_BACK: // Back to Printer Screen or Pause Screen
 			case BUTTON_SDPRINTTING_CONTROL_BACK:
+			
 			bitSet(flag_sdprinting_register,flag_sdprinting_register_showdata);	
+			screen_printing_pause_form = screen_printing_pause_form3;
 			break;
 			
 			
-			case BUTTON_SDPRINTING_PAUSE_UTILITIES:
+			case BUTTON_SDPRINTING_PAUSE_UTILITIES: //if screen_printing_pause_form1, Swap Pause form to Utilities; if screen_printing_pause_form2 go to Purge
+			
 			if(screen_printing_pause_form == screen_printing_pause_form1){
 				screen_printing_pause_form = screen_printing_pause_form2;
 				display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SDPRINTING_PAUSE,1);
@@ -267,15 +344,15 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_PURGE_LEFTTARGET,int(degHotend(0)));
 				display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_PURGE_RIGHTTARGET,int(degHotend(1)));
 				display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_PURGE_SELECTEDTEMP,0);
-				
-				is_on_printing_screen = false;
 			}
 					
 			break;
 			
-			case BUTTON_PRINTERSETUP_LED_SAVE:
+			case BUTTON_PRINTERSETUP_LED_SAVE: // Go to Lighting control screen
+			
 			display_ButtonState(BUTTON_PRINTERSETUP_LED_MENU,0);
 			bitSet(flag_sdprinting_register,flag_sdprinting_register_showdata);	
+			
 			break;
 			
 			//case BUTTON_PRINTERSETUP_LED_BACK:
@@ -283,9 +360,9 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			//bitSet(flag_sdprinting_register,flag_sdprinting_register_showdata);	
 			//break;
 			
-			case BUTTON_SDPRINTING_PAUSE_BACKSTATE:
+			case BUTTON_SDPRINTING_PAUSE_BACKSTATE: // Back to Pause Form
 			
-			if(screen_printing_pause_form ==screen_printing_pause_form2){
+			if(screen_printing_pause_form == screen_printing_pause_form2){
 				screen_printing_pause_form = screen_printing_pause_form1;
 				display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SDPRINTING_PAUSE,0);
 				display_ButtonState( BUTTON_SDPRINTING_PAUSE_STOP, 0);
@@ -296,41 +373,48 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			}
 			
 			break;
-			case BUTTON_FILAMENTDETECTOR_NOTICE_ABORT:
+			
+			case BUTTON_FILAMENTDETECTOR_NOTICE_ABORT: // Go to after filament runout sensor notification Abort Print
+			
 			display_ChangeForm(FORM_FILAMENTDETECTOR_ABORT,0);
+			
 			break;
 			
-			case BUTTON_FILAMENTDETECTOR_ABORT_YES:
+			case BUTTON_FILAMENTDETECTOR_ABORT_YES: // Execute Abort print
 			case BUTTON_SDPRINTING_STOPPRINT_YES:			
-			
-			is_on_printing_screen=false;			
+						
 			card.closefile();
 			bitSet(flag_sdprinting_register,flag_sdprinting_register_printstop);	
 			cancel_heatup = true;
 			display_ChangeForm(FORM_PROCESSING,0);
 			gif_processing_state = PROCESSING_DEFAULT;
+			
 			break;
 			
-			case BUTTON_FILAMENTDETECTOR_ABORT_NO:
+			case BUTTON_FILAMENTDETECTOR_ABORT_NO: // Back to FRS window
 			case BUTTON_UTILITIES_FILAMENT_LOAD_BACK:
+			
 			if(Flag_checkfil){
 			display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_FILAMENTDETECTOR_NOTICE,(which_extruder_needs_fil== 10)?0:1);
 			display_ChangeForm(FORM_FILAMENTDETECTOR_NOTICE,0);
 			}
+			
 			break;
 			
-			case BUTTON_FILAMENTDETECTOR_NOTICE_CHANGEFILAMENT:
+			case BUTTON_FILAMENTDETECTOR_NOTICE_CHANGEFILAMENT: // FRS, Reload filament to continue with the print job
+			
 			filament_mode = 'I';
 			insertmetod();
+			
 			break;
 			
-			case BUTTON_FILAMENTDETECTOR_NOTICE_UNLOAD_NEXT:
+			case BUTTON_FILAMENTDETECTOR_NOTICE_UNLOAD_NEXT: // FRS, Unload the remnant filament
+			
 			setTargetHotend0(target_temperature_check_filament_cooldown_save[0]);
 			setTargetHotend1(target_temperature_check_filament_cooldown_save[1]);
 			screen_printing_pause_form = screen_printing_pause_form1;
 			filament_mode = 'R';
 			surfing_utilities = true;
-			is_on_printing_screen=false;
 			which_extruder = (which_extruder_needs_fil==10) ? 0:1;
 			
 			Temp_ChangeFilament_Saved = target_temperature[which_extruder];
@@ -358,14 +442,15 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			Tref1 = (int)degHotend(which_extruder);
 			Tfinal1 = (int)degTargetHotend(which_extruder)-CHANGE_FIL_TEMP_HYSTERESIS;
-			Tpercentaje_old = 0;
+			Tpercentage_old = 0;
 			
 			gif_processing_state = PROCESSING_ADJUSTING;
 			touchscreen_update();
 			is_changing_filament=true; //We are changing filament
+			
 			break;
 			
-			case BUTTON_SDPRINTING_STOPPRINT_NO:
+			case BUTTON_SDPRINTING_STOPPRINT_NO: // Cancel Abort print
 						
 			if(screen_printing_pause_form == screen_printing_pause_form0){
 				
@@ -380,22 +465,20 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);	
 				surfing_utilities = false;
 			}
-			is_on_printing_screen=false;
+			
 			break;
 			
-			case BUTTON_SDPRINTING_STOPPRINT_SAVE:
+			case BUTTON_SDPRINTING_STOPPRINT_SAVE: // Stop Print job and recover it later
 			
 			if(!waiting_temps && !card.sdispaused){
-				
-				
-				display_ChangeForm(FORM_SDPRINTING_SAVEPRINT_SURE,0);
-				
-				
-				
+								
+				display_ChangeForm(FORM_SDPRINTING_SAVEPRINT_SURE,0); // Go to Confirmation Window
+							
 			}
+			
 			break;
 			
-			case BUTTON_SDPRINTING_SAVEPRINT_SURE_NOT:
+			case BUTTON_SDPRINTING_SAVEPRINT_SURE_NOT: // Cancel Save print job
 			
 			if(!waiting_temps){
 				
@@ -404,19 +487,17 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				
 				
 			}
+			
 			break;
 			
-			case BUTTON_SDPRINTING_SAVEPRINT_SURE_OK:
+			case BUTTON_SDPRINTING_SAVEPRINT_SURE_OK: // Confirm Save print job
 			
 			if(!waiting_temps){
 				
 				
 				
 				if(screen_printing_pause_form == screen_printing_pause_form0){
-					
-					
-					is_on_printing_screen=false;
-					
+										
 					card.sdprinting = false;
 					card.sdispaused = true;
 					display_ChangeForm(FORM_PROCESSING,0);
@@ -430,7 +511,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			break;
 			
-			case BUTTON_SDPRINTING_STOP:
+			case BUTTON_SDPRINTING_STOP: // Go to Confirmation abort print job, from printing screen
 			
 			if(screen_printing_pause_form == screen_printing_pause_form0){
 				
@@ -440,11 +521,10 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			}else if(screen_printing_pause_form == screen_printing_pause_form3){
 				bitSet(flag_sdprinting_register,flag_sdprinting_register_light);
 			}
-			is_on_printing_screen=false;
-			
+						
 			break;
 			
-			case BUTTON_SDPRINTING_PAUSE_STOP:
+			case BUTTON_SDPRINTING_PAUSE_STOP: // Go to Confirmation abort print job, from pause screen
 			
 			if(screen_printing_pause_form == screen_printing_pause_form1){
 				
@@ -457,10 +537,10 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				
 				
 			}
-			is_on_printing_screen=false;
+			
 			break;
 			
-			case BUTTON_SDPRINTING_PAUSE:
+			case BUTTON_SDPRINTING_PAUSE: // Pause print job if "screen_printing_pause_form0", "screen_printing_pause_form3" open to advanced settings
 			
 			if(card.sdprinting && screen_printing_pause_form == screen_printing_pause_form0){
 				
@@ -468,12 +548,12 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				
 			}else if(screen_printing_pause_form == screen_printing_pause_form3){
 				bitSet(flag_sdprinting_register,flag_sdprinting_register_control);
-				is_on_printing_screen=false;
+				screen_printing_pause_form = screen_printing_pause_form5; // Set Advanced Settins state
 			}
 			
 			break;
 			
-			case BUTTON_SDPRINTING_PAUSE_RESUME:
+			case BUTTON_SDPRINTING_PAUSE_RESUME: // Resume print job if "screen_printing_pause_form1", "screen_printing_pause_form2" open Change filament during printing
 			
 			if(card.sdispaused){
 				if(screen_printing_pause_form == screen_printing_pause_form1){
@@ -488,35 +568,34 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					surfing_utilities = true;
 				}
 			}
-			break;
-			
-			case BUTTON_UTILITIES_FILAMENT_LOAD_FILNEXT:
-			go_loadfilament_next();
 			
 			break;
-			
-			case BUTTON_UTILITIES_FILAMENT_LOAD_FILBACK:
-			go_loadfilament_back();			
-			break;
-			
-			//*****Printing Settings*****
-			
+						
+			// Printing settings:			
 			case  BUTTON_SDPRINTTING_SETINGS_FAN_LEFT_UP:
+			
 			bitSet(screen_change_register,screen_change_register_fanup);
+			
 			break;
 			
 			case BUTTON_SDPRINTTING_SETINGS_FAN_LEFT_DOWN:
+			
 			bitSet(screen_change_register,screen_change_register_fandown);
+			
 			break;
 			
 			case  BUTTON_SDPRINTTING_SETINGS_FAN_RIGHT_UP:
+			
 			if(get_dual_x_carriage_mode()==DXC_FULL_SIGMA_MODE)bitSet(screen_change_register,screen_change_register_fanupr);
 			else bitSet(screen_change_register,screen_change_register_fanup);
+			
 			break;
 			
 			case BUTTON_SDPRINTTING_SETINGS_FAN_RIGHT_DOWN:
+			
 			if(get_dual_x_carriage_mode()==DXC_FULL_SIGMA_MODE)bitSet(screen_change_register,screen_change_register_fandownr);
 			else bitSet(screen_change_register,screen_change_register_fandown);
+			
 			break;
 			
 			case  BUTTON_SDPRINTTING_SETINGS_FLOW_LEFT_UP:
@@ -524,88 +603,100 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			break;
 			
 			case  BUTTON_SDPRINTTING_SETINGS_FLOW_RIGHT_UP:
+			
 			if(get_dual_x_carriage_mode()==DXC_FULL_SIGMA_MODE)bitSet(screen_change_register,screen_change_register_flowupr);
 			else bitSet(screen_change_register,screen_change_register_flowup);
+			
 			break;
 			
 			case BUTTON_SDPRINTTING_SETINGS_FLOW_LEFT_DOWN:
+			
 			bitSet(screen_change_register,screen_change_register_flowdown);
+			
 			break;
 			
 			case BUTTON_SDPRINTTING_SETINGS_FLOW_RIGHT_DOWN:
+			
 			if(get_dual_x_carriage_mode()==DXC_FULL_SIGMA_MODE)bitSet(screen_change_register,screen_change_register_flowdownr);
 			else bitSet(screen_change_register,screen_change_register_flowdown);
+			
 			break;			
 			
 			case  BUTTON_SDPRINTTING_SETINGS_SPEED_LEFT_UP:
+			
 			bitSet(screen_change_register,screen_change_register_speedup);
+			
 			break;
 			
 			case  BUTTON_SDPRINTTING_SETINGS_SPEED_RIGHT_UP:
+			
 			if(get_dual_x_carriage_mode()==DXC_FULL_SIGMA_MODE)bitSet(screen_change_register,screen_change_register_speedupr);
 			else bitSet(screen_change_register,screen_change_register_speedup);
+			
 			break;
 			
 			case BUTTON_SDPRINTTING_SETINGS_SPEED_LEFT_DOWN:
+			
 			bitSet(screen_change_register,screen_change_register_speeddown);
+			
 			break;
 			
 			case BUTTON_SDPRINTTING_SETINGS_SPEED_RIGHT_DOWN:
+			
 			if(get_dual_x_carriage_mode()==DXC_FULL_SIGMA_MODE)bitSet(screen_change_register,screen_change_register_speeddownr);
 			else bitSet(screen_change_register,screen_change_register_speeddown);
+			
 			break;
 			
 			case BUTTON_SDPRINTTING_SETINGS_LEFT_UP:
+			
 			bitSet(screen_change_register,screen_change_register_nozz1up);
+			
 			break;
 			
 			case BUTTON_SDPRINTTING_SETINGS_LEFT_DOWN:
+			
 			bitSet(screen_change_register,screen_change_register_nozz1down);
+			
 			break;
 			
 			case BUTTON_SDPRINTTING_SETINGS_RIGHT_UP:
+			
 			bitSet(screen_change_register,screen_change_register_nozz2up);
+			
 			break;
 			
 			case BUTTON_SDPRINTTING_SETINGS_RIGHT_DOWN:
+			
 			bitSet(screen_change_register,screen_change_register_nozz2down);
+			
 			break;
 			
 			case BUTTON_SDPRINTTING_SETINGS_BED_UP:
+			
 			bitSet(screen_change_register,screen_change_register_bedup);
+			
 			break;
 			
 			case BUTTON_SDPRINTTING_SETINGS_BED_DOWN:
+			
 			bitSet(screen_change_register,screen_change_register_beddown);
+			
 			break;
 			
-			case BUTTON_UTILITIES_FILAMENT_UNLOAD_BACK:
+			// end Print settings
 			
-			
+			case BUTTON_UTILITIES_FILAMENT_UNLOAD_BACK: // Back from change filament during print job
+						
 			display_ChangeForm(FORM_SDPRINTING_PAUSE,0);
 			display_ButtonState(BUTTON_UTILITIES_FILAMENT_UNLOAD_MENU,0);
-			is_on_printing_screen = true;
 			surfing_utilities = false;
 			display.WriteStr(STRING_SDPRINTING_PAUSE_GCODE,namefilegcode);
 			bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
 			
 			break;
 			
-			//
-			//case BUTTON_UTILITIES_FILAMENT_LOAD:
-			//case BUTTON_UTILITIES_FILAMENT_UNLOAD:
-			//
-			//if (LCD_FSM_input_buton_flag == BUTTON_UTILITIES_FILAMENT_LOAD) filament_mode = 'I'; //Insert Mode
-			//else if (LCD_FSM_input_buton_flag == BUTTON_UTILITIES_FILAMENT_UNLOAD) filament_mode = 'R'; //Remove Mode
-			//display_ButtonState( BUTTON_UTILITIES_FILAMENT_LOAD_SELECT1, 0);
-			//display_ButtonState( BUTTON_UTILITIES_FILAMENT_LOAD_SELECT0, 0);
-			//
-			//display_ChangeForm(FORM_UTILITIES_FILAMENT_LOAD,0);
-			//which_extruder = 255;
-			//
-			//
-			//break;
-			
+						
 			case BUTTON_UTILITIES_FILAMENT_UNLOAD_SELECTLEFT:
 			case BUTTON_UTILITIES_FILAMENT_UNLOAD_SELECTRIGHT:			
 			
@@ -645,58 +736,29 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			display_ChangeForm(FORM_ADJUSTING_TEMPERATURES,0);
 			Tref1 = (int)degHotend(which_extruder);
 			Tfinal1 = (int)degTargetHotend(which_extruder)-CHANGE_FIL_TEMP_HYSTERESIS;
-			Tpercentaje_old = 0;
+			Tpercentage_old = 0;
 			
 			gif_processing_state = PROCESSING_ADJUSTING;
 			touchscreen_update();
-			is_changing_filament=true; //We are changing filament
+			is_changing_filament=true; 
+			
 			break;
 			
 			
-			
-			////CUSTOM MATERIAL BUTTONS
-			//case BUTTON_UTILITIES_FILAMENT_LOAD_CUSTOM:
-			//
-			//if (which_extruder == 1 || which_extruder == 0) // Need to pause
-			//{
-				//display_ChangeForm(FORM_UTILITIES_FILAMENT_LOAD_CUSTOM,0);
-				//display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_LOAD_CUSTOM_LOAD,custom_load_temp);
-				//display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_LOAD_CUSTOM_UNLOAD,custom_unload_temp);
-				//display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_LOAD_CUSTOM_PRINT,custom_print_temp);
-				//display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_LOAD_CUSTOM_BED,custom_bed_temp);
-				//
-			//}
-			//break;
-			
-			
-			
-			case BUTTON_UTILITIES_FILAMENT_LOAD_FEELSTOPS:
-			
-			//////
-			//display_ChangeForm(FORM_PROCESSING,0);
-			//gif_processing_state = PROCESSING_DEFAULT;
-			//current_position[Y_AXIS]=10;
-			//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
-			//st_synchronize();
-			//gif_processing_state = PROCESSING_STOP;
-			//touchscreen_update();
-			//////
-			
-			//ATTENTION : Order here is important
+			case BUTTON_UTILITIES_FILAMENT_LOAD_FEELSTOPS: // The user pushes the filament until reaches the extruder; then the button should be pressed; heat the heater and wait.
+						
 			display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_ADJUSTING_TEMPERATURES, 0);
 			display_ChangeForm(FORM_ADJUSTING_TEMPERATURES,0);
-			//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
-			//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
 			gif_processing_state = PROCESSING_ADJUSTING;
+			
 			touchscreen_update();
+			
 			if (which_extruder==0) setTargetHotend(max(load_temp_l,old_load_temp_l),which_extruder);
 			else setTargetHotend(max(load_temp_r,old_load_temp_r),which_extruder);
-			//delay(3500);
-			
-						
+									
 			Tref1 = (int)degHotend(which_extruder);
 			Tfinal1 = (int)degTargetHotend(which_extruder)-CHANGE_FIL_TEMP_HYSTERESIS;
-			Tpercentaje_old = 0;
+			Tpercentage_old = 0;
 			
 			touchscreen_update();
 			
@@ -704,9 +766,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			break;
 			
-			
-			case BUTTON_UTILITIES_FILAMENT_LOAD_KEEPPUSHING_NEXT:
-			
+			case BUTTON_UTILITIES_FILAMENT_LOAD_KEEPPUSHING_NEXT: // Start loading the filament; if the FRS is enabled, check if there is filament on the detected before start pushing
 			
 			if (!Flag_FRS_enabled || (Flag_FRS_enabled && digitalRead(which_extruder==LEFT_EXTRUDER?E0_STOP:E1_STOP)))
 			{ //Inserting...
@@ -727,7 +787,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				st_synchronize();
 				ERROR_SCREEN_WARNING;
 				current_position[E_AXIS] += ((BOWDEN_LENGTH-EXTRUDER_LENGTH)-15);//BOWDEN_LENGTH-300+340);
-				if (axis_steps_per_unit[E_AXIS]<=493 && axis_steps_per_unit[E_AXIS]>=492){
+				if (axis_steps_per_unit[E_AXIS]<=512 && axis_steps_per_unit[E_AXIS]>=492){
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_R19_SPEED/60, which_extruder);
 					}else{
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
@@ -746,11 +806,14 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			break;
 			
 			
-			case BUTTON_UTILITIES_FILAMENT_UNLOAD_ROLLTHESPOOL_NEXT:
+			case BUTTON_UTILITIES_FILAMENT_UNLOAD_ROLLTHESPOOL_NEXT: // Unload the filament
+			
 			unloadfilament_procedure();
+			
 			break;
 			
 			case BUTTON_UTILITIES_FILAMENT_ADJUST_ACCEPT:
+			
 			if(!bitRead(flag_utilities_filament_register,flag_utilities_filament_register_acceptok))
 			{
 				if(blocks_queued()) quickStop();
@@ -766,9 +829,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				Flag_checkfil = false;
 				st_synchronize();
 			}
+			
 			break;
 			
-			case BUTTON_UTILITIES_FILAMENT_ADJUST_LOAD:
+			case BUTTON_UTILITIES_FILAMENT_ADJUST_LOAD: // Spool is loaded, purge a bit more
+			
 			if(!bitRead(flag_utilities_filament_register,flag_utilities_filament_register_acceptok)){
 				if(!blocks_queued()){
 					bitSet(flag_utilities_filament_register,flag_utilities_filament_register_purgeload);
@@ -777,9 +842,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				}
 				
 			}
+			
 			break;
 			
-			case BUTTON_UTILITIES_FILAMENT_ADJUST_UNLOAD:
+			case BUTTON_UTILITIES_FILAMENT_ADJUST_UNLOAD: // Spool is loaded, retract a bit
+			
 			if(!bitRead(flag_utilities_filament_register,flag_utilities_filament_register_acceptok)){
 				if(!blocks_queued()){
 					bitSet(flag_utilities_filament_register,flag_utilities_filament_register_purgeunload);
@@ -790,8 +857,9 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			break;
 			
-			//****************PURGE BUTTONS******
+			// Purge Buttons:
 			case BUTTON_UTILITIES_FILAMENT_PURGE_SELECT0:
+			
 			if (!blocks_queued()){
 				display_ButtonState(BUTTON_UTILITIES_FILAMENT_PURGE_LOAD,1);
 				display_ButtonState(BUTTON_UTILITIES_FILAMENT_PURGE_UNLOAD,1);
@@ -818,9 +886,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_PURGE_LEFTTARGET,int(degHotend(0)));
 				}
 			}
+			
 			break;
 			
 			case BUTTON_UTILITIES_FILAMENT_PURGE_SELECT1:
+			
 			if (!blocks_queued()){
 				display_ButtonState(BUTTON_UTILITIES_FILAMENT_PURGE_LOAD,1);
 				display_ButtonState(BUTTON_UTILITIES_FILAMENT_PURGE_UNLOAD,1);
@@ -847,9 +917,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_PURGE_RIGHTTARGET,int(degHotend(1)));
 				}
 			}
+			
 			break;
 			
 			case BUTTON_UTILITIES_FILAMENT_PURGE_TEMPUP:
+			
 			if(purge_extruder_selected != -1){
 				
 				if (target_temperature[purge_extruder_selected] < HEATER_0_MAXTEMP){
@@ -859,9 +931,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_PURGE_SELECTEDTEMP,int(target_temperature[purge_extruder_selected]));
 				}
 			}
+			
 			break;
 			
 			case BUTTON_UTILITIES_FILAMENT_PURGE_TEMPDOWN:
+			
 			if(purge_extruder_selected != -1){
 				if (target_temperature[purge_extruder_selected] > 0){
 					target_temperature[purge_extruder_selected] -= 5;
@@ -870,10 +944,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_PURGE_SELECTEDTEMP,int(target_temperature[purge_extruder_selected]));
 				}
 			}
-			break;
-			//***MOVING
 			
+			break;
+						
 			case BUTTON_UTILITIES_FILAMENT_PURGE_LOAD:
+			
 			if(purge_extruder_selected != -1){
 				if(!blocks_queued()){
 					bitSet(flag_utilities_filament_register,flag_utilities_filament_register_purgeselect0);
@@ -881,9 +956,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					quickStop();
 				}
 			}
+			
 			break;
 			
 			case BUTTON_UTILITIES_FILAMENT_PURGE_UNLOAD:
+			
 			if(purge_extruder_selected != -1){
 				if(!blocks_queued()){
 					bitSet(flag_utilities_filament_register,flag_utilities_filament_register_purgeselect1);
@@ -891,16 +968,17 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					quickStop();
 				}
 			}
+			
 			break;
 			
 			case BUTTON_UTILITIES_FILAMENT_PURGE_BACK:
+			
 			if(!blocks_queued()){
 				//quickStop();
 				
 				is_purging_filament = false;
 				display_ChangeForm(FORM_SDPRINTING_PAUSE,0);
 				touchscreen_update();
-				is_on_printing_screen = true;
 				surfing_utilities = false;
 				display.WriteStr(STRING_SDPRINTING_PAUSE_GCODE,namefilegcode);
 				bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
@@ -909,15 +987,15 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				//setTargetHotend1(0);
 				
 			}
-			break;
-			//************************************
 			
-			case BUTTON_UTILITIES_FILAMENT_SUCCESS:
+			break;
+			// end Purge Buttons
+			
+			case BUTTON_UTILITIES_FILAMENT_SUCCESS: // Ending process
+			
 			if (printer_state == STATE_LOADUNLOAD_FILAMENT)
 			{
 				
-				
-				//enquecommand_P((PSTR("G28 X0 Y0")));
 				gif_processing_state = PROCESSING_STOP;
 				bitClear(flag_sdprinting_register,flag_utilities_filament_register_acceptok);
 				if (filament_mode == 'R')
@@ -946,9 +1024,6 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					ERROR_SCREEN_WARNING;
 					gif_processing_state = PROCESSING_STOP;
 					
-					
-					
-					
 					screen_printing_pause_form = screen_printing_pause_form1;
 					display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_SDPRINTING_PAUSE,0);
 					display_ButtonState( BUTTON_SDPRINTING_PAUSE_STOP, 0);
@@ -957,7 +1032,6 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					display_ButtonState( BUTTON_SDPRINTING_PAUSE_BACKSTATE, 0);
 					
 					display_ChangeForm(FORM_SDPRINTING_PAUSE,0);
-					is_on_printing_screen = true;
 					surfing_utilities = false;
 					display.WriteStr(STRING_SDPRINTING_PAUSE_GCODE,namefilegcode);
 					bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
@@ -966,15 +1040,9 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				//doblocking =true;
 			}
 			
-			
-			
 			break;
 			
-			
-			
-
-			case BUTTON_ERROR_OK:
-			
+			case BUTTON_ERROR_OK: // Error
 			
 			if(FLAG_thermal_runaway_screen){
 				gif_processing_state = PROCESSING_STOP;
@@ -1003,7 +1071,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			//endswitch
 		}
 	}
-	else if(bitRead(flag_utilities_calibration_register,flag_utilities_calibration_register_bedcomensationmode) && (Bed_Compensation_state > 1)){
+	else if(bitRead(flag_utilities_calibration_register,flag_utilities_calibration_register_bedcomensationmode) && (Bed_Compensation_state > 1)){ // G36 executed
 		/*SERIAL_PROTOCOLPGM("Bed_Compensation_Lines_Selected[0]");
 		Serial.println(Bed_Compensation_Lines_Selected[0]);
 		SERIAL_PROTOCOLPGM("Bed_Compensation_Lines_Selected[1]");
@@ -1014,17 +1082,18 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 		int8_t vuitensR = 0;
 		switch(LCD_FSM_input_buton_flag){
 			
-			
+			// Line selection:
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT1:
-			
 			
 			turnoff_buttons_zcalib();
 			display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT1,1);
 			display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_CONFIRM,1);
 			calib_confirmation = -2;
+			
 			break;
 
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT2:
+			
 			turnoff_buttons_zcalib();
 			display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT2,1);
 			display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_CONFIRM,1);
@@ -1033,13 +1102,16 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			break;
 
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT3:
+			
 			turnoff_buttons_zcalib();
 			display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT3,1);
 			display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_CONFIRM,1);
 			calib_confirmation = 0;
+			
 			break;
 
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT4:
+			
 			turnoff_buttons_zcalib();
 			display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT4,1);
 			display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_CONFIRM,1);
@@ -1048,6 +1120,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			break;
 
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT5:
+			
 			turnoff_buttons_zcalib();
 			display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_SELECT5,1);
 			display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_CONFIRM,1);
@@ -1056,39 +1129,53 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			break;
 			
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_CONFIRM:
+			
 			if(calib_confirmation <= 2 && calib_confirmation >= -2 && calib_confirmation!=1888 ){
 				Bed_Compensation_Set_Lines(calib_confirmation);
 			}
+			
 			break;
+			// end Line selection
 			
+			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_REDOG36_BACK: // Cancel redo
 			
-			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_REDOG36_BACK:
 			turnoff_buttons_zcalib();
 			display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_CONFIRM,0);
 			display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR,0);
 			calib_confirmation = 1888;
+			
 			break;
 			
+			// Choose redo from best line printed:
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_REDOG36_BEST1:
+			
 			Bed_compensation_redo_offset = -3;
 			display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_CLEANBED,0);
+			
 			break;
 			
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_REDOG36_BEST5:
+			
 			Bed_compensation_redo_offset = 3;
 			display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_CLEANBED,0);
+			
 			break;
 			
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_REDOG36:
+			
 			Bed_compensation_redo_offset = 0;
 			display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_CLEANBED,0);
-			break;
 			
-			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_REDO:
+			break;
+			// end Choose redo from best line printed
+			
+			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_REDO: // go redo
+			
 			display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_REDOG36,0);
+			
 			break;
 			
-			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_CLEANBED:
+			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_CLEANBED: // Clean Bed before print
 			
 			display_ChangeForm(FORM_PROCESSING,0);
 			gif_processing_state = PROCESSING_DEFAULT;
@@ -1100,7 +1187,8 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			break;
 			
-			case BUTTON_UTILITIES_CALIBRATION_CALIBBED_ADJUSTSCREWASKFIRST_NEXT:
+			case BUTTON_UTILITIES_CALIBRATION_CALIBBED_ADJUSTSCREWASKFIRST_NEXT: // Screw adjust to flat the heated bed
+			
 			gif_processing_state = PROCESSING_STOP;
 			vuitensL = Bed_Compensation_Lines_Selected[1]-Bed_Compensation_Lines_Selected[0];
 			vuitensR = Bed_Compensation_Lines_Selected[2]-Bed_Compensation_Lines_Selected[0];
@@ -1132,7 +1220,8 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			break;
 			
-			case BUTTON_UTILITIES_CALIBRATION_CALIBBED_SCREW2_NEXT:
+			case BUTTON_UTILITIES_CALIBRATION_CALIBBED_SCREW2_NEXT: // Screw adjust next step
+			
 			vuitensR = 0;
 			vuitensR = Bed_Compensation_Lines_Selected[2]-Bed_Compensation_Lines_Selected[0];
 			if(vuitensR != 0){
@@ -1148,16 +1237,20 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				display_ChangeForm( FORM_UTILITIES_CALIBRATION_SUCCESS, 0);
 				gif_processing_state = PROCESSING_BED_SUCCESS;
 			}
+			
 			break;
 			
-			case BUTTON_UTILITIES_CALIBRATION_CALIBBED_SCREW3_NEXT:
+			case BUTTON_UTILITIES_CALIBRATION_CALIBBED_SCREW3_NEXT: // Screw adjust final step
+			
 			printer_state = STATE_CALIBRATION;
 			display_SetFrame(GIF_UTILITIES_CALIBRATION_SUCCESS,0);
 			display_ChangeForm( FORM_UTILITIES_CALIBRATION_SUCCESS, 0);
 			gif_processing_state = PROCESSING_BED_SUCCESS;
+			
 			break;
 			
-			case BUTTON_UTILITIES_CALIBRATION_SUCCESS:
+			case BUTTON_UTILITIES_CALIBRATION_SUCCESS: // Ending G36 bed compensation process
+			 
 			if(printer_state == STATE_CALIBRATION)
 			{
 				Bed_Compensation_state = 0;
@@ -1174,45 +1267,57 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				display_ChangeForm( FORM_MAIN, 0);
 				printer_state = STATE_NONE;
 			}
+			
 			break;			
 			default:
 			break;
 		}//endswitch
 		
 	}
-	else{//All that has to be done out of the printing room
+	else{ // No print section, all the process are done at this part of the code
 		char buffer[256];
 		float feedrate;
 		float value;
 		switch(LCD_FSM_input_buton_flag){
-			//*****SD Gcode Selection*****
 			
 			
+			// SD List Selection 
+						
 			case BUTTON_SDLIST_SELECT0:
+			
 			bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_select0);
+			
 			break;
 			
 			case BUTTON_SDLIST_SELECT1:
+			
 			bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_select1);
+			
 			break;
 			
 			case BUTTON_SDLIST_SELECT2:
+			
 			bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_select2);
+			
 			break;
 			
 			case BUTTON_SDLIST_SELECT3:
+			
 			bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_select3);
+			
 			break;
 			
 			case BUTTON_SDLIST_SELECT4:
+			
 			bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_select4);
+			
 			break;
 			
-			case BUTTON_SDLIST_FOLDERBACK:
+			// end SD List Selection
 			
+			case BUTTON_SDLIST_FOLDERBACK: // Folder back
 			
-			updir = card.updir();
-			
+			updir = card.updir();			
 			if (updir==0){
 				bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_gofolderback);
 				folder_navigation_register(false);
@@ -1222,12 +1327,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				display_ButtonState( BUTTON_SDLIST_FOLDERBACK,0);
 				display.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_SDLIST_FOLDERFILE,0);
 				folder_navigation_register(false);
-			}
-			
+			}		
+				
 			break;
 			
-			case BUTTON_INSERT_SD_CARD:
-			
+			case BUTTON_INSERT_SD_CARD: // Back to Main Menu, sd init has failed
 			
 			screen_sdcard = false;
 			surfing_utilities=false;
@@ -1238,13 +1342,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			break;
 			
-			case BUTTON_SDLIST_CONFIRMATION_YES:
-			
-			
+			case BUTTON_SDLIST_CONFIRMATION_YES: // Confirm to stat printing
 			
 			if(card.cardOK)
 			{
-				if(!listsd.check_extract_match_hotendsize_print()){
+				if(!listsd.check_extract_match_hotendsize_print()){ // check if the cfg hotend is the same like the gcode
 					display_ChangeForm(FORM_SDLIST_CONFIRMATION_MATCHHOTEND, 0);
 					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDLIST_CONFIRMATION_MATCHHOTEND_P_NOZZLE_SIZE_L_DIGIT1,(int)hotend_size_setup[LEFT_EXTRUDER]);
 					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDLIST_CONFIRMATION_MATCHHOTEND_P_NOZZLE_SIZE_L_DIGIT2,(int)(hotend_size_setup[LEFT_EXTRUDER]*10)%10);
@@ -1259,7 +1361,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					return;
 					
 				}
-				if(listsd.check_extract_ensure_duplication_print()){
+				if(listsd.check_extract_ensure_duplication_print()){ // check if the gcode is a duplication or mirror, and verify if the offset are compensated
 					if(abs(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]) > RAFT_Z_THRESHOLD){
 						display_ChangeForm(FORM_RAFT_ADVISE, 0);
 						sprintf_P(buffer, PSTR("The first layer printed with the %s hotend"),
@@ -1272,8 +1374,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 						LCD_FSM_input_buton_flag = -1;
 						lcd_busy = false;
 						return;
-						//sprintf_P(buffer, PSTR("Info: First layer printed with %s Hotend will be %d.%1d%1d mm higher. You can avoid this compensation using gauges.\n")
-					}
+						}
 				}
 				if (!card.filenameIsDir){ //If the filename is a gcode we start printing
 					card.getfilename(filepointer);
@@ -1285,10 +1386,10 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				}
 				
 			}
-			
+						
 			break;
 			
-			case BUTTON_RAFT_ADVISE_ACCEPT:
+			case BUTTON_RAFT_ADVISE_ACCEPT: // Continue without shims
 			if(card.cardOK)
 			{
 				
@@ -1305,30 +1406,37 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			break;
 			
-			case BUTTON_SDLIST_CONFIRMATION_MATCHHOTEND_NO:
+			case BUTTON_SDLIST_CONFIRMATION_MATCHHOTEND_NO: // not print
 			case BUTTON_RAFT_ADVISE_INSTALL_CANCEL:
 			case BUTTON_SDLIST_CONFIRMATION_NO:
 			case BUTTON_MAIN_SDLIST:
+			
 			screen_sdcard = true;
 			bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_goinit);
+			
 			break;
 			
 			
-			case BUTTON_SDLIST_GOUP:
+			case BUTTON_SDLIST_GOUP: // sd list scroll up
+			
 			bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_goup);
+			
 			break;
 			
-			case BUTTON_SDLIST_GODOWN:
+			case BUTTON_SDLIST_GODOWN: // sd list scroll down
+			
 			bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_godown);
+			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE:
+			case BUTTON_UTILITIES_MAINTENANCE: // Move from Utilities - > Maintenance
 			
 			display_ChangeForm( FORM_UTILITIES_MAINTENANCE, 0);
 			
 			break;
 			
-			case BUTTON_MAIN_TEMPS:
+			case BUTTON_MAIN_TEMPS: // Move from Main Menu - > Temperatures
+			
 			display_ChangeForm( FORM_TEMP, 0);
 			HeaterCooldownInactivity(false);
 			tHotend=target_temperature[0];
@@ -1340,9 +1448,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			flag_temp_gifhotent1 = false;
 			flag_temp_gifbed = false;
 			surfing_temps = true;
+			
 			break;
 			
-			case BUTTON_TEMP_BACK:
+			case BUTTON_TEMP_BACK: // Move from Temperatures - > Main Menu
+			
 			screen_sdcard = false;
 			surfing_utilities = false;
 			SERIAL_PROTOCOLLNPGM("Surfing 0");
@@ -1350,63 +1460,63 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			touchscreen_update();
 			HeaterCooldownInactivity(true);
 			display_ChangeForm( FORM_MAIN, 0);
+			
 			break;
 			
-			case BUTTON_TEMP_LEXTR:
+			case BUTTON_TEMP_LEXTR: // Heat Left Hotend , Cool down Left Hotend
+			
 			tHotend=target_temperature[0];
 			if(tHotend != 0){
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0); //<GIFF
 				setTargetHotend0(0);
 			}
 			else{
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1); //<GIFF
 				setTargetHotend0(print_temp_l);
-				 
 			}
 			flag_temp_gifhotent0 = false;
+			
 			break;
 			
-			case BUTTON_TEMP_REXTR:
+			case BUTTON_TEMP_REXTR: // Heat Right Hotend , Cool down Right Hotend
+			
 			tHotend1=target_temperature[1];
 			if(tHotend1 != 0)
 			{
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0); //<GIFF
 				setTargetHotend1(0);
 			}
 			else{
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1); //<GIFF
-				setTargetHotend1(print_temp_r);
-				 
+				setTargetHotend1(print_temp_r);				 
 			}
 			flag_temp_gifhotent1 = false;
+			
 			break;
 			
-			case BUTTON_TEMP_BED:
+			case BUTTON_TEMP_BED: // Heat Bed , Cool down Bed
+			
 			tBed=target_temperature_bed;
 			if(tBed != 0){
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0); //<GIFF
 				setTargetBed(0);
 			}
 			else {
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1); //<GIFF
 				setTargetBed( max(bed_temp_l,bed_temp_r));
-				 
-				
 			}
 			flag_temp_gifbed = false;
+			
 			break;
 			
+			case BUTTON_RECOVERY_PRINT_ASK_ACCEPT: // Restore print job
 			
-			
-			case BUTTON_RECOVERY_PRINT_ASK_ACCEPT:
 			enquecommand_P(PSTR("M34"));
+			
 			break;
 			
-			case BUTTON_RECOVERY_PRINT_ASK_CANCEL:
+			case BUTTON_RECOVERY_PRINT_ASK_CANCEL: // Let's skip saved print job
+			
 			display_ChangeForm(FORM_RECOVERYPRINT_TOBELOST,0);
+			
 			break;
 			
-			case BUTTON_RECOVERYPRINT_TOBELOST_ACCEPT:
+			case BUTTON_RECOVERYPRINT_TOBELOST_ACCEPT: // Confirm to Skip saved print job
+			
 			display_ChangeForm(FORM_MAIN,0);
 			screen_sdcard = false;
 			surfing_utilities=false;
@@ -1414,9 +1524,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			surfing_temps = false;
 			saved_print_flag = 888;
 			Config_StoreSettings();
+			
 			break;
 			
-			case BUTTON_RECOVERYPRINT_TOBELOST_BACK:
+			case BUTTON_RECOVERYPRINT_TOBELOST_BACK: // Do not to skip saved print job
+			
 			display_ChangeForm(FORM_RECOVERY_PRINT_ASK,0);
 			card.initsd();
 			if (card.cardOK){
@@ -1433,12 +1545,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					}
 				}
 				setfilenames(7);
-			}
-			
+			}			
 			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_ZADJUST:
+			case BUTTON_UTILITIES_MAINTENANCE_ZADJUST: // Z leveling
 			
 			if(saved_print_flag==1888){
 				saved_print_flag = 888;
@@ -1463,20 +1574,22 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			ERROR_SCREEN_WARNING;
 			display_ChangeForm( FORM_MAINTENANCE_ZADJUST, 0);
 			
-			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_BACK:
+			case BUTTON_UTILITIES_MAINTENANCE_BACK: // Move from Maintenance - > Utilities
+			
 			display_ChangeForm( FORM_UTILITIES, 0);
+			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_AUTOTUNEHOTENDS_NOTICE_NEXT:
+			case BUTTON_UTILITIES_MAINTENANCE_AUTOTUNEHOTENDS_NOTICE_NEXT: // Execute autotune hotends
+			
 			display_ChangeForm( FORM_ADJUSTING_TEMPERATURES, 0);
 			bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_autotune);
 			gif_processing_state = PROCESSING_ADJUSTING;
 			percentage = 0;
 			display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_ADJUSTING_TEMPERATURES, percentage);
-			PID_autotune_Save(print_temp_l, 0, AUTOTUNE_ITERATIONS, 25.0);
+			PID_autotune_Save(print_temp_l, 0, AUTOTUNE_ITERATIONS, 25.0); // Autotune left hotend
 			Config_StoreSettings();
 			SERIAL_PROTOCOL(MSG_OK);
 			SERIAL_PROTOCOL(" p:");
@@ -1485,7 +1598,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			SERIAL_PROTOCOL(unscalePID_i(Ki[0]));
 			SERIAL_PROTOCOL(" d:");
 			SERIAL_PROTOCOL(unscalePID_d(Kd[0]));
-			PID_autotune_Save(print_temp_r, 1, AUTOTUNE_ITERATIONS, 25.0);
+			PID_autotune_Save(print_temp_r, 1, AUTOTUNE_ITERATIONS, 25.0); // Autotune right hotend
 			Config_StoreSettings();
 			SERIAL_PROTOCOL(MSG_OK);
 			SERIAL_PROTOCOL(" p:");
@@ -1501,30 +1614,40 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			HeaterCooldownInactivity(true);
 			printer_state = STATE_CALIBRATION;
 			gif_processing_state = PROCESSING_BED_SUCCESS;
+			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_AUTOTUNEHOTENDS:
+			case BUTTON_UTILITIES_MAINTENANCE_AUTOTUNEHOTENDS: // Move from Maintenance - > Autotune
+			
 			display_ChangeForm( FORM_UTILITIES_MAINTENANCE_AUTOTUNEHOTENDS_NOTICE, 0);
+			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_AUTOTUNEHOTENDS_NOTICE_BACK:
+			case BUTTON_UTILITIES_MAINTENANCE_AUTOTUNEHOTENDS_NOTICE_BACK: // Move from Autotune - > Maintenance
+			
 			display_ChangeForm( FORM_UTILITIES_MAINTENANCE, 0);
+			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_MENU:
+			case BUTTON_UTILITIES_MAINTENANCE_MENU: // Move from Maintenance - > Main Menu
+			
 			screen_sdcard = false;
 			surfing_utilities=false;
 			SERIAL_PROTOCOLLNPGM("Surfing 0");
 			surfing_temps = false;
 			touchscreen_update();
 			display_ChangeForm( FORM_MAIN, 0);
+			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_NOTICE_BACK:
+			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_NOTICE_BACK: // Move from Nylon Cleaning - > Maintenance
+			
 			display_ChangeForm( FORM_UTILITIES_MAINTENANCE, 0);
+			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_NOTICE_NEXT:
+			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_NOTICE_NEXT: // Go Nylon Cleaning
+			
 			filament_mode = 'R';
 			bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_nyloncleaning);
 			display_ButtonState( BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_SELECTLEFT, 0);
@@ -1532,17 +1655,19 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			display.WriteObject(GENIE_OBJ_USERIMAGES, USERIMAGE_UTILITIES_MAINTENANCE_NYLONCLEANING_TEXTBUTTON, 0);
 			display_ButtonState( BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_UNLOADSKIP, 0);
 			display_ButtonState( BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_UNLOADGO, 0);
-			display_ChangeForm(FORM_UTILITIES_MAINTENANCE_NYLONCLEANING,0);
-			
+			display_ChangeForm(FORM_UTILITIES_MAINTENANCE_NYLONCLEANING,0);			
 			which_extruder = 255;
+			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING:
+			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING: // Move from Maintenance - > Nylon Cleaning
+			
 			display_ChangeForm(FORM_UTILITIES_MAINTENANCE_NYLONCLEANING_NOTICE,0);
+			
 			break;
 			
 			
-			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_BACK:
+			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_BACK: // Move from Nylon Cleaning - > Maintenance
 			
 			display_ChangeForm( FORM_UTILITIES_MAINTENANCE, 0);
 			display_ButtonState( BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_SELECTLEFT, 0);
@@ -1551,9 +1676,10 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			display_ButtonState( BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_UNLOADSKIP, 0);
 			display_ButtonState( BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_UNLOADGO, 0);
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_nyloncleaning);
+			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_MENU:
+			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_MENU: // Move from Nylon Cleaning - > Main Menu
 			screen_sdcard = false;
 			surfing_utilities=false;
 			SERIAL_PROTOCOLLNPGM("Surfing 0");
@@ -1567,8 +1693,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_nyloncleaning);
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_SELECTLEFT:
-			
+			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_SELECTLEFT: // Select Left Hotend			
 			
 			display_ButtonState( BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_SELECTLEFT, 1);
 			display_ButtonState( BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_SELECTRIGHT, 0);
@@ -1579,7 +1704,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_SELECTRIGHT:
+			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_SELECTRIGHT: // Select Right Hotend
 			
 			display_ButtonState( BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_SELECTLEFT, 0);
 			display_ButtonState( BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_SELECTRIGHT, 1);
@@ -1590,22 +1715,19 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_UNLOADGO:
+			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_UNLOADGO: // Start Nylon Cleaning;First, Unload Filament
 			
 			if(saved_print_flag==1888){
 				saved_print_flag = 888;
 				Config_StoreSettings();
 			}
-			if(which_extruder != 255){
-				
-				unload_get_ready();
-				
+			if(which_extruder != 255){				
+				unload_get_ready();				
 			}
-			
 			
 			break;
 			
-			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_UNLOADSKIP:
+			case BUTTON_UTILITIES_MAINTENANCE_NYLONCLEANING_UNLOADSKIP: // Start Nylon Cleaning
 			
 			if(saved_print_flag==1888){
 				saved_print_flag = 888;
@@ -1652,37 +1774,43 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				display_ChangeForm(FORM_UTILITIES_MAINTENANCE_NYLONCLEANING_STEP0,0);
 				
 			}
-			
-			
+						
 			break;
+						
+			case BUTTON_MAINTENANCE_ZADJUST_TOP: // Lift up Z 50mm
 			
-			
-			case BUTTON_MAINTENANCE_ZADJUST_TOP:
 			bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up);
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up);
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down);
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down);
+			
 			break;
 			
-			case BUTTON_MAINTENANCE_ZADJUST_BOT:
+			case BUTTON_MAINTENANCE_ZADJUST_BOT: // Lift down Z 50mm
+			
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up);
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up);
 			bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down);
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down);
+			
 			break;
 			
-			case BUTTON_MAINTENANCE_ZADJUST_DOWN:
+			case BUTTON_MAINTENANCE_ZADJUST_DOWN: // Lift down Z 10mm
+			
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up);
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up);
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down);
 			bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down);
+			
 			break;
 			
-			case BUTTON_MAINTENANCE_ZADJUST_UP:
+			case BUTTON_MAINTENANCE_ZADJUST_UP: // Lift up Z 10mm
+			
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up);
 			bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up);
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down);
 			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down);
+			
 			break;
 			
 			case BUTTON_MAINTENANCE_ZADJUST_BACK:
@@ -1696,11 +1824,9 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			break;
 			
 			
-			//****************PURGE BUTTONS******
+			// Purge Buttons:
 			case BUTTON_UTILITIES_FILAMENT_PURGE_SELECT0:
 			
-			//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
-			//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_Retract,1);
 			display_ButtonState(BUTTON_UTILITIES_FILAMENT_PURGE_TEMPUP,1);
 			display_ButtonState(BUTTON_UTILITIES_FILAMENT_PURGE_TEMPDOWN,1);
 			if (purge_extruder_selected == 1){
@@ -1849,7 +1975,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			break;
 			
-			//************************************
+			// end Purge Buttons
 			
 			
 			//*****INSERT/REMOVE FILAMENT*****
@@ -1975,7 +2101,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 						display_ButtonState( BUTTON_UTILITIES_FILAMENT_LOAD_SELECT0, 0);
 						
 					}
-						cyclo_filament = 0;
+						cycle_filament = 0;
 						display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_UTILITIES_FILAMENT_LOAD_FIL1,0);
 						display_ButtonState( BUTTON_UTILITIES_FILAMENT_LOAD_FIL1, 1);
 						display_ButtonState( BUTTON_UTILITIES_FILAMENT_LOAD_FIL2, 1);
@@ -2021,7 +2147,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 					display_ChangeForm(FORM_ADJUSTING_TEMPERATURES,0);
 					Tref1 = (int)degHotend(which_extruder);
 					Tfinal1 = (int)degTargetHotend(which_extruder)-CHANGE_FIL_TEMP_HYSTERESIS;
-					Tpercentaje_old = 0;
+					Tpercentage_old = 0;
 					/****************************************************/
 					
 					//ATTENTION : Order here is important
@@ -2112,7 +2238,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				display_ButtonState( BUTTON_UTILITIES_FILAMENT_LOAD_FIL2, 1);
 				display_ButtonState( BUTTON_UTILITIES_FILAMENT_LOAD_FIL3, 1);
 				display_ChangeForm(FORM_UTILITIES_FILAMENT_LOAD,0);
-				cyclo_filament = 0;
+				cycle_filament = 0;
 				display.WriteStr(STRING_UTILITIES_FILAMENT_LOAD_FIL1,"    PLA");
 				display.WriteStr(STRING_UTILITIES_FILAMENT_LOAD_FIL2,"    PVA");
 				display.WriteStr(STRING_UTILITIES_FILAMENT_LOAD_FIL3,"  PET-G");
@@ -2209,7 +2335,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			display_ChangeForm(FORM_ADJUSTING_TEMPERATURES,0);
 			Tref1 = (int)degHotend(which_extruder);
 			Tfinal1 = (int)degTargetHotend(which_extruder)-CHANGE_FIL_TEMP_HYSTERESIS;
-			Tpercentaje_old = 0;
+			Tpercentage_old = 0;
 			//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
 			//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
 			gif_processing_state = PROCESSING_ADJUSTING;
@@ -2251,7 +2377,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				current_position[E_AXIS] += ((BOWDEN_LENGTH-EXTRUDER_LENGTH)-15);//BOWDEN_LENGTH-300+340);
 				st_synchronize();
 				Serial.println(current_position[E_AXIS]);
-				if (axis_steps_per_unit[E_AXIS]<=493 && axis_steps_per_unit[E_AXIS]>=492){
+				if (axis_steps_per_unit[E_AXIS]<=512 && axis_steps_per_unit[E_AXIS]>=492){
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_R19_SPEED/60, which_extruder);
 				}else{
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
@@ -2547,7 +2673,6 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			home_axis_from_code(true,true,true);
 			enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 			changeTool(0);
-			previous_state = FORM_UTILITIES_CALIBRATION;
 
 			break;
 
@@ -2559,7 +2684,6 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			home_axis_from_code(true,true,false);
 			changeTool(0);
 			enquecommand_P((PSTR("G34")));
-			previous_state = FORM_UTILITIES_CALIBRATION;
 			bitSet(flag_utilities_calibration_register,flag_utilities_calibration_register_calibbeddone);
 
 			break;
@@ -2579,7 +2703,6 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				home_axis_from_code(true,true,false);
 				changeTool(0);
 				enquecommand_P((PSTR("G34")));
-				previous_state = FORM_UTILITIES_CALIBRATION;
 				bitSet(flag_utilities_calibration_register,flag_utilities_calibration_register_calibbeddone);
 			}
 
@@ -2924,9 +3047,9 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			break;
 			
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_REDO:
-			if(calib_zxy == 1){
+			if(calib_zxy_id == 1){
 				display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_REDO_X,0);
-				}else if(calib_zxy == 2){
+				}else if(calib_zxy_id == 2){
 				display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_REDO_Y,0);
 			}
 			break;
@@ -2949,9 +3072,9 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_CONFIRM:
 			if(calib_confirmation <= 5 && calib_confirmation >= -4){
-				if(calib_zxy == 1){
+				if(calib_zxy_id == 1){
 					Full_calibration_X_set((float)calib_confirmation/10.0);
-				}else if(calib_zxy == 2){
+				}else if(calib_zxy_id == 2){
 					Full_calibration_Y_set((float)calib_confirmation/10.0);
 				}
 			}
@@ -3166,9 +3289,9 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 
 			break;
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_REDO:
-			if(calib_zxy == 3){
+			if(calib_zxy_id == 3){
 				display_ChangeForm( FORM_UTILITIES_CALIBRATION_CALIBFULL_REDOZL,0);
-			}else if(calib_zxy == 4){
+			}else if(calib_zxy_id == 4){
 				display_ChangeForm( FORM_UTILITIES_CALIBRATION_CALIBFULL_REDOZR,0);
 			}
 			break;
@@ -3217,9 +3340,9 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			case BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR_CONFIRM:
 			if(calib_confirmation <= LINES_GAP*1000 && calib_confirmation >= -3*LINES_GAP*1000 && calib_confirmation!=1888 ){
-			if(calib_zxy == 3){
+			if(calib_zxy_id == 3){
 				Full_calibration_ZL_set((float)calib_confirmation/1000.0);
-				}else if(calib_zxy == 4){
+				}else if(calib_zxy_id == 4){
 				Full_calibration_ZR_set((float)calib_confirmation/1000.0);
 			}
 			}
@@ -3922,7 +4045,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				max_feedrate[E_AXIS]=60;
 			}
 			else if (which_extruder_setup == 2){
-				axis_steps_per_unit[E_AXIS]=492.45;
+				axis_steps_per_unit[E_AXIS]=510.9;
 				max_feedrate[E_AXIS]=40;
 			}
 			if(FLAG_Printer_Setup_Assistant == 888){
@@ -4155,7 +4278,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 			
-			if(UI_SerialID2<SERIAL_ID_THRESHOLD || (axis_steps_per_unit[E_AXIS]>=493 && axis_steps_per_unit[E_AXIS]<=492) ){
+			if(UI_SerialID2<SERIAL_ID_THRESHOLD || (axis_steps_per_unit[E_AXIS]>=512 && axis_steps_per_unit[E_AXIS]<=492) ){
 				
 			
 				display_ChangeForm(FORM_INFO_UI,0);
@@ -4178,7 +4301,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 				if (axis_steps_per_unit[E_AXIS]<=152.5 && axis_steps_per_unit[E_AXIS]>=151.5){
 					sprintf_P(buffer, PSTR("R16/R17"));
 					display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_INFO_EXTRUDER_SETUP,1);
-					}else if (axis_steps_per_unit[E_AXIS]<=493 && axis_steps_per_unit[E_AXIS]>=492){
+					}else if (axis_steps_per_unit[E_AXIS]<=512 && axis_steps_per_unit[E_AXIS]>=492){
 					sprintf_P(buffer, PSTR("R19"));
 					display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_INFO_EXTRUDER_SETUP,0);
 					}else{
@@ -4427,7 +4550,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			if(FLAG_Printer_Setup_Assistant != 888 && flag_utilities_maintenance_changehotend != 1888 && flag_utilities_maintenance_changehotend != 2888){
 			if (axis_steps_per_unit[E_AXIS]<=152.5 && axis_steps_per_unit[E_AXIS]>=151.5){
 				which_extruder_setup = 1;
-				}else if (axis_steps_per_unit[E_AXIS]<=493 && axis_steps_per_unit[E_AXIS]>=492){
+				}else if (axis_steps_per_unit[E_AXIS]<=512 && axis_steps_per_unit[E_AXIS]>=492){
 				which_extruder_setup = 2;
 				}else{
 				which_extruder_setup = -1;
@@ -4729,7 +4852,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			case BUTTON_PRINTERSETUP_CHANGEHOTEND_LOADFILAMENT_GO:
 			filament_mode = 'I';
-			cyclo_filament = 0;
+			cycle_filament = 0;
 			if(which_extruder ==  1){
 				display_ButtonState( BUTTON_UTILITIES_FILAMENT_LOAD_SELECT1, 1);
 				display_ButtonState( BUTTON_UTILITIES_FILAMENT_LOAD_SELECT0, 0);
@@ -5042,7 +5165,6 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 	}// else
 	
 	lcd_busy = false;
-	LCD_FSM_output_buton_flag = LCD_FSM_input_buton_flag;
 	LCD_FSM_input_buton_flag = -1;
 	
 }
@@ -5069,11 +5191,24 @@ void update_screen_endinggcode(){
 void update_screen_printing(){
 	static uint32_t waitPeriod = millis();
 	static uint32_t waitPeriod_inactive = millis();
+	
+	// Save last Temps
+	static int last_target_temperature_hot0 = target_temperature[0];
+	static int last_target_temperature_hot1 = target_temperature[1];
+	static int last_target_temperature_bed = target_temperature_bed;
+	
+	// Save last Advanced Settings
+	static int last_fan0 = (int)(round((100.0*fanSpeed)/255.0)+fanSpeed_offset[LEFT_EXTRUDER]);
+	static int last_fan1 = (int)(round((100.0*fanSpeed)/255.0)+fanSpeed_offset[RIGHT_EXTRUDER]);
+	static int last_flow0 = extruder_multiply[LEFT_EXTRUDER];
+	static int last_flow1 = extruder_multiply[RIGHT_EXTRUDER];
+	static int last_speed0 = feedmultiply[LEFT_EXTRUDER];
+	static int last_speed1 = feedmultiply[RIGHT_EXTRUDER];
 	if (millis() >= waitPeriod_inactive){
 		
 		time_inactive_extruder[!active_extruder] += 1;// 1 second
 		waitPeriod_inactive=1000+millis();
-	}
+	}	
 	if(bitRead(flag_sdprinting_register,flag_sdprinting_register_temps)){
 		display_ChangeForm(FORM_SDPRINTTING_TEMPS,0);
 		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTTING_SETINGS_LEFT,target_temperature[0]);
@@ -5081,12 +5216,25 @@ void update_screen_printing(){
 		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTTING_SETINGS_RIGHT,target_temperature[1]);
 		bitClear(flag_sdprinting_register,flag_sdprinting_register_temps);
 	}
+	if(screen_printing_pause_form == screen_printing_pause_form4){
+		if(last_target_temperature_hot0 != target_temperature[0] || 
+		 last_target_temperature_hot1 != target_temperature[1] || 
+		 last_target_temperature_bed != target_temperature_bed){
+			last_target_temperature_hot0 = target_temperature[0];
+			last_target_temperature_hot1 = target_temperature[1];
+			last_target_temperature_bed = target_temperature_bed;
+			display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTTING_SETINGS_LEFT,last_target_temperature_hot0);
+			display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTTING_SETINGS_BED,last_target_temperature_bed);
+			display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTTING_SETINGS_RIGHT,last_target_temperature_hot1);	
+		}
+	}
 	if(bitRead(flag_sdprinting_register,flag_sdprinting_register_light)){
 		display_ButtonState(BUTTON_PRINTERSETUP_LED_MENU,1);
 		display.WriteObject(GENIE_OBJ_ISMARTSLIDER,SMARTSLIDER_PRINTERSETUP_LED_BRIGHTNESS,led_brightness);
 		display_ChangeForm(FORM_PRINTERSETUP_LED,0);
 		bitClear(flag_sdprinting_register,flag_sdprinting_register_light);
 	}
+	
 	if(bitRead(flag_sdprinting_register,flag_sdprinting_register_control)){
 		display_ChangeForm(FORM_SDPRINTTING_CONTROL,0);
 		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_SETTINGS_FAN_LEFT,(int)(round((100.0*fanSpeed)/255.0)+fanSpeed_offset[LEFT_EXTRUDER]));
@@ -5103,24 +5251,42 @@ void update_screen_printing(){
 		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_SETTINGS_SPEED_RIGHT,feedmultiply[RIGHT_EXTRUDER]);
 		
 		waitPeriod=1500+millis();
-		is_on_printing_screen=false;
 		bitClear(flag_sdprinting_register,flag_sdprinting_register_control);
 	}
-	
+	if(screen_printing_pause_form == screen_printing_pause_form5){
+		if(last_fan0 != (int)(round((100.0*fanSpeed)/255.0)+fanSpeed_offset[LEFT_EXTRUDER]) || 
+		 last_fan1 != (int)(round((100.0*fanSpeed)/255.0)+fanSpeed_offset[(get_dual_x_carriage_mode() == DXC_FULL_SIGMA_MODE?RIGHT_EXTRUDER:LEFT_EXTRUDER)]) || 
+		 last_flow0 != extruder_multiply[LEFT_EXTRUDER] || 
+		 last_flow1 != extruder_multiply[RIGHT_EXTRUDER] || 
+		 last_speed0 != feedmultiply[LEFT_EXTRUDER] || 
+		 last_speed1 != feedmultiply[RIGHT_EXTRUDER]){
+			last_fan0 = (int)(round((100.0*fanSpeed)/255.0)+fanSpeed_offset[LEFT_EXTRUDER]);
+			last_fan1 = (int)(round((100.0*fanSpeed)/255.0)+fanSpeed_offset[(get_dual_x_carriage_mode() == DXC_FULL_SIGMA_MODE?RIGHT_EXTRUDER:LEFT_EXTRUDER)]);
+			last_flow0 = extruder_multiply[LEFT_EXTRUDER];
+			last_flow1 = extruder_multiply[RIGHT_EXTRUDER];
+			last_speed0 = feedmultiply[LEFT_EXTRUDER];
+			last_speed1 = feedmultiply[RIGHT_EXTRUDER];
+			display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_SETTINGS_FAN_LEFT,last_fan0);
+			display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_SETTINGS_FAN_RIGHT,last_fan1);			
+			display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_SETTINGS_FLOW_LEFT,last_flow0);
+			display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_SETTINGS_FLOW_RIGHT,last_flow1);
+			display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_SETTINGS_SPEED_LEFT,last_speed0);
+			display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_SETTINGS_SPEED_RIGHT,last_speed1);
+		}
+				
+	}
 	if(bitRead(flag_sdprinting_register,flag_sdprinting_register_showdata)){
 		if (screen_printing_pause_form == screen_printing_pause_form0 || screen_printing_pause_form == screen_printing_pause_form3){
 			display_ChangeForm(FORM_SDPRINTING,0);
-			is_on_printing_screen = true;
 			surfing_utilities = false;
 			display.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);
-			bitClear(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
+			bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
 		}
 		else{
 			display_ChangeForm(FORM_SDPRINTING_PAUSE,0);
-			is_on_printing_screen = true;
 			surfing_utilities = false;
 			display.WriteStr(STRING_SDPRINTING_PAUSE_GCODE,namefilegcode);
-			bitClear(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
+			bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
 		}
 		waitPeriod=1500+millis();	//Every 5s
 		bitClear(flag_sdprinting_register,flag_sdprinting_register_showdata);
@@ -5554,10 +5720,10 @@ void update_screen_printing(){
 				}
 				percentage = Tfinal1-Tref1;
 				percentage = 100*(Tinstant-Tref1)/percentage;
-				if(percentage > Tpercentaje_old){
-					Tpercentaje_old = percentage;
+				if(percentage > Tpercentage_old){
+					Tpercentage_old = percentage;
 				}
-				display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_ADJUSTING_TEMPERATURES, Tpercentaje_old);
+				display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_ADJUSTING_TEMPERATURES, Tpercentage_old);
 				
 				if ((abs((int)degHotend(which_extruder)-(int)degTargetHotend(which_extruder)) < CHANGE_FIL_TEMP_HYSTERESIS)){
 					// if we want to add user setting temp, we should control if is heating
@@ -5612,7 +5778,7 @@ void update_screen_printing(){
 		display_ChangeForm(FORM_UTILITIES_FILAMENT_SUCCESS,0);
 		gif_processing_state = PROCESSING_SUCCESS;
 	}
-	if(is_on_printing_screen){
+	if(card.sdprinting){
 		
 		static int count5s = 0;
 		static int count5s1 = 0;
@@ -5636,12 +5802,12 @@ void update_screen_printing(){
 				if(!card.sdispaused)display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_HOTEND1,tHotend1);
 				else display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_PAUSE_HOTEND1,tHotend1);
 			}
-			if (tBed !=(int)(degBed()+0.5) ||bitRead(flag_sdprinting_register,flag_sdprinting_register_datarefresh)){
+			if (tBed !=(int)(degBed()+0.5) || bitRead(flag_sdprinting_register,flag_sdprinting_register_datarefresh)){
 				tBed=(int)(degBed()+0.5);
 				if(!card.sdispaused)display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_BED,tBed);
 				else display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_PAUSE_BED,tBed);
 			}
-			if (percentDone != card.percentDone() ||bitRead(flag_sdprinting_register,flag_sdprinting_register_datarefresh)){
+			if (percentDone != card.percentDone() || bitRead(flag_sdprinting_register,flag_sdprinting_register_datarefresh)){
 				percentDone = card.percentDone();
 				if(!card.sdispaused)display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_PERCENTAGE,percentDone);
 				else display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_PAUSE_PERCENTAGE,percentDone);
@@ -5658,7 +5824,7 @@ void update_screen_printing(){
 				}
 			}
 			
-			if(feedmultiply[active_extruder] != feedmultiply1 ||bitRead(flag_sdprinting_register,flag_sdprinting_register_datarefresh)){
+			if(feedmultiply[active_extruder] != feedmultiply1 || bitRead(flag_sdprinting_register,flag_sdprinting_register_datarefresh)){
 				feedmultiply1 = feedmultiply[active_extruder];
 				if(!card.sdispaused)display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_FEED,feedmultiply1);
 				else display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_PAUSE_FEED,feedmultiply1);
@@ -5784,6 +5950,7 @@ void update_screen_noprinting(){
 				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 				st_synchronize();
+				plan_set_e_position(0);
 				disable_e0();
 				disable_e1();
 				gif_processing_state = PROCESSING_STOP;
@@ -5797,6 +5964,7 @@ void update_screen_noprinting(){
 				current_position[E_AXIS]-=5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retract
 				st_synchronize();
+				plan_set_e_position(0);
 				disable_e0();
 				disable_e1();
 				gif_processing_state = PROCESSING_STOP;
@@ -5810,6 +5978,7 @@ void update_screen_noprinting(){
 				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);//Purge
 				st_synchronize();
+				plan_set_e_position(0);
 				disable_e0();
 				disable_e1();
 				display_ButtonState(BUTTON_UTILITIES_FILAMENT_ADJUST_LOAD, 0);
@@ -5822,6 +5991,7 @@ void update_screen_noprinting(){
 				current_position[E_AXIS]-=5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);//Retract
 				st_synchronize();
+				plan_set_e_position(0);
 				disable_e0();
 				disable_e1();
 				display_ButtonState(BUTTON_UTILITIES_FILAMENT_ADJUST_UNLOAD, 0);
@@ -5885,11 +6055,11 @@ void update_screen_noprinting(){
 				}
 				percentage = Tfinal1-Tref1;
 				percentage = 100*(Tinstant-Tref1)/percentage;
-				if(percentage > Tpercentaje_old){
-					Tpercentaje_old = percentage;
+				if(percentage > Tpercentage_old){
+					Tpercentage_old = percentage;
 				}
 				
-				display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_ADJUSTING_TEMPERATURES, Tpercentaje_old);
+				display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_ADJUSTING_TEMPERATURES, Tpercentage_old);
 				
 				// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
 				if ((abs((int)degHotend(which_extruder)-(int)degTargetHotend(which_extruder)) < CHANGE_FIL_TEMP_HYSTERESIS)){
@@ -6648,7 +6818,7 @@ void ListFileListINITSD(){
 	memset(listsd.commandline2, '\0', sizeof(listsd.commandline2) );
 
 }
-void ListFileSelect_find(){
+void ListFileSelect_open(){
 	card.getfilename(filepointer);
 	if (!card.filenameIsDir){
 		folder_navigation_register(true);
@@ -6673,7 +6843,7 @@ void ListFileSelect0(){
 	if(card.cardOK)
 	{
 		bitClear(flag_sdlist_resgiter,flag_sdlist_resgiter_filesupdown);
-		ListFileSelect_find();
+		ListFileSelect_open();
 		bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_filesupdown);
 	}
 }
@@ -6689,7 +6859,7 @@ void ListFileSelect1(){
 				}else{
 				filepointer++;
 			}
-			ListFileSelect_find();
+			ListFileSelect_open();
 		}
 		bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_filesupdown);
 	}
@@ -6711,7 +6881,7 @@ void ListFileSelect2(){
 			else{
 				filepointer+=2;
 			}
-			ListFileSelect_find();
+			ListFileSelect_open();
 		}
 		bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_filesupdown);
 	}
@@ -6737,7 +6907,7 @@ void ListFileSelect3(){
 			else{
 				filepointer+=3;
 			}
-			ListFileSelect_find();
+			ListFileSelect_open();
 		}
 		
 		bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_filesupdown);
@@ -6768,7 +6938,7 @@ void ListFileSelect4(){
 			else{
 				filepointer+=4;
 			}
-			ListFileSelect_find();
+			ListFileSelect_open();
 		}
 		bitSet(flag_sdlist_resgiter,flag_sdlist_resgiter_filesupdown);
 	}
@@ -6918,13 +7088,13 @@ void setfilenames(int jint){
 	}
 	
 	if(jint == 6){
-		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[0][0],listsd.get_hours());//Printing form
-		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[1][0],listsd.get_minutes());//Printing form
-		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[2][0],listsd.get_filgramos1());//Printing form
+		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[0][0],listsd.get_hours());
+		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[1][0],listsd.get_minutes());
+		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[2][0],listsd.get_filgramos1());
 		}else if(jint == 7){
-		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[0][1],listsd.get_hours());//Printing form
-		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[1][1],listsd.get_minutes());//Printing form
-		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[2][1],listsd.get_filgramos1());//Printing form
+		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[0][1],listsd.get_hours());
+		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[1][1],listsd.get_minutes());
+		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,stringfiledur[2][1],listsd.get_filgramos1());
 	}
 	Serial.println(buffer);
 }
@@ -7240,7 +7410,7 @@ void unloadfilament_procedure(void){//Removing...
 		//}
 			
 		current_position[E_AXIS] -= (BOWDEN_LENGTH + EXTRUDER_LENGTH + PURGE_LENGHT_UNLOAD + 100);//Extra extrusion at fast feedrate
-		if (axis_steps_per_unit[E_AXIS]<=493 && axis_steps_per_unit[E_AXIS]>=492){
+		if (axis_steps_per_unit[E_AXIS]<=512 && axis_steps_per_unit[E_AXIS]>=492){
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_R19_SPEED/60, which_extruder);
 			}else{
 			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
@@ -7252,8 +7422,7 @@ void unloadfilament_procedure(void){//Removing...
 		
 		st_synchronize();
 		ERROR_SCREEN_WARNING;
-		previous_state = FORM_UTILITIES_FILAMENT;
-		
+		plan_set_e_position(0);
 		gif_processing_state = PROCESSING_STOP;
 		printer_state = STATE_LOADUNLOAD_FILAMENT;
 		
@@ -7310,7 +7479,7 @@ void unload_get_ready(){
 	display_ChangeForm(FORM_ADJUSTING_TEMPERATURES,0);
 	Tref1 = (int)degHotend(which_extruder);
 	Tfinal1 = (int)degTargetHotend(which_extruder)-CHANGE_FIL_TEMP_HYSTERESIS;
-	Tpercentaje_old = 0;
+	Tpercentage_old = 0;
 	touchscreen_update();
 	gif_processing_state = PROCESSING_ADJUSTING;
 	is_changing_filament=true; //We are changing filament
@@ -7401,7 +7570,7 @@ void Coolingdown_Shutdown(int mode){
 }
 void go_loadfilament_next(void){
 	if(which_extruder != 255){
-		switch(cyclo_filament){
+		switch(cycle_filament){
 			
 			case 0:
 			display_ButtonState( BUTTON_UTILITIES_FILAMENT_LOAD_FIL1, 1);
@@ -7429,12 +7598,12 @@ void go_loadfilament_next(void){
 			display.WriteStr(STRING_UTILITIES_FILAMENT_LOAD_FIL3,"  PET-G");
 			break;
 		}
-		cyclo_filament = (cyclo_filament + 1)%3;
+		cycle_filament = (cycle_filament + 1)%3;
 	}
 }
 void go_loadfilament_back(void){
 	if(which_extruder != 255){
-		switch(cyclo_filament){
+		switch(cycle_filament){
 			
 			case 0:
 			display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_UTILITIES_FILAMENT_LOAD_FIL1,3);
@@ -7462,7 +7631,7 @@ void go_loadfilament_back(void){
 			break;
 			
 		}
-		cyclo_filament = (cyclo_filament + 2)%3;
+		cycle_filament = (cycle_filament + 2)%3;
 	}
 }
 void go_loadfilament(uint8_t idbutton){
@@ -7474,7 +7643,7 @@ void go_loadfilament(uint8_t idbutton){
 	{
 		
 		
-		switch(cyclo_filament){
+		switch(cycle_filament){
 			case 0:
 			if(!card.sdispaused){
 				display_ChangeForm(FORM_PROCESSING,0);
@@ -7518,7 +7687,7 @@ void go_loadfilament(uint8_t idbutton){
 	else if(which_extruder == 0){
 		
 		
-		switch(cyclo_filament){
+		switch(cycle_filament){
 			case 0:
 			if(!card.sdispaused){
 				display_ChangeForm(FORM_PROCESSING,0);
@@ -7565,7 +7734,7 @@ void go_loadfilament(uint8_t idbutton){
 		{
 			
 			
-			switch(cyclo_filament){
+			switch(cycle_filament){
 				case 0:
 				if(!card.sdispaused){
 					display_ChangeForm(FORM_PROCESSING,0);
@@ -7602,7 +7771,7 @@ void go_loadfilament(uint8_t idbutton){
 			
 			
 			
-			switch(cyclo_filament){
+			switch(cycle_filament){
 				case 0:
 				if(!card.sdispaused){
 					display_ChangeForm(FORM_PROCESSING,0);
@@ -7640,7 +7809,7 @@ void go_loadfilament(uint8_t idbutton){
 		{
 			
 			
-			switch(cyclo_filament){
+			switch(cycle_filament){
 				case 0:
 				if(!card.sdispaused){
 					display_ChangeForm(FORM_PROCESSING,0);
@@ -7676,7 +7845,7 @@ void go_loadfilament(uint8_t idbutton){
 		else if(which_extruder == 0){
 			
 			
-			switch(cyclo_filament){
+			switch(cycle_filament){
 				case 0:
 				if(!card.sdispaused){
 					display_ChangeForm(FORM_PROCESSING,0);
@@ -7737,7 +7906,7 @@ void show_data_printconfig(void){
 	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	char buffer[25];
 	
-	if(UI_SerialID2<SERIAL_ID_THRESHOLD || (axis_steps_per_unit[E_AXIS]>=493 && axis_steps_per_unit[E_AXIS]<=492) ){
+	if(UI_SerialID2<SERIAL_ID_THRESHOLD || (axis_steps_per_unit[E_AXIS]>=512 && axis_steps_per_unit[E_AXIS]<=492) ){
 		
 		display_ChangeForm(FORM_PRINTERSETUP_PRINTERCONFIG,0);
 	

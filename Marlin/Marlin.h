@@ -70,7 +70,9 @@ Author: Alejandro Garcia (S3mt0x)
 #define screen_printing_pause_form0		'A'
 #define screen_printing_pause_form1		'B'
 #define screen_printing_pause_form2		'C'
-#define screen_printing_pause_form3		'D'
+#define screen_printing_pause_form3		'D' 	
+#define screen_printing_pause_form4		'E' // Temps
+#define screen_printing_pause_form5		'F' // Advanced Settings
 
 
 #define SERIAL_CHAR(x) ((void)MYSERIAL.write(x))
@@ -328,7 +330,6 @@ extern bool notice_registercode;
 extern bool surfing_utilities;
 extern bool screen_sdcard;
 extern bool surfing_temps;
-extern bool is_on_printing_screen;
 extern long time_inactive_extruder[2];
 extern uint8_t which_extruder;
 extern int8_t which_extruder_setup;

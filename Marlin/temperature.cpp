@@ -1561,7 +1561,6 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
 				}
 				else{
 				ID_thermal_runaway = (int)heater_id;
-				is_on_printing_screen=false;
 				card.closefile();
 				bitSet(flag_sdprinting_register,flag_sdprinting_register_printstop);
 				cancel_heatup = true;

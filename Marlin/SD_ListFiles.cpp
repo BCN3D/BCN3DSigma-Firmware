@@ -172,7 +172,7 @@ int Listfiles::search_line_data_commentary(){
 		}
 		exit++;
 		if(exit>20 || card.isEndFile()){
-			return 1;
+			return -1;
 		}
 	}
 	return 0;

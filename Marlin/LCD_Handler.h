@@ -78,7 +78,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				*/
 				case FORM_SDPRINTING:
 					
-					is_on_printing_screen = true;
 					surfing_utilities = false;
 					display.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);
 					bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);

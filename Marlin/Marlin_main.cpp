@@ -252,7 +252,6 @@ int8_t which_hotend_setup[2]={-1,-1};
 bool screen_sdcard = false;
 bool surfing_utilities = false;
 bool surfing_temps = false;
-bool is_on_printing_screen = false;
 long time_inactive_extruder[2];
 uint16_t filepointer = 0;
 String screen_status = "Printing...";
@@ -1215,6 +1214,12 @@ bool touchscreen_init(){
 		}
 	}
 	if(state_init == 'E'){
+		if(VERSION_NUMBER != version_number){
+			 if(axis_steps_per_unit[E_AXIS]<=493 && axis_steps_per_unit[E_AXIS]>=492){ // swap to new settings
+				 axis_steps_per_unit[E_AXIS]=510.9;
+				 Config_StoreSettings();
+			 }
+		}
 		if(version_number < 122){
 			version_number = VERSION_NUMBER;
 			Config_ResetDefault();
@@ -1333,7 +1338,7 @@ bool touchscreen_init(){
 			}
 			if (axis_steps_per_unit[E_AXIS]<=152.5 && axis_steps_per_unit[E_AXIS]>=151.5){
 				which_extruder_setup = 1;
-				}else if (axis_steps_per_unit[E_AXIS]<=493 && axis_steps_per_unit[E_AXIS]>=492){
+				}else if (axis_steps_per_unit[E_AXIS]<=512 && axis_steps_per_unit[E_AXIS]>=492){
 				which_extruder_setup = 2;
 				}else{
 				which_extruder_setup = -1;
@@ -2997,7 +3002,7 @@ inline void gcode_G40(){
 	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT10,0);
 	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_CONFIRM,0);
 	display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY,0);
-	calib_zxy = 1;
+	calib_zxy_id = 1;
 	calib_confirmation = 1888;
 
 	#endif //EXTRUDER_CALIBRATION_WIZARD
@@ -3182,7 +3187,7 @@ inline void gcode_G41(){
 	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_SELECT10,0);
 	display_ButtonState(BUTTON_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY_CONFIRM,0);
 	display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_RESULTSXY,0);
-	calib_zxy = 2;
+	calib_zxy_id = 2;
 	calib_confirmation = 1888;
 	#endif //EXTRUDER_CALIBRATION_WIZARD
 	
@@ -4776,10 +4781,9 @@ inline void gcode_M24(){
 	screen_printing_pause_form = screen_printing_pause_form0;
 	#ifdef SIGMA_TOUCH_SCREEN
 	display_ButtonState(BUTTON_SDPRINTING_PAUSE,0);
-	is_on_printing_screen=true;//We are entering printing screen
 	display_ChangeForm(FORM_SDPRINTING,0);
 	bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
-	
+	plan_set_e_position(0);
 	//char buffer[13];
 	
 	int count = get_nummaxchars(true, 280);
@@ -4996,7 +5000,6 @@ inline void gcode_M34(){
 			feedmultiply[LEFT_EXTRUDER] = saved_feedmulti0;
 			feedmultiply[RIGHT_EXTRUDER] = saved_feedmulti1;
 			screen_printing_pause_form = screen_printing_pause_form0;
-			is_on_printing_screen=true;//We are entering printing screen
 			
 			
 			
@@ -7187,8 +7190,8 @@ inline void gcode_M800(){ //Smart purge smartPurge_Distant(double A, double B, d
 	//}
 //}
 inline void gcode_M990(){
-	if(!blocks_queued()){
-		
+	
+		st_synchronize();
 		
 		display_ChangeForm(FORM_MAIN,0);
 		doblocking=false;
@@ -7252,7 +7255,6 @@ inline void gcode_M990(){
 		setTargetBed(0);
 		HeaterCooldownInactivity(true);
 		quickStop();
-	}
 }
 
 inline void gcode_M999(){
@@ -9397,11 +9399,11 @@ void z_test_print_code(int tool, float x_offset){
 	if(tool == LEFT_EXTRUDER){
 		setTargetHotend0(print_temp_l-30);
 		display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR,0);
-		calib_zxy = 3;
+		calib_zxy_id = 3;
 		}else if(tool == RIGHT_EXTRUDER){
 		setTargetHotend1(print_temp_r-30);
 		display.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR,1);
-		calib_zxy = 4;
+		calib_zxy_id = 4;
 	}
 	display_ChangeForm(FORM_UTILITIES_CALIBRATION_CALIBFULL_RESULTSZLR,0);
 }

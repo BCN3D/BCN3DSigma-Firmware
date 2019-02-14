@@ -711,6 +711,22 @@ extern "C"{
 	}
 }
 
+#ifdef ENCLOSURE_SAFETY_STOP
+void checkenclosure(){
+	
+	static uint32_t timer_enclosure = millis();
+	if(timer_enclosure < millis()){
+		
+		if(!CHECK_ENCLOSURE_IS_CLOSED){
+			
+		}
+		
+		timer_enclosure = millis() + 1000; //check every 1
+	}
+}
+#endif
+
+
 void checkfilament(){
 	static uint32_t timer_fil = millis();
 	static uint8_t times_fail0 = 0;
@@ -718,7 +734,7 @@ void checkfilament(){
 	
 	if(card.sdprinting && Flag_FRS_enabled && home_made){
 		if(timer_fil < millis()){
-			if(!digitalRead(E0_STOP) && !Flag_checkfil && (active_extruder == 0 || extruder_duplication_enabled || extruder_duplication_mirror_enabled)){
+			if(!CHECK_FRS_LEFT && !Flag_checkfil && (active_extruder == 0 || extruder_duplication_enabled || extruder_duplication_mirror_enabled)){
 				times_fail0++;
 				if(times_fail0>3){
 					Flag_checkfil = true;
@@ -730,7 +746,7 @@ void checkfilament(){
 				times_fail0=0;
 			}
 			
-			if(!digitalRead(E1_STOP) && !Flag_checkfil && (active_extruder == 1 || extruder_duplication_enabled || extruder_duplication_mirror_enabled)){
+			if(!CHECK_FRS_RIGHT && !Flag_checkfil && (active_extruder == 1 || extruder_duplication_enabled || extruder_duplication_mirror_enabled)){
 				times_fail1++;
 				if(times_fail1>3){
 					Flag_checkfil = true;
@@ -746,6 +762,32 @@ void checkfilament(){
 		}
 		
 	}
+}
+
+void init_system_extended(){
+	
+	pinMode(RELAY, OUTPUT);
+	digitalWrite(RELAY, LOW);
+	
+	pinMode(SDA_PIN, OUTPUT);	
+	digitalWrite(SDA_PIN, HIGH);
+	
+	#ifdef ENCLOSURE_SAFETY_STOP
+		pinMode(SDL_PIN, INPUT); // Enclosure signal pin input
+	#endif
+		
+	MYSERIAL.begin(BAUDRATE);
+	MYSERIAL_SCREEN.begin(200000); // Use Serial3 for talking to the Genie Library, and to the 4D Systems display
+	
+	// Set led pins as output and low
+	pinMode(RED,OUTPUT);
+	pinMode(GREEN,OUTPUT);
+	pinMode(BLUE,OUTPUT);
+	
+	digitalWrite(RED,LOW);
+	digitalWrite(GREEN,LOW);
+	digitalWrite(BLUE,LOW);
+	
 }
 
 //adds an command to the main command buffer
@@ -861,12 +903,9 @@ void setup()
 	setup_killpin();
 	setup_powerhold();
 	st_init();    // Initialize stepper, this enables interrupts!
-	pinMode(RELAY, OUTPUT);
-	pinMode(SDA_PIN, OUTPUT);
-	digitalWrite(SDA_PIN, HIGH);
-	digitalWrite(RELAY, LOW);
-	MYSERIAL.begin(BAUDRATE);
-
+	
+	init_system_extended();
+	
 	SERIAL_PROTOCOLLNPGM(VERSION_STRING);
 	SERIAL_ECHO_START;
 	SERIAL_PROTOCOLLNPGM("start");
@@ -874,32 +913,17 @@ void setup()
 	#ifdef BUILD_DATE
 	SERIAL_PROTOCOLLNPGM(STRING_VERSION_CONFIG_H);
 	#endif
+	
 	//LCD START routine
-	
-	
-	pinMode(RED,OUTPUT);
-	pinMode(GREEN,OUTPUT);
-	pinMode(BLUE,OUTPUT);
-	//Setting the LEDs at full power -> WHITE
-	digitalWrite(RED,LOW);
-	digitalWrite(GREEN,LOW);
-	digitalWrite(BLUE,LOW);
-	//st_init();    // Initialize stepper, this enables interrupts!
-	
-	
-
-
-	
-	#if MOTHERBOARD == BCN3D_BOARD
-	MYSERIAL_SCREEN.begin(200000); // Use Serial3 for talking to the Genie Library, and to the 4D Systems display
 	
 	// Reset the Display
 	// THIS IS IMPORTANT AND CAN PREVENT OUT OF SYNC ISSUES, SLOW SPEED RESPONSE ETC
 	pinMode(RESETLINE, OUTPUT);  // Set Output (4D Arduino Adaptor V2 - Display Reset)
+	
 	digitalWrite(RESETLINE, 0);  // Reset the Display
 	delay(100);
 	digitalWrite(RESETLINE, 1);  // unReset the Display
-	#endif
+
 	// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 	log_prints = 0;
 	log_hours_print = 0;
@@ -4783,7 +4807,7 @@ inline void gcode_M24(){
 	display_ButtonState(BUTTON_SDPRINTING_PAUSE,0);
 	display_ChangeForm(FORM_SDPRINTING,0);
 	bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
-	plan_set_e_position(0);
+	RESET_E_COORDINATES;
 	//char buffer[13];
 	
 	int count = get_nummaxchars(true, 280);

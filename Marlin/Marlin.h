@@ -125,6 +125,15 @@ FORCE_INLINE void serialprintPGM(const char *str)
   }
 }
 
+#ifdef ENCLOSURE_SAFETY_STOP
+	#define CHECK_ENCLOSURE_IS_CLOSED		digitalRead(SDL_PIN) 
+#endif
+
+#define CHECK_FRS_LEFT		digitalRead(E0_STOP) 
+#define CHECK_FRS_RIGHT		digitalRead(E1_STOP) 
+#define CHECK_FRS(x)		digitalRead(x==LEFT_EXTRUDER?E0_STOP:E1_STOP)
+
+#define RESET_E_COORDINATES {current_position[E_AXIS]=0;plan_set_e_position(0);}
 
 void get_command();
 void process_commands();

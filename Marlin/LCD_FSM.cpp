@@ -768,7 +768,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 			
 			case BUTTON_UTILITIES_FILAMENT_LOAD_KEEPPUSHING_NEXT: // Start loading the filament; if the FRS is enabled, check if there is filament on the detected before start pushing
 			
-			if (!Flag_FRS_enabled || (Flag_FRS_enabled && digitalRead(which_extruder==LEFT_EXTRUDER?E0_STOP:E1_STOP)))
+			if (!Flag_FRS_enabled || (Flag_FRS_enabled && CHECK_FRS(which_extruder)))
 			{ //Inserting...
 				is_checking_filament = false;
 				display_ChangeForm(FORM_PROCESSING,0);
@@ -2357,7 +2357,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 			break;
 			
 			case BUTTON_UTILITIES_FILAMENT_LOAD_KEEPPUSHING_NEXT:
-			if (!Flag_FRS_enabled || (Flag_FRS_enabled && digitalRead(which_extruder==LEFT_EXTRUDER?E0_STOP:E1_STOP)))
+			if (!Flag_FRS_enabled || (Flag_FRS_enabled && CHECK_FRS(which_extruder)))
 			{ //Inserting...
 				is_checking_filament = false;
 				display_ChangeForm(FORM_PROCESSING,0);
@@ -5663,7 +5663,7 @@ void update_screen_printing(){
 			
 			static bool filament_state_check = true;
 			
-			if(!Flag_FRS_enabled || (Flag_FRS_enabled && digitalRead(which_extruder==LEFT_EXTRUDER?E0_STOP:E1_STOP))){
+			if(!Flag_FRS_enabled || (Flag_FRS_enabled && CHECK_FRS(which_extruder))){
 				if(!filament_state_check){
 					display_ButtonState(BUTTON_UTILITIES_FILAMENT_LOAD_KEEPPUSHING_NEXT,0);
 				}
@@ -5733,7 +5733,7 @@ void update_screen_printing(){
 						is_checking_filament = true;
 						heatting = false;
 						//genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
-						if(!Flag_FRS_enabled || (Flag_FRS_enabled && digitalRead(which_extruder==LEFT_EXTRUDER?E0_STOP:E1_STOP))){
+						if(!Flag_FRS_enabled || (Flag_FRS_enabled && CHECK_FRS(which_extruder))){
 							display_ButtonState(BUTTON_UTILITIES_FILAMENT_LOAD_KEEPPUSHING_NEXT,0);
 							}else{
 							display_ButtonState(BUTTON_UTILITIES_FILAMENT_LOAD_KEEPPUSHING_NEXT,1);
@@ -5950,7 +5950,7 @@ void update_screen_noprinting(){
 				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 				st_synchronize();
-				plan_set_e_position(0);
+				RESET_E_COORDINATES;
 				disable_e0();
 				disable_e1();
 				gif_processing_state = PROCESSING_STOP;
@@ -5964,7 +5964,7 @@ void update_screen_noprinting(){
 				current_position[E_AXIS]-=5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retract
 				st_synchronize();
-				plan_set_e_position(0);
+				RESET_E_COORDINATES;
 				disable_e0();
 				disable_e1();
 				gif_processing_state = PROCESSING_STOP;
@@ -5978,7 +5978,7 @@ void update_screen_noprinting(){
 				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);//Purge
 				st_synchronize();
-				plan_set_e_position(0);
+				RESET_E_COORDINATES;
 				disable_e0();
 				disable_e1();
 				display_ButtonState(BUTTON_UTILITIES_FILAMENT_ADJUST_LOAD, 0);
@@ -5991,7 +5991,7 @@ void update_screen_noprinting(){
 				current_position[E_AXIS]-=5;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);//Retract
 				st_synchronize();
-				plan_set_e_position(0);
+				RESET_E_COORDINATES;
 				disable_e0();
 				disable_e1();
 				display_ButtonState(BUTTON_UTILITIES_FILAMENT_ADJUST_UNLOAD, 0);
@@ -6001,7 +6001,7 @@ void update_screen_noprinting(){
 			
 			static bool filament_state_check = true;
 			
-			if(!Flag_FRS_enabled || (Flag_FRS_enabled && digitalRead(which_extruder==LEFT_EXTRUDER?E0_STOP:E1_STOP))){
+			if(!Flag_FRS_enabled || (Flag_FRS_enabled && CHECK_FRS(which_extruder))){
 				if(!filament_state_check){
 					display_ButtonState(BUTTON_UTILITIES_FILAMENT_LOAD_KEEPPUSHING_NEXT,0);
 				}				
@@ -6068,7 +6068,7 @@ void update_screen_noprinting(){
 					SERIAL_PROTOCOLPGM("Ready to Load/Unload \n");
 					//We have preheated correctly
 					if (filament_mode =='I'){
-						if(!Flag_FRS_enabled || (Flag_FRS_enabled && digitalRead(which_extruder==LEFT_EXTRUDER?E0_STOP:E1_STOP))){
+						if(!Flag_FRS_enabled || (Flag_FRS_enabled && CHECK_FRS(which_extruder))){
 							display_ButtonState(BUTTON_UTILITIES_FILAMENT_LOAD_KEEPPUSHING_NEXT,0);
 							}else{
 							display_ButtonState(BUTTON_UTILITIES_FILAMENT_LOAD_KEEPPUSHING_NEXT,1);
@@ -7422,7 +7422,7 @@ void unloadfilament_procedure(void){//Removing...
 		
 		st_synchronize();
 		ERROR_SCREEN_WARNING;
-		plan_set_e_position(0);
+		RESET_E_COORDINATES;
 		gif_processing_state = PROCESSING_STOP;
 		printer_state = STATE_LOADUNLOAD_FILAMENT;
 		

@@ -1523,6 +1523,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //#define ENABLE_CURA_COUNTDOWN_TIMER 
 
+//#define ENCLOSURE_SAFETY_STOP
+
 #include "Configuration_adv.h"
 #include "thermistortables.h"
 

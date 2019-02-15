@@ -126,7 +126,10 @@ FORCE_INLINE void serialprintPGM(const char *str)
 }
 
 #ifdef ENCLOSURE_SAFETY_STOP
+
+	extern uint8_t Flag_enclosure_is_open;
 	#define CHECK_ENCLOSURE_IS_CLOSED		digitalRead(SDL_PIN) 
+
 #endif
 
 #define CHECK_FRS_LEFT		digitalRead(E0_STOP) 
@@ -344,6 +347,7 @@ extern uint8_t which_extruder;
 extern int8_t which_extruder_setup;
 extern int8_t which_hotend_setup[2];
 extern char filament_mode;
+extern bool is_printing_screen;
 extern bool is_checking_filament;
 extern bool is_changing_filament;
 extern bool is_purging_filament;

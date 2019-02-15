@@ -257,6 +257,7 @@ uint16_t filepointer = 0;
 String screen_status = "Printing...";
 uint8_t which_extruder=0;
 char filament_mode='O';
+bool is_printing_screen=false;
 bool is_checking_filament=false;
 bool is_changing_filament=false;
 bool is_purging_filament=false;
@@ -287,6 +288,11 @@ float raft_extrusion_adjusting = 1.0;
 float destination_X_2 = 0.0;
 float destination_Z_2 = 0.0;
 
+#ifdef ENCLOSURE_SAFETY_STOP
+
+uint8_t Flag_enclosure_is_open = 0;
+
+#endif
 
 #ifdef RECOVERY_PRINT
 
@@ -715,13 +721,21 @@ extern "C"{
 void checkenclosure(){
 	
 	static uint32_t timer_enclosure = millis();
+	static uint8_t t = 0; // failed samples
 	if(timer_enclosure < millis()){
 		
-		if(!CHECK_ENCLOSURE_IS_CLOSED){
-			
+		if(Flag_enclosure_is_open == 0 && card.sdprinting){		// Check only if flag is clear and printer is printing via SD
+			if(!CHECK_ENCLOSURE_IS_CLOSED){
+				t=0;
+				}else{
+				t++;
+			}
+			if(t >= 4){
+				t=0;
+				Flag_enclosure_is_open = 1; // Set Flag as enclosure is open
+			}
 		}
-		
-		timer_enclosure = millis() + 1000; //check every 1
+		timer_enclosure = millis() + 250; //check every 250 ms
 	}
 }
 #endif
@@ -729,34 +743,34 @@ void checkenclosure(){
 
 void checkfilament(){
 	static uint32_t timer_fil = millis();
-	static uint8_t times_fail0 = 0;
-	static uint8_t times_fail1 = 0;
+	static uint8_t t_0 = 0; // times failed extruder 0
+	static uint8_t t_1 = 0; // times failed extruder 1
 	
 	if(card.sdprinting && Flag_FRS_enabled && home_made){
 		if(timer_fil < millis()){
 			if(!CHECK_FRS_LEFT && !Flag_checkfil && (active_extruder == 0 || extruder_duplication_enabled || extruder_duplication_mirror_enabled)){
-				times_fail0++;
-				if(times_fail0>3){
+				t_0++;
+				if(t_0>3){
 					Flag_checkfil = true;
 					which_extruder_needs_fil = 10;
 					bitSet(flag_sdprinting_register,flag_sdprinting_register_printpause);
-					times_fail0 = 0;
+					t_0=0;
 				}
 			}else{
-				times_fail0=0;
+				t_0=0;
 			}
 			
 			if(!CHECK_FRS_RIGHT && !Flag_checkfil && (active_extruder == 1 || extruder_duplication_enabled || extruder_duplication_mirror_enabled)){
-				times_fail1++;
-				if(times_fail1>3){
+				t_1++;
+				if(t_1>3){
 					Flag_checkfil = true;
 					which_extruder_needs_fil = 11;
 					bitSet(flag_sdprinting_register,flag_sdprinting_register_printpause);
-					times_fail1 = 0;
+					t_1=0;
 				}
 				
 			}else{
-				times_fail1=0;
+				t_1=0;
 			}
 			timer_fil = millis() + 1000; //check every 1
 		}
@@ -774,8 +788,8 @@ void init_system_extended(){
 	
 	#ifdef ENCLOSURE_SAFETY_STOP
 		pinMode(SDL_PIN, INPUT); // Enclosure signal pin input
-	#endif
-		
+		digitalWrite(SDL_PIN, HIGH); // Enclosure signal pin input set pull up resistor
+	#endif	
 	MYSERIAL.begin(BAUDRATE);
 	MYSERIAL_SCREEN.begin(200000); // Use Serial3 for talking to the Genie Library, and to the 4D Systems display
 	
@@ -1020,6 +1034,11 @@ void loop()
 	checkHitEndstops();
 	checkMaxTemps();
 	checkfilament();
+	
+	#ifdef ENCLOSURE_SAFETY_STOP
+		checkenclosure();
+	#endif
+	
 	//lcd_update();
 	#ifdef SIGMA_TOUCH_SCREEN
 	touchscreen_update();
@@ -1636,6 +1655,7 @@ void get_command()
 				gif_processing_state = PROCESSING_DEFAULT;
 				display_ChangeForm(FORM_PROCESSING,0);
 				SERIAL_PROTOCOLLNPGM("Pause parking");
+				is_printing_screen = false;
 				//Serial.println(bufindw);
 				//Serial.println(buflen);
 			}

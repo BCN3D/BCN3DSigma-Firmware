@@ -344,6 +344,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 				display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_PURGE_LEFTTARGET,int(degHotend(0)));
 				display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_PURGE_RIGHTTARGET,int(degHotend(1)));
 				display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_UTILITIES_FILAMENT_PURGE_SELECTEDTEMP,0);
+				is_printing_screen = false;
 			}
 					
 			break;
@@ -521,6 +522,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 			}else if(screen_printing_pause_form == screen_printing_pause_form3){
 				bitSet(flag_sdprinting_register,flag_sdprinting_register_light);
 			}
+			is_printing_screen = false;
 						
 			break;
 			
@@ -537,6 +539,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 				
 				
 			}
+			is_printing_screen = false;
 			
 			break;
 			
@@ -566,6 +569,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 					display_ButtonState(BUTTON_UTILITIES_FILAMENT_UNLOAD_MENU,1);
 					filament_mode = 'R';
 					surfing_utilities = true;
+					is_printing_screen = false;
 				}
 			}
 			
@@ -5214,6 +5218,7 @@ void update_screen_printing(){
 		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTTING_SETINGS_LEFT,target_temperature[0]);
 		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTTING_SETINGS_BED,target_temperature_bed);
 		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTTING_SETINGS_RIGHT,target_temperature[1]);
+		is_printing_screen = false;
 		bitClear(flag_sdprinting_register,flag_sdprinting_register_temps);
 	}
 	if(screen_printing_pause_form == screen_printing_pause_form4){
@@ -5251,6 +5256,7 @@ void update_screen_printing(){
 		display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_SDPRINTING_SETTINGS_SPEED_RIGHT,feedmultiply[RIGHT_EXTRUDER]);
 		
 		waitPeriod=1500+millis();
+		is_printing_screen = false;
 		bitClear(flag_sdprinting_register,flag_sdprinting_register_control);
 	}
 	if(screen_printing_pause_form == screen_printing_pause_form5){
@@ -5280,15 +5286,14 @@ void update_screen_printing(){
 			display_ChangeForm(FORM_SDPRINTING,0);
 			surfing_utilities = false;
 			display.WriteStr(STRING_SDPRINTING_GCODE,namefilegcode);
-			bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
 		}
 		else{
 			display_ChangeForm(FORM_SDPRINTING_PAUSE,0);
 			surfing_utilities = false;
-			display.WriteStr(STRING_SDPRINTING_PAUSE_GCODE,namefilegcode);
-			bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
+			display.WriteStr(STRING_SDPRINTING_PAUSE_GCODE,namefilegcode);			
 		}
-		waitPeriod=1500+millis();	//Every 5s
+		bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
+		waitPeriod=1500+millis();	//Every 1.5s
 		bitClear(flag_sdprinting_register,flag_sdprinting_register_showdata);
 		
 	}
@@ -5519,6 +5524,17 @@ void update_screen_printing(){
 		}
 		bitClear(screen_change_register,screen_change_register_fandownr);
 	}
+	#ifdef ENCLOSURE_SAFETY_STOP
+	if(bitRead(flag_sdprinting_register,flag_sdprinting_register_printpause) || Flag_enclosure_is_open == 1){
+		if(!waiting_temps){
+			card.pauseSDPrint();
+			SERIAL_PROTOCOLLNPGM("PAUSE");
+			bitSet(flag_sdprinting_register,flag_sdprinting_register_pausepause);
+		}
+		Flag_enclosure_is_open = 0;
+		bitClear(flag_sdprinting_register,flag_sdprinting_register_printpause);
+	}
+	#else
 	if(bitRead(flag_sdprinting_register,flag_sdprinting_register_printpause)){
 		if(!waiting_temps){
 			card.pauseSDPrint();
@@ -5527,17 +5543,13 @@ void update_screen_printing(){
 		}
 		bitClear(flag_sdprinting_register,flag_sdprinting_register_printpause);
 	}
+	#endif
 	
-	//*********PAUSE POSITION AND RESUME POSITION IN PROBES
-	/*if (flag_sdprinting_pausepause && !flag_sdprinting_pauseresume){
-		if(buflen == 0){
-				enquecommand_P(((PSTR("G69"))));
-				flag_sdprinting_pausepause = false;
-				SERIAL_PROTOCOLLNPGM("Pause parking");
-		}
-	}*/
+		
 	if(bitRead(flag_sdprinting_register,flag_sdprinting_register_printresume)){
-		if(!waiting_temps){
+		
+		#ifdef ENCLOSURE_SAFETY_STOP
+		if(!waiting_temps && !CHECK_ENCLOSURE_IS_CLOSED){ // If enclosure is not closed, print job will not be resumed
 			display_ChangeForm(FORM_PROCESSING,0);
 			gif_processing_state = PROCESSING_DEFAULT;
 			card.startFileprint();
@@ -5547,7 +5559,23 @@ void update_screen_printing(){
 				enquecommand_P((PSTR("G70")));
 				bitClear(flag_sdprinting_register,flag_sdprinting_register_printresume);
 			}
+			is_printing_screen = false;
 		}
+		#else
+		if(!waiting_temps){ 
+			display_ChangeForm(FORM_PROCESSING,0);
+			gif_processing_state = PROCESSING_DEFAULT;
+			card.startFileprint();
+			SERIAL_PROTOCOLLNPGM("RESUME");
+			bitClear(flag_sdprinting_register,flag_sdprinting_register_pauseresume);
+			if(bitRead(flag_sdprinting_register,flag_sdprinting_register_printresume)){
+				enquecommand_P((PSTR("G70")));
+				bitClear(flag_sdprinting_register,flag_sdprinting_register_printresume);
+			}
+			is_printing_screen = false;
+		}
+		#endif		
+			
 		bitClear(flag_sdprinting_register,flag_sdprinting_register_printresume);
 	}
 	
@@ -5778,7 +5806,10 @@ void update_screen_printing(){
 		display_ChangeForm(FORM_UTILITIES_FILAMENT_SUCCESS,0);
 		gif_processing_state = PROCESSING_SUCCESS;
 	}
-	if(card.sdprinting){
+	if(bitRead(flag_sdprinting_register,flag_sdprinting_register_datarefresh)){
+		is_printing_screen = true;
+	}	
+	if(is_printing_screen){
 		
 		static int count5s = 0;
 		static int count5s1 = 0;

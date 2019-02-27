@@ -838,7 +838,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define PURGE_SPEED_UNLOAD 450.0
 #define EXTRUDER_LENGTH 50.0
 #define INSERT_FAST_SPEED 3600.0	//max speed 60mm/s R16/R17
-#define INSERT_FAST_R19_SPEED 2400.0	//max speed 40mm/s R18
+#define INSERT_FAST_R19_SPEED 2000.0	//max speed 40mm/s R18
 #define INSERT_SLOW_SPEED	150.0
 #define REMOVE_FIL_TEMP		170
 #define INSERT_FIL_TEMP		230

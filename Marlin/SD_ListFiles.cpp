@@ -171,7 +171,7 @@ int Listfiles::search_line_data_commentary(){
 			posi++;
 		}
 		exit++;
-		if(exit>20 || card.isEndFile()){
+		if(exit>50 || card.isEndFile()){
 			return -1;
 		}
 	}
@@ -320,7 +320,7 @@ int Listfiles::check_extract_ensure_duplication_print(void){
 			}
 		}
 		if ((extract_ensure_duplication_print() == 5 || extract_ensure_duplication_print() == 6)){
-			linecomepoint = 15;
+			break;
 		}
 		if (linecomepoint == 14){
 			return 0;
@@ -356,11 +356,11 @@ int Listfiles::check_extract_ensure_duplication_print(void){
 			memset(commandline, '\0', sizeof(commandline) );
 			if (search_line_data_commentary() == -1){
 				card.closefile();
-				return 0;
+				return 1;
 			}
 			if(extract_ensure_duplication_print_with_raft_cura() < 0){
 				card.closefile();
-				return 0;
+				return 0;			
 			}
 			linecomepoint++;
 

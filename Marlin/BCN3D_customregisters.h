@@ -60,6 +60,8 @@ Author: Alejandro Garcia (S3mt0x)
 #define flag_utilities_calibration_register_calibfull_skipZcalib		1
 #define flag_utilities_calibration_register_calibbeddone				2
 #define flag_utilities_calibration_register_bedcomensationmode			3
+#define flag_utilities_calibration_register_cooldown_mode0				4
+#define flag_utilities_calibration_register_cooldown_mode1				5
 
 //// flag_sdprinting_register/////
 #define flag_sdlist_resgiter_filesupdown					0

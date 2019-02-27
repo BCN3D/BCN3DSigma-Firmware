@@ -4827,6 +4827,7 @@ inline void gcode_M24(){
 	display_ButtonState(BUTTON_SDPRINTING_PAUSE,0);
 	display_ChangeForm(FORM_SDPRINTING,0);
 	bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
+	is_printing_screen = true;
 	RESET_E_COORDINATES;
 	//char buffer[13];
 	
@@ -8210,7 +8211,7 @@ void process_commands()
 
 //Rapduch: Better hardcoded toolChange
 #ifdef DUAL_X_CARRIAGE
-void changeToolSigma(int tool){
+void changeToolSigma(uint8_t tool){
 	tmp_extruder = tool;
 	z_restaurada = current_position[Z_AXIS]; //Save the Z position that will be restored after changing tool
 	memcpy(destination, current_position, sizeof(destination));
@@ -8260,7 +8261,7 @@ void changeToolSigma(int tool){
 //Rapduch
 //Hardcoded  function for tool change
 #ifdef  DUAL_X_CARRIAGE
-inline void changeTool(int ntool) { //ntool select the tool that will be active
+inline void changeTool(uint8_t ntool) { //ntool select the tool that will be active
 	tmp_extruder = ntool;
 	if(tmp_extruder >= EXTRUDERS) {
 		SERIAL_ECHO_START;

@@ -142,8 +142,6 @@ void inline Full_calibration_Y_set(float offset); // Set Y offset
 void turnoff_buttons_xycalib(void); // Set X & Y calib select line buttons to default state
 void turnoff_buttons_zcalib(void); // Set ZL & ZR calib select line buttons to default state
 
-inline void Coolingdown_Shutdown(int mode); // Cool down temperatures and wait
-
 void unload_get_ready(void); // Go to unload filament position
 inline void unloadfilament_procedure(void); // Proceed to unload filament
 
@@ -1366,6 +1364,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 					
 				}
 				if(listsd.check_extract_ensure_duplication_print()){ // check if the gcode is a duplication or mirror, and verify if the offset are compensated
+					
 					if(abs(extruder_offset[Z_AXIS][RIGHT_EXTRUDER]) > RAFT_Z_THRESHOLD){
 						display_ChangeForm(FORM_RAFT_ADVISE, 0);
 						sprintf_P(buffer, PSTR("The first layer printed with the %s hotend"),
@@ -1378,7 +1377,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 						LCD_FSM_input_buton_flag = -1;
 						lcd_busy = false;
 						return;
-						}
+					}
 				}
 				if (!card.filenameIsDir){ //If the filename is a gcode we start printing
 					card.getfilename(filepointer);
@@ -1782,39 +1781,39 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 			break;
 						
 			case BUTTON_MAINTENANCE_ZADJUST_TOP: // Lift up Z 50mm
-			
-			bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up);
-			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up);
-			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down);
-			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down);
-			
+			if(!blocks_queued()){
+				bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up);
+				bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up);
+				bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down);
+				bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down);
+			}
 			break;
 			
 			case BUTTON_MAINTENANCE_ZADJUST_BOT: // Lift down Z 50mm
-			
-			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up);
-			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up);
-			bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down);
-			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down);
-			
+			if(!blocks_queued()){
+				bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up);
+				bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up);
+				bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down);
+				bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down);
+			}
 			break;
 			
 			case BUTTON_MAINTENANCE_ZADJUST_DOWN: // Lift down Z 10mm
-			
-			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up);
-			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up);
-			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down);
-			bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down);
-			
+			if(!blocks_queued()){
+				bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up);
+				bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up);
+				bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down);
+				bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down);
+			}
 			break;
 			
 			case BUTTON_MAINTENANCE_ZADJUST_UP: // Lift up Z 10mm
-			
-			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up);
-			bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up);
-			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down);
-			bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down);
-			
+			if(!blocks_queued()){
+				bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up);
+				bitSet(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up);
+				bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down);
+				bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down);
+			}
 			break;
 			
 			case BUTTON_MAINTENANCE_ZADJUST_BACK:
@@ -2813,11 +2812,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 						}else if(which_extruder == RIGHT_EXTRUDER){
 						flag_utilities_maintenance_changehotend = 2888;
 					}
-					display_ChangeForm(FORM_PROCESSING,0);					
-					gif_processing_state = PROCESSING_DEFAULT;
-					Config_StoreSettings();
-					home_axis_from_code(true,true,false);
-					Coolingdown_Shutdown(1);
+					bitSet(flag_utilities_calibration_register,flag_utilities_calibration_register_cooldown_mode1);
 					
 					bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_changehotend);
 				}
@@ -3676,12 +3671,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 			case BUTTON_Z_COMPENSATION_INSTALL:
 			flag_utilities_calibration_zcomensationmode_gauges = 1888;
 			
-			display_ChangeForm(FORM_PROCESSING,0);			
-			gif_processing_state = PROCESSING_DEFAULT;
-			Config_StoreSettings();
-			
-			home_axis_from_code(true,true,(home_made_Z?false:true));
-			Coolingdown_Shutdown(0);
+			bitSet(flag_utilities_calibration_register,flag_utilities_calibration_register_cooldown_mode0);
 			break;
 
 			case BUTTON_Z_COMPENSATION_COMFIRMATION_YES:
@@ -3777,21 +3767,11 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 
 			case BUTTON_RAFT_ADVISE_INSTALL_ACCEPT:
 			flag_utilities_calibration_zcomensationmode_gauges = 2888;
-			display_ChangeForm(FORM_PROCESSING,0);			
-			gif_processing_state = PROCESSING_DEFAULT;
-			Config_StoreSettings();
-			
-			home_axis_from_code(true,true,(home_made_Z?false:true));
-			Coolingdown_Shutdown(0);
+			bitSet(flag_utilities_calibration_register,flag_utilities_calibration_register_cooldown_mode0);
 			break;
 
 			case BUTTON_Z_COMPENSATION_COMFIRMATION_SURECANCEL_NOT:
-			display_ChangeForm(FORM_PROCESSING,0);			
-			gif_processing_state = PROCESSING_DEFAULT;
-			Config_StoreSettings();
-			
-			home_axis_from_code(true,true,(home_made_Z?false:true));
-			Coolingdown_Shutdown(0);
+			bitSet(flag_utilities_calibration_register,flag_utilities_calibration_register_cooldown_mode0);
 			break;
 
 			
@@ -5015,12 +4995,7 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 				flag_utilities_maintenance_changehotend = 2888;
 			}
 			if(which_extruder == 0 || which_extruder == 1){
-				display_ChangeForm(FORM_PROCESSING,0);				
-				gif_processing_state = PROCESSING_DEFAULT;
-				Config_StoreSettings();
-				
-				home_axis_from_code(true,true,(home_made_Z?false:true));
-				Coolingdown_Shutdown(1);
+				bitSet(flag_utilities_calibration_register,flag_utilities_calibration_register_cooldown_mode1);
 			}
 			break;
 			
@@ -5293,7 +5268,7 @@ void update_screen_printing(){
 			display.WriteStr(STRING_SDPRINTING_PAUSE_GCODE,namefilegcode);			
 		}
 		bitSet(flag_sdprinting_register,flag_sdprinting_register_datarefresh);
-		waitPeriod=1500+millis();	//Every 1.5s
+		//waitPeriod=1500+millis();	//Every 1.5s
 		bitClear(flag_sdprinting_register,flag_sdprinting_register_showdata);
 		
 	}
@@ -5879,6 +5854,7 @@ void update_screen_printing(){
 	
 }
 void update_screen_noprinting(){
+	static uint32_t waitPeriod_c = millis();
 	static uint32_t waitPeriodno = millis();
 	static uint32_t waitPeriod_p = millis();
 	static int8_t processing_state = 0;
@@ -6122,7 +6098,7 @@ void update_screen_noprinting(){
 			waitPeriodno=1000+millis(); // Every Second
 		}
 	}
-	if(bitRead(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up) && !blocks_queued()){
+	if(bitRead(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up)){
 		processing_z_set = 0;
 		bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10up);
 		current_position[Z_AXIS]-=10;
@@ -6139,7 +6115,7 @@ void update_screen_noprinting(){
 		st_synchronize();
 		processing_z_set = 255;
 	}
-	if(bitRead(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up) && !blocks_queued()){
+	if(bitRead(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up)){
 		processing_z_set = 0;
 		current_position[Z_AXIS]-=100;
 		bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100up);
@@ -6153,7 +6129,7 @@ void update_screen_noprinting(){
 		processing_z_set = 255;
 		
 	}
-	if(bitRead(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down) && !blocks_queued()){
+	if(bitRead(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down)){
 		processing_z_set = 1;
 		current_position[Z_AXIS]+=10;
 		bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust10down);
@@ -6167,7 +6143,7 @@ void update_screen_noprinting(){
 		processing_z_set = 255;
 		
 	}
-	if(bitRead(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down) && !blocks_queued()){
+	if(bitRead(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down)){
 		processing_z_set = 1;
 		current_position[Z_AXIS]+=100;
 		bitClear(flag_utilities_maintenance_register,flag_utilities_maintenance_register_zdjust100down);
@@ -6191,6 +6167,104 @@ void update_screen_noprinting(){
 		display_ChangeForm(FORM_UTILITIES_FILAMENT_SUCCESS,0);
 		HeaterCooldownInactivity(true);
 		gif_processing_state = PROCESSING_SUCCESS;
+	}
+	if(bitRead(flag_utilities_calibration_register,flag_utilities_calibration_register_cooldown_mode0) || bitRead(flag_utilities_calibration_register,flag_utilities_calibration_register_cooldown_mode1)){
+		
+		uint8_t mode = bitRead(flag_utilities_calibration_register,flag_utilities_calibration_register_cooldown_mode0)?0:1;
+		
+		bitClear(flag_utilities_calibration_register,flag_utilities_calibration_register_cooldown_mode0);
+		bitClear(flag_utilities_calibration_register,flag_utilities_calibration_register_cooldown_mode1);	
+			
+		display_ChangeForm(FORM_PROCESSING,0);
+		gif_processing_state = PROCESSING_DEFAULT;
+		Config_StoreSettings();
+		
+		setTargetBed(0);
+		setTargetHotend0(0);
+		setTargetHotend1(0);
+		
+		if(extruder_offset[Z_AXIS][RIGHT_EXTRUDER] < 0.0){
+			which_extruder = RIGHT_EXTRUDER;
+			}else{
+			which_extruder = LEFT_EXTRUDER;
+		}
+		
+		changeTool(which_extruder);
+		home_axis_from_code(true,true,(home_made_Z?false:true));
+		
+		
+		
+		current_position[Z_AXIS] = 80;
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],12,which_extruder);
+		current_position[Y_AXIS] = 100;
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],XY_TRAVEL_SPEED15/60.0,which_extruder);
+		
+		st_synchronize();
+		
+		gif_processing_state = PROCESSING_STOP;
+						
+		
+		if((int)degHotend(which_extruder)>NYLON_TEMP_COOLDOWN_THRESHOLD){
+			display_ChangeForm(FORM_ADJUSTING_TEMPERATURES,0);
+			if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
+			else digitalWrite(FAN2_PIN, 1);
+			gif_processing_state = PROCESSING_ADJUSTING;
+			int Tref_c = (int)degHotend(which_extruder);
+			int Tfinal_c = NYLON_TEMP_COOLDOWN_THRESHOLD;
+			int percentage_c = 0;
+			int percentage_old_c = 0;
+			int Tinstant_c = 0;
+			while ((int)degHotend(which_extruder)>Tfinal_c){ //Waiting to heat the extruder
+				
+				manage_heater();
+				touchscreen_update();
+				ERROR_SCREEN_WARNING2;
+				
+				if (millis() >= waitPeriod_c){
+					
+					
+					Tinstant_c = constrain((int)degHotend(which_extruder),Tfinal_c,Tref_c);
+					
+					percentage_c = ((Tref_c-Tfinal_c)-(Tinstant_c-Tfinal_c))*100; //<<<<<<<<<<<<<  0% TO 100%
+					percentage_c = percentage_c/(Tref_c-Tfinal_c);
+					if(percentage_c > percentage_old_c){
+						percentage_old_c = percentage_c;
+					}
+					display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_ADJUSTING_TEMPERATURES,percentage_old_c);
+					waitPeriod_c = 500 + millis();
+				}
+				
+				
+			}
+			gif_processing_state = PROCESSING_STOP;
+			touchscreen_update();
+		}
+		
+		
+		#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
+		current_position[X_AXIS] = 155;
+		#elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
+		current_position[X_AXIS] = 155 + X_OFFSET_CALIB_PROCEDURES;
+		#endif
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],XY_TRAVEL_SPEED15/60.0,which_extruder);
+
+		
+				
+		if(mode == 0){
+			char offset_string[250];
+			memset(offset_string, '\0', sizeof(offset_string) );
+			int offset_aprox;
+			offset_aprox = (int)(round(abs(extruder_offset[Z_AXIS][RIGHT_EXTRUDER])*100.01)/5.0);
+			sprintf_P(offset_string, PSTR("Install %d %s on the %s hotend."), offset_aprox, ((offset_aprox > 1)?"shims":"shim") , ((extruder_offset[Z_AXIS][RIGHT_EXTRUDER] < 0)?"right":"left"));
+			display_ChangeForm(FORM_Z_COMPENSATION_SHUTDOWN,0);
+			display.WriteStr(STRING_Z_COMPENSATION_SHUTDOWN,offset_string);
+		}
+		else if(mode == 1){
+			display_ChangeForm(FORM_PRINTERSETUP_CHANGEHOTEND_SHUTDOWN,0);
+		}
+		
+		
+		
 	}
 	
 }
@@ -7515,90 +7589,7 @@ void unload_get_ready(){
 	gif_processing_state = PROCESSING_ADJUSTING;
 	is_changing_filament=true; //We are changing filament
 }
-void Coolingdown_Shutdown(int mode){
-	
-	
-	
-	if(mode == 0){
-		which_extruder = (extruder_offset[Z_AXIS][RIGHT_EXTRUDER]<0 ? RIGHT_EXTRUDER:LEFT_EXTRUDER);
-	}
-		
-	
-	setTargetBed(0);
-	setTargetHotend0(0);
-	setTargetHotend1(0);
-	
-	
-	unsigned long waitPeriod_ss = millis();
-	
-	if((int)degHotend(which_extruder)>NYLON_TEMP_COOLDOWN_THRESHOLD){
-		display_ChangeForm(FORM_ADJUSTING_TEMPERATURES,0);
-		if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
-		else digitalWrite(FAN2_PIN, 1);
-		gif_processing_state = PROCESSING_ADJUSTING;
-		int Tref = (int)degHotend(which_extruder);
-		int Tfinal = NYLON_TEMP_COOLDOWN_THRESHOLD;
-		int percentage = 0;
-		int percentage_old = 0;
-		while ((int)degHotend(which_extruder)>Tfinal){ //Waiting to heat the extruder
-			if (millis() >= waitPeriod_ss){
-				
-				int Tinstant;
-				
-				Tinstant = constrain((int)degHotend(which_extruder),Tfinal,Tref);
-				
-				percentage = ((Tref-Tfinal)-(Tinstant-Tfinal))*100; //<<<<<<<<<<<<<  0% TO 100%
-				percentage = percentage/(Tref-Tfinal);
-				if(percentage > percentage_old){
-					percentage_old = percentage;
-				}
-				display.WriteObject(GENIE_OBJ_CUSTOM_DIGITS,CUSTOMDIGITS_ADJUSTING_TEMPERATURES,percentage_old);
-				waitPeriod_ss=500+millis();
-			}
-			//previous_millis_cmd = millis();
-			manage_heater();
-			touchscreen_update();
-			ERROR_SCREEN_WARNING2;
-			
-		}
-		gif_processing_state = PROCESSING_STOP;
-		touchscreen_update();
-		display_ChangeForm(FORM_PROCESSING,0);
-	}
-	
-	gif_processing_state = PROCESSING_DEFAULT;
-	
-	changeTool(which_extruder);
-	current_position[Z_AXIS]= 180;
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],15,which_extruder);
-	current_position[Y_AXIS] = 100;
-	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],XY_TRAVEL_SPEED15/60,which_extruder);
-	st_synchronize();
-	current_position[X_AXIS] = 155;
-	#else
-	current_position[X_AXIS] = 155 + X_OFFSET_CALIB_PROCEDURES;
-	#endif
-	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],XY_TRAVEL_SPEED15/60,which_extruder);
-	st_synchronize();
-	
-	
-	gif_processing_state = PROCESSING_STOP;
-	
-	if(mode == 0){
-		char offset_string[250];
-		memset(offset_string, '\0', sizeof(offset_string) );
-		int offset_aprox;
-		offset_aprox = (int)(round(abs(extruder_offset[Z_AXIS][RIGHT_EXTRUDER])*100.01)/5.0);
-		sprintf_P(offset_string, PSTR("Install %d %s on the %s hotend."), offset_aprox, ((offset_aprox > 1)?"shims":"shim") , ((extruder_offset[Z_AXIS][RIGHT_EXTRUDER] < 0)?"right":"left"));
-		display_ChangeForm(FORM_Z_COMPENSATION_SHUTDOWN,0);
-		display.WriteStr(STRING_Z_COMPENSATION_SHUTDOWN,offset_string);
-	}
-	else if(mode == 1){
-		display_ChangeForm(FORM_PRINTERSETUP_CHANGEHOTEND_SHUTDOWN,0);
-	}
-	
-}
+
 void go_loadfilament_next(void){
 	if(which_extruder != 255){
 		switch(cycle_filament){

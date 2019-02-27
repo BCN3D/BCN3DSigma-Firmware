@@ -70,7 +70,6 @@ extern void Full_calibration_ZL_set(float offset);
 extern void Full_calibration_ZR_set(float offset);
 extern void Full_calibration_X_set(float offset);
 extern void Full_calibration_Y_set(float offset);
-extern void Coolingdown_Shutdown(int mode);
 
 // Bed compensation
 extern void Bed_Compensation_Set_Lines(int jint);

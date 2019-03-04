@@ -818,18 +818,23 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 			
 			if(!bitRead(flag_utilities_filament_register,flag_utilities_filament_register_acceptok))
 			{
-				if(blocks_queued()) quickStop();
-				display_SetFrame(GIF_UTILITIES_FILAMENT_SUCCESS,0);
-				display_ChangeForm(FORM_UTILITIES_FILAMENT_SUCCESS,0);
-				gif_processing_state = PROCESSING_SUCCESS;
-				printer_state = STATE_LOADUNLOAD_FILAMENT;
-				current_position[X_AXIS] = extruder_offset[X_AXIS][which_extruder];
-				plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED15/60,which_extruder);
-				plan_set_position(extruder_offset[X_AXIS][active_extruder], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-				current_position[X_AXIS] = extruder_offset[X_AXIS][active_extruder];
-				setTargetHotend((float)Temp_ChangeFilament_Saved, which_extruder);
-				Flag_checkfil = false;
-				st_synchronize();
+				
+				if(!blocks_queued()){
+					display_SetFrame(GIF_UTILITIES_FILAMENT_SUCCESS,0);
+					display_ChangeForm(FORM_UTILITIES_FILAMENT_SUCCESS,0);
+					gif_processing_state = PROCESSING_SUCCESS;
+					printer_state = STATE_LOADUNLOAD_FILAMENT;
+					current_position[X_AXIS] = extruder_offset[X_AXIS][which_extruder];
+					plan_set_position(extruder_offset[X_AXIS][active_extruder], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED15/60,which_extruder);
+					current_position[X_AXIS] = extruder_offset[X_AXIS][active_extruder];
+					setTargetHotend((float)Temp_ChangeFilament_Saved, which_extruder);
+					Flag_checkfil = false;
+					st_synchronize();
+					}else{
+					quickStop();
+				}
+				
 			}
 			
 			break;
@@ -2531,15 +2536,24 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the "LCD_FSM_inpu
 			case BUTTON_UTILITIES_FILAMENT_ADJUST_ACCEPT:
 			if(!bitRead(flag_utilities_filament_register,flag_utilities_filament_register_acceptok)){
 				
-				if(blocks_queued()) quickStop();
-				if(which_extruder == 0) setTargetHotend(print_temp_l,which_extruder);
-				else setTargetHotend(print_temp_r,which_extruder);
-				display_ChangeForm(FORM_PROCESSING,0);
-				bitSet(flag_utilities_filament_register,flag_utilities_filament_register_acceptok);
-				home_made = false;
-				gif_processing_state = PROCESSING_DEFAULT;
-				home_axis_from_code(true,true,false);
-				//genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+				
+				if(!blocks_queued()){
+					bitSet(flag_utilities_filament_register,flag_utilities_filament_register_acceptok);
+					if(which_extruder == 0){
+						setTargetHotend0(print_temp_l);
+					}
+					else{
+						setTargetHotend1(print_temp_r);
+					}
+					display_ChangeForm(FORM_PROCESSING,0);
+					home_made = false;
+					gif_processing_state = PROCESSING_DEFAULT;
+					home_axis_from_code(true,true,false);
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+					}else{
+					quickStop();
+				}
+				
 				
 				
 			}

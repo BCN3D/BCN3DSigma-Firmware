@@ -24,7 +24,7 @@
 // example_configurations/SCARA directory.
 //
 
-#define BUILD_DATE 
+//#define BUILD_DATE 
 #define UI_SerialID  "At Bottom Sticker"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
@@ -112,10 +112,10 @@
 //This is the version declaration for Sigma/x, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 #if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-	#define VERSION_STRING  "01-2.0.7RC"
+	#define VERSION_STRING  "01-2.0.7"
 	#define VERSION_NUMBER  137
 #elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
-	#define VERSION_STRING  "02-2.0.7RC"	
+	#define VERSION_STRING  "02-2.0.7"	
 	#define VERSION_NUMBER  237
 #endif
 

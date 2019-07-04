@@ -128,6 +128,7 @@ FORCE_INLINE void serialprintPGM(const char *str)
 #ifdef ENCLOSURE_SAFETY_STOP
 
 	extern uint8_t Flag_enclosure_is_open;
+	extern bool Flag_enclosure_enabled;
 	#define CHECK_ENCLOSURE_IS_CLOSED		digitalRead(SDL_PIN) 
 
 #endif
@@ -323,6 +324,9 @@ extern Genie display;
 #define ERROR_SCREEN_WARNING		if(gif_processing_state == PROCESSING_ERROR){LCD_FSM_input_buton_flag = -1; lcd_busy = false; return;}
 #define ERROR_SCREEN_WARNING2		if(gif_processing_state == PROCESSING_ERROR){ return;}
 void touchscreen_update();
+#ifdef DEV_BER
+extern bool flag_serial_gcode;
+#endif
 extern bool flag_ending_gcode;
 extern int fanSpeed_offset[EXTRUDERS];
 extern uint16_t filepointer;
@@ -340,6 +344,9 @@ extern int UI_SerialID2;
 extern int UI_registercode;
 extern bool notice_registercode;
 extern bool surfing_utilities;
+#ifdef DEV_BER
+extern bool get_sdcard_name_flag;
+#endif
 extern bool screen_sdcard;
 extern bool surfing_temps;
 extern long time_inactive_extruder[2];
@@ -392,6 +399,9 @@ extern int ID_thermal_runaway;
 extern bool Step_First_Start_Wizard;
 /////// end Processing Gifs	/////////
 
+#ifdef DEV_BER
+extern bool Send_feedback_flag;
+#endif
 extern bool back_home;
 extern bool cancel_heatup;
 //extern int quick_guide_step;
@@ -403,7 +413,7 @@ extern int z_test_print_code(int tool, int z_offset, bool repeat);
 #endif
 extern void bed_test_print_code(float x_offset, float y_offset, int zline);
 extern bool heatting;
-extern char namefilegcode[50];
+extern char namefilegcode[30];
 
 ////// Temperatures of current material for two extruders //////
 
@@ -423,6 +433,11 @@ extern int old_load_temp_r;
 extern int old_unload_temp_r;
 extern int old_print_temp_r;
 extern int old_bed_temp_r;
+
+#ifdef DEV_BER
+extern int fil_id_l;
+extern int fil_id_r;
+#endif
 
 ////// end Temperatures of current material for two extruders //////
 extern int version_number;

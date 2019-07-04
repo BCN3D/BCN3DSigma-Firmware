@@ -109,16 +109,19 @@
 	#define BCN3D_PRINTER_SETUP BCN3D_PRINTER_IS_SIGMA
 #endif
 
+#if (BCN3D_PRINTER_SETUP != BCN3D_PRINTER_IS_SIGMA && BCN3D_PRINTER_SETUP != BCN3D_PRINTER_IS_SIGMAX)
+	#error "This firmware only is compatible with SIGMA and SIGMAX as printer configuration"
+#endif
+
 //This is the version declaration for Sigma/x, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
 #if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-	#define VERSION_STRING  "01-2.0.7"
-	#define VERSION_NUMBER  137
+	#define VERSION_STRING  "01-2.0.8"
+	#define VERSION_NUMBER  138
 #elif BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
-	#define VERSION_STRING  "02-2.0.7"	
-	#define VERSION_NUMBER  237
+	#define VERSION_STRING  "02-2.0.8"	
+	#define VERSION_NUMBER  238
 #endif
-
 
 
 
@@ -323,31 +326,37 @@
 #define	PLA_UNLOAD_TEMP			215
 #define	PLA_PRINT_TEMP			215
 #define PLA_BED_TEMP			65
+#define PLA_ID					12
 
 #define	ABS_LOAD_TEMP			260
 #define	ABS_UNLOAD_TEMP			260
 #define	ABS_PRINT_TEMP			260
 #define ABS_BED_TEMP			90
+#define ABS_ID					13
 
 #define	PVA_LOAD_TEMP			230
 #define	PVA_UNLOAD_TEMP			220
 #define	PVA_PRINT_TEMP			220
 #define PVA_BED_TEMP			60
+#define PVA_ID					14
 
 #define	PETG_LOAD_TEMP			245
 #define	PETG_UNLOAD_TEMP		235
 #define	PETG_PRINT_TEMP			235
 #define PETG_BED_TEMP			85
+#define PETG_ID					15
 
 #define	NYLON_LOAD_TEMP			260
 #define	NYLON_UNLOAD_TEMP		250
 #define	NYLON_PRINT_TEMP		250
 #define NYLON_BED_TEMP			65
+#define NYLON_ID				16
 
 #define	TPU_LOAD_TEMP			245
 #define	TPU_UNLOAD_TEMP			235
 #define	TPU_PRINT_TEMP			235
 #define TPU_BED_TEMP			65
+#define TPU_ID					17
 
 #define EXTRUDER_LEFT_CLEAN_TEMP 170
 #define EXTRUDER_RIGHT_CLEAN_TEMP 170
@@ -1524,6 +1533,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define ENABLE_CURA_COUNTDOWN_TIMER 
 
 //#define ENCLOSURE_SAFETY_STOP
+
+//#define DEV_BER
 
 #include "Configuration_adv.h"
 #include "thermistortables.h"

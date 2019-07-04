@@ -24,6 +24,21 @@ Author: Alejandro Garcia (S3mt0x)
 #include "BCN3D_customregisters.h"
 
 
+#ifdef DEV_BER
+
+#define copy_status_done		0
+#define copy_success_false		1
+#define copy_success_true		2
+#define copy_retry_now			3
+#define copy_retry_later		4
+#define copy_retry_no			5
+#define copy_print_cancel		6
+#define copy_print_pause		7
+#define copy_print_resume		8
+#define copy_print_surfing_main 9
+#define copy_print_surfing_main_exit 10
+#endif
+
 
 //#include "ultralcd.h"
 extern int get_nummaxchars(bool isfilegcode, unsigned int totalpixels);
@@ -41,10 +56,6 @@ extern void ListFileSelect2();
 extern void ListFileSelect3();
 extern void ListFileSelect4();
 extern void lcd_animation_handler();
-extern void update_screen_printing();
-extern void update_screen_sdcard();
-extern void update_screen_endinggcode();
-extern void update_screen_noprinting();
 //inline void ListFileSelect5();
 extern void setfoldernames(int jint);
 extern void folder_navigation_register(bool upchdir);
@@ -57,6 +68,9 @@ extern uint8_t flag_utilities_filament_register;
 extern uint8_t flag_utilities_maintenance_register;
 extern uint16_t flag_sdlist_resgiter;
 extern uint8_t flag_utilities_calibration_register;
+#ifdef DEV_BER
+extern uint8_t flag_serialprint_register;
+#endif
 extern int raft_advise_accept_cancel;//0 cancel ; 1 accept
 extern int Temp_ChangeFilament_Saved;
 extern int Tref1;
@@ -86,6 +100,12 @@ extern void lcd_fsm_lcd_input_logic();
 extern void lcd_fsm_output_logic();
 extern long LCD_FSM_input_buton_flag;
 extern int redo_source;
+
+#ifdef DEV_BER
+
+extern void copy_message(uint8_t id);
+
+#endif
 
 #endif
 

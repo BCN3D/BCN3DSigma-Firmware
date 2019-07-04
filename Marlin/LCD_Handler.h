@@ -89,13 +89,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					surfing_temps = false;
 					processing_z_set = 255;
 					touchscreen_update();
-					SERIAL_PROTOCOLPGM("Surfing 0\n");
+					SERIAL_PROTOCOLLNPGM("Main");
+					
 				break;
 				
 				case FORM_UTILITIES:
 					
 					surfing_utilities=true;
-					SERIAL_PROTOCOLPGM("Surfing 1\n");
+					SERIAL_PROTOCOLLNPGM("Busy");
+					
 				break;
 				
 				case FORM_TEMP:					
@@ -104,7 +106,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				case FORM_UTILITIES_FILAMENT_PURGE:
 					
-					SERIAL_PROTOCOLPGM("Purge Filament\n");
+					SERIAL_PROTOCOLLNPGM("Purge Filament");
 					if(purge_extruder_selected == 0) {
 						display_ButtonState(BUTTON_UTILITIES_FILAMENT_PURGE_SELECT0,1);
 						display_ButtonState(BUTTON_UTILITIES_FILAMENT_PURGE_SELECT1,0);
@@ -126,11 +128,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 
 		if (Event.reportObject.object == GENIE_DISCONNECTED) {
 			// If the display gets disconnected, turn on LED
-			Serial.println("Display got disconnected");
+			SERIAL_PROTOCOLLNPGM("Display got disconnected");
 
 			} else if (Event.reportObject.object == GENIE_READY) {
 			// If the display gets disconnected, turn off LED
-			Serial.println("Display is ready");
+			SERIAL_PROTOCOLLNPGM("Display is ready");
 
 			} else if (Event.reportObject.object == GENIE_ACK) {
 			// manual ping response - Display is Connected - Do something if required

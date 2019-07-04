@@ -205,7 +205,14 @@ void Config_StoreSettings()
 	EEPROM_WRITE_VAR(i,Flag_FRS_enabled);
 	EEPROM_WRITE_VAR(i,log_XY_distance);
 	EEPROM_WRITE_VAR(i,UI_registercode);
-	EEPROM_WRITE_VAR(i,log_XY_distanceRegist);	
+	EEPROM_WRITE_VAR(i,log_XY_distanceRegist);
+	#ifdef ENCLOSURE_SAFETY_STOP
+	EEPROM_WRITE_VAR(i,Flag_enclosure_enabled);
+	#endif
+	#ifdef DEV_BER
+	EEPROM_WRITE_VAR(i,fil_id_l);
+	EEPROM_WRITE_VAR(i,fil_id_r);
+	#endif	
 	char ver2[4]=EEPROM_VERSION;
 	i=EEPROM_OFFSET;
 	EEPROM_WRITE_VAR(i,ver2); // validate data
@@ -541,7 +548,15 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,Flag_FRS_enabled);	
 		EEPROM_READ_VAR(i,log_XY_distance);
 		EEPROM_READ_VAR(i,UI_registercode);
-		EEPROM_READ_VAR(i,log_XY_distanceRegist);	
+		EEPROM_READ_VAR(i,log_XY_distanceRegist);
+		#ifdef ENCLOSURE_SAFETY_STOP
+		EEPROM_READ_VAR(i,Flag_enclosure_enabled);
+		#endif	
+		#ifdef DEV_BER
+		EEPROM_READ_VAR(i,fil_id_l);
+		EEPROM_READ_VAR(i,fil_id_r);
+		#endif
+		
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
 		SERIAL_ECHO_START;

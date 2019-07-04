@@ -375,7 +375,12 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
 	{
 		curDir=&workDir;
 		
+		#ifdef DEV_BER
+		if(!screen_sdcard && !get_sdcard_name_flag){
+		#else
 		if(!screen_sdcard){
+		#endif
+		
 			char cmd[30];
 			char* c;
 			int16_t num_files;
@@ -402,6 +407,32 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
 	}
 	if(read)
 	{
+		#ifdef DEV_BER
+		if (file.open(curDir, fname, O_READ))
+		{
+			filesize = file.fileSize();
+			if(!screen_sdcard){
+				SERIAL_PROTOCOLPGM(MSG_SD_FILE_OPENED);
+				SERIAL_PROTOCOL(fname);
+				SERIAL_PROTOCOLPGM(MSG_SD_SIZE);
+				SERIAL_PROTOCOLLN(filesize);
+			}
+			sdpos = 0;
+			
+			if(!screen_sdcard){
+				SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
+			}
+			
+			lcd_setstatus(fname);
+			
+		}
+		else
+		{
+			SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
+			SERIAL_PROTOCOL(fname);
+			SERIAL_PROTOCOLLNPGM(".");
+		}
+		#else
 		if (file.open(curDir, fname, O_READ))
 		{
 			filesize = file.fileSize();
@@ -422,6 +453,8 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
 			SERIAL_PROTOCOL(fname);
 			SERIAL_PROTOCOLLNPGM(".");
 		}
+		#endif
+		
 	}
 	else
 	{ //write
@@ -743,8 +776,15 @@ void CardReader::printingHasFinished()
 	}
 	else
 	{
+		#ifdef DEV_BER
+		Send_feedback_flag = true;
+		listsd.get_info_from_cura();
+		file.seekEnd();
+		sdpos = file.curPosition();
+		#endif
 		file.close();
 		flag_ending_gcode = true;
+		
 	}
 	
 }

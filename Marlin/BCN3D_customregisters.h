@@ -30,6 +30,7 @@ Author: Alejandro Garcia (S3mt0x)
 #define screen_change_register_speeddownr		15
 #define screen_change_register_fanupr			16
 #define screen_change_register_fandownr			17
+
 //// flag_sdprinting_register/////
 #define flag_sdprinting_register_pausepause				0
 #define flag_sdprinting_register_printstop				1
@@ -85,7 +86,10 @@ Author: Alejandro Garcia (S3mt0x)
 #define flag_utilities_maintenance_register_zdjust10down			5
 #define flag_utilities_maintenance_register_changehotend			6
 
-
+#ifdef DEV_BER
+//// flag_serialprint_register/////
+#define flag_serialprint_register_datarefresh			0
+#endif
 
 
 #endif /* BCN3D_customregisters_H_ */

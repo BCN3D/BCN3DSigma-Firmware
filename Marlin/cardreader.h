@@ -48,7 +48,15 @@ public:
   int updir();
   void setroot();
   FORCE_INLINE bool isEndFile() { if(filesize > file.curPosition()) return 0; else return 1;}
-  FORCE_INLINE void sdfinalline() {file.seekEnd(); file.seekSet(file.curPosition()-300);};    ////Go to the end for Simplify extraction	
+  FORCE_INLINE void sdfinalline() {file.seekEnd(); file.seekSet(file.curPosition()-300);};    ////Go to the end for Simplify extraction	  
+
+#ifdef DEV_BER
+  FORCE_INLINE bool isBeginFile() { if(0 <= file.curPosition()) return 0; else return 1;}  
+  FORCE_INLINE void sdfinalline_v2() {file.seekEnd(); file.seekSet(file.curPosition()-10);};    ////Go to the end for Cura info JSON extraction
+  FORCE_INLINE void feedback_ending() {file.seekEnd(); sdpos = file.curPosition(); file.close();};    ////ending for feedback  
+#endif		  
+
+	  
   FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
   FORCE_INLINE bool eof() { return sdpos>=filesize ;};
   FORCE_INLINE int16_t get() {  sdpos = file.curPosition();return (int16_t)file.read();};

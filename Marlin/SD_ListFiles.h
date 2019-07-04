@@ -23,18 +23,20 @@ class Listfiles
 	public:
 	Listfiles();
 	void get_lineduration(bool fromfilepoiter, char* name);
+	#ifdef DEV_BER
+	void get_info_from_cura(void);
+	#endif
 	int check_extract_ensure_duplication_print();
 	int check_extract_match_hotendsize_print();
+	long get_seconds(void);
 	int get_hours(void);
 	int get_minutes(void);
 	int get_filmetros1(void);
 	int get_filmetros2(void);
 	int get_filgramos1(void);
 	int get_filgramos2(void);
-	int get_hoursremaining(void);
-	int get_minutesremaining(void);
-	int get_hoursremaining_save(long position);
-	int get_minutesremaining_save(long position);
+	//int get_hoursremaining(void);
+	//int get_minutesremaining(void);
 	int get_percentage_save(long position);
 	public:
 	char commandline[50];
@@ -47,6 +49,9 @@ class Listfiles
 	int filgramos1, filgramos2;
 	int search_line_data_code(char code);
 	int search_line_data_commentary(void);
+	#ifdef DEV_BER	
+	int search_line_data_commentary_v2(void);
+	#endif
 	void extract_data(void);
 	void extract_data1(void);
 	float extract_ensure_hotend_gcode_setup_t(uint8_t tool);

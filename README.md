@@ -40,7 +40,7 @@ In order to be more efficient with the feedback, we recommend to follow some gui
 ## Development
 For advanced users, it's possible to contribute in firmware development. We explain everything in the [wiki][9]. So if you are interested in contributing, folow the instructions [there][9]. 
 
-The `master` branch is stable  and it's currently on version `2.0.7`.
+The `master` branch is stable  and it's currently on version `2.0.8`.
 
 
 

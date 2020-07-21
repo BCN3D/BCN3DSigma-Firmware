@@ -50,7 +50,7 @@ The `master` branch is stable  and it's currently on version `2.0.8`.
 [2]:https://github.com/xawox
 [3]:https://www.bcn3dtechnologies.com/
 [4]:https://github.com/MarlinFirmware/Marlin
-[5]:https://www.bcn3dtechnologies.com/wp-content/themes/BCN3D/pdfs/how-to-change-the-micro-sd-card-files-of-the-lcd-screen.pdf
+[5]:https://support.bcn3d.com/knowledge/update-micro-sd-files-lcd-bcn3d-sigma
 [6]:https://github.com/AlejandroGarcia92
 [7]:https://github.com/BCN3D/BCN3DSigma-Firmware/releases
 [8]:https://github.com/BCN3D/BCN3D-Cura-Windows/wiki

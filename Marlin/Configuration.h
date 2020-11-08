@@ -6,9 +6,9 @@
 //SIGMA_Z_HOME_TRAVEL_SPEED , XY_SIGMA_TRAVEL_SPEED, HOMING_FEEDRATE, DEFAULT_AXIS_STEPS_PER_UNIT, DEFAULT_MAX_FEEDRATE, DEFAULT_MAX_ACCELERATION, X_MAX_POS   
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// This configuration file contains the basic settings.
-// Advanced settings can be found in Configuration_adv.h
-// BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
+//此配置文件包含基本设置。
+//可以在Configuration_adv.h中找到高级设置
+//基本设置：选择您的电路板类型，温度传感器类型，轴缩放和终点挡块配置
 
 //===========================================================================
 //============================= DELTA Printer ===============================
@@ -17,11 +17,11 @@
 // example_configurations/delta directory.
 //
 
-//===========================================================================
-//============================= SCARA Printer ===============================
-//===========================================================================
-// For a Delta printer replace the configuration files with the files in the
-// example_configurations/SCARA directory.
+//================================================ ==========================
+//=========================== SCARA打印机================== ==============
+//================================================ ==========================
+//对于Delta打印机，请将配置文件替换为
+//example_configurations /SCARA目录。 
 //
 
 //#define BUILD_DATE 
@@ -33,9 +33,9 @@
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 #define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
 
-// SERIAL_PORT selects which serial port should be used for communication with the host.
-// This allows the connection of wireless adapters (for instance) to non-default port pins.
-// Serial port 0 is still used by the Arduino bootloader regardless of this setting.
+//SERIAL_PORT选择应使用哪个串行端口与主机进行通信。
+//这允许将无线适配器（例如）连接到非默认端口引脚。
+//无论此设置如何，Arduino引导加载程序仍使用串行端口0。
 #define SERIAL_PORT 0
 
 // This determines the communication speed of the printer
@@ -156,7 +156,7 @@
 
 
 
-// Define this to set a custom name for your generic Mendel,
+//定义此名称以为通用Mendel设置自定义名称，
 // #define CUSTOM_MENDEL_NAME "This Mendel"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
@@ -852,7 +852,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define REMOVE_FIL_TEMP		170
 #define INSERT_FIL_TEMP		230
 
-//For better understanding on which extruder is selected
+//为了更好地了解选择哪个挤出机 
 #define LEFT_EXTRUDER 0 
 #define RIGHT_EXTRUDER 1
 
@@ -914,7 +914,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	
 	
 	#if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
-		//Left extruder probe point
+		//左挤出机探针点 
 		#define X_SIGMA_PROBE_1_LEFT_EXTR 55
 		#define Y_SIGMA_PROBE_1_LEFT_EXTR 265
 		//#define Y_SIGMA_PROBE_1_LEFT_EXTR 275
@@ -1049,7 +1049,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMA
 	#define NOZZLE_PARK_DISTANCE_BED_X0	47
 	#define NOZZLE_PARK_DISTANCE_BED_Y0	-2.5
-	#define PRINTER_BED_X_SIZE	210.0
+	#define PRINTER_BED_X_SIZE	315
 #endif
 #if BCN3D_PRINTER_SETUP == BCN3D_PRINTER_IS_SIGMAX
 	#define NOZZLE_PARK_DISTANCE_BED_X0	53.5

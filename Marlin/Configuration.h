@@ -316,10 +316,10 @@
 // The minimal temperature defines the temperature below which the heater will not be enabled It is used
 // to check that the wiring to the thermistor is not broken.
 // Otherwise this would lead to the heater being powered on all the time.
-#define HEATER_0_MINTEMP 5
-#define HEATER_1_MINTEMP 5
-#define HEATER_2_MINTEMP 5
-#define BED_MINTEMP 5
+#define HEATER_0_MINTEMP 1
+#define HEATER_1_MINTEMP 1
+#define HEATER_2_MINTEMP 1
+#define BED_MINTEMP 1
 
 //To clean the extruder's the best temperature configuration
 #define	PLA_LOAD_TEMP			215
